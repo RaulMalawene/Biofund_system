@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-=======
 use App\Enums\RoleEnum;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -231,4 +230,4 @@ class User extends Authenticatable
                      ->where('is_active', true);
     }
 }
->>>>>>> master
+

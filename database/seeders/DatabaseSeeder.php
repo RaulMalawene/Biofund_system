@@ -48,4 +48,3 @@ class DatabaseSeeder extends Seeder
         );
     }
 }
->>>>>>> master

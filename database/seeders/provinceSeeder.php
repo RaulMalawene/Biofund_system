@@ -5,38 +5,29 @@ namespace Database\Seeders;
 use App\Models\District;
 use App\Models\Province;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
-/**
- * ProvinceSeeder
- *
- * Popula a base de dados com as 11 províncias de Moçambique
- * e os respectivos distritos.
- *
- * Executado automaticamente pelo DatabaseSeeder.
- * Usa updateOrCreate para ser idempotente (pode correr várias vezes sem duplicar).
- */
 class ProvinceSeeder extends Seeder
 {
     public function run(): void
     {
-        // Dados: [código => [nome, [distritos]]]
         $provinces = [
             'MZ-MPM' => [
-                'name'      => 'Cidade de Maputo',
+                'name' => 'Cidade de Maputo',
                 'districts' => [
                     'Kampfumo', 'Nlhamankulu', 'KaMaxakeni', 'KaMubukwana',
                     'KaMavota', 'KaTembe', 'KaNyaka',
                 ],
             ],
             'MZ-L' => [
-                'name'      => 'Maputo Província',
+                'name' => 'Maputo Província',
                 'districts' => [
                     'Boane', 'Magude', 'Manhiça', 'Marracuene',
                     'Matola', 'Matutuíne', 'Moamba', 'Namaacha',
                 ],
             ],
             'MZ-G' => [
-                'name'      => 'Gaza',
+                'name' => 'Gaza',
                 'districts' => [
                     'Bilene', 'Chibuto', 'Chicualacuala', 'Chigubo',
                     'Chókwè', 'Guijá', 'Mabalane', 'Mandlakazi',
@@ -44,7 +35,7 @@ class ProvinceSeeder extends Seeder
                 ],
             ],
             'MZ-I' => [
-                'name'      => 'Inhambane',
+                'name' => 'Inhambane',
                 'districts' => [
                     'Funhalouro', 'Govuro', 'Homoíne', 'Inharrime',
                     'Inhassoro', 'Jangamo', 'Mabote', 'Massinga',
@@ -52,7 +43,7 @@ class ProvinceSeeder extends Seeder
                 ],
             ],
             'MZ-S' => [
-                'name'      => 'Sofala',
+                'name' => 'Sofala',
                 'districts' => [
                     'Búzi', 'Caia', 'Chemba', 'Cheringoma',
                     'Chibabava', 'Dondo', 'Gorongosa', 'Machanga',
@@ -60,7 +51,7 @@ class ProvinceSeeder extends Seeder
                 ],
             ],
             'MZ-T' => [
-                'name'      => 'Tete',
+                'name' => 'Tete',
                 'districts' => [
                     'Angónia', 'Cahora-Bassa', 'Changara', 'Chifunde',
                     'Chiuta', 'Dôa', 'Macanga', 'Magoé',
@@ -68,14 +59,14 @@ class ProvinceSeeder extends Seeder
                 ],
             ],
             'MZ-B' => [
-                'name'      => 'Manica',
+                'name' => 'Manica',
                 'districts' => [
                     'Báruè', 'Chimoio', 'Gondola', 'Guro',
                     'Macossa', 'Manica', 'Mossurize', 'Sussundenga', 'Tambara',
                 ],
             ],
             'MZ-Q' => [
-                'name'      => 'Zambézia',
+                'name' => 'Zambézia',
                 'districts' => [
                     'Alto Molócuè', 'Chinde', 'Derre', 'Gilé',
                     'Guruè', 'Ile', 'Inhassunge', 'Lugela',
@@ -85,7 +76,7 @@ class ProvinceSeeder extends Seeder
                 ],
             ],
             'MZ-N' => [
-                'name'      => 'Nampula',
+                'name' => 'Nampula',
                 'districts' => [
                     'Angoche', 'Eráti', 'Ilha de Moçambique', 'Lalaua',
                     'Larde', 'Liupo', 'Malema', 'Meconta',
@@ -96,16 +87,16 @@ class ProvinceSeeder extends Seeder
                 ],
             ],
             'MZ-A' => [
-                'name'      => 'Niassa',
+                'name' => 'Niassa',
                 'districts' => [
                     'Chimbunila', 'Cuamba', 'Lago', 'Lichinga',
                     'Majune', 'Mandimba', 'Marrupa', 'Maúa',
                     'Mavago', 'Mecanhelas', 'Mecula', 'Metarica',
-                    'Muembe', 'N\'Gauma', 'Ngapa', 'Sanga', 'Unango',
+                    'Muembe', "N'Gauma", 'Ngapa', 'Sanga', 'Unango',
                 ],
             ],
             'MZ-P' => [
-                'name'      => 'Cabo Delgado',
+                'name' => 'Cabo Delgado',
                 'districts' => [
                     'Ancuabe', 'Balama', 'Chiúre', 'Ibo',
                     'Macomia', 'Mecúfi', 'Meluco', 'Metuge',
@@ -116,24 +107,62 @@ class ProvinceSeeder extends Seeder
         ];
 
         foreach ($provinces as $code => $data) {
-            // Cria ou actualiza a província
+
             $province = Province::updateOrCreate(
                 ['code' => $code],
                 ['name' => $data['name'], 'is_active' => true]
             );
 
-            // Cria os distritos desta província
             foreach ($data['districts'] as $districtName) {
-                // Código do distrito: código da província + slug do nome
-                $districtCode = $code . '-' . substr(strtoupper(preg_replace('/[^a-zA-Z]/', '', $districtName)), 0, 5);
+
+                $baseCode = $this->generateBaseCode($code, $districtName);
+
+                $finalCode = $this->ensureUniqueCode($baseCode);
 
                 District::updateOrCreate(
-                    ['name' => $districtName, 'province_id' => $province->id],
-                    ['code' => $districtCode, 'is_active' => true]
+                    ['code' => $finalCode],
+                    [
+                        'name' => $districtName,
+                        'province_id' => $province->id,
+                        'is_active' => true,
+                    ]
                 );
             }
         }
 
-        $this->command->info('✅ Províncias e distritos de Moçambique inseridos.');
+        $this->command->info('✅ Seed executado com sucesso (sem colisões).');
+    }
+
+    /**
+     * Gera slug normalizado e seguro
+     */
+    private function generateBaseCode(string $provinceCode, string $name): string
+    {
+        // Remove acentos + caracteres especiais
+        $normalized = Str::ascii($name);
+
+        // Cria slug
+        $slug = strtoupper(preg_replace('/[^A-Za-z]/', '', $normalized));
+
+        // Limita tamanho (ajuste conforme tua coluna)
+        $slug = substr($slug, 0, 10);
+
+        return "{$provinceCode}-{$slug}";
+    }
+
+    /**
+     * Garante unicidade absoluta no banco
+     */
+    private function ensureUniqueCode(string $baseCode): string
+    {
+        $code = $baseCode;
+        $counter = 1;
+
+        while (District::where('code', $code)->exists()) {
+            $code = $baseCode . '-' . $counter;
+            $counter++;
+        }
+
+        return $code;
     }
 }

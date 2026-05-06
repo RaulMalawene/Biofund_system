@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('province_id')->constrained('provinces')->onDelete('restrict');
             $table->string('name', 100);
-            $table->string('code', 10)->unique();
+            $table->string('code', 20)->unique();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
