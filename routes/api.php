@@ -15,13 +15,14 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Organização:
-|   1. Rotas públicas       → sem autenticação
+|   1. Rotas públicas        → sem autenticação
 |   2. Rotas de autenticação → login, logout, password
-|   3. Rotas protegidas     → requerem token Sanctum
-|      3.1 Ocorrências      → todos os utilizadores autenticados
-|      3.2 Admin — Users    → apenas admin
-|      3.3 Admin — Stats    → admin e gestor
-|      3.4 Parametrização   → admin (escrita) e gestor (leitura)
+|   3. Rotas protegidas      → requerem token Sanctum
+|      3.1 Sessão activa     → me, logout, change-password
+|      3.2 Ocorrências       → todos os autenticados (visibilidade por role)
+|      3.3 Status / Assign   → admin + gestor apenas
+|      3.4 Admin exclusivo   → delete, restore, users, stats
+|      3.5 Parametrização    → admin (escrita) + gestor (leitura)
 |
 */
 
@@ -31,23 +32,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('public')->name('public.')->group(function () {
 
-    // Dados para preencher o formulário público (selects)
-    // GET /api/public/form-data
     Route::get('form-data', [PublicOccurrenceController::class, 'formData'])
         ->name('form-data');
 
-    // Distritos de uma província (chamado ao seleccionar província)
-    // GET /api/public/provinces/{province}/districts
     Route::get('provinces/{province}/districts', [PublicOccurrenceController::class, 'districtsByProvince'])
         ->name('districts');
 
-    // Submissão pública de ocorrência (formulário sem login)
-    // POST /api/public/occurrences
     Route::post('occurrences', [PublicOccurrenceController::class, 'store'])
         ->name('occurrences.store');
 
-    // Acompanhamento por código de seguimento
-    // GET /api/public/occurrences/track/{code}
     Route::get('occurrences/track/{code}', [PublicOccurrenceController::class, 'track'])
         ->name('occurrences.track');
 });
@@ -58,18 +51,12 @@ Route::prefix('public')->name('public.')->group(function () {
 
 Route::prefix('auth')->name('auth.')->group(function () {
 
-    // Login → retorna token Sanctum
-    // POST /api/auth/login
     Route::post('login', [LoginController::class, 'login'])
         ->name('login');
 
-    // Solicitar recuperação de senha por email
-    // POST /api/auth/forgot-password
     Route::post('forgot-password', [PasswordResetController::class, 'forgotPassword'])
         ->name('forgot-password');
 
-    // Redefinir senha com token recebido por email
-    // POST /api/auth/reset-password
     Route::post('reset-password', [PasswordResetController::class, 'resetPassword'])
         ->name('reset-password');
 });
@@ -80,162 +67,138 @@ Route::prefix('auth')->name('auth.')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    // ── Auth (sessão activa) ────────────────────────────────────
+    // ── 3.1 SESSÃO ACTIVA (qualquer utilizador autenticado) ─────
 
-    // Dados do utilizador autenticado
-    // GET /api/auth/me
-    Route::get('auth/me', [LoginController::class, 'me'])
-        ->name('auth.me');
+    Route::prefix('auth')->name('auth.')->group(function () {
+        Route::get('me', [LoginController::class, 'me'])
+            ->name('me');
+        Route::post('logout', [LoginController::class, 'logout'])
+            ->name('logout');
+        Route::post('change-password', [PasswordResetController::class, 'changePassword'])
+            ->name('change-password');
+    });
 
-    // Logout
-    // POST /api/auth/logout
-    Route::post('auth/logout', [LoginController::class, 'logout'])
-        ->name('auth.logout');
-
-    // Alterar senha (requer senha actual)
-    // POST /api/auth/change-password
-    Route::post('auth/change-password', [PasswordResetController::class, 'changePassword'])
-        ->name('auth.change-password');
-
-    // ── 3.1 OCORRÊNCIAS (admin + gestor + funcionario) ──────────
+    // ── 3.2 OCORRÊNCIAS — leitura e registo (admin + gestor + funcionario) ──
 
     Route::prefix('occurrences')->name('occurrences.')->group(function () {
 
-        // Listar ocorrências (com filtros e paginação)
-        // GET /api/occurrences
+        // Listar (visibilidade filtrada por role no controller)
         Route::get('/', [GestorOccurrenceController::class, 'index'])
             ->name('index');
 
-        // Ver ocorrências removidas (apenas admin)
-        // GET /api/occurrences/deleted
-        Route::get('deleted', [GestorOccurrenceController::class, 'deleted'])
-            ->name('deleted');
-
-        // Detalhe de uma ocorrência
-        // GET /api/occurrences/{occurrence}
+        // Detalhe (visibilidade filtrada por role no controller)
         Route::get('{occurrence}', [GestorOccurrenceController::class, 'show'])
             ->name('show');
 
-        // Submeter nova ocorrência (utilizador interno)
-        // POST /api/occurrences
+        // Registar nova ocorrência
         Route::post('/', [GestorOccurrenceController::class, 'store'])
             ->name('store');
+    });
 
-        // Mudar estado (validar, rejeitar, iniciar análise)
-        // PATCH /api/occurrences/{occurrence}/status
+    // ── 3.3 OCORRÊNCIAS — acções (admin + gestor apenas) ────────
+
+    Route::prefix('occurrences')->name('occurrences.')
+        ->middleware('role:admin,gestor')
+        ->group(function () {
+
+        // Mudar estado — justificação obrigatória ao resolver ou rejeitar
         Route::patch('{occurrence}/status', [GestorOccurrenceController::class, 'updateStatus'])
             ->name('update-status');
 
-        // Atribuir ocorrência a um gestor (apenas admin)
-        // PATCH /api/occurrences/{occurrence}/assign
+        // Atribuir a gestor ou escalar para admin
         Route::patch('{occurrence}/assign', [GestorOccurrenceController::class, 'assign'])
             ->name('assign');
+    });
 
-        // Remover ocorrência — soft delete (apenas admin)
-        // DELETE /api/occurrences/{occurrence}
+    // ── 3.4 OCORRÊNCIAS — acções exclusivas do admin ─────────────
+
+    Route::prefix('occurrences')->name('occurrences.')
+        ->middleware('role:admin')
+        ->group(function () {
+
+        Route::get('deleted', [GestorOccurrenceController::class, 'deleted'])
+            ->name('deleted');
+
         Route::delete('{occurrence}', [GestorOccurrenceController::class, 'destroy'])
             ->name('destroy');
     });
 
-    // ── 3.2 ADMIN — UTILIZADORES ────────────────────────────────
+    // ── 3.5 ADMIN — UTILIZADORES (apenas admin) ─────────────────
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')
+        ->middleware('role:admin')
+        ->group(function () {
 
-        // ── Utilizadores ──────────────────────────────────────
-
-        // Listar utilizadores (com filtros)
-        // GET /api/admin/users
         Route::get('users', [AdminUserController::class, 'index'])
             ->name('users.index');
-
-        // Listar gestores elegíveis para atribuição
-        // GET /api/admin/users/gestores
         Route::get('users/gestores', [AdminUserController::class, 'gestores'])
             ->name('users.gestores');
-
-        // Detalhe de um utilizador
-        // GET /api/admin/users/{user}
         Route::get('users/{user}', [AdminUserController::class, 'show'])
             ->name('users.show');
-
-        // Criar utilizador
-        // POST /api/admin/users
         Route::post('users', [AdminUserController::class, 'store'])
             ->name('users.store');
-
-        // Actualizar utilizador
-        // PUT /api/admin/users/{user}
         Route::put('users/{user}', [AdminUserController::class, 'update'])
             ->name('users.update');
-
-        // Activar / Desactivar conta
-        // PATCH /api/admin/users/{user}/toggle-status
         Route::patch('users/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])
             ->name('users.toggle-status');
+    });
 
-        // ── Estatísticas ───────────────────────────────────────
+    // Gestores também podem listar para atribuição
+    Route::get('admin/users/gestores', [AdminUserController::class, 'gestores'])
+        ->middleware('role:admin,gestor')
+        ->name('admin.users.gestores.gestor');
 
-        // Dashboard (cards + gráficos)
-        // GET /api/admin/statistics/dashboard
+    // ── 3.6 ESTATÍSTICAS (admin + gestor) ───────────────────────
+
+    Route::prefix('admin')->name('admin.')
+        ->middleware('role:admin,gestor')
+        ->group(function () {
+
         Route::get('statistics/dashboard', [AdminStatisticsController::class, 'dashboard'])
             ->name('statistics.dashboard');
-
-        // Relatório filtrado
-        // GET /api/admin/statistics/report
         Route::get('statistics/report', [AdminStatisticsController::class, 'report'])
             ->name('statistics.report');
+    });
 
-        // ── Parametrização — Categorias ────────────────────────
+    // ── 3.7 PARAMETRIZAÇÃO — leitura (admin + gestor) ───────────
 
-        // GET /api/admin/categories
+    Route::prefix('admin')->name('admin.')
+        ->middleware('role:admin,gestor')
+        ->group(function () {
+
         Route::get('categories', [ParametrizationController::class, 'categoriesIndex'])
             ->name('categories.index');
+        Route::get('categories/{category}/subcategories', [ParametrizationController::class, 'subcategoriesIndex'])
+            ->name('subcategories.index');
+        Route::get('projects', [ParametrizationController::class, 'projectsIndex'])
+            ->name('projects.index');
+        Route::get('occurrence-types', [ParametrizationController::class, 'occurrenceTypesIndex'])
+            ->name('occurrence-types.index');
+    });
 
-        // POST /api/admin/categories
+    // ── 3.8 PARAMETRIZAÇÃO — escrita (apenas admin) ─────────────
+
+    Route::prefix('admin')->name('admin.')
+        ->middleware('role:admin')
+        ->group(function () {
+
         Route::post('categories', [ParametrizationController::class, 'categoriesStore'])
             ->name('categories.store');
-
-        // PUT /api/admin/categories/{category}
         Route::put('categories/{category}', [ParametrizationController::class, 'categoriesUpdate'])
             ->name('categories.update');
 
-        // GET /api/admin/categories/{category}/subcategories
-        Route::get('categories/{category}/subcategories', [ParametrizationController::class, 'subcategoriesIndex'])
-            ->name('subcategories.index');
-
-        // POST /api/admin/categories/{category}/subcategories
         Route::post('categories/{category}/subcategories', [ParametrizationController::class, 'subcategoriesStore'])
             ->name('subcategories.store');
-
-        // PUT /api/admin/subcategories/{subcategory}
         Route::put('subcategories/{subcategory}', [ParametrizationController::class, 'subcategoriesUpdate'])
             ->name('subcategories.update');
 
-        // ── Parametrização — Projectos ─────────────────────────
-
-        // GET /api/admin/projects
-        Route::get('projects', [ParametrizationController::class, 'projectsIndex'])
-            ->name('projects.index');
-
-        // POST /api/admin/projects
         Route::post('projects', [ParametrizationController::class, 'projectsStore'])
             ->name('projects.store');
-
-        // PUT /api/admin/projects/{project}
         Route::put('projects/{project}', [ParametrizationController::class, 'projectsUpdate'])
             ->name('projects.update');
 
-        // ── Parametrização — Tipos de Ocorrência ───────────────
-
-        // GET /api/admin/occurrence-types
-        Route::get('occurrence-types', [ParametrizationController::class, 'occurrenceTypesIndex'])
-            ->name('occurrence-types.index');
-
-        // POST /api/admin/occurrence-types
         Route::post('occurrence-types', [ParametrizationController::class, 'occurrenceTypesStore'])
             ->name('occurrence-types.store');
-
-        // PUT /api/admin/occurrence-types/{occurrenceType}
         Route::put('occurrence-types/{occurrenceType}', [ParametrizationController::class, 'occurrenceTypesUpdate'])
             ->name('occurrence-types.update');
     });

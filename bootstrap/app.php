@@ -12,7 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-         $middleware->statefulApi();
+        $middleware->statefulApi();
+
+        // Aliases de middleware para uso nas rotas
+        $middleware->alias([
+            'role'   => \App\Http\Middleware\RequireRole::class,
+            'active' => \App\Http\Middleware\EnsureUserIsActive::class,
+        ]);
+
+        // Aplica verificação de conta activa a todas as rotas autenticadas
+        $middleware->appendToGroup('api', \App\Http\Middleware\EnsureUserIsActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
