@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * OccurrenceAttachment
@@ -66,12 +65,14 @@ class OccurrenceAttachment extends Model
     // ─── Helpers ────────────────────────────────────────────────
 
     /**
-     * Retorna a URL pública para download do ficheiro.
-     * Em produção com S3, retorna uma URL temporária assinada.
+     * Retorna a URL autenticada para download do ficheiro.
      */
     public function getUrl(): string
     {
-        return Storage::disk($this->disk)->url($this->path);
+        return route('occurrences.attachments.download', [
+            'occurrence' => $this->occurrence_id,
+            'attachment' => $this->id,
+        ]);
     }
 
     /**

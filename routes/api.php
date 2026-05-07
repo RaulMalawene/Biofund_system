@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Gestor\GestorOccurrenceController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsController;
 use App\Http\Controllers\Api\Admin\ParametrizationController;
+use App\Http\Controllers\Api\AttachmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -93,6 +94,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // Registar nova ocorrência
         Route::post('/', [GestorOccurrenceController::class, 'store'])
             ->name('store');
+
+        // Download de anexo — acesso controlado por role
+        Route::get('{occurrence}/attachments/{attachment}', [AttachmentController::class, 'download'])
+            ->name('attachments.download');
     });
 
     // ── 3.3 OCORRÊNCIAS — acções (admin + gestor apenas) ────────

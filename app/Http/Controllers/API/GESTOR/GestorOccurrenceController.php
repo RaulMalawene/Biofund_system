@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Occurrence\StoreInternalOccurrenceRequest;
 use App\Http\Requests\Occurrence\UpdateOccurrenceStatusRequest;
 use App\Http\Resources\OccurrenceResource;
+use App\Enums\AlertLevelEnum;
 use App\Enums\OccurrenceStatusEnum;
 use App\Enums\RoleEnum;
 use App\Models\Occurrence;
@@ -61,8 +62,27 @@ class GestorOccurrenceController extends Controller
             RoleEnum::Admin       => null,
         };
 
+        // Filtro de visibilidade de alertas para gestores:
+        // Se o gestor não tem permissão para ver um tipo de alerta,
+        // as ocorrências com esse alert_type são excluídas da listagem.
+        if ($user->isGestor()) {
+            if (!$user->receives_urgent_alerts) {
+                $query->where(fn($q) =>
+                    $q->where('alert_type', '!=', AlertLevelEnum::Urgent->value)
+                      ->orWhereNull('alert_type')
+                );
+            }
+            if (!$user->receives_gbv_alerts) {
+                $query->where(fn($q) =>
+                    $q->where('alert_type', '!=', AlertLevelEnum::Gbv->value)
+                      ->orWhereNull('alert_type')
+                );
+            }
+        }
+
         // Filtros opcionais
         $query->when($request->status, fn($q) => $q->where('status', $request->status));
+        $query->when($request->alert_type, fn($q) => $q->where('alert_type', $request->alert_type));
         $query->when($request->project_id, fn($q) => $q->where('project_id', $request->project_id));
         $query->when($request->province_id, fn($q) => $q->where('province_id', $request->province_id));
         $query->when($request->category_id, fn($q) => $q->where('category_id', $request->category_id));
@@ -112,6 +132,10 @@ class GestorOccurrenceController extends Controller
     /**
      * ROTA: POST /api/occurrences
      * ACESSO: admin, gestor, funcionario
+     *
+     * Body: multipart/form-data
+     *   Campos de texto normais + attachments[] (ficheiros, máx 5, 10MB cada)
+     *   Formatos aceites: jpg, jpeg, png, pdf, doc, docx, mp4, mp3
      */
     public function store(StoreInternalOccurrenceRequest $request): JsonResponse
     {
@@ -127,6 +151,14 @@ class GestorOccurrenceController extends Controller
             'message'       => 'Ocorrência registada com sucesso.',
             'tracking_code' => $occurrence->tracking_code,
             'occurrence_id' => $occurrence->id,
+            'attachments'   => $occurrence->attachments->map(fn($a) => [
+                'id'       => $a->id,
+                'name'     => $a->original_name,
+                'size'     => $a->getFormattedSize(),
+                'mime'     => $a->mime_type,
+                'is_image' => $a->isImage(),
+                'url'      => $a->getUrl(),
+            ]),
         ], 201);
     }
 
@@ -233,14 +265,31 @@ class GestorOccurrenceController extends Controller
         return OccurrenceResource::collection($occurrences);
     }
 
-    // ─── Helper ─────────────────────────────────────────────────
+    // ─── Helpers ────────────────────────────────────────────────
 
     private function canAccess(User $user, Occurrence $occurrence): bool
     {
         return match ($user->role) {
             RoleEnum::Admin       => true,
-            RoleEnum::Gestor      => $user->province_id === $occurrence->province_id,
+            RoleEnum::Gestor      => $user->province_id === $occurrence->province_id
+                                     && $this->gestorCanSeeAlert($user, $occurrence),
             RoleEnum::Funcionario => $occurrence->submitted_by_user_id === $user->id,
         };
+    }
+
+    /**
+     * Verifica se o gestor tem permissão para ver a ocorrência com base
+     * no tipo de alerta e nas suas preferências de visibilidade.
+     * Ocorrências sem alert_type (externas ou anteriores) são sempre visíveis.
+     */
+    private function gestorCanSeeAlert(User $user, Occurrence $occurrence): bool
+    {
+        if ($occurrence->alert_type === AlertLevelEnum::Urgent && !$user->receives_urgent_alerts) {
+            return false;
+        }
+        if ($occurrence->alert_type === AlertLevelEnum::Gbv && !$user->receives_gbv_alerts) {
+            return false;
+        }
+        return true;
     }
 }

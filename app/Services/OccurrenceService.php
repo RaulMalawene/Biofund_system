@@ -9,6 +9,7 @@ use App\Models\OccurrenceAttachment;
 use App\Models\OccurrenceStatusHistory;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -51,7 +52,7 @@ class OccurrenceService
             $type = \App\Models\OccurrenceType::findOrFail($data['occurrence_type_id']);
 
             $occurrence = Occurrence::create([
-                ...$data,
+                ...Arr::except($data, ['attachments']),
                 'tracking_code' => $this->trackingCodeService->generate(),
                 'origin'        => OriginEnum::External,
                 'status'        => OccurrenceStatusEnum::Pending,
@@ -72,8 +73,8 @@ class OccurrenceService
                 $this->storeAttachments($occurrence, $files, uploadedBy: null);
             }
 
-            // Carrega as relações necessárias para as notificações
-            $occurrence->load(['occurrenceType', 'project', 'province']);
+            // Carrega as relações necessárias para as notificações e resposta
+            $occurrence->load(['occurrenceType', 'project', 'province', 'attachments']);
 
             // Envia notificações (email ao reclamante + alertas aos gestores)
             $this->notificationService->notifyOccurrenceCreated($occurrence);
@@ -105,7 +106,7 @@ class OccurrenceService
             $type = \App\Models\OccurrenceType::findOrFail($data['occurrence_type_id']);
 
             $occurrence = Occurrence::create([
-                ...$data,
+                ...Arr::except($data, ['attachments']),
                 'tracking_code'        => $this->trackingCodeService->generate(),
                 'origin'               => OriginEnum::Internal,
                 'submitted_by_user_id' => $user->id,
@@ -125,7 +126,7 @@ class OccurrenceService
                 $this->storeAttachments($occurrence, $files, uploadedBy: $user->id);
             }
 
-            $occurrence->load(['occurrenceType', 'project', 'province']);
+            $occurrence->load(['occurrenceType', 'project', 'province', 'attachments']);
             $this->notificationService->notifyOccurrenceCreated($occurrence);
             $this->auditService->logCreated($occurrence);
 

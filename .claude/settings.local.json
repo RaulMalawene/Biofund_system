@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(php -l \"app/Http/Controllers/Api/AttachmentController.php\")",
+      "Bash(php -l \"app/Services/OccurrenceService.php\")",
+      "Bash(php -l \"app/Models/OccurrenceAttachment.php\")",
+      "Bash(php *)"
+    ]
+  }
+}

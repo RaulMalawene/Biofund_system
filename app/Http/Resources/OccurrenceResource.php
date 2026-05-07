@@ -98,6 +98,13 @@ class OccurrenceResource extends JsonResource
                 )
             ),
 
+            // Campos internos (preenchidos apenas em registos internos)
+            'submission_channel' => $this->submission_channel?->value,
+            'submission_channel_label' => $this->submission_channel?->label(),
+            'alert_type'         => $this->alert_type?->value,
+            'alert_type_label'   => $this->alert_type?->label(),
+            'alert_type_color'   => $this->alert_type?->color(),
+
             // Contadores
             'attachments_count' => $this->whenNotNull($this->attachments_count ?? null),
 

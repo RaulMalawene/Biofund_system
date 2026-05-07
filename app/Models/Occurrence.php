@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\AlertLevelEnum;
 use App\Enums\OccurrenceStatusEnum;
 use App\Enums\OriginEnum;
+use App\Enums\SubmissionChannelEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -78,14 +80,18 @@ class Occurrence extends Model
         'reviewed_by',
         'reviewed_at',
         'due_date',
+        'submission_channel',
+        'alert_type',
     ];
 
     protected $casts = [
-        'origin'          => OriginEnum::class,
-        'status'          => OccurrenceStatusEnum::class,
-        'occurrence_date' => 'date',
-        'reviewed_at'     => 'datetime',
-        'due_date'        => 'date',
+        'origin'             => OriginEnum::class,
+        'status'             => OccurrenceStatusEnum::class,
+        'occurrence_date'    => 'date',
+        'reviewed_at'        => 'datetime',
+        'due_date'           => 'date',
+        'submission_channel' => SubmissionChannelEnum::class,
+        'alert_type'         => AlertLevelEnum::class,
     ];
 
     // ─── Relationships ──────────────────────────────────────────

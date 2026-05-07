@@ -1,0 +1,958 @@
+{
+  "info": {
+    "name": "MDR — BIOFUND API",
+    "_postman_id": "mdr-biofund-api-collection",
+    "description": "Coleção completa para testar a API do sistema MDR (Mecanismo de Denúncia e Reclamação).\n\nBase URL: http://localhost/facul.php/biofund_api/public/api\n\nFluxo recomendado:\n1. Fazer login numa das pastas Auth\n2. O token é guardado automaticamente na variável {{token}}\n3. Usar os restantes endpoints\n\nUtilizadores de teste:\n- Admin:       admin@mdr.biofund.org.mz / Admin@MDR2024\n- Gestor Maputo: gestor@mdr.biofund.org.mz / 12345678  (sem urgente, com GBV)\n- Gestor Gaza:   Gaza@mdr.biofund.org.mz   / 12345678  (com urgente e GBV)\n- Funcionário:   funcionario@mdr.biofund.org.mz / 12345678",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/facul.php/biofund_api/public/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "occurrence_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "tracking_code",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attachment_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+
+    {
+      "name": "🔐 Auth",
+      "item": [
+
+        {
+          "name": "Login — Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "    console.log('Token guardado:', res.token.substring(0, 20) + '...');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@mdr.biofund.org.mz\",\n  \"password\": \"Admin@MDR2024\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Admin — acesso total a todas as ocorrências e utilizadores.\nreceives_urgent_alerts: true | receives_gbv_alerts: true"
+          }
+        },
+
+        {
+          "name": "Login — Gestor Maputo (sem urgente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "    console.log('Token guardado (Gestor Maputo)');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"gestor@mdr.biofund.org.mz\",\n  \"password\": \"12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Gestor — Maputo Província (province_id=2)\nreceives_urgent_alerts: FALSE | receives_gbv_alerts: true\n\nEste gestor NÃO vê ocorrências com alert_type=urgent."
+          }
+        },
+
+        {
+          "name": "Login — Gestor Gaza (com tudo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "    console.log('Token guardado (Gestor Gaza)');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"Gaza@mdr.biofund.org.mz\",\n  \"password\": \"12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Gestor — Gaza (province_id=3)\nreceives_urgent_alerts: true | receives_gbv_alerts: true\n\nEste gestor vê TODOS os tipos de alerta."
+          }
+        },
+
+        {
+          "name": "Login — Funcionário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "    console.log('Token guardado (Funcionário)');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"funcionario@mdr.biofund.org.mz\",\n  \"password\": \"12345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Funcionário — Inhambane (province_id=4)\nreceives_urgent_alerts: false | receives_gbv_alerts: false\n\nPode registar ocorrências. Só vê as suas próprias."
+          }
+        },
+
+        {
+          "name": "Meus dados (me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Retorna os dados do utilizador autenticado, incluindo receives_urgent_alerts e receives_gbv_alerts."
+          }
+        },
+
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🌐 Público (sem login)",
+      "item": [
+
+        {
+          "name": "Dados do formulário (IDs de referência)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/form-data",
+              "host": ["{{base_url}}"],
+              "path": ["public", "form-data"]
+            },
+            "description": "Retorna todos os IDs de projetos, categorias, tipos e províncias.\nUsar estes IDs nos campos project_id, category_id, occurrence_type_id, province_id.\n\nTipos de ocorrência disponíveis:\n  id=1 Reclamação         [normal]\n  id=2 Consulta           [normal]\n  id=3 Sugestão           [normal]\n  id=4 Elogio             [normal]\n  id=5 Reclamação Urgente [urgent]\n  id=6 GBV                [gbv]"
+          }
+        },
+
+        {
+          "name": "Distritos de uma província",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/provinces/1/districts",
+              "host": ["{{base_url}}"],
+              "path": ["public", "provinces", "1", "districts"]
+            },
+            "description": "Trocar o '1' pelo ID da província pretendida."
+          }
+        },
+
+        {
+          "name": "Criar ocorrência externa (pública)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.tracking_code) {",
+                  "    pm.collectionVariables.set('tracking_code', res.tracking_code);",
+                  "    console.log('Tracking code guardado:', res.tracking_code);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"complainant_name\": \"Maria da Silva\",\n  \"complainant_email\": \"maria.silva@email.com\",\n  \"complainant_phone\": \"+258 84 123 4567\",\n  \"project_id\": 1,\n  \"category_id\": 1,\n  \"subcategory_id\": null,\n  \"occurrence_type_id\": 1,\n  \"province_id\": 1,\n  \"district_id\": null,\n  \"location_detail\": \"Bairro Central, perto do mercado\",\n  \"subject\": \"Poluição do rio Incomáti\",\n  \"description\": \"Verificou-se dejeção de resíduos industriais no rio, afectando a população local há mais de uma semana.\",\n  \"occurrence_date\": \"2026-05-01\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/public/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["public", "occurrences"]
+            },
+            "description": "Formulário público — não requer login.\nNÃO tem submission_channel nem alert_type (campos exclusivos internos).\nO tracking_code é guardado automaticamente em {{tracking_code}}."
+          }
+        },
+
+        {
+          "name": "Criar ocorrência externa COM imagem",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "complainant_name", "value": "João Machava", "type": "text" },
+                { "key": "complainant_email", "value": "joao.machava@email.com", "type": "text" },
+                { "key": "complainant_phone", "value": "+258 82 987 6543", "type": "text" },
+                { "key": "project_id", "value": "2", "type": "text" },
+                { "key": "category_id", "value": "4", "type": "text" },
+                { "key": "occurrence_type_id", "value": "6", "type": "text" },
+                { "key": "province_id", "value": "3", "type": "text" },
+                { "key": "subject", "value": "Situação de violência reportada", "type": "text" },
+                { "key": "description", "value": "Descrição detalhada da situação ocorrida na comunidade, com testemunhas presentes.", "type": "text" },
+                { "key": "occurrence_date", "value": "2026-05-05", "type": "text" },
+                { "key": "attachments[]", "type": "file", "src": "", "description": "Selecionar imagem JPG, PNG ou PDF (máx 10MB)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/public/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["public", "occurrences"]
+            },
+            "description": "Formulário público com anexo de imagem.\nUsar form-data. O campo de ficheiro chama-se attachments[] (com colchetes).\nAceite: jpg, jpeg, png, pdf, doc, docx, mp4, mp3 — máx 5 ficheiros, 10MB cada."
+          }
+        },
+
+        {
+          "name": "Acompanhar ocorrência por código",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/public/occurrences/track/{{tracking_code}}",
+              "host": ["{{base_url}}"],
+              "path": ["public", "occurrences", "track", "{{tracking_code}}"]
+            },
+            "description": "Retorna TODOS os dados preenchidos na ocorrência:\n- subject, description, occurrence_date\n- project, category, subcategory, type (com alert_level e SLA)\n- province, district, location_detail\n- attachments (nome, tamanho, tipo)\n- history (histórico público de estados com cores)\n\nTrocar {{tracking_code}} pelo código real (ex: MDR-K7P2QA-2026).\nSe fez login antes, o código foi guardado automaticamente."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "📋 Ocorrências Internas",
+      "item": [
+
+        {
+          "name": "➕ Criar — Normal (canal: Linha Verde)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.occurrence_id) {",
+                  "    pm.collectionVariables.set('occurrence_id', res.occurrence_id);",
+                  "    console.log('occurrence_id guardado:', res.occurrence_id);",
+                  "}",
+                  "if (res.tracking_code) {",
+                  "    pm.collectionVariables.set('tracking_code', res.tracking_code);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": 1,\n  \"category_id\": 1,\n  \"subcategory_id\": null,\n  \"occurrence_type_id\": 1,\n  \"province_id\": 4,\n  \"district_id\": null,\n  \"location_detail\": \"Bairro Central, perto da escola primária\",\n  \"subject\": \"Poluição do rio Incomáti\",\n  \"description\": \"Verificou-se dejeção de resíduos industriais no rio, afectando a população local há mais de uma semana.\",\n  \"occurrence_date\": \"2026-05-01\",\n  \"submission_channel\": \"green_line\",\n  \"alert_type\": \"normal\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "Cria ocorrência interna com:\n  submission_channel: green_line (Linha Verde)\n  alert_type: normal\n  occurrence_type_id: 1 (Reclamação)\n\nCampos obrigatórios internos:\n  submission_channel: green_line | email | phone | community_meeting\n  alert_type: normal | urgent | gbv\n\nO occurrence_id e tracking_code são guardados automaticamente."
+          }
+        },
+
+        {
+          "name": "➕ Criar — Urgente (canal: Telefone)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.occurrence_id) {",
+                  "    pm.collectionVariables.set('occurrence_id', res.occurrence_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": 1,\n  \"category_id\": 3,\n  \"subcategory_id\": null,\n  \"occurrence_type_id\": 5,\n  \"province_id\": 4,\n  \"district_id\": null,\n  \"location_detail\": \"Sede do projecto, sala 3\",\n  \"subject\": \"Desvio de fundos reportado urgentemente\",\n  \"description\": \"Foi reportado por via telefónica um possível desvio de verbas no valor de 500.000 MT destinadas ao projecto FNDS.\",\n  \"occurrence_date\": \"2026-05-06\",\n  \"submission_channel\": \"phone\",\n  \"alert_type\": \"urgent\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "Cria ocorrência URGENTE via telefone.\n  occurrence_type_id: 5 (Reclamação Urgente)\n  submission_channel: phone\n  alert_type: urgent\n\n⚠️ TESTE DE VISIBILIDADE:\nApós criar, fazer login como Gestor Maputo e listar.\nEste gestor tem receives_urgent_alerts=false, portanto NÃO deve ver esta ocorrência."
+          }
+        },
+
+        {
+          "name": "➕ Criar — GBV (canal: Reunião Comunitária)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.occurrence_id) {",
+                  "    pm.collectionVariables.set('occurrence_id', res.occurrence_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project_id\": 2,\n  \"category_id\": 4,\n  \"subcategory_id\": null,\n  \"occurrence_type_id\": 6,\n  \"province_id\": 4,\n  \"district_id\": null,\n  \"location_detail\": \"Aldeia Mucarara\",\n  \"subject\": \"Caso de violência doméstica reportado na reunião\",\n  \"description\": \"Durante a reunião comunitária realizada na aldeia Mucarara, foi reportado um caso de violência doméstica que requer acompanhamento imediato pelas autoridades competentes.\",\n  \"occurrence_date\": \"2026-05-07\",\n  \"submission_channel\": \"community_meeting\",\n  \"alert_type\": \"gbv\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "Cria ocorrência GBV via Reunião Comunitária.\n  occurrence_type_id: 6 (GBV)\n  category_id: 4 (GBV)\n  submission_channel: community_meeting\n  alert_type: gbv\n\n⚠️ TESTE DE VISIBILIDADE:\nO Funcionário (receives_gbv_alerts=false) não poderá ver esta ocorrência se for gestor.\nO Gestor Maputo (receives_gbv_alerts=true) VÊ.\nO Gestor Gaza (receives_gbv_alerts=true) VÊ."
+          }
+        },
+
+        {
+          "name": "➕ Criar com Imagem (form-data)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.occurrence_id) {",
+                  "    pm.collectionVariables.set('occurrence_id', res.occurrence_id);",
+                  "    console.log('Anexos recebidos:', JSON.stringify(res.attachments));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "project_id", "value": "1", "type": "text" },
+                { "key": "category_id", "value": "1", "type": "text" },
+                { "key": "occurrence_type_id", "value": "2", "type": "text" },
+                { "key": "province_id", "value": "4", "type": "text" },
+                { "key": "subject", "value": "Consulta com evidência fotográfica", "type": "text" },
+                { "key": "description", "value": "Consulta registada com imagem de evidência do terreno afectado pela actividade de mineração.", "type": "text" },
+                { "key": "occurrence_date", "value": "2026-05-07", "type": "text" },
+                { "key": "submission_channel", "value": "email", "type": "text" },
+                { "key": "alert_type", "value": "normal", "type": "text" },
+                { "key": "attachments[]", "type": "file", "src": "", "description": "Selecionar imagem JPG ou PNG (máx 10MB)" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "Registo interno com imagem em form-data.\nO campo de imagem chama-se attachments[] (com colchetes).\n\nA resposta inclui a lista de anexos com:\n  id, name, size, mime, is_image, url (URL de download autenticado)\n\nFormatos aceites: jpg, jpeg, png, pdf, doc, docx, mp4, mp3"
+          }
+        },
+
+        {
+          "name": "📄 Listar todas as ocorrências",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "Lista as ocorrências visíveis ao utilizador autenticado.\n\nVisibilidade por role:\n  Admin       → vê TODAS\n  Gestor      → vê da sua província + filtro de alertas\n  Funcionário → vê apenas as suas\n\nO campo alert_type aparece em cada ocorrência da lista."
+          }
+        },
+
+        {
+          "name": "🔍 Filtrar — alert_type: urgent",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences?alert_type=urgent",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"],
+              "query": [
+                { "key": "alert_type", "value": "urgent" }
+              ]
+            },
+            "description": "Filtra apenas ocorrências urgentes.\n\n⚠️ Se estiver logado como Gestor Maputo (receives_urgent_alerts=false), o resultado será vazio mesmo que existam ocorrências urgentes — o filtro de visibilidade aplica-se primeiro."
+          }
+        },
+
+        {
+          "name": "🔍 Filtrar — alert_type: gbv",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences?alert_type=gbv",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"],
+              "query": [
+                { "key": "alert_type", "value": "gbv" }
+              ]
+            },
+            "description": "Filtra apenas ocorrências GBV."
+          }
+        },
+
+        {
+          "name": "🔍 Filtrar — alert_type: normal",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences?alert_type=normal",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"],
+              "query": [
+                { "key": "alert_type", "value": "normal" }
+              ]
+            }
+          }
+        },
+
+        {
+          "name": "🔍 Filtrar — urgente + pendente",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences?alert_type=urgent&status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"],
+              "query": [
+                { "key": "alert_type", "value": "urgent" },
+                { "key": "status", "value": "pending" }
+              ]
+            },
+            "description": "Filtros combinados: alert_type + status.\n\nValores aceites para status:\n  pending | in_review | resolved | rejected | closed"
+          }
+        },
+
+        {
+          "name": "🔍 Filtrar — por status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences?status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"],
+              "query": [
+                { "key": "status", "value": "pending" }
+              ]
+            }
+          }
+        },
+
+        {
+          "name": "🔍 Filtrar — pesquisa por texto",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences?search=poluição",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"],
+              "query": [
+                { "key": "search", "value": "poluição" }
+              ]
+            },
+            "description": "Pesquisa no subject, tracking_code e complainant_name."
+          }
+        },
+
+        {
+          "name": "👁 Detalhe da ocorrência",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences/{{occurrence_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences", "{{occurrence_id}}"]
+            },
+            "description": "Retorna o detalhe completo incluindo:\n  submission_channel + submission_channel_label\n  alert_type + alert_type_label + alert_type_color\n  attachments (com URL de download)\n  history (histórico completo com notas internas para gestor/admin)"
+          }
+        },
+
+        {
+          "name": "🔄 Mudar estado → Em Análise",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_review\",\n  \"comment\": \"Ocorrência recebida e a ser analisada pela equipa.\",\n  \"internal_note\": \"Aguardar relatório da fiscalização.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences/{{occurrence_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences", "{{occurrence_id}}", "status"]
+            },
+            "description": "Apenas admin e gestor podem mudar o estado.\n\nTransições permitidas:\n  pending   → in_review\n  in_review → resolved (requer comment)\n  in_review → rejected (requer comment)\n  resolved  → closed"
+          }
+        },
+
+        {
+          "name": "✅ Mudar estado → Resolvida",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"resolved\",\n  \"comment\": \"A situação foi resolvida após intervenção da equipa de campo. Rio descontaminado e população notificada.\",\n  \"internal_note\": \"Relatório de campo enviado ao director.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences/{{occurrence_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences", "{{occurrence_id}}", "status"]
+            },
+            "description": "Resolver uma ocorrência — comment é OBRIGATÓRIO."
+          }
+        },
+
+        {
+          "name": "❌ Mudar estado → Rejeitada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"comment\": \"A reclamação não procede após verificação no terreno. Não foram encontradas evidências da situação reportada.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences/{{occurrence_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences", "{{occurrence_id}}", "status"]
+            },
+            "description": "Rejeitar uma ocorrência — comment é OBRIGATÓRIO."
+          }
+        },
+
+        {
+          "name": "👤 Atribuir a gestor",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/occurrences/{{occurrence_id}}/assign",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences", "{{occurrence_id}}", "assign"]
+            },
+            "description": "Atribuir a um gestor.\nuser_id: 2 = Gestor Maputo | 4 = Gestor Gaza\n\nApenas admin e gestor podem atribuir."
+          }
+        },
+
+        {
+          "name": "📥 Download de anexo (imagem)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences/{{occurrence_id}}/attachments/{{attachment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences", "{{occurrence_id}}", "attachments", "{{attachment_id}}"]
+            },
+            "description": "Faz download do ficheiro/imagem.\nO attachment_id está na resposta do detalhe da ocorrência (campo attachments[].id).\n\nAcesso controlado por role:\n  Admin       → qualquer ficheiro\n  Gestor      → ficheiros da sua província\n  Funcionário → apenas ficheiros das suas ocorrências"
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "⚙️ Admin",
+      "item": [
+
+        {
+          "name": "Listar utilizadores",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users"]
+            },
+            "description": "Apenas admin. Mostra receives_urgent_alerts e receives_gbv_alerts de cada utilizador."
+          }
+        },
+
+        {
+          "name": "Criar utilizador (gestor/funcionário)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ana Moiane\",\n  \"email\": \"ana.moiane@mdr.biofund.org.mz\",\n  \"phone\": \"+258 84 555 7777\",\n  \"role\": \"gestor\",\n  \"province_id\": 5,\n  \"receives_urgent_alerts\": true,\n  \"receives_gbv_alerts\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users"]
+            },
+            "description": "Cria um novo utilizador interno.\nA senha temporária (12345678) é gerada e enviada por email.\n\nFields:\n  role: admin | gestor | funcionario\n  province_id: 1-11 (ver /public/form-data)\n  receives_urgent_alerts: true | false\n  receives_gbv_alerts: true | false\n\n⚠️ receives_gbv_alerts=false → gestor não vê ocorrências GBV\n⚠️ receives_urgent_alerts=false → gestor não vê ocorrências urgentes"
+          }
+        },
+
+        {
+          "name": "Listar gestores (para atribuição)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/users/gestores",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users", "gestores"]
+            }
+          }
+        },
+
+        {
+          "name": "Dashboard — estatísticas",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/statistics/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "statistics", "dashboard"]
+            }
+          }
+        },
+
+        {
+          "name": "Activar / Desactivar utilizador",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/users/3/toggle-status",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users", "3", "toggle-status"]
+            },
+            "description": "Trocar '3' pelo ID do utilizador a activar/desactivar."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🧪 Cenários de Teste — Visibilidade de Alertas",
+      "item": [
+
+        {
+          "name": "CENÁRIO 1: Gestor Maputo lista (não vê urgentes)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "ANTES: Fazer Login — Gestor Maputo\n\nResultado esperado:\n✅ Vê ocorrências com alert_type=normal da província 2\n✅ Vê ocorrências com alert_type=gbv da província 2\n❌ NÃO vê ocorrências com alert_type=urgent (receives_urgent_alerts=false)"
+          }
+        },
+
+        {
+          "name": "CENÁRIO 2: Gestor Maputo tenta filtrar urgentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences?alert_type=urgent",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"],
+              "query": [
+                { "key": "alert_type", "value": "urgent" }
+              ]
+            },
+            "description": "ANTES: Fazer Login — Gestor Maputo\n\nResultado esperado:\n✅ Lista vazia (data: []) — mesmo que existam urgentes na bd, este gestor não as vê."
+          }
+        },
+
+        {
+          "name": "CENÁRIO 3: Gestor Gaza lista (vê tudo)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "ANTES: Fazer Login — Gestor Gaza\n\nResultado esperado:\n✅ Vê todos os tipos de alerta da província 3 (Gaza)\n✅ normal, urgent e gbv — tudo visível"
+          }
+        },
+
+        {
+          "name": "CENÁRIO 4: Funcionário lista (só as suas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences"]
+            },
+            "description": "ANTES: Fazer Login — Funcionário\n\nResultado esperado:\n✅ Vê apenas as ocorrências que ele próprio registou\n✅ Independentemente do alert_type"
+          }
+        },
+
+        {
+          "name": "CENÁRIO 5: Campos na resposta (verificar)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/occurrences/{{occurrence_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["occurrences", "{{occurrence_id}}"]
+            },
+            "description": "Verificar que a resposta contém os novos campos:\n\n{\n  \"submission_channel\": \"green_line\",\n  \"submission_channel_label\": \"Linha Verde\",\n  \"alert_type\": \"normal\",\n  \"alert_type_label\": \"Normal\",\n  \"alert_type_color\": \"blue\"\n}"
+          }
+        }
+
+      ]
+    }
+
+  ]
+}
