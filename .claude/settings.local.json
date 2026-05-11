@@ -8,7 +8,8 @@
       "Bash(php *)",
       "Bash(findstr SESSION)",
       "Bash(Get-ChildItem *)",
-      "PowerShell(Get-ChildItem \"C:\\\\wamp64\\\\www\\\\facul.php\\\\biofund_api\\\\resources\\\\js\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\wamp64\\\\www\\\\facul.php\\\\biofund_api\\\\resources\\\\js\\\\\", \"\"\\) })"
+      "PowerShell(Get-ChildItem \"C:\\\\wamp64\\\\www\\\\facul.php\\\\biofund_api\\\\resources\\\\js\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\wamp64\\\\www\\\\facul.php\\\\biofund_api\\\\resources\\\\js\\\\\", \"\"\\) })",
+      "Bash(Get-Content -Path \"C:\\\\Users\\\\Lenovo\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--wamp64-www-facul-php-biofund-api\\\\7bf3bb9b-a907-41f8-b8dd-0574d9f28fdd\\\\tasks\\\\b1xph44du.output\" -Wait)"
     ]
   }
 }
