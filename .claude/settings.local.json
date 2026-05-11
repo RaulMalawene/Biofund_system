@@ -5,7 +5,10 @@
       "Bash(php -l \"app/Http/Controllers/Api/AttachmentController.php\")",
       "Bash(php -l \"app/Services/OccurrenceService.php\")",
       "Bash(php -l \"app/Models/OccurrenceAttachment.php\")",
-      "Bash(php *)"
+      "Bash(php *)",
+      "Bash(findstr SESSION)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(Get-ChildItem \"C:\\\\wamp64\\\\www\\\\facul.php\\\\biofund_api\\\\resources\\\\js\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\wamp64\\\\www\\\\facul.php\\\\biofund_api\\\\resources\\\\js\\\\\", \"\"\\) })"
     ]
   }
 }
