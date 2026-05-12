@@ -35,7 +35,7 @@
             <div class="select-wrap">
               <select v-model="form.projeto">
                 <option value="" disabled>Seleccione o projecto</option>
-                <option v-for="p in projectos" :key="p">{{ p }}</option>
+                <option v-for="p in projectos" :key="p.id" :value="p.id ">{{ p.name }}</option>
               </select>
             </div>
           </div>
@@ -44,7 +44,7 @@
             <div class="select-wrap">
               <select v-model="form.categoria">
                 <option value="" disabled>Seleccione a categoria</option>
-                <option v-for="c in categorias" :key="c">{{ c }}</option>
+                <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
             </div>
           </div>
@@ -93,18 +93,18 @@
           <div class="field-group">
             <label>Província</label>
             <div class="select-wrap">
-              <select v-model="form.provincia" @change="form.distrito=''; form.comunidade=''">
+              <select v-model="form.provincia" @change="handleProvinceChange">
                 <option value="" disabled>Seleccione a província</option>
-                <option v-for="p in provincias" :key="p">{{ p }}</option>
+                <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
           </div>
           <div class="field-group">
             <label>Distrito</label>
             <div class="select-wrap">
-              <select v-model="form.distrito" :disabled="!form.provincia" @change="form.comunidade=''">
+              <select v-model="form.distrito" :disabled="!form.provincia || loadingDistricts" @change="form.comunidade=''">
                 <option value="" disabled>Seleccione o distrito</option>
-                <option v-for="d in (distritos[form.provincia] || [])" :key="d">{{ d }}</option>
+                <option v-for="d in distritos" :key="d.id" :value = "d.id">{{ d.name }}</option>
               </select>
             </div>
           </div>
@@ -247,49 +247,32 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import { PublicService } from '../api/services/public.service'
 
 const form = reactive({
   projeto: '', categoria: '', descricao: '', data: '',
   provincia: '', distrito: '', comunidade: '', coordenadas: '', nome: '', contacto: ''
 })
 
+onMounted(() => {
+  loadFormData()
+})
+
 const files       = ref([])
 const isDragging  = ref(false)
 const showSuccess = ref(false)
 const fileInput   = ref(null)
+const projectos = ref([]);
+const categorias = ref([])
+const provincias = ref([])
+const distritos = ref([])
 
-const projectos = [
-  'Reserva do Niassa', 'Parque da Gorongosa', 'Arquipélago de Bazaruto',
-  'Lagoa de Bilene', 'Parque Nacional do Limpopo', 'Outro'
-]
+const loadingFormData = ref(false)
+const loadingDistricts = ref(false)
 
-const categorias = [
-  'Pesca Ilegal', 'Caça Furtiva', 'Poluição', 'Desflorestação',
-  'Tráfico de Animais', 'Degradação de Habitat', 'Outro'
-]
-
-const provincias = [
-  'Cabo Delgado', 'Gaza', 'Inhambane', 'Manica',
-  'Maputo Cidade', 'Maputo Província', 'Nampula',
-  'Niassa', 'Sofala', 'Tete', 'Zambézia'
-]
-
-const distritos = {
-  'Maputo Cidade':    ['KaMpfumo','KaNhlamankulu','KaMaxaquene','KaPolana','KaMavota','KaMubukwana'],
-  'Maputo Província': ['Boane','Magude','Manhiça','Marracuene','Matola','Moamba','Namaacha'],
-  'Gaza':    ['Bilene','Chibuto','Chicualacuala','Chigubo','Chokwé','Guijá','Limpopo'],
-  'Inhambane':['Funhalouro','Govuro','Homoíne','Inharrime','Inhassoro','Jangamo','Mabote'],
-  'Niassa':  ['Cuamba','Lago','Lichinga','Majune','Mandimba','Marrupa','Mavago'],
-  'Nampula': ['Angoche','Ilha de Moçambique','Meconta','Memba','Monapo','Mossuril','Nacala'],
-  'Sofala':  ['Buzi','Caia','Chemba','Cheringoma','Chibabava','Dondo','Gorongosa'],
-  'Manica':  ['Báruè','Chimoio','Gondola','Guro','Machaze','Macossa','Mossurize'],
-  'Tete':    ['Angónia','Cahora-Bassa','Changara','Chifunde','Chiuta','Macanga','Mágoe'],
-  'Zambézia':['Alto Molócuè','Chinde','Gile','Guruè','Ile','Inhassunge','Luabo'],
-  'Cabo Delgado':['Ancuabe','Balama','Chiúre','Ibo','Macomia','Mecúfi','Meluco'],
-}
 
 const comunidades = {
   'KaMpfumo':       ['Sommerschield','Polana Cimento A','Polana Cimento B','Central A','Central B','Coop'],
@@ -383,6 +366,61 @@ const submitForm = () => {
   }
   showSuccess.value = true
 }
+
+const loadFormData = async () => {
+
+    try {
+      loadingFormData.value = true
+
+      const data = await PublicService.getFormData()
+
+      console.log('Dados recebidos:', data)
+
+      projectos.value = data.projects || []
+      categorias.value = data.categories || []
+      provincias.value = data.provinces || []
+      distritos.value = data.provinces.districts || []
+    
+    } catch (error) {
+        console.error('Erro ao carregar formulario: ', error)
+    } finally {
+      loadingFormData.value = false
+    }
+}
+
+const loadDristicts = async () => {
+
+  if(!form.provincia) return 
+
+  try {
+    loadingDistricts.value = true
+    const data = await PublicService.getDistrictByProvince(
+      form.provincia
+    )
+
+    console.log('Distritos: ',data)
+
+    distritos.value = data.districts || data
+  }catch (error) {
+    console.error('Erro ao carregar distritos: ', error)
+  }finally {
+    loadingDistricts.value = false
+  }
+
+  const handleProvinceChange = async () => {
+
+    form.distrito = ''
+    form.comunidade = ''
+
+    distritos.value = []
+
+    await loadDristicts()
+
+  }
+  
+}
+
+
 </script>
 
 <style scoped>
