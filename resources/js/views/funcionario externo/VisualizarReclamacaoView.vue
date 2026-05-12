@@ -249,7 +249,7 @@
 import { ref } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import { PublicService } from '../api/services/public.service'
+import { PublicService } from '../../api/services/public.service'
 
 const searchCode = ref('')
 const result = ref(null)

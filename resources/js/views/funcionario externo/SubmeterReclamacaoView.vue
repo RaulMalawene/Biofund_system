@@ -323,7 +323,9 @@
 import { ref, reactive, onMounted } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import { PublicService } from '../api/services/public.service'
+import { PublicService } from '../../api/services/public.service'
+
+
 
 // ─── Data máxima para o campo de data ────────────────────────
 const today = new Date().toISOString().split('T')[0]
