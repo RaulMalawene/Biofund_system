@@ -7,10 +7,7 @@
       <!-- HEADER -->
       <div class="page-header">
         <div class="page-badge">
-          <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
-            <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#2D6A4F"/>
-            <path d="M10 28C10 28 14 20 20 20" stroke="#1B4332" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+          <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="badge-logo"/>
           Biofund Moçambique
         </div>
         <h1>Registar Reclamação</h1>
@@ -216,10 +213,7 @@
       <div class="submit-banner">
         <div class="submit-banner-text">
           <div class="submit-banner-icon">
-            <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-              <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#52B788"/>
-              <path d="M10 28C10 28 14 20 20 20" stroke="#D8F3DC" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+            <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="submit-banner-logo"/>
           </div>
           <p>Ao submeter esta reclamação, você declara que as informações prestadas são verdadeiras e autoriza a Biofund a utilizá-las para fins de investigação ambiental.</p>
         </div>
@@ -397,6 +391,14 @@ const submitForm = () => {
 .page-wrapper { max-width: 760px; margin: 0 auto; padding: 52px 24px 80px; }
 
 /* HEADER */
+.badge-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
 .page-badge {
   display: inline-flex;
   align-items: center;
@@ -595,6 +597,14 @@ const submitForm = () => {
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; margin-top: 1px;
+  overflow: hidden;
+}
+
+.submit-banner-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .submit-banner p {

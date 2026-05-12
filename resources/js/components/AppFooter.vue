@@ -3,11 +3,8 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <router-link to="/" class="footer-logo">
-          <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-            <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#52B788"/>
-            <path d="M10 28C10 28 14 20 20 20" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          BioQueixa
+          <img src="../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="footer-logo-img"/>
+          Biofund
         </router-link>
         <p>Protegendo o património natural de Moçambique através da transparência e participação cidadã.</p>
       </div>
@@ -78,12 +75,20 @@ footer {
 .footer-logo {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
   color: var(--text-dark);
   font-weight: 700;
   font-size: 15px;
   margin-bottom: 14px;
+}
+
+.footer-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
 .footer-brand p {
