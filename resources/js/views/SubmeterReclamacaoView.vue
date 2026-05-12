@@ -8,13 +8,14 @@
       <div class="page-header">
         <div class="page-badge">
           <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
-            <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#2D6A4F"/>
-            <path d="M10 28C10 28 14 20 20 20" stroke="#1B4332" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#2D6A4F" />
+            <path d="M10 28C10 28 14 20 20 20" stroke="#1B4332" stroke-width="2" stroke-linecap="round" />
           </svg>
           Biofund Moçambique
         </div>
         <h1>Registar Reclamação</h1>
-        <p>Ajude-nos a proteger os nossos ecossistemas. Preencha o formulário abaixo com o máximo de detalhes possível sobre o incidente ambiental observado.</p>
+        <p>Ajude-nos a proteger os nossos ecossistemas. Preencha o formulário abaixo com o máximo de detalhes possível
+          sobre o incidente ambiental observado.</p>
       </div>
 
       <!-- CARD 1: Informação da Reclamação -->
@@ -22,8 +23,8 @@
         <div class="card-header">
           <div class="card-icon">
             <svg fill="none" viewBox="0 0 20 20" stroke="#2D6A4F" stroke-width="1.8">
-              <circle cx="10" cy="10" r="8"/>
-              <path d="M10 6v4l2.5 2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="10" cy="10" r="8" />
+              <path d="M10 6v4l2.5 2.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
           <div class="card-header-text">
@@ -38,7 +39,7 @@
             <div class="select-wrap">
               <select v-model="form.projeto">
                 <option value="" disabled>Seleccione o projecto</option>
-                <option v-for="p in projectos" :key="p.id" :value="p.id ">{{ p.name }}</option>
+                <option v-for="p in projectos" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
           </div>
@@ -57,7 +58,15 @@
           <div class="field-group">
             <label>Descrição Detalhada</label>
             <textarea v-model="form.descricao"
-              placeholder="Descreva o que observou, pessoas envolvidas, gravidade e outros detalhes relevantes..."></textarea>
+              placeholder="Descreva o que observou, pessoas envolvidas, gravidade e outros detalhes relevantes..."
+              :class="{ 'field-error': form.descricao.length > 0 && form.descricao.length < 20 }"></textarea>
+            <div class="char-counter" :class="form.descricao.length >= 20 ? 'char-ok' : 'char-warn'">
+              <span v-if="form.descricao.length < 20 && form.descricao.length > 0">
+                Mínimo 20 caracteres — faltam {{ 20 - form.descricao.length }}
+              </span>
+              <span v-else-if="form.descricao.length === 0" class="char-hint">Mínimo 20 caracteres</span>
+              <span v-else>✓ {{ form.descricao.length }} caracteres</span>
+            </div>
           </div>
         </div>
 
@@ -67,11 +76,11 @@
             <div class="date-wrap">
               <span class="date-icon">
                 <svg width="16" height="16" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 16 16">
-                  <rect x="1" y="2" width="14" height="13" rx="2"/>
-                  <path d="M5 1v2M11 1v2M1 6h14" stroke-linecap="round"/>
+                  <rect x="1" y="2" width="14" height="13" rx="2" />
+                  <path d="M5 1v2M11 1v2M1 6h14" stroke-linecap="round" />
                 </svg>
               </span>
-              <input type="date" v-model="form.data" />
+              <input type="date" v-model="form.data" :max="today" />
             </div>
           </div>
         </div>
@@ -82,8 +91,9 @@
         <div class="card-header">
           <div class="card-icon">
             <svg fill="none" viewBox="0 0 20 20" stroke="#2D6A4F" stroke-width="1.8">
-              <path d="M10 2C6.686 2 4 4.686 4 8c0 4.5 6 10 6 10s6-5.5 6-10c0-3.314-2.686-6-6-6z" stroke-linejoin="round"/>
-              <circle cx="10" cy="8" r="2.2"/>
+              <path d="M10 2C6.686 2 4 4.686 4 8c0 4.5 6 10 6 10s6-5.5 6-10c0-3.314-2.686-6-6-6z"
+                stroke-linejoin="round" />
+              <circle cx="10" cy="8" r="2.2" />
             </svg>
           </div>
           <div class="card-header-text">
@@ -105,9 +115,10 @@
           <div class="field-group">
             <label>Distrito</label>
             <div class="select-wrap">
-              <select v-model="form.distrito" :disabled="!form.provincia || loadingDistricts" @change="form.comunidade=''">
-                <option value="" disabled>Seleccione o distrito</option>
-                <option v-for="d in distritos" :key="d.id" :value = "d.id">{{ d.name }}</option>
+              <select v-model="form.distrito" :disabled="!form.provincia || loadingDistricts"
+                @change="handleDistrictChange">
+                <option value="" disabled>{{ loadingDistricts ? 'A carregar…' : 'Seleccione o distrito' }}</option>
+                <option v-for="d in distritos" :key="d.id" :value="d.id">{{ d.name }}</option>
               </select>
             </div>
           </div>
@@ -117,9 +128,9 @@
           <div class="field-group">
             <label>Comunidade / Posto Administrativo</label>
             <div class="select-wrap">
-              <select v-model="form.comunidade" :disabled="!form.distrito">
-                <option value="" disabled>Seleccione a comunidade</option>
-                <option v-for="c in (comunidades[form.distrito] || [])" :key="c">{{ c }}</option>
+              <select v-model="form.comunidade" :disabled="!form.distrito || loadingCommunities">
+                <option value="" disabled>{{ loadingCommunities ? 'A carregar…' : 'Seleccione a comunidade' }}</option>
+                <option v-for="c in comunidades" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
             </div>
           </div>
@@ -128,8 +139,7 @@
         <div class="field-row single">
           <div class="field-group">
             <label>Coordenadas (Opcional)</label>
-            <input type="text" v-model="form.coordenadas"
-              placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
+            <input type="text" v-model="form.coordenadas" placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
           </div>
         </div>
       </div>
@@ -139,8 +149,8 @@
         <div class="card-header">
           <div class="card-icon">
             <svg fill="none" viewBox="0 0 20 20" stroke="#2D6A4F" stroke-width="1.8">
-              <circle cx="10" cy="7" r="3.5"/>
-              <path d="M3 18c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke-linecap="round"/>
+              <circle cx="10" cy="7" r="3.5" />
+              <path d="M3 18c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke-linecap="round" />
             </svg>
           </div>
           <div class="card-header-text">
@@ -155,8 +165,21 @@
             <input type="text" v-model="form.nome" placeholder="Nome completo ou pseudónimo" />
           </div>
           <div class="field-group">
-            <label>Telefone ou Email (Obrigatório)</label>
-            <input type="text" v-model="form.contacto" placeholder="ex: +258 84… ou email@exemplo.com" />
+            <label>Email</label>
+            <input type="email" v-model="form.email" placeholder="ex: nome@exemplo.com"
+              :class="{ 'field-error': errors.contacto }" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>Número de Telefone</label>
+            <input type="tel" v-model="form.phone" placeholder="ex: +258 84 000 0000"
+              :class="{ 'field-error': errors.contacto }" />
+          </div>
+          <div class="field-group contact-hint-group">
+            <span class="contact-hint" v-if="errors.contacto" style="color:#E53E3E">{{ errors.contacto }}</span>
+            <span class="contact-hint" v-else>Preencha pelo menos email ou telefone</span>
           </div>
         </div>
       </div>
@@ -166,8 +189,9 @@
         <div class="card-header">
           <div class="card-icon">
             <svg fill="none" viewBox="0 0 20 20" stroke="#2D6A4F" stroke-width="1.8">
-              <path d="M2 7a2 2 0 0 1 2-2h.5l1-2h5l1 2H16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7z" stroke-linejoin="round"/>
-              <circle cx="10" cy="11" r="2.5"/>
+              <path d="M2 7a2 2 0 0 1 2-2h.5l1-2h5l1 2H16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7z"
+                stroke-linejoin="round" />
+              <circle cx="10" cy="11" r="2.5" />
             </svg>
           </div>
           <div class="card-header-text">
@@ -176,40 +200,46 @@
           </div>
         </div>
 
-        <div class="upload-zone" :class="{ 'drag-over': isDragging }"
-          @click="triggerUpload"
-          @dragover.prevent="isDragging = true"
-          @dragleave="isDragging = false"
-          @drop.prevent="handleDrop">
+        <div class="upload-zone" :class="{ 'drag-over': isDragging }" @click="triggerUpload"
+          @dragover.prevent="isDragging = true" @dragleave="isDragging = false" @drop.prevent="handleDrop">
           <div class="upload-icon">
             <svg width="22" height="22" fill="none" stroke="#2D6A4F" stroke-width="1.7" viewBox="0 0 22 22">
-              <path d="M3 15v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round"/>
-              <path d="M11 3v10M7 7l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 15v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round" />
+              <path d="M11 3v10M7 7l4-4 4 4" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
           <h4>Clique para carregar ou arraste e solte</h4>
           <p>PNG, JPG, PDF até 10MB</p>
         </div>
 
-        <input ref="fileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf"
-          style="display:none" @change="handleFileSelect" />
+        <input ref="fileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf" style="display:none"
+          @change="handleFileSelect" />
 
         <div class="file-list" v-if="files.length">
           <div class="file-item" v-for="(f, i) in files" :key="i">
             <svg width="16" height="16" fill="none" stroke="#2D6A4F" stroke-width="1.6" viewBox="0 0 16 16">
-              <rect x="2" y="1" width="10" height="14" rx="1.5"/>
-              <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
-              <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="2" y="1" width="10" height="14" rx="1.5" />
+              <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
+              <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <span class="file-item-name">{{ f.name }}</span>
             <span class="file-item-size">{{ (f.size / 1024).toFixed(0) }} KB</span>
             <button class="file-remove" @click.stop="removeFile(i)">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
-                <path d="M2 2l10 10M12 2L2 12" stroke-linecap="round"/>
+                <path d="M2 2l10 10M12 2L2 12" stroke-linecap="round" />
               </svg>
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- ERRO GLOBAL -->
+      <div class="global-error" v-if="globalError">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
+          <circle cx="8" cy="8" r="7" />
+          <path d="M8 5v3M8 10.5v.5" stroke-linecap="round" />
+        </svg>
+        {{ globalError }}
       </div>
 
       <!-- SUBMIT BANNER -->
@@ -217,16 +247,18 @@
         <div class="submit-banner-text">
           <div class="submit-banner-icon">
             <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-              <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#52B788"/>
-              <path d="M10 28C10 28 14 20 20 20" stroke="#D8F3DC" stroke-width="2" stroke-linecap="round"/>
+              <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#52B788" />
+              <path d="M10 28C10 28 14 20 20 20" stroke="#D8F3DC" stroke-width="2" stroke-linecap="round" />
             </svg>
           </div>
-          <p>Ao submeter esta reclamação, você declara que as informações prestadas são verdadeiras e autoriza a Biofund a utilizá-las para fins de investigação ambiental.</p>
+          <p>Ao submeter esta reclamação, você declara que as informações prestadas são verdadeiras e autoriza a Biofund
+            a utilizá-las para fins de investigação ambiental.</p>
         </div>
-        <button class="btn-submit" @click="submitForm">
-          Enviar Reclamação
-          <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 14 14">
-            <path d="M2 7h10M8 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+        <button class="btn-submit" @click="submitForm" :disabled="submitting">
+          <span v-if="submitting" class="spinner"></span>
+          <span>{{ submitting ? 'A enviar…' : 'Enviar Reclamação' }}</span>
+          <svg v-if="!submitting" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 14 14">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </button>
       </div>
@@ -234,17 +266,46 @@
     </div>
 
     <!-- SUCCESS MODAL -->
-    <div class="success-overlay" v-if="showSuccess" @click.self="showSuccess = false">
+    <div class="success-overlay" v-if="showSuccess" @click.self="closeSuccess">
       <div class="success-card">
         <div class="success-icon">
           <svg width="36" height="36" fill="none" stroke="#2D6A4F" stroke-width="2.2" viewBox="0 0 36 36">
-            <circle cx="18" cy="18" r="15"/>
-            <path d="M11 18l5 5 9-10" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="18" cy="18" r="15" />
+            <path d="M11 18l5 5 9-10" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
+
         <h3>Reclamação Enviada!</h3>
-        <p>A sua reclamação foi registada com sucesso. A equipa da Biofund irá analisar e tomar as medidas necessárias.</p>
-        <button class="btn-ok" @click="showSuccess = false">Fechar</button>
+        <p>A sua reclamação foi registada com sucesso. A equipa da Biofund irá analisar e tomar as medidas necessárias.
+        </p>
+
+        <!-- Tracking Code -->
+        <div class="tracking-box" v-if="trackingCode">
+          <span class="tracking-label">Código de Seguimento</span>
+          <div class="tracking-row">
+            <span class="tracking-code">{{ trackingCode }}</span>
+            <button class="btn-copy" @click="copyCode">
+              <template v-if="!copied">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
+                  <rect x="1" y="5" width="9" height="10" rx="1.5" />
+                  <path d="M5 5V3a1.5 1.5 0 0 1 1.5-1.5h6A1.5 1.5 0 0 1 14 3v8a1.5 1.5 0 0 1-1.5 1.5H11"
+                    stroke-linecap="round" />
+                </svg>
+                Copiar
+              </template>
+              <template v-else>
+                <svg width="14" height="14" fill="none" stroke="#2D6A4F" stroke-width="2.2" viewBox="0 0 16 16">
+                  <path d="M2 8l4 4 8-8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Copiado!
+              </template>
+            </button>
+          </div>
+          <p class="tracking-hint">Guarde este código para acompanhar o estado da sua reclamação.</p>
+          <p class="tracking-due" v-if="dueDate">Prazo de resposta: <strong>{{ dueDate }}</strong></p>
+        </div>
+
+        <button class="btn-ok" @click="closeSuccess">Fechar</button>
       </div>
     </div>
 
@@ -258,181 +319,206 @@ import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import { PublicService } from '../api/services/public.service'
 
+// ─── Data máxima para o campo de data ────────────────────────
+const today = new Date().toISOString().split('T')[0]
+
+// ─── Formulário (estrutura original) ─────────────────────────
 const form = reactive({
   projeto: '', categoria: '', descricao: '', data: '',
-  provincia: '', distrito: '', comunidade: '', coordenadas: '', nome: '', contacto: ''
+  provincia: '', distrito: '', comunidade: '', coordenadas: '',
+  nome: '', email: '', phone: ''
 })
 
-onMounted(() => {
-  loadFormData()
-})
-
-const files       = ref([])
-const isDragging  = ref(false)
-const showSuccess = ref(false)
-const fileInput   = ref(null)
-const projectos = ref([]);
+// ─── Listas de referência ─────────────────────────────────────
+const projectos = ref([])
 const categorias = ref([])
 const provincias = ref([])
 const distritos = ref([])
+const comunidades = ref([])
 
+// ─── Ficheiros ────────────────────────────────────────────────
+const files = ref([])
+const fileInput = ref(null)
+const isDragging = ref(false)
+
+// ─── Estado UI ────────────────────────────────────────────────
 const loadingFormData = ref(false)
 const loadingDistricts = ref(false)
+const loadingCommunities = ref(false)
+const submitting = ref(false)
+const showSuccess = ref(false)
+const trackingCode = ref('')
+const dueDate = ref('')
+const copied = ref(false)
+const errors = reactive({})
+const globalError = ref('')
 
+// ─── Carregar dados do formulário ─────────────────────────────
+onMounted(loadFormData)
 
-const comunidades = {
-  'KaMpfumo':       ['Sommerschield','Polana Cimento A','Polana Cimento B','Central A','Central B','Coop'],
-  'KaNhlamankulu':  ['Chamanculo A','Chamanculo B','Chamanculo C','Munhuana','Xipamanine','Malanga'],
-  'KaMaxaquene':    ['Maxaquene A','Maxaquene B','Maxaquene C','Maxaquene D','Polana Caniço A','Polana Caniço B'],
-  'KaPolana':       ['Alto Maé A','Alto Maé B','Malhangalene A','Malhangalene B','Aeroporto'],
-  'KaMavota':       ['Hulene A','Hulene B','Mavalane A','Mavalane B','Unidade A','Unidade B'],
-  'KaMubukwana':    ['Bagamoio','Magoanine A','Magoanine B','Magoanine C','Luís Cabral','Inhagoia A','Inhagoia B'],
-  'Boane':          ['Boane Sede','Belavista','Mafuiane','Mulotana'],
-  'Magude':         ['Magude Sede','Moine','Mapulanguene','Motaze'],
-  'Manhiça':        ['Manhiça Sede','Calanga','Ilha Josina','Maragra','Nwamatibjana','Xinavane'],
-  'Marracuene':     ['Marracuene Sede','Machubo','Michafutene','Nhangau'],
-  'Matola':         ['Matola Sede','Bunhiça','Infulene','Machava','Matola Rio','Tsalala'],
-  'Moamba':         ['Moamba Sede','Pessene','Sabie'],
-  'Namaacha':       ['Namaacha Sede','Changalane','Fontainhas'],
-  'Bilene':         ['Bilene Sede','Chaimite','Siaia','Macuácua'],
-  'Chibuto':        ['Chibuto Sede','Changanine','Malehice','São Lourenço'],
-  'Chicualacuala':  ['Chicualacuala Sede','Mapai','Mabalane'],
-  'Chigubo':        ['Chigubo Sede','Ndindiza'],
-  'Chokwé':         ['Chokwé Sede','Lionde','Macarretane'],
-  'Guijá':          ['Guijá Sede','Eduardo Mondlane','Mandlakaze'],
-  'Limpopo':        ['Limpopo Sede','Chongoene','Mazivila'],
-  'Funhalouro':     ['Funhalouro Sede','Zimane','Mabote'],
-  'Govuro':         ['Govuro Sede','Mambone','Save'],
-  'Homoíne':        ['Homoíne Sede','Morrumbene','Massinga'],
-  'Inharrime':      ['Inharrime Sede','Chidenguele','Zavala'],
-  'Inhassoro':      ['Inhassoro Sede','Bartolomeu Dias'],
-  'Jangamo':        ['Jangamo Sede','Bela Vista','Nhamatanda'],
-  'Mabote':         ['Mabote Sede','Zimane','Funhalouro'],
-  'Cuamba':         ['Cuamba Sede','Chiconono','Metarica'],
-  'Lago':           ['Lago Sede','Cobué','Mataka'],
-  'Lichinga':       ['Lichinga Sede','Chiuanga','Namacula'],
-  'Majune':         ['Majune Sede','Maúa','Nungo'],
-  'Mandimba':       ['Mandimba Sede','Chiuta','Massangulo'],
-  'Marrupa':        ['Marrupa Sede','Maúa','Lúrio'],
-  'Mavago':         ['Mavago Sede','Mecula','Mariri'],
-  'Angoche':        ['Angoche Sede','Kinga','Nanhupo','Oriente'],
-  'Ilha de Moçambique': ['Lumbo','Mossuril','Nacala-Porto'],
-  'Meconta':        ['Meconta Sede','Muecate','Nacarôa'],
-  'Memba':          ['Memba Sede','Nacala-a-Velha','Namige'],
-  'Monapo':         ['Monapo Sede','Chalaua','Iapala','Namialo'],
-  'Mossuril':       ['Mossuril Sede','Liúpo','Namapa'],
-  'Nacala':         ['Nacala Sede','Nacala-Porto','Nacala-a-Velha'],
-  'Buzi':           ['Buzi Sede','Guara-Guara','Muxungué'],
-  'Caia':           ['Caia Sede','Sena','Murraça'],
-  'Chemba':         ['Chemba Sede','Mphingwe','Nhamatanda'],
-  'Cheringoma':     ['Cheringoma Sede','Inhaminga','Muanza'],
-  'Chibabava':      ['Chibabava Sede','Machanga','Muxungué'],
-  'Dondo':          ['Dondo Sede','Lamego','Tica'],
-  'Gorongosa':      ['Gorongosa Sede','Nhamatanda','Muanza','Sadjunjira'],
-  'Báruè':          ['Báruè Sede','Catandica','Macossa','Nhansimba'],
-  'Chimoio':        ['Chimoio Sede','Gondola','Sussundenga','Manica'],
-  'Gondola':        ['Gondola Sede','Inchope','Muanza'],
-  'Guro':           ['Guro Sede','Doroi','Macossa'],
-  'Machaze':        ['Machaze Sede','Espungabera','Mossurize'],
-  'Macossa':        ['Macossa Sede','Guro'],
-  'Mossurize':      ['Mossurize Sede','Espungabera','Machaze'],
-  'Angónia':        ['Angónia Sede','Domue','Ulónguè','Mkumbura'],
-  'Cahora-Bassa':   ['Songo','Capoche','Chitima','Fingoe'],
-  'Changara':       ['Changara Sede','Mágoè','Chiúta'],
-  'Chifunde':       ['Chifunde Sede','Macanga','Zumbo'],
-  'Chiuta':         ['Chiuta Sede','Furancungo','Mualadzi'],
-  'Macanga':        ['Macanga Sede','Zumbo','Furancungo'],
-  'Mágoe':          ['Mágoe Sede','Cahora-Bassa','Capoche'],
-  'Alto Molócuè':   ['Alto Molócuè Sede','Namarrói','Mulevala'],
-  'Chinde':         ['Chinde Sede','Mopeia','Marromeu'],
-  'Gile':           ['Gile Sede','Pebane','Namarrói'],
-  'Guruè':          ['Guruè Sede','Lioma','Ile'],
-  'Ile':            ['Ile Sede','Namarrói','Alto Molócuè'],
-  'Inhassunge':     ['Inhassunge Sede','Mopeia','Chinde'],
-  'Luabo':          ['Luabo Sede','Mopeia','Marromeu'],
-  'Ancuabe':        ['Ancuabe Sede','Balama','Chiúre'],
-  'Balama':         ['Balama Sede','Chiúre','Macomia'],
-  'Chiúre':         ['Chiúre Sede','Chiúre Velho','Mazeze','Namuno'],
-  'Ibo':            ['Ibo Sede','Quirimba','Quissanga'],
-  'Macomia':        ['Macomia Sede','Meluco','Quissanga','Mucojo'],
-  'Mecúfi':         ['Mecúfi Sede','Metuge','Pemba'],
-  'Meluco':         ['Meluco Sede','Macomia','Nangade'],
-}
-
-const triggerUpload    = () => fileInput.value?.click()
-const handleFileSelect = (e) => { addFiles(Array.from(e.target.files)); e.target.value = '' }
-const handleDrop       = (e) => { isDragging.value = false; addFiles(Array.from(e.dataTransfer.files)) }
-const addFiles         = (list) => list.forEach(f => { if (f.size <= 10 * 1024 * 1024) files.value.push(f) })
-const removeFile       = (i) => files.value.splice(i, 1)
-
-const submitForm = () => {
-  if (!form.contacto) {
-    alert('Por favor, preencha o campo Telefone ou Email.')
-    return
+async function loadFormData() {
+  try {
+    loadingFormData.value = true
+    const data = await PublicService.getFormData()
+    projectos.value = data.projects ?? []
+    categorias.value = data.categories ?? []
+    provincias.value = data.provinces ?? []
+  } catch (error) {
+    console.error('Erro ao carregar formulário:', error)
+    globalError.value = 'Não foi possível carregar os dados do formulário. Recarregue a página.'
+  } finally {
+    loadingFormData.value = false
   }
-  showSuccess.value = true
 }
 
-const loadFormData = async () => {
-
-    try {
-      loadingFormData.value = true
-
-      const data = await PublicService.getFormData()
-
-      console.log('Dados recebidos:', data)
-
-      projectos.value = data.projects || []
-      categorias.value = data.categories || []
-      provincias.value = data.provinces || []
-      distritos.value = data.provinces.districts || []
-    
-    } catch (error) {
-        console.error('Erro ao carregar formulario: ', error)
-    } finally {
-      loadingFormData.value = false
-    }
-}
-
-const loadDristicts = async () => {
-
-  if(!form.provincia) return 
-
+// ─── Cascata Província → Distrito ────────────────────────────
+async function handleProvinceChange() {
+  form.distrito = ''
+  form.comunidade = ''
+  distritos.value = []
+  comunidades.value = []
+  if (!form.provincia) return
   try {
     loadingDistricts.value = true
-    const data = await PublicService.getDistrictByProvince(
-      form.provincia
-    )
-
-    console.log('Distritos: ',data)
-
-    distritos.value = data.districts || data
-  }catch (error) {
-    console.error('Erro ao carregar distritos: ', error)
-  }finally {
+    const data = await PublicService.getDistrictsByProvince(form.provincia)
+    distritos.value = data.districts ?? data
+  } catch (error) {
+    console.error('Erro ao carregar distritos:', error)
+  } finally {
     loadingDistricts.value = false
   }
-
-  const handleProvinceChange = async () => {
-
-    form.distrito = ''
-    form.comunidade = ''
-
-    distritos.value = []
-
-    await loadDristicts()
-
-  }
-  
 }
 
+// ─── Cascata Distrito → Comunidade ───────────────────────────
+async function handleDistrictChange() {
+  form.comunidade = ''
+  comunidades.value = []
+  if (!form.distrito) return
+  try {
+    loadingCommunities.value = true
+    const data = await PublicService.getCommunitiesByDistrict(form.distrito)
+    comunidades.value = data.communities ?? data
+  } catch (error) {
+    console.error('Erro ao carregar comunidades:', error)
+  } finally {
+    loadingCommunities.value = false
+  }
+}
 
+// ─── Upload de ficheiros ──────────────────────────────────────
+const triggerUpload = () => fileInput.value?.click()
+const handleFileSelect = (e) => { addFiles(Array.from(e.target.files)); e.target.value = '' }
+const handleDrop = (e) => { isDragging.value = false; addFiles(Array.from(e.dataTransfer.files)) }
+
+function addFiles(list) {
+  list.forEach(f => {
+    if (files.value.length >= 5) return
+    if (f.size <= 10 * 1024 * 1024) files.value.push(f)
+  })
+}
+
+const removeFile = (i) => files.value.splice(i, 1)
+
+// ─── Submissão ────────────────────────────────────────────────
+async function submitForm() {
+  // Limpa estado anterior
+  Object.keys(errors).forEach(k => delete errors[k])
+  globalError.value = ''
+
+  // Validação: pelo menos email ou telefone obrigatório
+  if (!form.email.trim() && !form.phone.trim()) {
+    errors.contacto = 'Preencha pelo menos um contacto: email ou número de telefone.'
+    return
+  }
+
+  // Monta FormData com os nomes que o backend espera
+  const fd = new FormData()
+
+  // Nome — opcional, submissão anónima permitida
+  if (form.nome.trim()) fd.append('complainant_name', form.nome.trim())
+  if (form.email.trim()) fd.append('complainant_email', form.email.trim())
+  if (form.phone.trim()) fd.append('complainant_phone', form.phone.trim())
+
+  if (form.projeto) fd.append('project_id', form.projeto)
+  if (form.categoria) fd.append('category_id', form.categoria)
+  if (form.descricao) fd.append('description', form.descricao.trim())
+  if (form.data) fd.append('occurrence_date', form.data)
+  if (form.provincia) fd.append('province_id', form.provincia)
+  if (form.distrito) fd.append('district_id', form.distrito)
+
+  // Combina coordenadas + nome da comunidade num único campo location_detail
+  const locationParts = []
+  if (form.coordenadas.trim()) locationParts.push(form.coordenadas.trim())
+  if (form.comunidade) {
+    const com = comunidades.value.find(c => c.id === form.comunidade)
+    if (com) locationParts.push(com.name)
+  }
+  if (locationParts.length) fd.append('location_detail', locationParts.join(' — '))
+
+  // Anexos
+  files.value.forEach(f => fd.append('attachments[]', f))
+
+  try {
+    submitting.value = true
+    const result = await PublicService.createOccurrence(fd)
+    trackingCode.value = result.tracking_code ?? ''
+    dueDate.value = result.due_date ?? ''
+    showSuccess.value = true
+  } catch (err) {
+    if (err.response?.status === 422) {
+      const serverErrors = err.response.data.errors ?? {}
+      Object.entries(serverErrors).forEach(([field, msgs]) => {
+        errors[field] = msgs[0]
+      })
+      globalError.value = 'Corrija os erros assinalados e tente novamente.'
+    } else if (!err.response) {
+      globalError.value = 'Sem ligação ao servidor. Verifique a sua ligação à internet.'
+    } else {
+      globalError.value = err.response?.data?.message ?? 'Erro ao enviar. Tente novamente.'
+    }
+  } finally {
+    submitting.value = false
+  }
+}
+
+// ─── Modal de sucesso ─────────────────────────────────────────
+function closeSuccess() {
+  showSuccess.value = false
+  Object.keys(form).forEach(k => { form[k] = '' })
+  files.value = []
+  trackingCode.value = ''
+  dueDate.value = ''
+}
+
+async function copyCode() {
+  if (!trackingCode.value) return
+  try {
+    await navigator.clipboard.writeText(trackingCode.value)
+  } catch {
+    // fallback para browsers sem Clipboard API
+    const el = document.createElement('textarea')
+    el.value = trackingCode.value
+    document.body.appendChild(el)
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
+  }
+  copied.value = true
+  setTimeout(() => { copied.value = false }, 2500)
+}
 </script>
 
 <style scoped>
-.page { background: var(--offwhite); min-height: 100vh; }
+.page {
+  background: var(--offwhite);
+  min-height: 100vh;
+}
 
-.page-wrapper { max-width: 760px; margin: 0 auto; padding: 52px 24px 80px; }
+.page-wrapper {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 52px 24px 80px;
+}
 
 /* HEADER */
 .page-badge {
@@ -447,7 +533,12 @@ const loadDristicts = async () => {
   margin-bottom: 12px;
 }
 
-.page-header h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
 
 .page-header p {
   font-size: 14px;
@@ -467,13 +558,28 @@ const loadDristicts = async () => {
   animation: fadeUp 0.5s ease both;
 }
 
-.form-card:nth-child(2) { animation-delay: 0.05s; }
-.form-card:nth-child(3) { animation-delay: 0.10s; }
-.form-card:nth-child(4) { animation-delay: 0.15s; }
+.form-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.form-card:nth-child(3) {
+  animation-delay: 0.10s;
+}
+
+.form-card:nth-child(4) {
+  animation-delay: 0.15s;
+}
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .card-header {
@@ -486,17 +592,31 @@ const loadDristicts = async () => {
 }
 
 .card-icon {
-  width: 40px; height: 40px;
+  width: 40px;
+  height: 40px;
   background: var(--green-bg);
   border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.card-icon svg { width: 20px; height: 20px; }
+.card-icon svg {
+  width: 20px;
+  height: 20px;
+}
 
-.card-header-text h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
-.card-header-text p  { font-size: 12.5px; color: var(--text-gray); }
+.card-header-text h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.card-header-text p {
+  font-size: 12.5px;
+  color: var(--text-gray);
+}
 
 /* FIELDS */
 .field-row {
@@ -506,11 +626,21 @@ const loadDristicts = async () => {
   margin-bottom: 18px;
 }
 
-.field-row.single { grid-template-columns: 1fr; }
+.field-row.single {
+  grid-template-columns: 1fr;
+}
 
-.field-group { display: flex; flex-direction: column; gap: 6px; }
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-.field-group label { font-size: 12.5px; font-weight: 600; color: var(--text-dark); }
+.field-group label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
 
 .field-group input,
 .field-group select,
@@ -530,42 +660,78 @@ const loadDristicts = async () => {
 }
 
 .field-group input::placeholder,
-.field-group textarea::placeholder { color: var(--text-light); }
+.field-group textarea::placeholder {
+  color: var(--text-light);
+}
 
 .field-group input:focus,
 .field-group select:focus,
 .field-group textarea:focus {
   border-color: var(--green-light);
-  box-shadow: 0 0 0 3px rgba(82,183,136,0.18);
+  box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.18);
 }
 
-.field-group textarea { resize: vertical; min-height: 110px; }
+.field-group textarea {
+  resize: vertical;
+  min-height: 110px;
+}
 
-.select-wrap { position: relative; }
-.select-wrap select { padding-right: 38px; cursor: pointer; }
+.field-error {
+  border-color: #E53E3E !important;
+}
+
+.field-error:focus {
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15) !important;
+}
+
+.error-msg {
+  font-size: 11.5px;
+  color: #E53E3E;
+}
+
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap select {
+  padding-right: 38px;
+  cursor: pointer;
+}
 
 .select-wrap::after {
   content: '';
   position: absolute;
-  right: 14px; top: 50%;
+  right: 14px;
+  top: 50%;
   transform: translateY(-50%);
-  width: 10px; height: 6px;
+  width: 10px;
+  height: 6px;
   background: var(--text-light);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
   pointer-events: none;
 }
 
-.date-wrap { position: relative; }
-.date-wrap input { padding-left: 40px; }
+.date-wrap {
+  position: relative;
+}
+
+.date-wrap input {
+  padding-left: 40px;
+}
 
 .date-icon {
   position: absolute;
-  left: 13px; top: 50%;
+  left: 13px;
+  top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
 }
 
-.field-group select:disabled { background: #F4F6F5; color: var(--text-light); cursor: not-allowed; }
+.field-group select:disabled {
+  background: #F4F6F5;
+  color: var(--text-light);
+  cursor: not-allowed;
+}
 
 /* UPLOAD */
 .upload-zone {
@@ -579,38 +745,90 @@ const loadDristicts = async () => {
 }
 
 .upload-zone:hover,
-.upload-zone.drag-over { border-color: var(--green-light); background: var(--green-bg); }
+.upload-zone.drag-over {
+  border-color: var(--green-light);
+  background: var(--green-bg);
+}
 
 .upload-icon {
-  width: 48px; height: 48px;
+  width: 48px;
+  height: 48px;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto 16px;
 }
 
-.upload-zone h4 { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
-.upload-zone p  { font-size: 12px; color: var(--text-light); }
+.upload-zone h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
 
-.file-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.upload-zone p {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.file-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 .file-item {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: var(--green-bg);
   border: 1px solid #C3E6CE;
   border-radius: 8px;
   padding: 10px 14px;
 }
 
-.file-item-name { font-size: 13px; font-weight: 500; color: var(--green-dark); flex: 1; }
-.file-item-size { font-size: 11px; color: var(--text-light); }
+.file-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--green-dark);
+  flex: 1;
+}
+
+.file-item-size {
+  font-size: 11px;
+  color: var(--text-light);
+}
 
 .file-remove {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-light); display: flex; transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  display: flex;
+  transition: color 0.2s;
 }
-.file-remove:hover { color: #E53E3E; }
+
+.file-remove:hover {
+  color: #E53E3E;
+}
+
+/* ERRO GLOBAL */
+.global-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF5F5;
+  border: 1px solid #FEB2B2;
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: #C53030;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
 
 /* SUBMIT BANNER */
 .submit-banner {
@@ -625,82 +843,261 @@ const loadDristicts = async () => {
   animation: fadeUp 0.5s 0.2s ease both;
 }
 
-.submit-banner-text { display: flex; align-items: flex-start; gap: 12px; }
+.submit-banner-text {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
 
 .submit-banner-icon {
-  width: 34px; height: 34px;
-  background: rgba(255,255,255,0.12);
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .submit-banner p {
   font-size: 12.5px;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.65;
   max-width: 440px;
 }
 
 .btn-submit {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--green-light); color: #fff; border: none;
-  border-radius: 9px; padding: 13px 28px;
-  font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
-  cursor: pointer; white-space: nowrap; flex-shrink: 0;
-  transition: background 0.2s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-light);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 13px 28px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.15s, opacity 0.2s;
 }
 
-.btn-submit:hover { background: #40A07A; transform: translateY(-1px); }
+.btn-submit:hover:not(:disabled) {
+  background: #40A07A;
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* SUCCESS MODAL */
 .success-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: flex; align-items: center; justify-content: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 999;
   animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
 
 .success-card {
   background: var(--white);
   border-radius: 18px;
-  padding: 48px 40px;
+  padding: 44px 40px;
   text-align: center;
-  max-width: 400px; width: 90%;
+  max-width: 420px;
+  width: 90%;
   animation: scaleIn 0.3s ease;
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.88); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .success-icon {
-  width: 72px; height: 72px;
+  width: 72px;
+  height: 72px;
   background: var(--green-pale);
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto 22px;
 }
 
-.success-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+.success-card h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
 
-.success-card p {
+.success-card>p {
   font-size: 13.5px;
   color: var(--text-gray);
   line-height: 1.65;
-  margin-bottom: 28px;
+  margin-bottom: 22px;
+}
+
+/* Tracking code box */
+.tracking-box {
+  background: var(--green-bg);
+  border: 1.5px solid #C3E6CE;
+  border-radius: 12px;
+  padding: 18px 20px 14px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.tracking-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-gray);
+  margin-bottom: 10px;
+}
+
+.tracking-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.tracking-code {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--green-dark);
+  letter-spacing: 2px;
+  flex: 1;
+}
+
+.btn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-copy:hover {
+  background: var(--green-mid);
+  border-color: var(--green-mid);
+  color: #fff;
+}
+
+.tracking-hint {
+  font-size: 11.5px;
+  color: var(--text-gray);
+  line-height: 1.5;
+  margin: 0 0 4px;
+}
+
+.tracking-due {
+  font-size: 11.5px;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+.tracking-due strong {
+  color: var(--green-dark);
 }
 
 .btn-ok {
-  background: var(--green-mid); color: #fff; border: none;
-  border-radius: 9px; padding: 12px 36px;
-  font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: background 0.2s;
+  background: var(--green-mid);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 12px 36px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.btn-ok:hover { background: var(--green-dark); }
+.btn-ok:hover {
+  background: var(--green-dark);
+}
+
+/* CONTADOR DE CARACTERES */
+.char-counter {
+  font-size: 11.5px;
+  margin-top: 4px;
+}
+
+.char-hint {
+  color: var(--text-light);
+}
+
+.char-warn {
+  color: #C66E00;
+}
+
+.char-ok {
+  color: var(--green-mid);
+}
+
+/* HINT DE CONTACTO */
+.contact-hint-group {
+  justify-content: center;
+}
+
+.contact-hint {
+  font-size: 11.5px;
+  color: var(--text-light);
+  margin-top: 4px;
+}
 </style>

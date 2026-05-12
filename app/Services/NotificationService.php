@@ -28,8 +28,12 @@ class NotificationService
             );
         }
 
-        $alertLevel = $occurrence->occurrenceType->alert_level;
-        $this->notifyByAlertLevel($occurrence, $alertLevel);
+        // occurrenceType é opcional no formulário público — só notifica
+        // por nível de alerta quando o tipo está definido
+        if ($occurrence->occurrenceType) {
+            $alertLevel = $occurrence->occurrenceType->alert_level;
+            $this->notifyByAlertLevel($occurrence, $alertLevel);
+        }
     }
 
     public function notifyStatusChanged(Occurrence $occurrence, ?string $comment): void
@@ -138,26 +142,31 @@ class NotificationService
 
     private function buildCreatedMessage(Occurrence $occurrence): string
     {
-        $dueDate = $occurrence->due_date
-            ? $occurrence->due_date->format('d/m/Y')
-            : 'A definir';
-
-        $url = config('app.url') . "/acompanhar?codigo={$occurrence->tracking_code}";
+        // Variáveis locais — o heredoc não suporta operadores (??) dentro de {}
+        $name       = $occurrence->complainant_name ?? 'Reclamante';
+        $subject    = $occurrence->subject          ?? 'Não especificado';
+        $dueDate    = $occurrence->due_date
+                        ? $occurrence->due_date->format('d/m/Y')
+                        : 'A definir';
+        $code       = $occurrence->tracking_code;
+        $url        = config('app.url') . "/acompanhar?codigo={$code}";
+        $project    = $occurrence->project->name;
+        $registedAt = $occurrence->created_at->format('d/m/Y H:i');
 
         return <<<TEXT
-Prezado(a) {$occurrence->complainant_name},
+Prezado(a) $name,
 
 A sua ocorrência foi registada com sucesso no sistema MDR — Mecanismo de Diálogo e Reclamações.
 
-Código de seguimento: {$occurrence->tracking_code}
+Código de seguimento: $code
 
 Guarde este código para acompanhar o estado da sua ocorrência em:
-{$url}
+$url
 
-Assunto: {$occurrence->subject}
-Projecto: {$occurrence->project->name}
-Data de registo: {$occurrence->created_at->format('d/m/Y H:i')}
-Prazo de resolução: {$dueDate}
+Assunto: $subject
+Projecto: $project
+Data de registo: $registedAt
+Prazo de resolução: $dueDate
 
 Com os melhores cumprimentos,
 Equipa MDR — BIOFUND/FNDS
@@ -166,25 +175,23 @@ TEXT;
 
     private function buildStatusChangedMessage(Occurrence $occurrence, ?string $comment): string
     {
-        $statusLabel = $occurrence->status->label();
-
-        $responseLine = $comment
-            ? "Resposta: {$comment}"
-            : '';
-
-        $url = config('app.url') . "/acompanhar?codigo={$occurrence->tracking_code}";
+        $name         = $occurrence->complainant_name ?? 'Reclamante';
+        $statusLabel  = $occurrence->status->label();
+        $code         = $occurrence->tracking_code;
+        $responseLine = $comment ? "Resposta: {$comment}" : '';
+        $url          = config('app.url') . "/acompanhar?codigo={$code}";
 
         return <<<TEXT
-Prezado(a) {$occurrence->complainant_name},
+Prezado(a) $name,
 
 O estado da sua ocorrência foi actualizado.
 
-Código de seguimento: {$occurrence->tracking_code}
-Novo estado: {$statusLabel}
-{$responseLine}
+Código de seguimento: $code
+Novo estado: $statusLabel
+$responseLine
 
 Acompanhe a sua ocorrência em:
-{$url}
+$url
 
 Com os melhores cumprimentos,
 Equipa MDR — BIOFUND/FNDS
@@ -193,21 +200,27 @@ TEXT;
 
     private function buildAssignedMessage(Occurrence $occurrence, User $gestor): string
     {
-        $dueDate = $occurrence->due_date
-            ? $occurrence->due_date->format('d/m/Y')
-            : 'A definir';
+        $gestorName = $gestor->name;
+        $code       = $occurrence->tracking_code;
+        $subject    = $occurrence->subject              ?? 'Não especificado';
+        $typeName   = $occurrence->occurrenceType?->name ?? 'Não definido';
+        $project    = $occurrence->project->name;
+        $province   = $occurrence->province->name;
+        $dueDate    = $occurrence->due_date
+                        ? $occurrence->due_date->format('d/m/Y')
+                        : 'A definir';
 
         return <<<TEXT
-Prezado(a) {$gestor->name},
+Prezado(a) $gestorName,
 
 Foi-lhe atribuída uma nova ocorrência para tratamento.
 
-Código: {$occurrence->tracking_code}
-Assunto: {$occurrence->subject}
-Tipo: {$occurrence->occurrenceType->name}
-Projecto: {$occurrence->project->name}
-Província: {$occurrence->province->name}
-Prazo: {$dueDate}
+Código: $code
+Assunto: $subject
+Tipo: $typeName
+Projecto: $project
+Província: $province
+Prazo: $dueDate
 
 Aceda ao painel MDR para tratar esta ocorrência.
 
@@ -218,20 +231,25 @@ TEXT;
 
     private function buildAlertMessage(Occurrence $occurrence, AlertLevelEnum $level): string
     {
-        $dueDate = $occurrence->due_date
-            ? $occurrence->due_date->format('d/m/Y')
-            : 'A definir';
+        $alertLabel = $level->label();
+        $code       = $occurrence->tracking_code;
+        $subject    = $occurrence->subject ?? 'Não especificado';
+        $project    = $occurrence->project->name;
+        $province   = $occurrence->province->name;
+        $dueDate    = $occurrence->due_date
+                        ? $occurrence->due_date->format('d/m/Y')
+                        : 'A definir';
 
         return <<<TEXT
-⚠️  ALERTA {$level->label()}
+⚠️  ALERTA $alertLabel
 
 Foi registada uma nova ocorrência que requer atenção imediata.
 
-Código: {$occurrence->tracking_code}
-Assunto: {$occurrence->subject}
-Projecto: {$occurrence->project->name}
-Província: {$occurrence->province->name}
-Prazo: {$dueDate}
+Código: $code
+Assunto: $subject
+Projecto: $project
+Província: $province
+Prazo: $dueDate
 
 Aceda ao painel MDR para tratar esta ocorrência com urgência.
 

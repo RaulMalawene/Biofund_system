@@ -44,6 +44,9 @@ Route::prefix('public')->name('public.')->group(function () {
 
     Route::get('occurrences/track/{code}', [PublicOccurrenceController::class, 'track'])
         ->name('occurrences.track');
+
+    Route::get('occurrences/{code}/attachments/{attachmentId}', [PublicOccurrenceController::class, 'downloadAttachment'])
+        ->name('occurrences.attachment.download');
 });
 
 // ═══════════════════════════════════════════════════════════════

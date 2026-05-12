@@ -1,21 +1,41 @@
-import api from "../client";
-import { ENDPOINTS } from "../endpoints";
+import api from '../client'
+import { ENDPOINTS } from '../endpoints'
 
 export const PublicService = {
+
+    /** Dados de referência para preencher os selects do formulário */
     async getFormData() {
-        const response = await api.get(ENDPOINTS.FORM_DATA);
-        return response.data;
+        const { data } = await api.get(ENDPOINTS.FORM_DATA)
+        return data
     },
 
-    async createOccurrence(data) {
-        const response = await api.post(ENDPOINTS.CREATE_OCCURENCE, data);
-        return response.data;
-    },
-
+    /** Distritos de uma provincia */
     async getDistrictsByProvince(provinceId) {
-        const response = await api.get(
-            ENDPOINTS.DISTRICTS_BY_PROVINCE(provinceId),
-        );
-        return response.data;
+        const { data } = await api.get(ENDPOINTS.DISTRICTS_BY_PROVINCE(provinceId))
+        return data   // { districts: [...] }
     },
-};
+
+    /** Comunidades / postos de um distrito */
+    async getCommunitiesByDistrict(districtId) {
+        const { data } = await api.get(ENDPOINTS.COMMUNITIES_BY_DISTRICT(districtId))
+        return data
+    },
+
+    /**
+     * Submete uma nova ocorrência pública.
+     * @param {FormData} formData – multipart/form-data com campos + attachments[]
+     * @returns {{ message, tracking_code, due_date, attachments_count, info }}
+     */
+    async createOccurrence(formData) {
+        const { data } = await api.post(ENDPOINTS.CREATE_OCCURRENCE, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        return data
+    },
+
+    /** Consultar estado de uma ocorrência pelo tracking code */
+    async trackOccurrence(code) {
+        const { data } = await api.get(ENDPOINTS.TRACK_OCCURRENCE(code))
+        return data
+    },
+}

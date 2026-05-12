@@ -48,15 +48,19 @@ class OccurrenceService
     public function createExternal(array $data, array $files = []): Occurrence
     {
         return DB::transaction(function () use ($data, $files) {
-            // Determina o tipo de ocorrência para calcular o SLA
-            $type = \App\Models\OccurrenceType::findOrFail($data['occurrence_type_id']);
+            // occurrence_type_id é opcional no formulário público —
+            // quando não é fornecido o due_date fica null e é calculado
+            // manualmente pelo gestor após atribuição.
+            $type = isset($data['occurrence_type_id'])
+                ? \App\Models\OccurrenceType::findOrFail($data['occurrence_type_id'])
+                : null;
 
             $occurrence = Occurrence::create([
                 ...Arr::except($data, ['attachments']),
                 'tracking_code' => $this->trackingCodeService->generate(),
                 'origin'        => OriginEnum::External,
                 'status'        => OccurrenceStatusEnum::Pending,
-                'due_date'      => $type->calculateDueDate(),
+                'due_date'      => $type?->calculateDueDate(),
             ]);
 
             // Regista o estado inicial no histórico
