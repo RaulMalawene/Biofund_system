@@ -7,7 +7,7 @@
       <div class="hero-bg"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <div class="hero-badge">Iniciativa de Conservação Biofund</div>
+        <div class="hero-badge">Iniciativa de RAULLLLLLLLLLLLLLLLLEEEEEEEEEEEEEEEEEEEEEEE Conservação Biofund</div>
         <h1>
           Registe a sua
           <span>reclamação ambiental</span>
