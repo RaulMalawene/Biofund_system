@@ -97,7 +97,7 @@
       </div>
 
       <div class="why-right">
-        <img src="https://images.unsplash.com/photo-1551970634-747846a548cb?w=800&q=80" alt="Guarda florestal em Moçambique" />
+        <img src="../../Imagem/LATERALIMAGEM.jpg" alt="Guarda florestal em Moçambique" />
         <div class="why-stat">
           <div class="why-stat-icon">
             <svg width="18" height="18" fill="none" viewBox="0 0 18 18">
@@ -202,7 +202,7 @@ onMounted(() => {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=1600&q=80');
+  background-image: url('../../Imagem/imagem\ background.jpg');
   background-size: cover;
   background-position: center 40%;
   filter: brightness(0.6);

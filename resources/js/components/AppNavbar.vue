@@ -1,11 +1,8 @@
 <template>
   <nav :class="['app-nav', variant]">
     <router-link to="/" class="nav-logo">
-      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-        <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#52B788"/>
-        <path d="M10 28C10 28 14 20 20 20" stroke="#2D6A4F" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      BioQueixa
+      <img src="../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="nav-logo-img"/>
+      Biofund
     </router-link>
 
     <div class="nav-links">
@@ -14,7 +11,7 @@
       <router-link to="/visualizarReclamacao">Consultar</router-link>
     </div>
 
-    <button class="btn-restricted">Acesso Restrito</button>
+    <button class="btn-restricted" @click="$router.push('/acessoRestrito')">Acesso Restrito</button>
   </nav>
 </template>
 
@@ -51,12 +48,20 @@ defineProps({
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
   color: var(--text-dark);
   font-weight: 700;
   font-size: 17px;
   letter-spacing: -0.3px;
+}
+
+.nav-logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
 .nav-links {

@@ -115,8 +115,7 @@
           <div class="field-group">
             <label>Distrito</label>
             <div class="select-wrap">
-              <select v-model="form.distrito" :disabled="!form.provincia || loadingDistricts"
-                @change="handleDistrictChange">
+              <select v-model="form.distrito" :disabled="!form.provincia || loadingDistricts" @change="handleDistrictChange">
                 <option value="" disabled>{{ loadingDistricts ? 'A carregar…' : 'Seleccione o distrito' }}</option>
                 <option v-for="d in distritos" :key="d.id" :value="d.id">{{ d.name }}</option>
               </select>
@@ -166,16 +165,24 @@
           </div>
           <div class="field-group">
             <label>Email</label>
-            <input type="email" v-model="form.email" placeholder="ex: nome@exemplo.com"
-              :class="{ 'field-error': errors.contacto }" />
+            <input
+              type="email"
+              v-model="form.email"
+              placeholder="ex: nome@exemplo.com"
+              :class="{ 'field-error': errors.contacto }"
+            />
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
             <label>Número de Telefone</label>
-            <input type="tel" v-model="form.phone" placeholder="ex: +258 84 000 0000"
-              :class="{ 'field-error': errors.contacto }" />
+            <input
+              type="tel"
+              v-model="form.phone"
+              placeholder="ex: +258 84 000 0000"
+              :class="{ 'field-error': errors.contacto }"
+            />
           </div>
           <div class="field-group contact-hint-group">
             <span class="contact-hint" v-if="errors.contacto" style="color:#E53E3E">{{ errors.contacto }}</span>
@@ -276,8 +283,7 @@
         </div>
 
         <h3>Reclamação Enviada!</h3>
-        <p>A sua reclamação foi registada com sucesso. A equipa da Biofund irá analisar e tomar as medidas necessárias.
-        </p>
+        <p>A sua reclamação foi registada com sucesso. A equipa da Biofund irá analisar e tomar as medidas necessárias.</p>
 
         <!-- Tracking Code -->
         <div class="tracking-box" v-if="trackingCode">
@@ -330,28 +336,28 @@ const form = reactive({
 })
 
 // ─── Listas de referência ─────────────────────────────────────
-const projectos = ref([])
+const projectos  = ref([])
 const categorias = ref([])
 const provincias = ref([])
-const distritos = ref([])
+const distritos  = ref([])
 const comunidades = ref([])
 
 // ─── Ficheiros ────────────────────────────────────────────────
-const files = ref([])
+const files     = ref([])
 const fileInput = ref(null)
 const isDragging = ref(false)
 
 // ─── Estado UI ────────────────────────────────────────────────
-const loadingFormData = ref(false)
-const loadingDistricts = ref(false)
+const loadingFormData    = ref(false)
+const loadingDistricts   = ref(false)
 const loadingCommunities = ref(false)
-const submitting = ref(false)
-const showSuccess = ref(false)
-const trackingCode = ref('')
-const dueDate = ref('')
-const copied = ref(false)
-const errors = reactive({})
-const globalError = ref('')
+const submitting         = ref(false)
+const showSuccess        = ref(false)
+const trackingCode       = ref('')
+const dueDate            = ref('')
+const copied             = ref(false)
+const errors             = reactive({})
+const globalError        = ref('')
 
 // ─── Carregar dados do formulário ─────────────────────────────
 onMounted(loadFormData)
@@ -360,9 +366,9 @@ async function loadFormData() {
   try {
     loadingFormData.value = true
     const data = await PublicService.getFormData()
-    projectos.value = data.projects ?? []
+    projectos.value  = data.projects   ?? []
     categorias.value = data.categories ?? []
-    provincias.value = data.provinces ?? []
+    provincias.value = data.provinces  ?? []
   } catch (error) {
     console.error('Erro ao carregar formulário:', error)
     globalError.value = 'Não foi possível carregar os dados do formulário. Recarregue a página.'
@@ -373,9 +379,9 @@ async function loadFormData() {
 
 // ─── Cascata Província → Distrito ────────────────────────────
 async function handleProvinceChange() {
-  form.distrito = ''
+  form.distrito   = ''
   form.comunidade = ''
-  distritos.value = []
+  distritos.value  = []
   comunidades.value = []
   if (!form.provincia) return
   try {
@@ -391,7 +397,7 @@ async function handleProvinceChange() {
 
 // ─── Cascata Distrito → Comunidade ───────────────────────────
 async function handleDistrictChange() {
-  form.comunidade = ''
+  form.comunidade  = ''
   comunidades.value = []
   if (!form.distrito) return
   try {
@@ -406,9 +412,9 @@ async function handleDistrictChange() {
 }
 
 // ─── Upload de ficheiros ──────────────────────────────────────
-const triggerUpload = () => fileInput.value?.click()
+const triggerUpload    = () => fileInput.value?.click()
 const handleFileSelect = (e) => { addFiles(Array.from(e.target.files)); e.target.value = '' }
-const handleDrop = (e) => { isDragging.value = false; addFiles(Array.from(e.dataTransfer.files)) }
+const handleDrop       = (e) => { isDragging.value = false; addFiles(Array.from(e.dataTransfer.files)) }
 
 function addFiles(list) {
   list.forEach(f => {
@@ -435,16 +441,16 @@ async function submitForm() {
   const fd = new FormData()
 
   // Nome — opcional, submissão anónima permitida
-  if (form.nome.trim()) fd.append('complainant_name', form.nome.trim())
+  if (form.nome.trim())  fd.append('complainant_name',  form.nome.trim())
   if (form.email.trim()) fd.append('complainant_email', form.email.trim())
   if (form.phone.trim()) fd.append('complainant_phone', form.phone.trim())
 
-  if (form.projeto) fd.append('project_id', form.projeto)
-  if (form.categoria) fd.append('category_id', form.categoria)
-  if (form.descricao) fd.append('description', form.descricao.trim())
-  if (form.data) fd.append('occurrence_date', form.data)
-  if (form.provincia) fd.append('province_id', form.provincia)
-  if (form.distrito) fd.append('district_id', form.distrito)
+  if (form.projeto)   fd.append('project_id',      form.projeto)
+  if (form.categoria) fd.append('category_id',     form.categoria)
+  if (form.descricao) fd.append('description',     form.descricao.trim())
+  if (form.data)      fd.append('occurrence_date', form.data)
+  if (form.provincia) fd.append('province_id',     form.provincia)
+  if (form.distrito)  fd.append('district_id',     form.distrito)
 
   // Combina coordenadas + nome da comunidade num único campo location_detail
   const locationParts = []
@@ -462,8 +468,8 @@ async function submitForm() {
     submitting.value = true
     const result = await PublicService.createOccurrence(fd)
     trackingCode.value = result.tracking_code ?? ''
-    dueDate.value = result.due_date ?? ''
-    showSuccess.value = true
+    dueDate.value      = result.due_date      ?? ''
+    showSuccess.value  = true
   } catch (err) {
     if (err.response?.status === 422) {
       const serverErrors = err.response.data.errors ?? {}
@@ -485,9 +491,9 @@ async function submitForm() {
 function closeSuccess() {
   showSuccess.value = false
   Object.keys(form).forEach(k => { form[k] = '' })
-  files.value = []
+  files.value        = []
   trackingCode.value = ''
-  dueDate.value = ''
+  dueDate.value      = ''
 }
 
 async function copyCode() {
@@ -558,28 +564,13 @@ async function copyCode() {
   animation: fadeUp 0.5s ease both;
 }
 
-.form-card:nth-child(2) {
-  animation-delay: 0.05s;
-}
-
-.form-card:nth-child(3) {
-  animation-delay: 0.10s;
-}
-
-.form-card:nth-child(4) {
-  animation-delay: 0.15s;
-}
+.form-card:nth-child(2) { animation-delay: 0.05s; }
+.form-card:nth-child(3) { animation-delay: 0.10s; }
+.form-card:nth-child(4) { animation-delay: 0.15s; }
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
 }
 
 .card-header {
@@ -602,10 +593,7 @@ async function copyCode() {
   flex-shrink: 0;
 }
 
-.card-icon svg {
-  width: 20px;
-  height: 20px;
-}
+.card-icon svg { width: 20px; height: 20px; }
 
 .card-header-text h3 {
   font-size: 15px;
@@ -626,9 +614,7 @@ async function copyCode() {
   margin-bottom: 18px;
 }
 
-.field-row.single {
-  grid-template-columns: 1fr;
-}
+.field-row.single { grid-template-columns: 1fr; }
 
 .field-group {
   display: flex;
@@ -660,9 +646,7 @@ async function copyCode() {
 }
 
 .field-group input::placeholder,
-.field-group textarea::placeholder {
-  color: var(--text-light);
-}
+.field-group textarea::placeholder { color: var(--text-light); }
 
 .field-group input:focus,
 .field-group select:focus,
@@ -671,33 +655,14 @@ async function copyCode() {
   box-shadow: 0 0 0 3px rgba(82, 183, 136, 0.18);
 }
 
-.field-group textarea {
-  resize: vertical;
-  min-height: 110px;
-}
+.field-group textarea { resize: vertical; min-height: 110px; }
 
-.field-error {
-  border-color: #E53E3E !important;
-}
+.field-error { border-color: #E53E3E !important; }
+.field-error:focus { box-shadow: 0 0 0 3px rgba(229,62,62,0.15) !important; }
+.error-msg { font-size: 11.5px; color: #E53E3E; }
 
-.field-error:focus {
-  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15) !important;
-}
-
-.error-msg {
-  font-size: 11.5px;
-  color: #E53E3E;
-}
-
-.select-wrap {
-  position: relative;
-}
-
-.select-wrap select {
-  padding-right: 38px;
-  cursor: pointer;
-}
-
+.select-wrap { position: relative; }
+.select-wrap select { padding-right: 38px; cursor: pointer; }
 .select-wrap::after {
   content: '';
   position: absolute;
@@ -711,14 +676,8 @@ async function copyCode() {
   pointer-events: none;
 }
 
-.date-wrap {
-  position: relative;
-}
-
-.date-wrap input {
-  padding-left: 40px;
-}
-
+.date-wrap { position: relative; }
+.date-wrap input { padding-left: 40px; }
 .date-icon {
   position: absolute;
   left: 13px;
@@ -762,23 +721,10 @@ async function copyCode() {
   margin: 0 auto 16px;
 }
 
-.upload-zone h4 {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 5px;
-}
+.upload-zone h4 { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+.upload-zone p  { font-size: 12px; color: var(--text-light); }
 
-.upload-zone p {
-  font-size: 12px;
-  color: var(--text-light);
-}
-
-.file-list {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.file-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
 
 .file-item {
   display: flex;
@@ -790,17 +736,8 @@ async function copyCode() {
   padding: 10px 14px;
 }
 
-.file-item-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--green-dark);
-  flex: 1;
-}
-
-.file-item-size {
-  font-size: 11px;
-  color: var(--text-light);
-}
+.file-item-name { font-size: 13px; font-weight: 500; color: var(--green-dark); flex: 1; }
+.file-item-size { font-size: 11px; color: var(--text-light); }
 
 .file-remove {
   background: none;
@@ -811,9 +748,7 @@ async function copyCode() {
   transition: color 0.2s;
 }
 
-.file-remove:hover {
-  color: #E53E3E;
-}
+.file-remove:hover { color: #E53E3E; }
 
 /* ERRO GLOBAL */
 .global-error {
@@ -843,11 +778,7 @@ async function copyCode() {
   animation: fadeUp 0.5s 0.2s ease both;
 }
 
-.submit-banner-text {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
+.submit-banner-text { display: flex; align-items: flex-start; gap: 12px; }
 
 .submit-banner-icon {
   width: 34px;
@@ -859,6 +790,14 @@ async function copyCode() {
   justify-content: center;
   flex-shrink: 0;
   margin-top: 1px;
+  overflow: hidden;
+}
+
+.submit-banner-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .submit-banner p {
@@ -886,31 +825,20 @@ async function copyCode() {
   transition: background 0.2s, transform 0.15s, opacity 0.2s;
 }
 
-.btn-submit:hover:not(:disabled) {
-  background: #40A07A;
-  transform: translateY(-1px);
-}
-
-.btn-submit:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
+.btn-submit:hover:not(:disabled) { background: #40A07A; transform: translateY(-1px); }
+.btn-submit:disabled             { opacity: 0.65; cursor: not-allowed; }
 
 .spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255,255,255,0.35);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* SUCCESS MODAL */
 .success-overlay {
@@ -924,15 +852,7 @@ async function copyCode() {
   animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .success-card {
   background: var(--white);
@@ -945,15 +865,8 @@ async function copyCode() {
 }
 
 @keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.88);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .success-icon {
@@ -967,13 +880,9 @@ async function copyCode() {
   margin: 0 auto 22px;
 }
 
-.success-card h3 {
-  font-size: 20px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
+.success-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
 
-.success-card>p {
+.success-card > p {
   font-size: 13.5px;
   color: var(--text-gray);
   line-height: 1.65;
@@ -1051,9 +960,7 @@ async function copyCode() {
   margin: 0;
 }
 
-.tracking-due strong {
-  color: var(--green-dark);
-}
+.tracking-due strong { color: var(--green-dark); }
 
 .btn-ok {
   background: var(--green-mid);
@@ -1068,36 +975,15 @@ async function copyCode() {
   transition: background 0.2s;
 }
 
-.btn-ok:hover {
-  background: var(--green-dark);
-}
+.btn-ok:hover { background: var(--green-dark); }
 
 /* CONTADOR DE CARACTERES */
-.char-counter {
-  font-size: 11.5px;
-  margin-top: 4px;
-}
-
-.char-hint {
-  color: var(--text-light);
-}
-
-.char-warn {
-  color: #C66E00;
-}
-
-.char-ok {
-  color: var(--green-mid);
-}
+.char-counter { font-size: 11.5px; margin-top: 4px; }
+.char-hint    { color: var(--text-light); }
+.char-warn    { color: #C66E00; }
+.char-ok      { color: var(--green-mid); }
 
 /* HINT DE CONTACTO */
-.contact-hint-group {
-  justify-content: center;
-}
-
-.contact-hint {
-  font-size: 11.5px;
-  color: var(--text-light);
-  margin-top: 4px;
-}
+.contact-hint-group { justify-content: center; }
+.contact-hint { font-size: 11.5px; color: var(--text-light); margin-top: 4px; }
 </style>
