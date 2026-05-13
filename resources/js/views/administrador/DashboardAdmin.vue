@@ -24,20 +24,20 @@
           </svg>
           Validação
         </a>
-        <a class="nav-item">
+        <router-link class="nav-item" to="/admin/utilizadores">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
           </svg>
           Utilizadores
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/historico">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="2" y="1" width="10" height="14" rx="1.5"/>
             <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
             <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Histórico de Ocorrências
-        </a>
+        </router-link>
         <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>

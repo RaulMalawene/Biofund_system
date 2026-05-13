@@ -4,13 +4,17 @@ import SubmeterReclamacaoView  from '@/views/funcionario externo/SubmeterReclama
 import VisualizarReclamacaoView from '@/views/funcionario externo/VisualizarReclamacaoView.vue';
 import AcessoRestritoView      from '@/views/AcessoRestritoView.vue';
 import DashboardAdmin          from '@/views/administrador/DashboardAdmin.vue';
+import GestaoUtilizadores      from '@/views/administrador/GestaoUtilizadores.vue';
+import HistoricoOcorrencia     from '@/views/administrador/HistoricoOcorrencia.vue';
 
 const routes = [
-  { path: '/',                      component: HomeView },
-  { path: '/submeterReclamacao',    component: SubmeterReclamacaoView },
-  { path: '/visualizarReclamacao',  component: VisualizarReclamacaoView },
-  { path: '/acessoRestrito',        component: AcessoRestritoView },
-  { path: '/admin/dashboard',       component: DashboardAdmin },
+  { path: '/',                         component: HomeView },
+  { path: '/submeterReclamacao',       component: SubmeterReclamacaoView },
+  { path: '/visualizarReclamacao',     component: VisualizarReclamacaoView },
+  { path: '/acessoRestrito',           component: AcessoRestritoView },
+  { path: '/admin/dashboard',          component: DashboardAdmin },
+  { path: '/admin/utilizadores',       component: GestaoUtilizadores },
+  { path: '/admin/historico',          component: HistoricoOcorrencia },
 ];
 
 const router = createRouter({
