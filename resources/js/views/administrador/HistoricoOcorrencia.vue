@@ -18,12 +18,12 @@
           </svg>
           Dashboard
         </router-link>
-        <a class="nav-item">
+        <router-link class="nav-item" to="/admin/validacao">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
           </svg>
           Validação
-        </a>
+        </router-link>
         <router-link class="nav-item" to="/admin/utilizadores">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
@@ -193,7 +193,21 @@
               </label>
               <input type="text" placeholder="Ex: REC-2024-001" v-model="filters.codigo"/>
             </div>
-            <div></div>
+            <div class="filter-group">
+              <label>
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
+                  <circle cx="6" cy="6" r="4.5"/><path d="M4 6h4M6 4v4" stroke-linecap="round"/>
+                </svg>
+                Origem
+              </label>
+              <select v-model="filters.origem">
+                <option value="">Todas as Ocorrências</option>
+                <option value="minhas">Suas Ocorrências</option>
+                <option value="gestor">Gestores</option>
+                <option value="externo">Utilizadores Externos</option>
+                <option value="interno">Funcionários Internos</option>
+              </select>
+            </div>
             <div class="filter-actions">
               <button class="btn-limpar" @click="limparFiltros">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 14 14">
@@ -211,64 +225,11 @@
           </div>
         </div>
 
-        <!-- KPI STRIP -->
-        <div class="kpi-strip">
-          <div class="kpi-card">
-            <div class="kpi-icon green">
-              <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
-                <rect x="2" y="1" width="11" height="15" rx="1.5"/><path d="M5 5h5M5 8h5M5 11h3" stroke-linecap="round"/>
-                <path d="M11 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div>
-              <div class="kpi-label dark">Total</div>
-              <div class="kpi-value dark">{{ filteredRows.length }}</div>
-            </div>
-          </div>
-          <div class="kpi-card highlight">
-            <div class="kpi-icon white">
-              <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
-                <circle cx="9" cy="9" r="7"/><path d="M9 5v4l3 3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div>
-              <div class="kpi-label light">Pendentes</div>
-              <div class="kpi-value light">{{ countByStatus('Pendente') }}</div>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon blue">
-              <svg width="18" height="18" fill="none" stroke="#2B6CB0" stroke-width="1.8" viewBox="0 0 18 18">
-                <circle cx="9" cy="9" r="7"/><path d="M6 9h6M9 6v6" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div>
-              <div class="kpi-label dark">Em Análise</div>
-              <div class="kpi-value dark">{{ countByStatus('Analise') }}</div>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon green">
-              <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
-                <circle cx="9" cy="9" r="7"/><path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div>
-              <div class="kpi-label dark">Resolvidas</div>
-              <div class="kpi-value dark">{{ countByStatus('Resolvido') }}</div>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon red">
-              <svg width="18" height="18" fill="none" stroke="#E53E3E" stroke-width="1.8" viewBox="0 0 18 18">
-                <circle cx="9" cy="9" r="7"/><path d="M6.5 6.5l5 5M11.5 6.5l-5 5" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div>
-              <div class="kpi-label dark">Rejeitadas</div>
-              <div class="kpi-value dark">{{ countByStatus('Rejeitado') }}</div>
-            </div>
-          </div>
+        <!-- STAT BAR -->
+        <div class="stat-bar">
+          <span class="stat-label">Resultados filtrados:</span>
+          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('Resolvido') }}</span>
+          <span class="badge-status rejeitado">Rejeitadas · {{ countByStatus('Rejeitado') }}</span>
         </div>
 
         <!-- TABLE CARD -->
@@ -281,6 +242,7 @@
                 <th>Província</th>
                 <th>Categoria</th>
                 <th>Canal</th>
+                <th>Origem</th>
                 <th>Responsável</th>
                 <th>Projecto</th>
                 <th>Estado</th>
@@ -296,6 +258,9 @@
                 <td>{{ r.provincia }}</td>
                 <td class="td-small">{{ r.categoria }}</td>
                 <td class="td-small">{{ r.canal }}</td>
+                <td>
+                  <span class="badge-origem" :class="r.origem">{{ origemLabel(r.origem) }}</span>
+                </td>
                 <td>
                   <div class="resp-cell" v-if="r.responsavel">
                     <div class="resp-avatar">{{ r.responsavel[0] }}</div>
@@ -317,7 +282,7 @@
                 </td>
               </tr>
               <tr v-if="paginatedRows.length === 0">
-                <td colspan="9" class="empty-row">
+                <td colspan="10" class="empty-row">
                   Nenhuma ocorrência encontrada com os filtros aplicados.
                 </td>
               </tr>
@@ -397,6 +362,12 @@
             <span class="detail-val">{{ selected.canal }}</span>
           </div>
           <div class="detail-row">
+            <span class="detail-key">Origem</span>
+            <span class="detail-val">
+              <span class="badge-origem" :class="selected.origem">{{ origemLabel(selected.origem) }}</span>
+            </span>
+          </div>
+          <div class="detail-row">
             <span class="detail-key">Responsável</span>
             <span class="detail-val">{{ selected.responsavel || '—' }}</span>
           </div>
@@ -445,14 +416,15 @@ const provincias = [
   'Niassa', 'Sofala', 'Tete', 'Zambézia'
 ]
 
-const filters = reactive({ provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '' })
-const applied = reactive({ provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '' })
+const currentUser = 'Admin Central'
+const filters = reactive({ provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
+const applied = reactive({ provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
 
 const rows = ref([
   {
     id: 'REC-2024-001', data: '2024-05-15', provincia: 'Cabo Delgado',
     categoria: 'Desmatamento Ilegal', canal: 'Telefone', responsavel: 'Sara',
-    projeto: 'MozRural', status: 'Rejeitado',
+    projeto: 'MozRural', status: 'Rejeitado', origem: 'gestor',
     descricao: 'Foram identificadas áreas de desflorestação ilegal na zona norte da reserva florestal. Estimativa de 5 hectares afetados.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-15 09:12', tipo: 'neutro' },
@@ -463,7 +435,7 @@ const rows = ref([
   {
     id: 'REC-2024-002', data: '2024-05-14', provincia: 'Nampula',
     categoria: 'Poluição Hídrica', canal: 'Email', responsavel: null,
-    projeto: 'MozP', status: 'Resolvido',
+    projeto: 'MozP', status: 'Resolvido', origem: 'externo',
     descricao: 'Descarte de resíduos industriais no rio Ligonha. A situação foi controlada após intervenção da equipa técnica regional.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-14 08:00', tipo: 'neutro' },
@@ -473,7 +445,7 @@ const rows = ref([
   {
     id: 'REC-2024-003', data: '2024-05-12', provincia: 'Sofala',
     categoria: 'Caça Furtiva', canal: 'Email', responsavel: 'Sara',
-    projeto: 'MozBio', status: 'Resolvido',
+    projeto: 'MozBio', status: 'Resolvido', origem: 'interno',
     descricao: 'Armadilhas ilegais detectadas na área tampão do Parque da Gorongosa. Autoridades notificadas e armadilhas removidas.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-12 10:00', tipo: 'neutro' },
@@ -483,8 +455,8 @@ const rows = ref([
   },
   {
     id: 'REC-2024-004', data: '2024-05-10', provincia: 'Maputo',
-    categoria: 'Queimadas Descontroladas', canal: 'Telefone', responsavel: 'Joao',
-    projeto: 'MozAmbiente', status: 'Resolvido',
+    categoria: 'Queimadas Descontroladas', canal: 'Telefone', responsavel: 'Admin Central',
+    projeto: 'MozAmbiente', status: 'Resolvido', origem: 'gestor',
     descricao: 'Queimadas de grandes proporções na zona sul. Equipa de resposta rápida mobilizada. Incêndio controlado em 48h.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-10 07:30', tipo: 'neutro' },
@@ -495,7 +467,7 @@ const rows = ref([
   {
     id: 'REC-2024-005', data: '2024-05-09', provincia: 'Gaza',
     categoria: 'Mineração Ilegal', canal: 'Reuniao', responsavel: 'Joao',
-    projeto: 'MozRural', status: 'Removido',
+    projeto: 'MozRural', status: 'Removido', origem: 'externo',
     descricao: 'Actividade de mineração ilegal detectada na margem do Rio Limpopo. Caso transferido para autoridades competentes.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-09 11:00', tipo: 'neutro' },
@@ -505,7 +477,7 @@ const rows = ref([
   {
     id: 'REC-2024-006', data: '2024-05-07', provincia: 'Niassa',
     categoria: 'Pesca Ilegal', canal: 'SMS', responsavel: 'Maria',
-    projeto: 'MozBio', status: 'Pendente',
+    projeto: 'MozBio', status: 'Pendente', origem: 'interno',
     descricao: 'Redes de pesca ilegal no Lago Niassa. Autoridades lacustres informadas. Investigação em curso.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-07 14:00', tipo: 'neutro' },
@@ -513,8 +485,8 @@ const rows = ref([
   },
   {
     id: 'REC-2024-007', data: '2024-05-05', provincia: 'Tete',
-    categoria: 'Desmatamento Ilegal', canal: 'Web', responsavel: 'Sara',
-    projeto: 'MozAmbiente', status: 'Analise',
+    categoria: 'Desmatamento Ilegal', canal: 'Web', responsavel: 'Admin Central',
+    projeto: 'MozAmbiente', status: 'Analise', origem: 'gestor',
     descricao: 'Corte ilegal de madeira detetado próximo da aldeia de Changara. Amostras recolhidas para análise laboratorial.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-05 10:00', tipo: 'neutro' },
@@ -524,7 +496,7 @@ const rows = ref([
   {
     id: 'REC-2024-008', data: '2024-05-03', provincia: 'Inhambane',
     categoria: 'Fauna', canal: 'Email', responsavel: null,
-    projeto: 'MozBio', status: 'Rejeitado',
+    projeto: 'MozBio', status: 'Rejeitado', origem: 'externo',
     descricao: 'Denúncia de captura de tartarugas marinhas em Inhassoro. Investigação concluída — denúncia considerada infundada.',
     timeline: [
       { titulo: 'Ocorrência submetida', data: '2024-05-03 08:00', tipo: 'neutro' },
@@ -534,7 +506,7 @@ const rows = ref([
 ])
 
 const filteredRows = computed(() => {
-  let list = rows.value
+  let list = rows.value.filter(r => r.status === 'Resolvido' || r.status === 'Rejeitado')
   if (topSearch.value.trim()) {
     const q = topSearch.value.toLowerCase()
     list = list.filter(r =>
@@ -549,6 +521,10 @@ const filteredRows = computed(() => {
   if (applied.categoria) list = list.filter(r => r.categoria === applied.categoria)
   if (applied.canal)     list = list.filter(r => r.canal === applied.canal)
   if (applied.codigo)    list = list.filter(r => r.id.toLowerCase().includes(applied.codigo.toLowerCase()))
+  if (applied.origem) {
+    if (applied.origem === 'minhas') list = list.filter(r => r.responsavel === currentUser)
+    else list = list.filter(r => r.origem === applied.origem)
+  }
   return list
 })
 
@@ -568,6 +544,10 @@ const paginationInfo = computed(() => {
 
 function countByStatus(s) { return filteredRows.value.filter(r => r.status === s).length }
 
+function origemLabel(o) {
+  return { gestor: 'Gestor', externo: 'Ext.', interno: 'Interno' }[o] ?? o
+}
+
 function statusLabel(s) {
   return { Pendente: 'Pendente', Analise: 'Em Análise', Resolvido: 'Resolvido', Rejeitado: 'Rejeitado', Removido: 'Removido' }[s] ?? s
 }
@@ -575,8 +555,8 @@ function statusLabel(s) {
 function aplicarFiltros() { Object.assign(applied, { ...filters }); page.value = 1 }
 
 function limparFiltros() {
-  Object.assign(filters,  { provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '' })
-  Object.assign(applied,  { provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '' })
+  Object.assign(filters,  { provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
+  Object.assign(applied,  { provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
   page.value = 1
 }
 
@@ -589,14 +569,15 @@ function openDetail(r) { selected.value = r }
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #F4F6F5;
+  background: #fff;
 }
 
 /* ── SIDEBAR ─────────────────────────────── */
 .sidebar {
   width: 210px; flex-shrink: 0;
   background: var(--white);
-  border-right: 1px solid var(--border);
+  border-right: none;
+  box-shadow: 2px 0 18px rgba(0,0,0,.07);
   display: flex; flex-direction: column;
   height: 100vh; position: fixed;
   top: 0; left: 0; z-index: 50;
@@ -604,7 +585,7 @@ function openDetail(r) { selected.value = r }
 .sidebar-logo {
   display: flex; align-items: center; gap: 9px;
   padding: 18px 16px 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(0,0,0,.06);
   text-decoration: none;
 }
 .sidebar-logo-img { width: 32px; height: 32px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
@@ -622,7 +603,7 @@ function openDetail(r) { selected.value = r }
 .nav-item svg { flex-shrink: 0; opacity: 0.75; }
 .nav-item.active svg { opacity: 1; }
 
-.sidebar-footer { padding: 14px 10px; border-top: 1px solid var(--border); }
+.sidebar-footer { padding: 14px 10px; border-top: 1px solid rgba(0,0,0,.06); }
 .btn-logout {
   display: flex; align-items: center; gap: 9px; width: 100%;
   background: none; border: none; cursor: pointer;
@@ -643,7 +624,9 @@ function openDetail(r) { selected.value = r }
 .topbar {
   display: flex; align-items: center; gap: 14px;
   padding: 0 28px; height: 58px;
-  background: var(--white); border-bottom: 1px solid var(--border); flex-shrink: 0;
+  background: var(--white); border-bottom: none;
+  box-shadow: 0 1px 12px rgba(0,0,0,.07);
+  flex-shrink: 0; position: relative; z-index: 10;
 }
 .search-wrap {
   flex: 1; display: flex; align-items: center; gap: 10px;
@@ -683,7 +666,7 @@ function openDetail(r) { selected.value = r }
 }
 
 /* ── CONTENT ────────────────────────────── */
-.content { flex: 1; overflow-y: auto; padding: 24px 28px 32px; }
+.content { flex: 1; overflow-y: auto; padding: 24px 28px 32px; background: #F2F6F4; }
 .content::-webkit-scrollbar { width: 5px; }
 .content::-webkit-scrollbar-track { background: transparent; }
 .content::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
@@ -713,13 +696,14 @@ function openDetail(r) { selected.value = r }
   gap: 12px; margin-bottom: 18px;
 }
 .kpi-card {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 12px; padding: 16px 18px;
+  background: var(--white); border: none;
+  border-radius: 16px; padding: 16px 18px;
   display: flex; align-items: center; gap: 14px;
-  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
+  transition: box-shadow 0.25s, transform 0.25s;
 }
-.kpi-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.07); }
-.kpi-card.highlight { background: var(--green-mid); border-color: var(--green-mid); }
+.kpi-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,.09), 0 16px 40px rgba(0,0,0,.1); transform: translateY(-2px); }
+.kpi-card.highlight { background: var(--green-mid); border: none; box-shadow: 0 4px 12px rgba(45,106,79,.35), 0 12px 32px rgba(45,106,79,.25); }
 
 .kpi-icon {
   width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
@@ -739,8 +723,9 @@ function openDetail(r) { selected.value = r }
 
 /* ── FILTER CARD ────────────────────────── */
 .filter-card {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 12px; padding: 18px 20px 20px; margin-bottom: 18px;
+  background: var(--white); border: none;
+  border-radius: 16px; padding: 18px 20px 20px; margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
 }
 .filter-row {
   display: grid;
@@ -790,10 +775,18 @@ function openDetail(r) { selected.value = r }
 }
 .btn-filtrar:hover { background: var(--green-dark); }
 
+/* ── STAT BAR ───────────────────────────── */
+.stat-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.stat-label { font-size: 12px; font-weight: 600; color: var(--text-light); }
+
 /* ── TABLE CARD ─────────────────────────── */
 .table-card {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 12px; overflow: hidden;
+  background: var(--white); border: none;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
 }
 table { width: 100%; border-collapse: collapse; }
 thead th {
@@ -840,6 +833,14 @@ tbody tr:last-child td { border-bottom: none; }
 .badge-status.pendente  { color: #744210; border-color: #F6D860; background: #FEFCBF; }
 .badge-status.analise   { color: #2B6CB0; border-color: #90CDF4; background: #EBF8FF; }
 
+.badge-origem {
+  display: inline-block; padding: 3px 9px; border-radius: 99px;
+  font-size: 11px; font-weight: 700; border: 1.5px solid;
+}
+.badge-origem.gestor  { color: #6B46C1; border-color: #B794F4; background: #FAF5FF; }
+.badge-origem.externo { color: #C05621; border-color: #F6AD55; background: #FFFAF0; }
+.badge-origem.interno { color: #2B6CB0; border-color: #90CDF4; background: #EBF8FF; }
+
 .btn-detail {
   display: inline-flex; align-items: center; gap: 5px;
   background: var(--green-bg); color: var(--green-mid);
@@ -874,7 +875,8 @@ tbody tr:last-child td { border-bottom: none; }
 .dash-footer {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 28px; background: var(--white);
-  border-top: 1px solid var(--border);
+  border-top: none;
+  box-shadow: 0 -1px 10px rgba(0,0,0,.06);
   font-size: 11.5px; color: var(--text-light); flex-shrink: 0;
 }
 .dash-footer a { color: var(--text-light); text-decoration: none; margin-left: 16px; transition: color 0.2s; }
