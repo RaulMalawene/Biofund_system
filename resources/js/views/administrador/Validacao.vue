@@ -54,7 +54,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <button class="btn-logout" @click="$router.push('/acessoRestrito')">
+        <button class="btn-logout" @click="handleLogout">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -84,10 +84,10 @@
         </div>
         <div class="admin-info">
           <div class="admin-text">
-            <div class="admin-name">Admin Central</div>
-            <div class="admin-role">Ministério da Terra e Ambiente</div>
+            <div class="admin-name">{{ auth.user?.name ?? 'Admin' }}</div>
+            <div class="admin-role">{{ auth.user?.role ?? '' }}</div>
           </div>
-          <div class="admin-avatar">AC</div>
+          <div class="admin-avatar">{{ auth.userInitials }}</div>
         </div>
       </header>
 
@@ -101,8 +101,8 @@
             <p>Analise as denúncias ambientais pendentes submetidas pela população moçambicana.</p>
           </div>
           <div class="header-badges">
-            <span class="badge-em-analise">{{ countStatus('Em Analise') }} Em Análise</span>
-            <span class="badge-pendentes">{{ countStatus('Pendente') }} Pendentes</span>
+            <span class="badge-em-analise">{{ countStatus('in_review') }} Em Análise</span>
+            <span class="badge-pendentes">{{ countStatus('pending') }} Pendentes</span>
           </div>
         </div>
 
@@ -152,8 +152,10 @@
               </label>
               <select v-model="f.status">
                 <option value="">Todos os Estados</option>
-                <option>Pendente</option><option>Em Analise</option>
-                <option>Resolvido</option><option>Rejeitado</option>
+                <option value="pending">Pendente</option>
+                <option value="in_review">Em Análise</option>
+                <option value="resolved">Resolvida</option>
+                <option value="rejected">Rejeitada</option>
               </select>
             </div>
           </div>
@@ -229,10 +231,13 @@
                   </td>
                   <td class="td-muted td-small">{{ r.projeto }}</td>
                   <td>
-                    <span class="badge-status" :class="statusClass(r.status)">{{ r.status }}</span>
+                    <span class="badge-status" :class="statusClass(r.status)">{{ r.status_label }}</span>
                   </td>
                 </tr>
-                <tr v-if="pagedRows.length === 0">
+                <tr v-if="loading">
+                  <td colspan="8" class="empty-row">A carregar ocorrências…</td>
+                </tr>
+                <tr v-else-if="pagedRows.length === 0">
                   <td colspan="8" class="empty-row">Nenhuma ocorrência encontrada.</td>
                 </tr>
               </tbody>
@@ -277,7 +282,7 @@
               </div>
 
               <div class="status-row">
-                <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status }}</span>
+                <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status_label }}</span>
                 <div class="sub-date">
                   <span>Submetido em</span>{{ selected.data }}
                 </div>
@@ -380,38 +385,38 @@
                 <!-- Flow indicator -->
                 <div class="state-flow">
                   <span class="flow-step" :class="{
-                    'flow-active': selected.status === 'Pendente',
-                    'flow-done':   selected.status === 'Em Analise' || selected.status === 'Resolvido',
-                    'flow-skip':   selected.status === 'Rejeitado'
+                    'flow-active': selected.status === 'pending',
+                    'flow-done':   selected.status === 'in_review' || selected.status === 'resolved',
+                    'flow-skip':   selected.status === 'rejected'
                   }">Pendente</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   <span class="flow-step" :class="{
-                    'flow-active': selected.status === 'Em Analise',
-                    'flow-done':   selected.status === 'Resolvido',
-                    'flow-skip':   selected.status === 'Rejeitado'
+                    'flow-active': selected.status === 'in_review',
+                    'flow-done':   selected.status === 'resolved',
+                    'flow-skip':   selected.status === 'rejected'
                   }">Em Análise</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   <span class="flow-step" :class="{
-                    'flow-active': selected.status === 'Resolvido'
+                    'flow-active': selected.status === 'resolved'
                   }">Resolvido</span>
                 </div>
 
                 <!-- PENDENTE → validar ou rejeitar -->
-                <template v-if="selected.status === 'Pendente'">
+                <template v-if="selected.status === 'pending'">
                   <p class="action-hint">Valide para iniciar análise ou rejeite a ocorrência.</p>
                   <div class="dual-action-btns">
                     <button class="btn-validar" @click="changeStatus('Em Analise')" :disabled="confirming">
-                      <svg v-if="confirming && pendingAction === 'Em Analise'" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
+                      <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round"/>
                       </svg>
                       <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6"/><path d="M5.5 8l2 2 3.5-4" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
-                      {{ confirming && pendingAction === 'Em Analise' ? 'A validar…' : 'Validar' }}
+                      {{ confirming ? 'A validar…' : 'Validar' }}
                     </button>
                     <button class="btn-rejeitar-outline" @click="openCommentModal('Rejeitado')" :disabled="confirming">
                       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
@@ -423,7 +428,7 @@
                 </template>
 
                 <!-- EM ANÁLISE → resolver ou rejeitar -->
-                <template v-else-if="selected.status === 'Em Analise'">
+                <template v-else-if="selected.status === 'in_review'">
                   <p class="action-hint">Conclua a análise e marque a ocorrência como resolvida.</p>
                   <button class="btn-confirmar" @click="openCommentModal('Resolvido')" :disabled="confirming">
                     <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 16 16">
@@ -440,7 +445,7 @@
                 </template>
 
                 <!-- ESTADO FINAL: Resolvido -->
-                <template v-else-if="selected.status === 'Resolvido'">
+                <template v-else-if="selected.status === 'resolved'">
                   <div class="state-final sf-resolvido">
                     <div class="sf-icon">
                       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
@@ -461,7 +466,7 @@
                 </template>
 
                 <!-- ESTADO FINAL: Rejeitado -->
-                <template v-else-if="selected.status === 'Rejeitado'">
+                <template v-else-if="selected.status === 'rejected'">
                   <div class="state-final sf-rejeitado">
                     <div class="sf-icon">
                       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
@@ -511,7 +516,7 @@
               <div class="modal-hd-cat">{{ selected.categoria }} · {{ selected.projeto }}</div>
             </div>
             <div class="modal-hd-right">
-              <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status }}</span>
+              <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status_label }}</span>
               <button class="btn-close-modal" @click="showModal = false">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 14 14">
                   <path d="M2 2l10 10M12 2L2 12" stroke-linecap="round"/>
@@ -535,7 +540,7 @@
                 <span>Sem evidência fotográfica principal</span>
               </div>
               <div class="modal-hero-meta">
-                <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status }}</span>
+                <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status_label }}</span>
                 <span class="modal-hero-date">{{ selected.data }}</span>
               </div>
             </div>
@@ -803,128 +808,128 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick } from 'vue'
+import { ref, reactive, computed, nextTick, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { InternalService } from '@/api/services/internal.service'
 
-const topSearch  = ref('')
-const page       = ref(1)
-const perPage    = 5
-const selected      = ref(null)
-const pendingAction = ref('')
-const confirming    = ref(false)
-const showModal     = ref(false)
-const lightboxImg   = ref(null)
+const router = useRouter()
+const auth   = useAuthStore()
+
+// ─── UI state ────────────────────────────────────────────────
+const topSearch          = ref('')
+const page               = ref(1)
+const perPage            = 10
+const selected           = ref(null)
+const confirming         = ref(false)
+const showModal          = ref(false)
+const lightboxImg        = ref(null)
 const commentTextareaRef = ref(null)
-const commentModal  = reactive({ show: false, action: '', text: '' })
-const toast         = reactive({ show: false, msg: '', red: false })
+const commentModal = reactive({ show: false, action: '', text: '' })
+const toast        = reactive({ show: false, msg: '', red: false })
+const loading      = ref(false)
+const loadError    = ref('')
 
-const provincias = [
-  'Cabo Delgado', 'Gaza', 'Inhambane', 'Manica',
-  'Maputo Cidade', 'Maputo Província', 'Nampula',
-  'Niassa', 'Sofala', 'Tete', 'Zambézia'
-]
+const rows = ref([])
+const f    = reactive({ provincia: '', projeto: '', data: '', status: '', categoria: '', origem: '' })
 
-const f = reactive({ provincia: '', projeto: '', data: '', status: '', categoria: '', origem: '' })
+// ─── Status helpers ───────────────────────────────────────────
+const ACTION_TO_API = {
+  'Em Analise': 'in_review',
+  'Resolvido':  'resolved',
+  'Rejeitado':  'rejected',
+}
+const STATUS_LABEL = {
+  pending:   'Pendente',
+  in_review: 'Em Análise',
+  resolved:  'Resolvida',
+  rejected:  'Rejeitada',
+  closed:    'Encerrada',
+}
 
-const rows = ref([
-  {
-    id: 'REC-2024-001', data: '2024-05-15', provincia: 'Cabo Delgado',
-    categoria: 'Desmatamento Ilegal', canal: 'Telefone', responsavel: 'Sara',
-    projeto: 'MozRural', status: 'Pendente', origem: 'externo',
-    coords: '-12.333, 40.444 (Distrito de Meluco)',
-    denunciante: 'João Mutola', telefone: '+258 84 123 4567',
-    descricao: 'Atividade suspeita de abate de árvores de espécies protegidas (Chanfuta) na zona tampão do Parque Nacional das Quirimbas. Vários camiões sem matrícula vistos à noite a transportar madeira cortada em direcção à estrada nacional.',
-    foto: 'https://images.unsplash.com/photo-1542601906897-1c7ed8e5e63e?w=600&q=80',
-    anexos: [
-      { tipo: 'imagem', nome: 'desmatamento_zona_norte.jpg', url: 'https://images.unsplash.com/photo-1542601906897-1c7ed8e5e63e?w=600&q=80' },
-      { tipo: 'imagem', nome: 'camiao_sem_matricula.jpg',   url: 'https://images.unsplash.com/photo-1530541930197-ff16ac917b0e?w=600&q=80' },
-      { tipo: 'pdf',    nome: 'relatorio_campo_meluco.pdf', tamanho: '1.8 MB' },
-    ]
-  },
-  {
-    id: 'REC-2024-002', data: '2024-05-14', provincia: 'Nampula',
-    categoria: 'Poluição Hídrica', canal: 'Email', responsavel: null,
-    projeto: 'MozP', status: 'Em Analise', origem: 'externo',
-    coords: '-15.116, 39.256 (Rio Ligonha)',
-    denunciante: 'Maria Tembe', telefone: '+258 82 987 6543',
-    descricao: 'Descarte irregular de resíduos industriais a 200 metros da margem do Rio Ligonha. Coloração anormal da água (tom avermelhado) e mortandade de peixes reportada pelos pescadores locais nas últimas 48 horas.',
-    foto: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80',
-    anexos: [
-      { tipo: 'imagem', nome: 'rio_ligonha_poluicao.jpg', url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80' },
-      { tipo: 'imagem', nome: 'peixes_mortos_margem.jpg', url: 'https://images.unsplash.com/photo-1569163139599-0f4517e36f51?w=600&q=80' },
-      { tipo: 'pdf',    nome: 'analise_agua_laboratorio.pdf', tamanho: '3.2 MB' },
-      { tipo: 'pdf',    nome: 'depoimento_pescadores.pdf',    tamanho: '0.9 MB' },
-    ]
-  },
-  {
-    id: 'REC-2024-003', data: '2024-05-12', provincia: 'Sofala',
-    categoria: 'Caça Furtiva', canal: 'Email', responsavel: 'Sara',
-    projeto: 'MozBio', status: 'Pendente', origem: 'interno',
-    coords: '-19.112, 34.560 (Parque Gorongosa)',
-    denunciante: 'Pedro Chimoio', telefone: '+258 86 321 0987',
-    descricao: 'Armadilhas de arame detectadas ao longo de 2 km dentro da zona de amortecimento do Parque de Gorongosa. Sinais visíveis de abate de pelo menos dois animais de grande porte.',
-    foto: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80',
-    anexos: [
-      { tipo: 'imagem', nome: 'armadilha_localizada.jpg', url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80' },
-      { tipo: 'imagem', nome: 'rastros_abate.jpg',        url: 'https://images.unsplash.com/photo-1542601906897-1c7ed8e5e63e?w=600&q=80' },
-    ]
-  },
-  {
-    id: 'REC-2024-004', data: '2024-05-10', provincia: 'Maputo',
-    categoria: 'Queimadas Descontroladas', canal: 'Telefone', responsavel: 'Joao',
-    projeto: 'MozAmbiente', status: 'Em Analise', origem: 'gestor',
-    coords: '-25.961, 32.592 (Matola, zona norte)',
-    denunciante: 'Helena Sitoe', telefone: '+258 84 555 1234',
-    descricao: 'Queimadas de grande dimensão afectando aproximadamente 300 hectares de vegetação nativa na zona sul do distrito. Populações adjacentes em risco com fumo a afectar vias respiratórias.',
-    foto: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80',
-    anexos: [
-      { tipo: 'imagem', nome: 'queimada_vista_aerea.jpg', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80' },
-      { tipo: 'pdf',    nome: 'relatorio_bombeiros.pdf',  tamanho: '2.1 MB' },
-    ]
-  },
-  {
-    id: 'REC-2024-005', data: '2024-05-09', provincia: 'Gaza',
-    categoria: 'Mineração Ilegal', canal: 'Reuniao', responsavel: 'Joao',
-    projeto: 'MozRural', status: 'Resolvido', origem: 'gestor',
-    coords: '-23.865, 35.383 (Margem Rio Limpopo)',
-    denunciante: 'Carlos Mondlane', telefone: '+258 82 111 2233',
-    descricao: 'Extracção ilegal de areia e cascalho na margem do Rio Limpopo. Maquinaria pesada identificada sem licenciamento ambiental. Potencial de erosão severa das margens e assoreamento do leito.',
-    foto: 'https://images.unsplash.com/photo-1530541930197-ff16ac917b0e?w=600&q=80',
-    anexos: [
-      { tipo: 'imagem', nome: 'maquinaria_ilegal_01.jpg', url: 'https://images.unsplash.com/photo-1530541930197-ff16ac917b0e?w=600&q=80' },
-      { tipo: 'imagem', nome: 'maquinaria_ilegal_02.jpg', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80' },
-      { tipo: 'pdf',    nome: 'auto_inspeccao_MITADER.pdf', tamanho: '4.7 MB' },
-      { tipo: 'doc',    nome: 'ficha_denuncia_assinada.docx', tamanho: '0.4 MB' },
-    ]
-  },
-  {
-    id: 'REC-2024-006', data: '2024-05-07', provincia: 'Niassa',
-    categoria: 'Pesca Ilegal', canal: 'SMS', responsavel: 'Maria',
-    projeto: 'MozBio', status: 'Pendente', origem: 'interno',
-    coords: '-12.050, 34.675 (Lago Niassa, norte)',
-    denunciante: 'Amélia Sitoe', telefone: '+258 86 444 5566',
-    descricao: 'Redes de arrasto industrial a operar em zonas restritas do Lago Niassa. Embarcações sem identificação visível. Reportado por guardas da reserva durante patrulha nocturna.',
-    foto: 'https://images.unsplash.com/photo-1569163139599-0f4517e36f51?w=600&q=80',
-    anexos: [
-      { tipo: 'imagem', nome: 'embarcacao_arrasto_01.jpg', url: 'https://images.unsplash.com/photo-1569163139599-0f4517e36f51?w=600&q=80' },
-      { tipo: 'imagem', nome: 'redes_confiscadas.jpg',     url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80' },
-      { tipo: 'imagem', nome: 'zona_restricao_mapa.jpg',   url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80' },
-    ]
-  },
-  {
-    id: 'REC-2024-007', data: '2024-05-05', provincia: 'Tete',
-    categoria: 'Desmatamento Ilegal', canal: 'Web', responsavel: 'Sara',
-    projeto: 'MozAmbiente', status: 'Em Analise', origem: 'externo',
-    coords: '-16.156, 33.588 (Changara, zona rural)',
-    denunciante: 'Fátima Nhantumbo', telefone: '+258 84 777 8899',
-    descricao: 'Corte selectivo de madeira de lei em área de floresta protegida a 12 km da sede distrital de Changara. Amostras de madeira cortada recolhidas por técnicos do MITADER.',
-    foto: 'https://images.unsplash.com/photo-1542601906897-1c7ed8e5e63e?w=600&q=80',
-    anexos: [
-      { tipo: 'imagem', nome: 'toco_madeira_lei.jpg',     url: 'https://images.unsplash.com/photo-1542601906897-1c7ed8e5e63e?w=600&q=80' },
-      { tipo: 'pdf',    nome: 'amostras_laboratorio.pdf', tamanho: '1.5 MB' },
-    ]
-  },
-])
+function statusClass(s) {
+  const map = {
+    pending:   'pendente',
+    in_review: 'em-analise',
+    resolved:  'resolvido',
+    rejected:  'rejeitado',
+    closed:    'fechado',
+  }
+  return map[s] ?? 'pendente'
+}
 
+// ─── Map API → row ────────────────────────────────────────────
+function mapOccurrence(o) {
+  return {
+    _id:              o.id,
+    id:               o.tracking_code,
+    data:             o.submitted_at,
+    provincia:        o.province?.name  ?? '—',
+    categoria:        o.category?.name  ?? '—',
+    canal:            o.submission_channel_label ?? '—',
+    responsavel:      o.assigned_to?.name ?? null,
+    projeto:          o.project?.name   ?? '—',
+    status:           o.status,
+    status_label:     o.status_label,
+    origem:           o.origin,
+    coords:           o.location_detail ?? '',
+    denunciante:      o.complainant?.name  ?? 'Anónimo',
+    telefone:         o.complainant?.phone ?? '',
+    descricao:        o.description ?? '',
+    assunto:          o.subject     ?? '',
+    foto:             null,
+    anexos:           [],
+    comentario:       '',
+    attachments_count: o.attachments_count ?? 0,
+  }
+}
+
+// ─── Load occurrences from API ────────────────────────────────
+async function loadOccurrences() {
+  loading.value   = true
+  loadError.value = ''
+  try {
+    const res  = await InternalService.getOccurrences({ per_page: 100 })
+    rows.value = (res.data ?? []).map(mapOccurrence)
+  } catch (e) {
+    loadError.value = 'Erro ao carregar ocorrências.'
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadOccurrences)
+
+// ─── Select row + carregar detalhes completos ─────────────────
+async function selectRow(r) {
+  selected.value  = { ...r }
+  showModal.value = false
+  try {
+    const res  = await InternalService.getOccurrence(r._id)
+    const full = res.data ?? res
+    selected.value.anexos = (full.attachments ?? []).map(a => ({
+      tipo:    a.is_image ? 'imagem' : (a.name.split('.').pop().toLowerCase()),
+      nome:    a.name,
+      url:     a.url ?? '',
+      tamanho: a.size ?? '',
+    }))
+    selected.value.foto = selected.value.anexos.find(a => a.tipo === 'imagem')?.url ?? null
+    if (full.history?.length) {
+      const last = [...full.history].reverse().find(h => h.comment)
+      if (last) selected.value.comentario = last.comment
+    }
+  } catch (e) {
+    console.error('Erro ao carregar detalhes:', e)
+  }
+}
+
+// ─── Filters ──────────────────────────────────────────────────
+const provincias = computed(() =>
+  [...new Set(rows.value.map(r => r.provincia).filter(p => p !== '—'))].sort()
+)
+
+// ─── Computed helpers ─────────────────────────────────────────
 const imageAnexos = computed(() => selected.value?.anexos?.filter(a => a.tipo === 'imagem') ?? [])
 const docAnexos   = computed(() => selected.value?.anexos?.filter(a => a.tipo !== 'imagem') ?? [])
 
@@ -954,9 +959,6 @@ const pagedRows  = computed(() => {
 })
 
 function countStatus(s) { return rows.value.filter(r => r.status === s).length }
-function statusClass(s) { return s.toLowerCase().replace(' ', '-') }
-
-function selectRow(r) { selected.value = r; pendingAction.value = ''; showModal.value = false }
 
 function limpar() {
   Object.assign(f, { provincia: '', projeto: '', data: '', status: '', categoria: '', origem: '' })
@@ -991,21 +993,35 @@ async function confirmComment() {
 
 async function changeStatus(newState, comment = '') {
   if (!selected.value || confirming.value) return
-  confirming.value    = true
-  pendingAction.value = newState
-  await new Promise(r => setTimeout(r, 900))
-  selected.value.status    = newState
-  selected.value.comentario = comment
-  confirming.value    = false
-  pendingAction.value = ''
-  const isRej = newState === 'Rejeitado'
-  const labels = { 'Em Analise': 'Em Análise', 'Resolvido': 'Resolvido', 'Rejeitado': 'Rejeitado' }
-  showToast(
-    isRej
-      ? `${selected.value.id} foi rejeitada.`
-      : `${selected.value.id} passou para "${labels[newState]}".`,
-    isRej
-  )
+  confirming.value = true
+  const apiStatus = ACTION_TO_API[newState]
+  try {
+    await InternalService.updateStatus(selected.value._id, { status: apiStatus, comment })
+    const idx = rows.value.findIndex(r => r._id === selected.value._id)
+    if (idx !== -1) {
+      rows.value[idx].status       = apiStatus
+      rows.value[idx].status_label = STATUS_LABEL[apiStatus]
+    }
+    selected.value.status       = apiStatus
+    selected.value.status_label = STATUS_LABEL[apiStatus]
+    selected.value.comentario   = comment
+    showToast(
+      newState === 'Rejeitado'
+        ? `${selected.value.id} foi rejeitada.`
+        : `${selected.value.id} passou para "${STATUS_LABEL[apiStatus]}".`,
+      newState === 'Rejeitado'
+    )
+  } catch (e) {
+    console.error('Erro ao atualizar estado:', e)
+    showToast('Erro ao actualizar o estado. Tente novamente.', true)
+  } finally {
+    confirming.value = false
+  }
+}
+
+async function handleLogout() {
+  try { await auth.logout() } catch {}
+  router.push('/acessoRestrito')
 }
 </script>
 

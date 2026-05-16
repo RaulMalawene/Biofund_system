@@ -320,7 +320,7 @@
 
       <!-- FOOTER -->
       <footer class="dash-footer">
-        <span>© 2026 EcoGestor Admin · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 Biofund Admin · Sistema de Gestão Ambiental de Moçambique</span>
         <div>
           <a href="#">Suporte Técnico</a>
           <a href="#">Privacidade</a>
@@ -431,25 +431,16 @@
             </div>
           </div>
 
-          <!-- Tipo de Ocorrência + Nível de Alerta -->
-          <div class="f-row">
+          <!-- Tipo de Ocorrência -->
+          <div class="f-row single">
             <div class="f-group">
               <label>Tipo de Ocorrência <span class="f-req">*</span></label>
-              <select v-model="form.occurrence_type_id" :class="{ 'f-err': errors.occurrence_type_id }"
-                @change="errors.occurrence_type_id = ''">
-                <option value="" disabled>Seleccione o tipo</option>
-                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
-              </select>
-              <span class="f-err-msg" v-if="errors.occurrence_type_id">{{ errors.occurrence_type_id }}</span>
-            </div>
-            <div class="f-group">
-              <label>Nível de Alerta <span class="f-req">*</span></label>
               <select v-model="form.alert_type" :class="{ 'f-err': errors.alert_type }"
                 @change="errors.alert_type = ''">
-                <option value="" disabled>Seleccione o nível</option>
+                <option value="" disabled>Seleccione o tipo</option>
                 <option value="normal">Normal</option>
                 <option value="urgent">Urgente</option>
-                <option value="gbv">GBV — Violência de Género</option>
+                <option value="gbv">GBV — Violência Baseada no Género</option>
               </select>
               <span class="f-err-msg" v-if="errors.alert_type">{{ errors.alert_type }}</span>
             </div>
@@ -678,7 +669,6 @@ const form = reactive({
   subject: '',
   project_id: '',
   category_id: '',
-  occurrence_type_id: '',
   alert_type: '',
   submission_channel: '',
   occurrence_date: '',
@@ -693,7 +683,6 @@ const errors = reactive({
   subject: '',
   project_id: '',
   category_id: '',
-  occurrence_type_id: '',
   alert_type: '',
   submission_channel: '',
   province_id: '',
@@ -705,8 +694,7 @@ function validate() {
   if (!form.subject.trim()) { errors.subject = 'O assunto é obrigatório.'; ok = false }
   if (!form.project_id) { errors.project_id = 'Seleccione o projecto.'; ok = false }
   if (!form.category_id) { errors.category_id = 'Seleccione a categoria.'; ok = false }
-  if (!form.occurrence_type_id) { errors.occurrence_type_id = 'Seleccione o tipo de ocorrência.'; ok = false }
-  if (!form.alert_type) { errors.alert_type = 'Seleccione o nível de alerta.'; ok = false }
+  if (!form.alert_type) { errors.alert_type = 'Seleccione o tipo de ocorrência.'; ok = false }
   if (!form.submission_channel) { errors.submission_channel = 'Seleccione o canal de submissão.'; ok = false }
   if (!form.province_id) { errors.province_id = 'Seleccione a província.'; ok = false }
   if (!form.description.trim()) { errors.description = 'A descrição é obrigatória.'; ok = false }
@@ -728,7 +716,6 @@ async function submitForm() {
   fd.append('subject', form.subject.trim())
   fd.append('project_id', form.project_id)
   fd.append('category_id', form.category_id)
-  fd.append('occurrence_type_id', form.occurrence_type_id)
   fd.append('alert_type', form.alert_type)
   fd.append('submission_channel', form.submission_channel)
   fd.append('province_id', form.province_id)
@@ -765,13 +752,13 @@ function resetDrawerForm(clearSuccess = true) {
   Object.assign(form, {
     complainant_name: '', complainant_email: '', complainant_phone: '',
     subject: '', project_id: '', category_id: '',
-    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    alert_type: '', submission_channel: '',
     occurrence_date: '', province_id: '', district_id: '',
     location_detail: '', description: '',
   })
   Object.assign(errors, {
     complainant_email: '', subject: '', project_id: '', category_id: '',
-    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    alert_type: '', submission_channel: '',
     province_id: '', description: '',
   })
   files.value = []

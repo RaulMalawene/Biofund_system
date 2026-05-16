@@ -32,7 +32,7 @@ class StoreInternalOccurrenceRequest extends FormRequest
             // Classificação
             'project_id'         => ['required', 'integer', 'exists:projects,id'],
             'category_id'        => ['required', 'integer', 'exists:categories,id'],
-            'occurrence_type_id' => ['required', 'integer', 'exists:occurrence_types,id'],
+            'occurrence_type_id' => ['nullable', 'integer', 'exists:occurrence_types,id'],
 
             // Localização
             'province_id'        => ['required', 'integer', 'exists:provinces,id'],
@@ -60,7 +60,8 @@ class StoreInternalOccurrenceRequest extends FormRequest
             'complainant_email.email'         => 'Insira um email válido.',
             'project_id.required'             => 'Seleccione o projecto.',
             'category_id.required'            => 'Seleccione a categoria.',
-            'occurrence_type_id.required'     => 'Seleccione o tipo de ocorrência.',
+            'alert_type.required'             => 'Seleccione o tipo de ocorrência.',
+            'alert_type.*'                    => 'Tipo de ocorrência inválido.',
             'province_id.required'            => 'Seleccione a província.',
             'subject.required'                => 'O assunto é obrigatório.',
             'description.required'            => 'A descrição é obrigatória.',

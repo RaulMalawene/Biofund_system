@@ -107,7 +107,9 @@ class OccurrenceService
     public function createInternal(array $data, User $user, array $files = []): Occurrence
     {
         return DB::transaction(function () use ($data, $user, $files) {
-            $type = \App\Models\OccurrenceType::findOrFail($data['occurrence_type_id']);
+            $type = isset($data['occurrence_type_id'])
+                ? \App\Models\OccurrenceType::findOrFail($data['occurrence_type_id'])
+                : null;
 
             $occurrence = Occurrence::create([
                 ...Arr::except($data, ['attachments']),
@@ -115,7 +117,7 @@ class OccurrenceService
                 'origin'               => OriginEnum::Internal,
                 'submitted_by_user_id' => $user->id,
                 'status'               => OccurrenceStatusEnum::Pending,
-                'due_date'             => $type->calculateDueDate(),
+                'due_date'             => $type?->calculateDueDate(),
             ]);
 
             $this->recordStatusHistory(

@@ -47,12 +47,9 @@ class GestorOccurrenceController extends Controller
         $query = Occurrence::with([
             'project:id,name,code',
             'province:id,name',
-            'district:id,name',
             'category:id,name',
-            'subcategory:id,name',
-            'occurrenceType:id,name,alert_level',
             'assignedTo:id,name',
-            'submittedBy:id,name',
+            'submittedBy:id,name,email,phone',
         ])->withCount('attachments');
 
         // Restrição por perfil

@@ -16,13 +16,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('occurrences', function (Blueprint $table) {
-            // Remove a foreign key antes de alterar a coluna
             $table->dropForeign(['occurrence_type_id']);
 
-            $table->foreignId('occurrence_type_id')
+            $table->unsignedBigInteger('occurrence_type_id')
                   ->nullable()
-                  ->change()
-                  ->constrained('occurrence_types')
+                  ->change();
+
+            $table->foreign('occurrence_type_id')
+                  ->references('id')
+                  ->on('occurrence_types')
                   ->onDelete('restrict');
 
             $table->string('subject', 255)
@@ -36,10 +38,13 @@ return new class extends Migration
         Schema::table('occurrences', function (Blueprint $table) {
             $table->dropForeign(['occurrence_type_id']);
 
-            $table->foreignId('occurrence_type_id')
+            $table->unsignedBigInteger('occurrence_type_id')
                   ->nullable(false)
-                  ->change()
-                  ->constrained('occurrence_types')
+                  ->change();
+
+            $table->foreign('occurrence_type_id')
+                  ->references('id')
+                  ->on('occurrence_types')
                   ->onDelete('restrict');
 
             $table->string('subject', 255)
