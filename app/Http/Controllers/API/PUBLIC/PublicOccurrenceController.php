@@ -148,7 +148,6 @@ class PublicOccurrenceController extends Controller
                 ->get(),
 
             'categories' => Category::active()
-                ->with(['subcategories' => fn($q) => $q->where('is_active', true)])
                 ->select('id', 'name', 'code')
                 ->orderBy('name')
                 ->get(),

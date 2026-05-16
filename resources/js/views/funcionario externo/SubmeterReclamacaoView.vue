@@ -37,8 +37,8 @@
           <div class="field-group">
             <label>Projecto Relacionado</label>
             <div class="select-wrap">
-              <select v-model="form.projeto">
-                <option value="" disabled>Seleccione o projecto</option>
+              <select v-model="form.projeto" :disabled="loadingFormData">
+                <option value="" disabled>{{ loadingFormData ? 'A carregar…' : 'Seleccione o projecto' }}</option>
                 <option v-for="p in projectos" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
@@ -46,8 +46,8 @@
           <div class="field-group">
             <label>Categoria do Incidente</label>
             <div class="select-wrap">
-              <select v-model="form.categoria">
-                <option value="" disabled>Seleccione a categoria</option>
+              <select v-model="form.categoria" :disabled="loadingFormData">
+                <option value="" disabled>{{ loadingFormData ? 'A carregar…' : 'Seleccione a categoria' }}</option>
                 <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
             </div>
@@ -106,8 +106,8 @@
           <div class="field-group">
             <label>Província</label>
             <div class="select-wrap">
-              <select v-model="form.provincia" @change="handleProvinceChange">
-                <option value="" disabled>Seleccione a província</option>
+              <select v-model="form.provincia" @change="handleProvinceChange" :disabled="loadingFormData">
+                <option value="" disabled>{{ loadingFormData ? 'A carregar…' : 'Seleccione a província' }}</option>
                 <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
@@ -115,7 +115,7 @@
           <div class="field-group">
             <label>Distrito</label>
             <div class="select-wrap">
-              <select v-model="form.distrito" :disabled="!form.provincia || loadingDistricts" @change="handleDistrictChange">
+              <select v-model="form.distrito" :disabled="!form.provincia || loadingDistricts">
                 <option value="" disabled>{{ loadingDistricts ? 'A carregar…' : 'Seleccione o distrito' }}</option>
                 <option v-for="d in distritos" :key="d.id" :value="d.id">{{ d.name }}</option>
               </select>
@@ -125,20 +125,15 @@
 
         <div class="field-row single">
           <div class="field-group">
-            <label>Comunidade / Posto Administrativo</label>
-            <div class="select-wrap">
-              <select v-model="form.comunidade" :disabled="!form.distrito || loadingCommunities">
-                <option value="" disabled>{{ loadingCommunities ? 'A carregar…' : 'Seleccione a comunidade' }}</option>
-                <option v-for="c in comunidades" :key="c.id" :value="c.id">{{ c.name }}</option>
-              </select>
-            </div>
+            <label>Comunidade / Posto Administrativo (Opcional)</label>
+            <input type="text" v-model="form.comunidade" placeholder="Ex: Posto Administrativo de Manhiça" />
           </div>
         </div>
 
         <div class="field-row single">
           <div class="field-group">
-            <label>Coordenadas (Opcional)</label>
-            <input type="text" v-model="form.coordenadas" placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
+            <label>Coordenadas GPS (Opcional)</label>
+            <input type="text" v-model="form.coordenadas" placeholder="Ex: -25.9682, 32.5732" />
           </div>
         </div>
       </div>
@@ -334,7 +329,7 @@ const today = new Date().toISOString().split('T')[0]
 const form = reactive({
   projeto: '', categoria: '', descricao: '', data: '',
   provincia: '', distrito: '', comunidade: '', coordenadas: '',
-  nome: '', email: '', phone: ''
+  nome: '', email: '', phone: '',
 })
 
 // ─── Listas de referência ─────────────────────────────────────
@@ -342,7 +337,6 @@ const projectos  = ref([])
 const categorias = ref([])
 const provincias = ref([])
 const distritos  = ref([])
-const comunidades = ref([])
 
 // ─── Ficheiros ────────────────────────────────────────────────
 const files     = ref([])
@@ -350,10 +344,9 @@ const fileInput = ref(null)
 const isDragging = ref(false)
 
 // ─── Estado UI ────────────────────────────────────────────────
-const loadingFormData    = ref(false)
-const loadingDistricts   = ref(false)
-const loadingCommunities = ref(false)
-const submitting         = ref(false)
+const loadingFormData  = ref(false)
+const loadingDistricts = ref(false)
+const submitting       = ref(false)
 const showSuccess        = ref(false)
 const trackingCode       = ref('')
 const dueDate            = ref('')
@@ -381,10 +374,8 @@ async function loadFormData() {
 
 // ─── Cascata Província → Distrito ────────────────────────────
 async function handleProvinceChange() {
-  form.distrito   = ''
-  form.comunidade = ''
-  distritos.value  = []
-  comunidades.value = []
+  form.distrito  = ''
+  distritos.value = []
   if (!form.provincia) return
   try {
     loadingDistricts.value = true
@@ -394,22 +385,6 @@ async function handleProvinceChange() {
     console.error('Erro ao carregar distritos:', error)
   } finally {
     loadingDistricts.value = false
-  }
-}
-
-// ─── Cascata Distrito → Comunidade ───────────────────────────
-async function handleDistrictChange() {
-  form.comunidade  = ''
-  comunidades.value = []
-  if (!form.distrito) return
-  try {
-    loadingCommunities.value = true
-    const data = await PublicService.getCommunitiesByDistrict(form.distrito)
-    comunidades.value = data.communities ?? data
-  } catch (error) {
-    console.error('Erro ao carregar comunidades:', error)
-  } finally {
-    loadingCommunities.value = false
   }
 }
 
@@ -454,13 +429,10 @@ async function submitForm() {
   if (form.provincia) fd.append('province_id',     form.provincia)
   if (form.distrito)  fd.append('district_id',     form.distrito)
 
-  // Combina coordenadas + nome da comunidade num único campo location_detail
+  // Combina comunidade + coordenadas num único campo location_detail
   const locationParts = []
+  if (form.comunidade.trim())  locationParts.push(form.comunidade.trim())
   if (form.coordenadas.trim()) locationParts.push(form.coordenadas.trim())
-  if (form.comunidade) {
-    const com = comunidades.value.find(c => c.id === form.comunidade)
-    if (com) locationParts.push(com.name)
-  }
   if (locationParts.length) fd.append('location_detail', locationParts.join(' — '))
 
   // Anexos
@@ -494,6 +466,7 @@ function closeSuccess() {
   showSuccess.value = false
   Object.keys(form).forEach(k => { form[k] = '' })
   files.value        = []
+  distritos.value    = []
   trackingCode.value = ''
   dueDate.value      = ''
 }

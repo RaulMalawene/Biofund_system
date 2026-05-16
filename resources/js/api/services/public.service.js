@@ -15,12 +15,6 @@ export const PublicService = {
         return data   // { districts: [...] }
     },
 
-    /** Comunidades / postos de um distrito */
-    async getCommunitiesByDistrict(districtId) {
-        const { data } = await api.get(ENDPOINTS.COMMUNITIES_BY_DISTRICT(districtId))
-        return data
-    },
-
     /**
      * Submete uma nova ocorrência pública.
      * @param {FormData} formData – multipart/form-data com campos + attachments[]
