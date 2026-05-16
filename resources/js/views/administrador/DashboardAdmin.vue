@@ -18,12 +18,12 @@
           </svg>
           Dashboard
         </a>
-        <a class="nav-item">
+        <router-link class="nav-item" to="/admin/validacao">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
           </svg>
           Validação
-        </a>
+        </router-link>
         <router-link class="nav-item" to="/admin/utilizadores">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
@@ -38,19 +38,19 @@
           </svg>
           Histórico de Ocorrências
         </router-link>
-        <a class="nav-item">
+        <router-link class="nav-item" to="/admin/categorias">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
             <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
           </svg>
           Categorias
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/projectos">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Projectos
-        </a>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -256,12 +256,12 @@
           <div class="chart-card">
             <div class="table-header">
               <div class="chart-title">Últimas Submissões</div>
-              <a class="ver-todas">
+              <router-link class="ver-todas" to="/admin/validacao">
                 Ver Todas
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 13 13">
                   <path d="M2 6.5h9M7 3l3.5 3.5L7 10" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-              </a>
+              </router-link>
             </div>
             <div class="table-sub">Reclamações recebidas nas últimas 48 horas</div>
             <table>

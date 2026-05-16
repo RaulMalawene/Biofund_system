@@ -7,6 +7,8 @@ import DashboardAdmin          from '@/views/administrador/DashboardAdmin.vue';
 import GestaoUtilizadores      from '@/views/administrador/GestaoUtilizadores.vue';
 import HistoricoOcorrencia     from '@/views/administrador/HistoricoOcorrencia.vue';
 import Validacao               from '@/views/administrador/Validacao.vue';
+import Projectos              from '@/views/administrador/projectos.vue';
+import Categoria             from '@/views/administrador/Categoria.vue';
 
 const routes = [
   { path: '/',                         component: HomeView },
@@ -17,6 +19,8 @@ const routes = [
   { path: '/admin/utilizadores',       component: GestaoUtilizadores },
   { path: '/admin/historico',          component: HistoricoOcorrencia },
   { path: '/admin/validacao',          component: Validacao },
+  { path: '/admin/projectos',          component: Projectos },
+  { path: '/admin/categorias',         component: Categoria },
 ];
 
 const router = createRouter({

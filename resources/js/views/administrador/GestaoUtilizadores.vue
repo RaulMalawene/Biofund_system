@@ -38,19 +38,19 @@
           </svg>
           Histórico de Ocorrências
         </router-link>
-        <a class="nav-item">
+        <router-link class="nav-item" to="/admin/categorias">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
             <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
           </svg>
           Categorias
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/projectos">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Projectos
-        </a>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">

@@ -38,19 +38,19 @@
           </svg>
           Histórico de Ocorrências
         </router-link>
-        <a class="nav-item">
+        <router-link class="nav-item" to="/admin/categorias">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
             <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
           </svg>
           Categorias
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/projectos">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Projectos
-        </a>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -173,7 +173,20 @@
                 <option>Fauna</option><option>Flora</option>
               </select>
             </div>
-            <div></div>
+            <div class="filter-group">
+              <label>
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
+                  <circle cx="6" cy="6" r="4.5"/><path d="M4 6h4M6 4v4" stroke-linecap="round"/>
+                </svg>
+                Origem
+              </label>
+              <select v-model="f.origem">
+                <option value="">Todas as Origens</option>
+                <option value="gestor">Gestores</option>
+                <option value="externo">Utilizadores Externos</option>
+                <option value="interno">Funcionários Internos</option>
+              </select>
+            </div>
             <div></div>
             <div class="filter-actions">
               <button class="btn-limpar" @click="limpar">
@@ -810,13 +823,13 @@ const provincias = [
   'Niassa', 'Sofala', 'Tete', 'Zambézia'
 ]
 
-const f = reactive({ provincia: '', projeto: '', data: '', status: '', categoria: '' })
+const f = reactive({ provincia: '', projeto: '', data: '', status: '', categoria: '', origem: '' })
 
 const rows = ref([
   {
     id: 'REC-2024-001', data: '2024-05-15', provincia: 'Cabo Delgado',
     categoria: 'Desmatamento Ilegal', canal: 'Telefone', responsavel: 'Sara',
-    projeto: 'MozRural', status: 'Pendente',
+    projeto: 'MozRural', status: 'Pendente', origem: 'externo',
     coords: '-12.333, 40.444 (Distrito de Meluco)',
     denunciante: 'João Mutola', telefone: '+258 84 123 4567',
     descricao: 'Atividade suspeita de abate de árvores de espécies protegidas (Chanfuta) na zona tampão do Parque Nacional das Quirimbas. Vários camiões sem matrícula vistos à noite a transportar madeira cortada em direcção à estrada nacional.',
@@ -830,7 +843,7 @@ const rows = ref([
   {
     id: 'REC-2024-002', data: '2024-05-14', provincia: 'Nampula',
     categoria: 'Poluição Hídrica', canal: 'Email', responsavel: null,
-    projeto: 'MozP', status: 'Em Analise',
+    projeto: 'MozP', status: 'Em Analise', origem: 'externo',
     coords: '-15.116, 39.256 (Rio Ligonha)',
     denunciante: 'Maria Tembe', telefone: '+258 82 987 6543',
     descricao: 'Descarte irregular de resíduos industriais a 200 metros da margem do Rio Ligonha. Coloração anormal da água (tom avermelhado) e mortandade de peixes reportada pelos pescadores locais nas últimas 48 horas.',
@@ -845,7 +858,7 @@ const rows = ref([
   {
     id: 'REC-2024-003', data: '2024-05-12', provincia: 'Sofala',
     categoria: 'Caça Furtiva', canal: 'Email', responsavel: 'Sara',
-    projeto: 'MozBio', status: 'Pendente',
+    projeto: 'MozBio', status: 'Pendente', origem: 'interno',
     coords: '-19.112, 34.560 (Parque Gorongosa)',
     denunciante: 'Pedro Chimoio', telefone: '+258 86 321 0987',
     descricao: 'Armadilhas de arame detectadas ao longo de 2 km dentro da zona de amortecimento do Parque de Gorongosa. Sinais visíveis de abate de pelo menos dois animais de grande porte.',
@@ -858,7 +871,7 @@ const rows = ref([
   {
     id: 'REC-2024-004', data: '2024-05-10', provincia: 'Maputo',
     categoria: 'Queimadas Descontroladas', canal: 'Telefone', responsavel: 'Joao',
-    projeto: 'MozAmbiente', status: 'Em Analise',
+    projeto: 'MozAmbiente', status: 'Em Analise', origem: 'gestor',
     coords: '-25.961, 32.592 (Matola, zona norte)',
     denunciante: 'Helena Sitoe', telefone: '+258 84 555 1234',
     descricao: 'Queimadas de grande dimensão afectando aproximadamente 300 hectares de vegetação nativa na zona sul do distrito. Populações adjacentes em risco com fumo a afectar vias respiratórias.',
@@ -871,7 +884,7 @@ const rows = ref([
   {
     id: 'REC-2024-005', data: '2024-05-09', provincia: 'Gaza',
     categoria: 'Mineração Ilegal', canal: 'Reuniao', responsavel: 'Joao',
-    projeto: 'MozRural', status: 'Resolvido',
+    projeto: 'MozRural', status: 'Resolvido', origem: 'gestor',
     coords: '-23.865, 35.383 (Margem Rio Limpopo)',
     denunciante: 'Carlos Mondlane', telefone: '+258 82 111 2233',
     descricao: 'Extracção ilegal de areia e cascalho na margem do Rio Limpopo. Maquinaria pesada identificada sem licenciamento ambiental. Potencial de erosão severa das margens e assoreamento do leito.',
@@ -886,7 +899,7 @@ const rows = ref([
   {
     id: 'REC-2024-006', data: '2024-05-07', provincia: 'Niassa',
     categoria: 'Pesca Ilegal', canal: 'SMS', responsavel: 'Maria',
-    projeto: 'MozBio', status: 'Pendente',
+    projeto: 'MozBio', status: 'Pendente', origem: 'interno',
     coords: '-12.050, 34.675 (Lago Niassa, norte)',
     denunciante: 'Amélia Sitoe', telefone: '+258 86 444 5566',
     descricao: 'Redes de arrasto industrial a operar em zonas restritas do Lago Niassa. Embarcações sem identificação visível. Reportado por guardas da reserva durante patrulha nocturna.',
@@ -900,7 +913,7 @@ const rows = ref([
   {
     id: 'REC-2024-007', data: '2024-05-05', provincia: 'Tete',
     categoria: 'Desmatamento Ilegal', canal: 'Web', responsavel: 'Sara',
-    projeto: 'MozAmbiente', status: 'Em Analise',
+    projeto: 'MozAmbiente', status: 'Em Analise', origem: 'externo',
     coords: '-16.156, 33.588 (Changara, zona rural)',
     denunciante: 'Fátima Nhantumbo', telefone: '+258 84 777 8899',
     descricao: 'Corte selectivo de madeira de lei em área de floresta protegida a 12 km da sede distrital de Changara. Amostras de madeira cortada recolhidas por técnicos do MITADER.',
@@ -930,6 +943,7 @@ const filteredRows = computed(() => {
   if (f.data)      list = list.filter(r => r.data      === f.data)
   if (f.status)    list = list.filter(r => r.status    === f.status)
   if (f.categoria) list = list.filter(r => r.categoria === f.categoria)
+  if (f.origem)    list = list.filter(r => r.origem    === f.origem)
   return list
 })
 
@@ -945,7 +959,7 @@ function statusClass(s) { return s.toLowerCase().replace(' ', '-') }
 function selectRow(r) { selected.value = r; pendingAction.value = ''; showModal.value = false }
 
 function limpar() {
-  Object.assign(f, { provincia: '', projeto: '', data: '', status: '', categoria: '' })
+  Object.assign(f, { provincia: '', projeto: '', data: '', status: '', categoria: '', origem: '' })
   page.value = 1
 }
 
@@ -1111,7 +1125,7 @@ async function changeStatus(newState, comment = '') {
   gap: 12px; align-items: end; margin-bottom: 12px;
 }
 .filter-row-2 {
-  display: grid; grid-template-columns: 1fr 1fr 1fr auto;
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 12px; align-items: end;
 }
 .filter-group { display: flex; flex-direction: column; gap: 5px; }
@@ -1265,7 +1279,7 @@ tbody tr:last-child td { border-bottom: none; }
   font-size: 12px; color: var(--text-gray);
   line-height: 1.65; font-style: italic;
   border-left: 3px solid var(--green-light);
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  display: -webkit-box; -webkit-animation: 3; -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
