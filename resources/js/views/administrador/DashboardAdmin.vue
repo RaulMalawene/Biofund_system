@@ -26,21 +26,21 @@
           </svg>
           Validação
         </a>
-        <router-link class="nav-item" to="/admin/utilizadores">
+        <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="8" cy="6" r="3" />
             <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
           </svg>
           Utilizadores
-        </router-link>
-        <router-link class="nav-item" to="/admin/historico">
+        </a>
+        <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="2" y="1" width="10" height="14" rx="1.5" />
             <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
             <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Histórico de Ocorrências
-        </router-link>
+        </a>
         <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="5" cy="5" r="2" />
@@ -352,123 +352,168 @@
 
         <div class="drawer-body">
 
+          <!-- Banner de erro -->
+          <div class="error-banner" v-if="submitError">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6" />
+              <path d="M8 5v3M8 11h.01" stroke-linecap="round" />
+            </svg>
+            {{ submitError }}
+          </div>
+
+          <!-- Banner de sucesso -->
           <div class="success-banner" v-if="submitted">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 18 18">
               <circle cx="9" cy="9" r="7" />
               <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            Ocorrência registada com sucesso!
-          </div>
-
-          <!-- Nome + Email -->
-          <div class="f-row">
-            <div class="f-group">
-              <label>Seu Nome (Opcional)</label>
-              <input type="text" v-model="form.nome" placeholder="Nome completo ou pseudónimo" />
-            </div>
-            <div class="f-group">
-              <label>Email</label>
-              <input type="email" v-model="form.email" :class="{ 'f-err': errors.email }"
-                placeholder="email@exemplo.com" @input="errors.email = ''" />
-              <span class="f-err-msg" v-if="errors.email">{{ errors.email }}</span>
+            <div>
+              Ocorrência registada com sucesso!
+              <span class="tracking-inline" v-if="lastTrackingCode">Código: <strong>{{ lastTrackingCode
+                  }}</strong></span>
             </div>
           </div>
 
-          <!-- Projecto + Telefone -->
+          <!-- Contacto do Reclamante -->
           <div class="f-row">
             <div class="f-group">
-              <label>Projecto Relacionado</label>
-              <select v-model="form.projeto">
-                <option value="" disabled>Seleccione o projecto</option>
-                <option>Reserva do Niassa</option>
-                <option>Parque da Gorongosa</option>
-                <option>Arquipélago de Bazaruto</option>
-                <option>Lagoa de Bilene</option>
-                <option>Parque Nacional do Limpopo</option>
-                <option>Outro</option>
+              <label>Nome do Reclamante (Opcional)</label>
+              <input type="text" v-model="form.complainant_name" placeholder="Nome completo ou pseudónimo" />
+            </div>
+            <div class="f-group">
+              <label>Email do Reclamante</label>
+              <input type="email" v-model="form.complainant_email" :class="{ 'f-err': errors.complainant_email }"
+                placeholder="email@exemplo.com" @input="errors.complainant_email = ''" />
+              <span class="f-err-msg" v-if="errors.complainant_email">{{ errors.complainant_email }}</span>
+            </div>
+          </div>
+          <div class="f-row" style="margin-bottom:6px">
+            <div class="f-group">
+              <label>Telefone do Reclamante</label>
+              <input type="tel" v-model="form.complainant_phone" placeholder="ex: +258 84 000 0000" />
+            </div>
+            <div class="f-group contact-note">
+              <svg width="14" height="14" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 16 16">
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 7v4M8 5h.01" stroke-linecap="round" />
+              </svg>
+              Preencha pelo menos um contacto para que o reclamante possa ser notificado.
+            </div>
+          </div>
+
+          <!-- Assunto -->
+          <div class="f-group">
+            <label>Assunto <span class="f-req">*</span></label>
+            <input type="text" v-model="form.subject" maxlength="255" :class="{ 'f-err': errors.subject }"
+              placeholder="Ex: Poluição do rio Incomáti" @input="errors.subject = ''" />
+            <span class="f-err-msg" v-if="errors.subject">{{ errors.subject }}</span>
+          </div>
+
+          <!-- Projecto + Categoria -->
+          <div class="f-row">
+            <div class="f-group">
+              <label>Projecto <span class="f-req">*</span></label>
+              <select v-model="form.project_id" :class="{ 'f-err': errors.project_id }"
+                @change="errors.project_id = ''">
+                <option value="" disabled>{{ loadingRef ? 'A carregar…' : 'Seleccione o projecto' }}</option>
+                <option v-for="p in refProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
+              <span class="f-err-msg" v-if="errors.project_id">{{ errors.project_id }}</span>
             </div>
             <div class="f-group">
-              <label>Telefone</label>
-              <input type="tel" v-model="form.telefone" placeholder="ex: +258 84…" />
+              <label>Categoria <span class="f-req">*</span></label>
+              <select v-model="form.category_id" :class="{ 'f-err': errors.category_id }"
+                @change="handleCategoryChange">
+                <option value="" disabled>Seleccione a categoria</option>
+                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.category_id">{{ errors.category_id }}</span>
             </div>
           </div>
 
-
-          <!-- Data + Canal -->
+          <!-- Tipo de Ocorrência + Nível de Alerta -->
           <div class="f-row">
+            <div class="f-group">
+              <label>Tipo de Ocorrência <span class="f-req">*</span></label>
+              <select v-model="form.occurrence_type_id" :class="{ 'f-err': errors.occurrence_type_id }"
+                @change="errors.occurrence_type_id = ''">
+                <option value="" disabled>Seleccione o tipo</option>
+                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.occurrence_type_id">{{ errors.occurrence_type_id }}</span>
+            </div>
+            <div class="f-group">
+              <label>Nível de Alerta <span class="f-req">*</span></label>
+              <select v-model="form.alert_type" :class="{ 'f-err': errors.alert_type }"
+                @change="errors.alert_type = ''">
+                <option value="" disabled>Seleccione o nível</option>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgente</option>
+                <option value="gbv">GBV — Violência de Género</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.alert_type">{{ errors.alert_type }}</span>
+            </div>
+          </div>
+
+          <!-- Canal de Submissão + Data -->
+          <div class="f-row">
+            <div class="f-group">
+              <label>Canal de Submissão <span class="f-req">*</span></label>
+              <select v-model="form.submission_channel" :class="{ 'f-err': errors.submission_channel }"
+                @change="errors.submission_channel = ''">
+                <option value="" disabled>Seleccione o canal</option>
+                <option value="green_line">Linha Verde</option>
+                <option value="email">Email</option>
+                <option value="phone">Telefone</option>
+                <option value="community_meeting">Reunião Comunitária</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.submission_channel">{{ errors.submission_channel }}</span>
+            </div>
             <div class="f-group">
               <label>Data da Ocorrência</label>
-              <input type="date" v-model="form.data" />
-            </div>
-            <div class="f-group">
-              <label>Canal</label>
-              <select v-model="form.canal">
-                <option value="" disabled>Seleccione o canal</option>
-                <option>Web (Portal BioQueixa)</option>
-                <option>Aplicação Móvel</option>
-                <option>SMS</option>
-                <option>Presencial</option>
-                <option>Telefone</option>
-                <option>Email</option>
-              </select>
+              <input type="date" v-model="form.occurrence_date" :max="today" />
             </div>
           </div>
 
           <!-- Província + Distrito -->
           <div class="f-row">
             <div class="f-group">
-              <label>Província</label>
-              <select v-model="form.provincia">
+              <label>Província <span class="f-req">*</span></label>
+              <select v-model="form.province_id" :class="{ 'f-err': errors.province_id }"
+                @change="handleProvinceChange">
                 <option value="" disabled>Seleccione a província</option>
-                <option v-for="p in provincias" :key="p">{{ p }}</option>
+                <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
+              <span class="f-err-msg" v-if="errors.province_id">{{ errors.province_id }}</span>
             </div>
             <div class="f-group">
               <label>Distrito</label>
-              <select v-model="form.distrito" :disabled="!form.provincia">
-                <option value="" disabled>{{ form.provincia ? 'Seleccione o distrito' : 'Seleccione primeiro a província' }}</option>
-                <option v-for="d in currentDistricts" :key="d">{{ d }}</option>
+              <select v-model="form.district_id" :disabled="!form.province_id || loadingDistricts">
+                <option value="">{{ loadingDistricts ? 'A carregar…' : 'Seleccione o distrito' }}</option>
+                <option v-for="d in refDistricts" :key="d.id" :value="d.id">{{ d.name }}</option>
               </select>
             </div>
           </div>
 
-          <!-- Comunidade + Categoria -->
-          <div class="f-row">
-            <div class="f-group">
-              <label>Comunidade</label>
-              <input type="text" v-model="form.comunidade" placeholder="Ex: Aldeia Macuacua, Bairro Central…" />
-            </div>
-            <div class="f-group">
-              <label>Categoria do Incidente</label>
-              <select v-model="form.categoria" :class="{ 'f-err': errors.categoria }" @change="errors.categoria = ''">
-                <option value="" disabled>Seleccione a categoria</option>
-                <option>Fauna</option>
-                <option>Flora</option>
-                <option>Poluição Hídrica</option>
-                <option>Poluição Atmosférica</option>
-                <option>Pesca Ilegal</option>
-                <option>Caça Furtiva</option>
-                <option>Desflorestação</option>
-                <option>Outro</option>
-              </select>
-              <span class="f-err-msg" v-if="errors.categoria">{{ errors.categoria }}</span>
-            </div>
-          </div>
-
-          <!-- Coordenadas -->
+          <!-- Localização + Coordenadas -->
           <div class="f-group">
-            <label>Coordenadas (Opcional)</label>
-            <input type="text" v-model="form.coordenadas" placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
+            <label>Localização / Coordenadas (Opcional)</label>
+            <input type="text" v-model="form.location_detail"
+              placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
           </div>
 
           <!-- Descrição -->
           <div class="f-group">
-            <label>Descrição Detalhada</label>
-            <textarea v-model="form.descricao" :class="{ 'f-err': errors.descricao }"
-              placeholder="Descreva o que observou, pessoas envolvidas, gravidade e outros detalhes relevantes…"
-              @input="errors.descricao = ''"></textarea>
-            <span class="f-err-msg" v-if="errors.descricao">{{ errors.descricao }}</span>
+            <label>Descrição Detalhada <span class="f-req">*</span></label>
+            <textarea v-model="form.description" :class="{ 'f-err': errors.description }"
+              placeholder="Descreva o que observou, pessoas envolvidas, gravidade e outros detalhes relevantes… (mínimo 20 caracteres)"
+              @input="errors.description = ''"></textarea>
+            <div class="char-hint" :class="form.description.length >= 20 ? 'char-ok' : 'char-warn'"
+              v-if="form.description.length > 0">
+              {{ form.description.length >= 20 ? '✓ ' + form.description.length + ' caracteres' : 'Faltam ' + (20 -
+                form.description.length) + ' caracteres' }}
+            </div>
+            <span class="f-err-msg" v-if="errors.description">{{ errors.description }}</span>
           </div>
 
           <!-- Upload -->
@@ -539,6 +584,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Chart, registerables } from 'chart.js'
 import { useAuthStore } from '@/stores/auth'
+import { InternalService } from '@/api/services/internal.service'
 
 Chart.register(...registerables)
 
@@ -564,77 +610,172 @@ const submissions = [
 ]
 
 // ── DRAWER ──────────────────────────────────────────────────────────────
+// ── Referências de dados para os selects ──────────────────────
+const refProjects = ref([])
+const refCategories = ref([])
+const refTypes = ref([])
+const refProvinces = ref([])
+const refDistricts = ref([])
+const loadingRef = ref(false)
+const loadingDistricts = ref(false)
+const today = new Date().toISOString().split('T')[0]
+
+// Carrega os dados de referência ao abrir o drawer
+async function loadRefData() {
+  if (refProjects.value.length) return  // já carregados
+  loadingRef.value = true
+  try {
+    const data = await InternalService.getFormData()
+    refProjects.value = data.projects ?? []
+    refCategories.value = data.categories ?? []
+    refTypes.value = data.occurrence_types ?? []
+    refProvinces.value = data.provinces ?? []
+  } catch (err) {
+    console.error('Erro ao carregar dados do formulário:', err)
+  } finally {
+    loadingRef.value = false
+  }
+}
+
+async function handleProvinceChange() {
+  form.district_id = ''
+  refDistricts.value = []
+  if (!form.province_id) return
+  loadingDistricts.value = true
+  try {
+    const data = await InternalService.getDistrictsByProvince(form.province_id)
+    refDistricts.value = data.districts ?? data
+  } catch (err) {
+    console.error('Erro ao carregar distritos:', err)
+  } finally {
+    loadingDistricts.value = false
+  }
+}
+
+function handleCategoryChange() {
+  errors.category_id = ''
+}
+
+// ── Estado do drawer ───────────────────────────────────────────
 const drawerOpen = ref(false)
+
+// Carrega os dados de referência quando o drawer abre pela primeira vez
+watch(drawerOpen, (isOpen) => {
+  if (isOpen) loadRefData()
+})
 const loading = ref(false)
 const submitted = ref(false)
+const submitError = ref('')
+const lastTrackingCode = ref('')
 const isDragging = ref(false)
 const files = ref([])
 const fileInput = ref(null)
 
 const form = reactive({
-  nome: '', email: '', projeto: '', telefone: '',
-  descricao: '', data: '', canal: '',
-  provincia: '', distrito: '', comunidade: '', categoria: '', coordenadas: ''
+  complainant_name: '',
+  complainant_email: '',
+  complainant_phone: '',
+  subject: '',
+  project_id: '',
+  category_id: '',
+  occurrence_type_id: '',
+  alert_type: '',
+  submission_channel: '',
+  occurrence_date: '',
+  province_id: '',
+  district_id: '',
+  location_detail: '',
+  description: '',
 })
 
-const districtsByProvincia = {
-  'Cabo Delgado': ['Ancuabe', 'Balama', 'Chiúre', 'Ibo', 'Macomia', 'Mecúfi', 'Meluco', 'Mocímboa da Praia', 'Montepuez', 'Mueda', 'Muidumbe', 'Namuno', 'Nangade', 'Palma', 'Pemba', 'Quissanga'],
-  'Gaza': ['Bilene', 'Chibuto', 'Chicualacuala', 'Chigubo', 'Chókwè', 'Chongoene', 'Guijá', 'Limpopo', 'Mabalane', 'Manjacaze', 'Massangena', 'Massingir', 'Xai-Xai'],
-  'Inhambane': ['Funhalouro', 'Govuro', 'Homoíne', 'Inhambane', 'Inharrime', 'Inhassoro', 'Jangamo', 'Mabote', 'Massinga', 'Maxixe', 'Morrumbene', 'Panda', 'Vilankulo', 'Zavala'],
-  'Manica': ['Báruè', 'Chimoio', 'Gondola', 'Guro', 'Machaze', 'Macossa', 'Manica', 'Mossurize', 'Sussundenga', 'Tambara'],
-  'Maputo Cidade': ['KaMavota', 'KaMaxakeni', 'KaMpfumo', 'KaMubukwana', 'KaNyaka', 'KaTembe'],
-  'Maputo Província': ['Boane', 'Magude', 'Manhiça', 'Marracuene', 'Matola', 'Matutuíne', 'Moamba', 'Namaacha'],
-  'Nampula': ['Angoche', 'Eráti', 'Ilha de Moçambique', 'Lalaua', 'Liúpo', 'Lúrio', 'Malema', 'Meconta', 'Mecubúri', 'Memba', 'Mogincual', 'Mogovolas', 'Moma', 'Monapo', 'Mossuril', 'Muecate', 'Murrupula', 'Nacala-a-Velha', 'Nacala-Porto', 'Nacarôa', 'Nampula', 'Napo', 'Rapale', 'Ribáuè'],
-  'Niassa': ['Chimbonila', 'Cuamba', 'Lago', 'Lichinga', 'Majune', 'Mandimba', 'Marrupa', 'Mavago', 'Mecanhelas', 'Mecula', 'Metarica', 'Muembe', 'Ngauma', 'Ngapa', 'Nipepe', 'Sanga'],
-  'Sofala': ['Búzi', 'Caia', 'Chemba', 'Cheringoma', 'Chibabava', 'Dondo', 'Gorongosa', 'Machanga', 'Maríngué', 'Marromeu', 'Muanza', 'Nhamatanda', 'Beira'],
-  'Tete': ['Angónia', 'Cahora-Bassa', 'Changara', 'Chifunde', 'Chiuta', 'Dôa', 'Macanga', 'Magoè', 'Marara', 'Moatize', 'Mutarara', 'Tete', 'Tsangano', 'Zumbo'],
-  'Zambézia': ['Alto Molócuè', 'Chinde', 'Derre', 'Gilé', 'Guruè', 'Ile', 'Inhassunge', 'Luabo', 'Lugela', 'Maganja da Costa', 'Milange', 'Mocuba', 'Molumbo', 'Mopeia', 'Morrumbala', 'Namacurra', 'Namarrói', 'Nicoadala', 'Pebane', 'Quelimane'],
-}
-
-const currentDistricts = computed(() => districtsByProvincia[form.provincia] ?? [])
-
-watch(() => form.provincia, () => { form.distrito = '' })
-
-const errors = reactive({ email: '', descricao: '', categoria: '' })
-
-const provincias = [
-  'Cabo Delgado', 'Gaza', 'Inhambane', 'Manica',
-  'Maputo Cidade', 'Maputo Província', 'Nampula',
-  'Niassa', 'Sofala', 'Tete', 'Zambézia'
-]
+const errors = reactive({
+  complainant_email: '',
+  subject: '',
+  project_id: '',
+  category_id: '',
+  occurrence_type_id: '',
+  alert_type: '',
+  submission_channel: '',
+  province_id: '',
+  description: '',
+})
 
 function validate() {
   let ok = true
-  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = 'Formato de e-mail inválido.'; ok = false
-  }
-  if (!form.descricao.trim()) {
-    errors.descricao = 'A descrição é obrigatória.'; ok = false
-  }
-  if (!form.categoria) {
-    errors.categoria = 'Seleccione uma categoria.'; ok = false
+  if (!form.subject.trim()) { errors.subject = 'O assunto é obrigatório.'; ok = false }
+  if (!form.project_id) { errors.project_id = 'Seleccione o projecto.'; ok = false }
+  if (!form.category_id) { errors.category_id = 'Seleccione a categoria.'; ok = false }
+  if (!form.occurrence_type_id) { errors.occurrence_type_id = 'Seleccione o tipo de ocorrência.'; ok = false }
+  if (!form.alert_type) { errors.alert_type = 'Seleccione o nível de alerta.'; ok = false }
+  if (!form.submission_channel) { errors.submission_channel = 'Seleccione o canal de submissão.'; ok = false }
+  if (!form.province_id) { errors.province_id = 'Seleccione a província.'; ok = false }
+  if (!form.description.trim()) { errors.description = 'A descrição é obrigatória.'; ok = false }
+  else if (form.description.trim().length < 20) {
+    errors.description = 'A descrição deve ter pelo menos 20 caracteres.'; ok = false
   }
   return ok
 }
 
 async function submitForm() {
   submitted.value = false
+  submitError.value = ''
   if (!validate()) return
+
+  const fd = new FormData()
+  if (form.complainant_name.trim()) fd.append('complainant_name', form.complainant_name.trim())
+  if (form.complainant_email.trim()) fd.append('complainant_email', form.complainant_email.trim())
+  if (form.complainant_phone.trim()) fd.append('complainant_phone', form.complainant_phone.trim())
+  fd.append('subject', form.subject.trim())
+  fd.append('project_id', form.project_id)
+  fd.append('category_id', form.category_id)
+  fd.append('occurrence_type_id', form.occurrence_type_id)
+  fd.append('alert_type', form.alert_type)
+  fd.append('submission_channel', form.submission_channel)
+  fd.append('province_id', form.province_id)
+  fd.append('description', form.description.trim())
+  if (form.district_id) fd.append('district_id', form.district_id)
+  if (form.occurrence_date) fd.append('occurrence_date', form.occurrence_date)
+  if (form.location_detail.trim()) fd.append('location_detail', form.location_detail.trim())
+  files.value.forEach(f => fd.append('attachments[]', f))
+
   loading.value = true
-  await new Promise(r => setTimeout(r, 1300))
-  loading.value = false
-  submitted.value = true
-  resetDrawerForm(false)
+  try {
+    const result = await InternalService.createOccurrence(fd)
+    lastTrackingCode.value = result.tracking_code ?? ''
+    submitted.value = true
+    resetDrawerForm(false)
+  } catch (err) {
+    if (err.response?.status === 422) {
+      const serverErrors = err.response.data.errors ?? {}
+      Object.entries(serverErrors).forEach(([field, msgs]) => {
+        if (field in errors) errors[field] = msgs[0]
+      })
+      submitError.value = 'Corrija os erros e tente novamente.'
+    } else {
+      submitError.value = err.response?.data?.message ?? 'Erro ao registar. Tente novamente.'
+    }
+  } finally {
+    loading.value = false
+  }
 }
 
 function resetDrawerForm(clearSuccess = true) {
-  if (clearSuccess) submitted.value = false
+  if (clearSuccess) { submitted.value = false; lastTrackingCode.value = '' }
+  submitError.value = ''
   Object.assign(form, {
-    nome: '', email: '', projeto: '', telefone: '',
-    descricao: '', data: '', canal: '', provincia: '', distrito: '', comunidade: '', categoria: '', coordenadas: ''
+    complainant_name: '', complainant_email: '', complainant_phone: '',
+    subject: '', project_id: '', category_id: '',
+    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    occurrence_date: '', province_id: '', district_id: '',
+    location_detail: '', description: '',
   })
-  Object.assign(errors, { email: '', descricao: '', categoria: '' })
+  Object.assign(errors, {
+    complainant_email: '', subject: '', project_id: '', category_id: '',
+    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    province_id: '', description: '',
+  })
   files.value = []
+  refDistricts.value = []
 }
 
 function closeDrawer() {
@@ -737,7 +878,7 @@ onMounted(() => {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #fff;
+  background: #F4F6F5;
 }
 
 /* ── SIDEBAR ─────────────────────────────── */
@@ -745,8 +886,7 @@ onMounted(() => {
   width: 210px;
   flex-shrink: 0;
   background: var(--white);
-  border-right: none;
-  box-shadow: 2px 0 18px rgba(0,0,0,.07);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -761,7 +901,7 @@ onMounted(() => {
   align-items: center;
   gap: 9px;
   padding: 18px 16px 16px;
-  border-bottom: 1px solid rgba(0,0,0,.06);
+  border-bottom: 1px solid var(--border);
   text-decoration: none;
 }
 
@@ -823,7 +963,7 @@ onMounted(() => {
 
 .sidebar-footer {
   padding: 14px 10px;
-  border-top: 1px solid rgba(0,0,0,.06);
+  border-top: 1px solid var(--border);
 }
 
 .btn-logout {
@@ -865,11 +1005,8 @@ onMounted(() => {
   padding: 0 28px;
   height: 58px;
   background: var(--white);
-  border-bottom: none;
-  box-shadow: 0 1px 12px rgba(0,0,0,.07);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  position: relative;
-  z-index: 10;
 }
 
 .search-wrap {
@@ -976,7 +1113,6 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: 24px 28px 32px;
-  background: #F2F6F4;
 }
 
 .content::-webkit-scrollbar {
@@ -1062,25 +1198,16 @@ onMounted(() => {
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
 .kpi-card {
   background: var(--white);
-  border: none;
-  border-radius: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 18px 18px 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
-  transition: box-shadow 0.25s, transform 0.25s;
-}
-.kpi-card:hover {
-  box-shadow: 0 4px 10px rgba(0,0,0,.09), 0 16px 40px rgba(0,0,0,.1);
-  transform: translateY(-2px);
-}
-.kpi-card.highlight {
-  background: var(--green-mid);
-  box-shadow: 0 4px 12px rgba(45,106,79,.35), 0 12px 32px rgba(45,106,79,.25);
+  transition: box-shadow 0.2s;
 }
 
 .kpi-card:hover {
@@ -1184,10 +1311,9 @@ onMounted(() => {
 
 .chart-card {
   background: var(--white);
-  border: none;
-  border-radius: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 22px 22px 18px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
 }
 
 .chart-title {
@@ -1397,8 +1523,7 @@ tbody td {
   justify-content: space-between;
   padding: 12px 28px;
   background: var(--white);
-  border-top: none;
-  box-shadow: 0 -1px 10px rgba(0,0,0,.06);
+  border-top: 1px solid var(--border);
   font-size: 11.5px;
   color: var(--text-light);
   flex-shrink: 0;
@@ -1748,13 +1873,70 @@ tbody td {
   border-radius: 10px;
   padding: 13px 16px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   font-size: 13px;
   font-weight: 600;
   color: #2D6A4F;
   margin-bottom: 18px;
   animation: fadeInBanner 0.3s ease;
+}
+
+.tracking-inline {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: #2D6A4F;
+  margin-top: 3px;
+  letter-spacing: 0.5px;
+}
+
+.tracking-inline strong {
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.error-banner {
+  background: #FFF5F5;
+  border: 1px solid #FEB2B2;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #C53030;
+  margin-bottom: 18px;
+}
+
+.f-req {
+  color: #E53E3E;
+  margin-left: 2px;
+}
+
+.contact-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--text-gray);
+  line-height: 1.55;
+  padding-top: 6px;
+  justify-content: flex-start;
+}
+
+.char-hint {
+  font-size: 11.5px;
+  margin-top: 3px;
+}
+
+.char-warn {
+  color: #C66E00;
+}
+
+.char-ok {
+  color: #2D6A4F;
 }
 
 @keyframes fadeInBanner {

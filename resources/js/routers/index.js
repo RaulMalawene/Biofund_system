@@ -62,33 +62,47 @@ router.beforeEach((to, _from, next) => {
     })()
     const isAuthenticated = !!token
 
-    // Rota que requer autenticação
+    // [Debug] Remove em produção
+    console.log('[Router]', {
+        to: to.path,
+        token: !!token,
+        user,
+        role: user?.role,
+        routeRoles: to.meta.roles,
+    })
+
+    // ── Rota protegida ────────────────────────────────────────
     if (to.meta.requiresAuth) {
+
+        // Não autenticado → redireciona para login
         if (!isAuthenticated) {
             return next({ path: '/acessoRestrito', query: { redirect: to.fullPath } })
         }
 
-        // Verifica se o role tem permissão
-        if (to.meta.roles && user && !to.meta.roles.includes(user.role)) {
-            const dashboards = {
-                admin:       '/admin/dashboard',
-                gestor:      '/admin/dashboard',
-                funcionario: '/admin/dashboard',
-            }
-            return next(dashboards[user.role] ?? '/')
+        // Token existe mas dados do utilizador estão em falta ou corrompidos
+        if (!user) {
+            localStorage.removeItem('mdr_token')
+            localStorage.removeItem('mdr_user')
+            return next({ path: '/acessoRestrito', query: { redirect: to.fullPath } })
         }
+
+        // Verifica se o role tem permissão para esta rota
+        if (to.meta.roles && !to.meta.roles.includes(user.role)) {
+            // Já está no dashboard → deixa passar para evitar loop infinito
+            if (to.path === '/admin/dashboard') return next()
+            return next('/admin/dashboard')
+        }
+
+        // Autenticado e com permissão → deixa passar
+        return next()
     }
 
-    // Rota só para não-autenticados (ex: página de login)
+    // ── Rota só para não-autenticados (ex: login) ─────────────
     if (to.meta.guestOnly && isAuthenticated) {
-        const dashboards = {
-            admin:       '/admin/dashboard',
-            gestor:      '/admin/dashboard',
-            funcionario: '/admin/dashboard',
-        }
-        return next(dashboards[user?.role] ?? '/')
+        return next('/admin/dashboard')
     }
 
+    // ── Rota pública → deixa passar ───────────────────────────
     next()
 })
 
