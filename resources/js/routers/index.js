@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView              from '@/views/funcionario externo/HomeView.vue'
-import SubmeterReclamacaoView from '@/views/funcionario externo/SubmeterReclamacaoView.vue'
+import HomeView               from '@/views/funcionario externo/HomeView.vue'
+import SubmeterReclamacaoView  from '@/views/funcionario externo/SubmeterReclamacaoView.vue'
 import VisualizarReclamacaoView from '@/views/funcionario externo/VisualizarReclamacaoView.vue'
-import AcessoRestritoView    from '@/views/AcessoRestritoView.vue'
-import DashboardAdmin        from '@/views/administrador/DashboardAdmin.vue'
+import AcessoRestritoView      from '@/views/AcessoRestritoView.vue'
+import DashboardAdmin          from '@/views/administrador/DashboardAdmin.vue'
+import GestaoUtilizadores      from '@/views/administrador/GestaoUtilizadores.vue'
+import HistoricoOcorrencia     from '@/views/administrador/HistoricoOcorrencia.vue'
+import Validacao               from '@/views/administrador/Validacao.vue'
 
 const routes = [
     // ── Públicas ─────────────────────────────────────────────
@@ -15,14 +18,29 @@ const routes = [
     {
         path: '/acessoRestrito',
         component: AcessoRestritoView,
-        meta: { guestOnly: true },   // redireciona autenticados para o dashboard
+        meta: { guestOnly: true },
     },
 
     // ── Protegidas (requerem autenticação) ────────────────────
     {
         path: '/admin/dashboard',
         component: DashboardAdmin,
+        meta: { requiresAuth: true, roles: ['admin', 'gestor', 'funcionario'] },
+    },
+    {
+        path: '/admin/utilizadores',
+        component: GestaoUtilizadores,
         meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+        path: '/admin/historico',
+        component: HistoricoOcorrencia,
+        meta: { requiresAuth: true, roles: ['admin', 'gestor'] },
+    },
+    {
+        path: '/admin/validacao',
+        component: Validacao,
+        meta: { requiresAuth: true, roles: ['admin', 'gestor'] },
     },
 
     // Rota catch-all: redireciona para a home
@@ -52,7 +70,6 @@ router.beforeEach((to, _from, next) => {
 
         // Verifica se o role tem permissão
         if (to.meta.roles && user && !to.meta.roles.includes(user.role)) {
-            // Redireciona para o dashboard correcto do role
             const dashboards = {
                 admin:       '/admin/dashboard',
                 gestor:      '/admin/dashboard',
