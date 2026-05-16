@@ -6,28 +6,28 @@
 
       <!-- Botanical deco left -->
       <svg class="deco deco-left" width="340" height="520" viewBox="0 0 340 520" fill="none">
-        <ellipse cx="80" cy="260" rx="70" ry="200" transform="rotate(-20 80 260)" fill="#2D6A4F"/>
-        <path d="M80 60 Q160 180 80 460" stroke="#1B4332" stroke-width="3" fill="none"/>
-        <ellipse cx="200" cy="120" rx="45" ry="130" transform="rotate(30 200 120)" fill="#52B788"/>
-        <path d="M200 -10 Q240 80 200 250" stroke="#2D6A4F" stroke-width="2" fill="none"/>
-        <ellipse cx="260" cy="400" rx="30" ry="90" transform="rotate(-10 260 400)" fill="#2D6A4F"/>
+        <ellipse cx="80" cy="260" rx="70" ry="200" transform="rotate(-20 80 260)" fill="#2D6A4F" />
+        <path d="M80 60 Q160 180 80 460" stroke="#1B4332" stroke-width="3" fill="none" />
+        <ellipse cx="200" cy="120" rx="45" ry="130" transform="rotate(30 200 120)" fill="#52B788" />
+        <path d="M200 -10 Q240 80 200 250" stroke="#2D6A4F" stroke-width="2" fill="none" />
+        <ellipse cx="260" cy="400" rx="30" ry="90" transform="rotate(-10 260 400)" fill="#2D6A4F" />
       </svg>
 
       <!-- Botanical deco right -->
       <svg class="deco deco-right" width="340" height="520" viewBox="0 0 340 520" fill="none">
-        <ellipse cx="80" cy="260" rx="70" ry="200" transform="rotate(-20 80 260)" fill="#2D6A4F"/>
-        <path d="M80 60 Q160 180 80 460" stroke="#1B4332" stroke-width="3" fill="none"/>
-        <ellipse cx="200" cy="120" rx="45" ry="130" transform="rotate(30 200 120)" fill="#52B788"/>
-        <path d="M200 -10 Q240 80 200 250" stroke="#2D6A4F" stroke-width="2" fill="none"/>
-        <ellipse cx="260" cy="400" rx="30" ry="90" transform="rotate(-10 260 400)" fill="#2D6A4F"/>
+        <ellipse cx="80" cy="260" rx="70" ry="200" transform="rotate(-20 80 260)" fill="#2D6A4F" />
+        <path d="M80 60 Q160 180 80 460" stroke="#1B4332" stroke-width="3" fill="none" />
+        <ellipse cx="200" cy="120" rx="45" ry="130" transform="rotate(30 200 120)" fill="#52B788" />
+        <path d="M200 -10 Q240 80 200 250" stroke="#2D6A4F" stroke-width="2" fill="none" />
+        <ellipse cx="260" cy="400" rx="30" ry="90" transform="rotate(-10 260 400)" fill="#2D6A4F" />
       </svg>
 
       <!-- Header -->
       <div class="login-header">
         <div class="shield-wrap">
           <svg width="28" height="28" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 28 28">
-            <path d="M14 3 L24 7.5 V14 C24 19.5 19.5 24 14 26 C8.5 24 4 19.5 4 14 V7.5 Z" stroke-linejoin="round"/>
-            <path d="M10 14 L13 17 L18 11" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 3 L24 7.5 V14 C24 19.5 19.5 24 14 26 C8.5 24 4 19.5 4 14 V7.5 Z" stroke-linejoin="round" />
+            <path d="M10 14 L13 17 L18 11" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         <h1>Acesso Restrito</h1>
@@ -39,10 +39,11 @@
         <div class="card-title">Credenciais de Acesso</div>
         <div class="card-sub">Introduza os seus dados institucionais para continuar.</div>
 
+        <!-- Erro geral da API -->
         <div class="error-msg" v-if="loginError">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="8" cy="8" r="6"/>
-            <path d="M8 5v3M8 11h.01" stroke-linecap="round"/>
+            <circle cx="8" cy="8" r="6" />
+            <path d="M8 5v3M8 11h.01" stroke-linecap="round" />
           </svg>
           {{ loginError }}
         </div>
@@ -53,18 +54,12 @@
           <div class="input-wrap" :class="{ error: emailError }">
             <div class="input-icon">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                <rect x="1" y="3" width="14" height="10" rx="1.5"/>
-                <path d="M1 5l7 5 7-5" stroke-linecap="round"/>
+                <rect x="1" y="3" width="14" height="10" rx="1.5" />
+                <path d="M1 5l7 5 7-5" stroke-linecap="round" />
               </svg>
             </div>
-            <input
-              type="email"
-              v-model="email"
-              placeholder="exemplo@biofund.org.mz"
-              @blur="validateEmail"
-              @input="emailError = ''; loginError = ''"
-              @keyup.enter="submitLogin"
-            />
+            <input type="email" v-model="email" placeholder="exemplo@biofund.org.mz" @blur="validateEmail"
+              @input="emailError = ''; loginError = ''" @keyup.enter="submitLogin" />
           </div>
           <span v-if="emailError" class="field-error">{{ emailError }}</span>
         </div>
@@ -75,26 +70,23 @@
           <div class="input-wrap" :class="{ error: passError }">
             <div class="input-icon">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                <rect x="3" y="7" width="10" height="8" rx="1.5"/>
-                <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round"/>
-                <circle cx="8" cy="11" r="1.2" fill="currentColor"/>
+                <rect x="3" y="7" width="10" height="8" rx="1.5" />
+                <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round" />
+                <circle cx="8" cy="11" r="1.2" fill="currentColor" />
               </svg>
             </div>
-            <input
-              :type="showPass ? 'text' : 'password'"
-              v-model="password"
-              placeholder="••••••••"
-              @input="passError = ''; loginError = ''"
-              @keyup.enter="submitLogin"
-            />
+            <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="••••••••"
+              @input="passError = ''; loginError = ''" @keyup.enter="submitLogin" />
             <button class="btn-eye" type="button" @click="showPass = !showPass">
-              <svg v-if="!showPass" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/>
-                <circle cx="8" cy="8" r="2"/>
+              <svg v-if="!showPass" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"
+                viewBox="0 0 16 16">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+                <circle cx="8" cy="8" r="2" />
               </svg>
-              <svg v-else width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/>
-                <line x1="1" y1="1" x2="15" y2="15" stroke-linecap="round"/>
+              <svg v-else width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7"
+                viewBox="0 0 16 16">
+                <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+                <line x1="1" y1="1" x2="15" y2="15" stroke-linecap="round" />
               </svg>
             </button>
           </div>
@@ -109,8 +101,9 @@
         <!-- Submit -->
         <button class="btn-submit" :disabled="loading" @click="submitLogin">
           <div class="btn-inner">
-            <svg v-if="loading" class="btn-spin" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 16 16">
-              <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round"/>
+            <svg v-if="loading" class="btn-spin" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.2"
+              viewBox="0 0 16 16">
+              <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
             </svg>
             {{ loading ? 'A autenticar…' : 'Entrar no Sistema' }}
           </div>
@@ -119,7 +112,7 @@
         <!-- Voltar -->
         <router-link to="/" class="back-link">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
-            <path d="M9 2L4 7l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 2L4 7l5 5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Voltar para o Início
         </router-link>
@@ -127,29 +120,15 @@
 
       <!-- Aviso de segurança -->
       <div class="security-notice">
-        <p>Este sistema é monitorizado para fins de segurança. O acesso não autorizado é estritamente proibido e sujeito a sanções legais.</p>
+        <p>Este sistema é monitorizado para fins de segurança. O acesso não autorizado é estritamente proibido e sujeito
+          a sanções legais.</p>
         <div class="security-tags">
           <span>Segurança SSL</span>
           <span class="dot">•</span>
-          <span>Biofund 2024</span>
+          <span>Biofund 2025</span>
         </div>
       </div>
 
-    </div>
-
-    <!-- Overlay de sucesso -->
-    <div class="success-overlay" v-if="showSuccess">
-      <div class="success-card">
-        <div class="success-icon">
-          <svg width="36" height="36" fill="none" stroke="#2D6A4F" stroke-width="2.2" viewBox="0 0 36 36">
-            <circle cx="18" cy="18" r="15"/>
-            <path d="M11 18l5 5 9-10" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h3>Autenticado com Sucesso!</h3>
-        <p>Bem-vindo ao painel administrativo da Biofund Moçambique. A redirecionar…</p>
-        <button class="btn-ok" @click="showSuccess = false">Continuar</button>
-      </div>
     </div>
 
     <!-- Modal recuperar senha -->
@@ -157,28 +136,34 @@
       <div class="modal-card">
         <div class="modal-icon-wrap">
           <svg width="20" height="20" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 20 20">
-            <rect x="2" y="7" width="16" height="12" rx="2"/>
-            <path d="M6 7V5a4 4 0 0 1 8 0v2" stroke-linecap="round"/>
-            <circle cx="10" cy="13" r="1.5" fill="#2D6A4F"/>
+            <rect x="2" y="7" width="16" height="12" rx="2" />
+            <path d="M6 7V5a4 4 0 0 1 8 0v2" stroke-linecap="round" />
+            <circle cx="10" cy="13" r="1.5" fill="#2D6A4F" />
           </svg>
         </div>
         <h3>Recuperar Palavra-passe</h3>
         <p>Insira o seu e-mail institucional. Enviaremos instruções para redefinir a sua palavra-passe.</p>
+
         <div class="field-group">
           <label>E-mail Institucional</label>
-          <div class="input-wrap">
+          <div class="input-wrap" :class="{ error: forgotError }">
             <div class="input-icon">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                <rect x="1" y="3" width="14" height="10" rx="1.5"/>
-                <path d="M1 5l7 5 7-5" stroke-linecap="round"/>
+                <rect x="1" y="3" width="14" height="10" rx="1.5" />
+                <path d="M1 5l7 5 7-5" stroke-linecap="round" />
               </svg>
             </div>
             <input type="email" v-model="forgotEmail" placeholder="exemplo@biofund.org.mz" />
           </div>
+          <span v-if="forgotError" class="field-error">{{ forgotError }}</span>
+          <span v-if="forgotSuccess" class="field-success">{{ forgotSuccess }}</span>
         </div>
+
         <div class="modal-actions">
           <button class="btn-modal-cancel" @click="showForgot = false">Cancelar</button>
-          <button class="btn-modal-send" @click="sendForgot">Enviar Link</button>
+          <button class="btn-modal-send" :disabled="forgotLoading" @click="sendForgot">
+            {{ forgotLoading ? 'A enviar…' : 'Enviar Link' }}
+          </button>
         </div>
       </div>
     </div>
@@ -188,36 +173,57 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import AppNavbar from '@/components/AppNavbar.vue'
-
-const email       = ref('')
-const password    = ref('')
-const showPass    = ref(false)
-const loading     = ref(false)
-const loginError  = ref('')
-const emailError  = ref('')
-const passError   = ref('')
-const showSuccess = ref(false)
-const showForgot  = ref(false)
-const forgotEmail = ref('')
+import { useAuthStore } from '@/stores/auth'
+import { AuthService } from '@/api/services/auth.service'
 
 const router = useRouter()
-const DEMO = { email: 'admin@biofund.org.mz', password: 'biofund2024' }
+const route = useRoute()
+const auth = useAuthStore()
 
+// ── Campos do formulário ──────────────────────────────────────
+const email = ref('')
+const password = ref('')
+const showPass = ref(false)
+
+// ── Estado UI ─────────────────────────────────────────────────
+const loading = ref(false)
+const loginError = ref('')
+const emailError = ref('')
+const passError = ref('')
+
+// ── Recuperar senha ───────────────────────────────────────────
+const showForgot = ref(false)
+const forgotEmail = ref('')
+const forgotLoading = ref(false)
+const forgotError = ref('')
+const forgotSuccess = ref('')
+
+// ── Validações client-side ────────────────────────────────────
 function validateEmail() {
-  if (!email.value) { emailError.value = 'O e-mail é obrigatório.'; return false }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    emailError.value = 'Formato de e-mail inválido.'; return false
+  if (!email.value.trim()) {
+    emailError.value = 'O e-mail é obrigatório.'
+    return false
   }
-  emailError.value = ''; return true
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    emailError.value = 'Formato de e-mail inválido.'
+    return false
+  }
+  emailError.value = ''
+  return true
 }
 
 function validatePass() {
-  if (!password.value) { passError.value = 'A palavra-passe é obrigatória.'; return false }
-  passError.value = ''; return true
+  if (!password.value) {
+    passError.value = 'A palavra-passe é obrigatória.'
+    return false
+  }
+  passError.value = ''
+  return true
 }
 
+// ── Submit de login ───────────────────────────────────────────
 async function submitLogin() {
   loginError.value = ''
   const eOk = validateEmail()
@@ -225,18 +231,48 @@ async function submitLogin() {
   if (!eOk || !pOk) return
 
   loading.value = true
-  await new Promise(r => setTimeout(r, 1400))
-  loading.value = false
+  try {
+    await auth.login(email.value.trim(), password.value)
 
-  if (email.value === DEMO.email && password.value === DEMO.password) {
-    router.push('/admin/dashboard')
-  } else {
-    loginError.value = 'Credenciais inválidas. Verifique o e-mail e a palavra-passe.'
+    // Redireciona para a rota solicitada (se vier de um guard) ou para o dashboard
+    const redirectTo = route.query.redirect ?? auth.dashboardRoute
+    router.push(redirectTo)
+
+  } catch (err) {
+    if (err.response?.status === 401) {
+      loginError.value = 'Credenciais inválidas. Verifique o e-mail e a palavra-passe.'
+    } else if (err.response?.status === 403) {
+      loginError.value = 'A sua conta está desactivada. Contacte o administrador.'
+    } else if (!err.response) {
+      loginError.value = 'Sem ligação ao servidor. Verifique a sua ligação à internet.'
+    } else {
+      loginError.value = err.response?.data?.message ?? 'Erro ao autenticar. Tente novamente.'
+    }
+  } finally {
+    loading.value = false
   }
 }
 
-function sendForgot() {
-  showForgot.value = false
+// ── Recuperar senha ───────────────────────────────────────────
+async function sendForgot() {
+  forgotError.value = ''
+  forgotSuccess.value = ''
+
+  if (!forgotEmail.value.trim()) {
+    forgotError.value = 'Insira o seu e-mail.'
+    return
+  }
+
+  forgotLoading.value = true
+  try {
+    const result = await AuthService.forgotPassword(forgotEmail.value.trim())
+    forgotSuccess.value = result.message ?? 'Link enviado! Verifique o seu e-mail.'
+    forgotEmail.value = ''
+  } catch (err) {
+    forgotError.value = err.response?.data?.message ?? 'Erro ao enviar. Tente novamente.'
+  } finally {
+    forgotLoading.value = false
+  }
 }
 </script>
 
@@ -247,7 +283,6 @@ function sendForgot() {
   flex-direction: column;
 }
 
-/* ── PAGE BODY ─────────────────────── */
 .page-body {
   flex: 1;
   position: relative;
@@ -260,16 +295,24 @@ function sendForgot() {
   background: var(--offwhite);
 }
 
-/* ── BOTANICAL DECORATIONS ─────────── */
 .deco {
   position: absolute;
   pointer-events: none;
   opacity: 0.07;
 }
-.deco-left  { left: -40px; top: 50%; transform: translateY(-55%); }
-.deco-right { right: -40px; top: 50%; transform: translateY(-45%) scaleX(-1); }
 
-/* ── HEADER BLOCK ──────────────────── */
+.deco-left {
+  left: -40px;
+  top: 50%;
+  transform: translateY(-55%);
+}
+
+.deco-right {
+  right: -40px;
+  top: 50%;
+  transform: translateY(-45%) scaleX(-1);
+}
+
 .login-header {
   text-align: center;
   margin-bottom: 28px;
@@ -292,7 +335,6 @@ function sendForgot() {
   font-size: 26px;
   font-weight: 800;
   margin-bottom: 8px;
-  color: var(--text-dark);
 }
 
 .login-header p {
@@ -302,7 +344,6 @@ function sendForgot() {
   max-width: 300px;
 }
 
-/* ── LOGIN CARD ────────────────────── */
 .login-card {
   background: var(--white);
   border: 1px solid var(--border);
@@ -315,15 +356,21 @@ function sendForgot() {
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .card-title {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 5px;
-  color: var(--text-dark);
 }
 
 .card-sub {
@@ -333,7 +380,6 @@ function sendForgot() {
   line-height: 1.5;
 }
 
-/* ── FIELDS ────────────────────────── */
 .field-group {
   display: flex;
   flex-direction: column;
@@ -386,7 +432,9 @@ function sendForgot() {
   background: transparent;
 }
 
-.input-wrap input::placeholder { color: var(--text-light); }
+.input-wrap input::placeholder {
+  color: var(--text-light);
+}
 
 .btn-eye {
   background: none;
@@ -398,7 +446,10 @@ function sendForgot() {
   align-items: center;
   transition: color 0.2s;
 }
-.btn-eye:hover { color: var(--green-mid); }
+
+.btn-eye:hover {
+  color: var(--green-mid);
+}
 
 .field-error {
   font-size: 11.5px;
@@ -406,7 +457,13 @@ function sendForgot() {
   margin-top: 2px;
 }
 
-/* ── FORGOT ROW ────────────────────── */
+.field-success {
+  font-size: 11.5px;
+  color: var(--green-mid);
+  margin-top: 2px;
+  font-weight: 600;
+}
+
 .forgot-row {
   display: flex;
   justify-content: flex-end;
@@ -421,9 +478,12 @@ function sendForgot() {
   cursor: pointer;
   transition: color 0.2s;
 }
-.forgot-link:hover { color: var(--green-dark); text-decoration: underline; }
 
-/* ── ERROR MESSAGE ─────────────────── */
+.forgot-link:hover {
+  color: var(--green-dark);
+  text-decoration: underline;
+}
+
 .error-msg {
   background: #FFF5F5;
   border: 1px solid #FED7D7;
@@ -438,7 +498,6 @@ function sendForgot() {
   animation: fadeUp 0.3s ease;
 }
 
-/* ── SUBMIT BUTTON ─────────────────── */
 .btn-submit {
   width: 100%;
   background: var(--green-mid);
@@ -453,8 +512,17 @@ function sendForgot() {
   transition: background 0.2s, transform 0.15s;
   margin-bottom: 18px;
 }
-.btn-submit:hover  { background: var(--green-dark); transform: translateY(-1px); }
-.btn-submit:disabled { background: #A0C4B0; cursor: not-allowed; transform: none; }
+
+.btn-submit:hover {
+  background: var(--green-dark);
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  background: #A0C4B0;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .btn-inner {
   display: flex;
@@ -463,10 +531,16 @@ function sendForgot() {
   gap: 10px;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
-.btn-spin { animation: spin 0.8s linear infinite; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-/* ── BACK LINK ─────────────────────── */
+.btn-spin {
+  animation: spin 0.8s linear infinite;
+}
+
 .back-link {
   display: flex;
   align-items: center;
@@ -478,9 +552,11 @@ function sendForgot() {
   cursor: pointer;
   transition: color 0.2s;
 }
-.back-link:hover { color: var(--text-dark); }
 
-/* ── SECURITY NOTICE ───────────────── */
+.back-link:hover {
+  color: var(--text-dark);
+}
+
 .security-notice {
   text-align: center;
   margin-top: 28px;
@@ -507,66 +583,12 @@ function sendForgot() {
   color: var(--text-light);
 }
 
-.security-tags .dot { font-size: 14px; line-height: 1; }
-
-/* ── SUCCESS OVERLAY ───────────────── */
-.success-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.success-card {
-  background: var(--white);
-  border-radius: 18px;
-  padding: 48px 40px;
-  text-align: center;
-  max-width: 380px;
-  width: 90%;
-  animation: scaleIn 0.3s ease;
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.88); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-.success-icon {
-  width: 72px;
-  height: 72px;
-  background: var(--green-pale);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 22px;
-}
-
-.success-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
-.success-card p  { font-size: 13.5px; color: var(--text-gray); line-height: 1.65; margin-bottom: 28px; }
-
-.btn-ok {
-  background: var(--green-mid);
-  color: var(--white);
-  border: none;
-  border-radius: 9px;
-  padding: 12px 36px;
-  font-family: 'Poppins', sans-serif;
+.security-tags .dot {
   font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s;
+  line-height: 1;
 }
-.btn-ok:hover { background: var(--green-dark); }
 
-/* ── FORGOT MODAL ──────────────────── */
+/* MODAL */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -578,6 +600,16 @@ function sendForgot() {
   animation: fadeIn 0.25s ease;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .modal-card {
   background: var(--white);
   border-radius: 16px;
@@ -585,6 +617,18 @@ function sendForgot() {
   max-width: 360px;
   width: 90%;
   animation: scaleIn 0.25s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modal-icon-wrap {
@@ -598,10 +642,24 @@ function sendForgot() {
   margin-bottom: 14px;
 }
 
-.modal-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
-.modal-card p  { font-size: 13px; color: var(--text-gray); line-height: 1.6; margin-bottom: 22px; }
+.modal-card h3 {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
 
-.modal-actions { display: flex; gap: 10px; }
+.modal-card p {
+  font-size: 13px;
+  color: var(--text-gray);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
 
 .btn-modal-cancel {
   flex: 1;
@@ -616,7 +674,10 @@ function sendForgot() {
   cursor: pointer;
   transition: border-color 0.2s;
 }
-.btn-modal-cancel:hover { border-color: var(--text-gray); }
+
+.btn-modal-cancel:hover {
+  border-color: var(--text-gray);
+}
 
 .btn-modal-send {
   flex: 1;
@@ -631,5 +692,13 @@ function sendForgot() {
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-modal-send:hover { background: var(--green-dark); }
+
+.btn-modal-send:hover {
+  background: var(--green-dark);
+}
+
+.btn-modal-send:disabled {
+  background: #A0C4B0;
+  cursor: not-allowed;
+}
 </style>

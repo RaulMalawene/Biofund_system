@@ -4,7 +4,7 @@
     <!-- ── SIDEBAR ── -->
     <aside class="sidebar">
       <router-link to="/" class="sidebar-logo">
-        <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="sidebar-logo-img"/>
+        <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="sidebar-logo-img" />
         <div>
           <div class="sidebar-logo-text">BioFund Admin</div>
         </div>
@@ -13,50 +13,56 @@
       <nav class="sidebar-nav">
         <a class="nav-item active">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/>
-            <rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/>
+            <rect x="1" y="1" width="6" height="6" rx="1.5" />
+            <rect x="9" y="1" width="6" height="6" rx="1.5" />
+            <rect x="1" y="9" width="6" height="6" rx="1.5" />
+            <rect x="9" y="9" width="6" height="6" rx="1.5" />
           </svg>
           Dashboard
         </a>
         <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
+            <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z" />
           </svg>
           Validação
         </a>
         <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
+            <circle cx="8" cy="6" r="3" />
+            <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
           </svg>
           Utilizadores
         </a>
         <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <rect x="2" y="1" width="10" height="14" rx="1.5"/>
-            <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
-            <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="2" y="1" width="10" height="14" rx="1.5" />
+            <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
+            <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Histórico de Ocorrências
         </a>
         <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
-            <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
+            <circle cx="5" cy="5" r="2" />
+            <circle cx="11" cy="5" r="2" />
+            <circle cx="5" cy="11" r="2" />
+            <circle cx="11" cy="11" r="2" />
           </svg>
           Categorias
         </a>
         <a class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Projectos
         </a>
       </nav>
 
       <div class="sidebar-footer">
-        <button class="btn-logout" @click="$router.push('/acessoRestrito')">
+        <button class="btn-logout" @click="handleLogout">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           Terminar Sessão
         </button>
@@ -70,24 +76,25 @@
       <header class="topbar">
         <div class="search-wrap">
           <svg width="15" height="15" fill="none" stroke="#8A9490" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="7" cy="7" r="5"/><path d="M12 12l3 3" stroke-linecap="round"/>
+            <circle cx="7" cy="7" r="5" />
+            <path d="M12 12l3 3" stroke-linecap="round" />
           </svg>
-          <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="searchQ"/>
+          <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="searchQ" />
         </div>
         <div class="topbar-spacer"></div>
         <div class="notif-btn">
           <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z"/>
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round"/>
+            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z" />
+            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round" />
           </svg>
           <span class="notif-dot"></span>
         </div>
         <div class="admin-info">
           <div class="admin-text">
-            <div class="admin-name">Admin Central</div>
-            <div class="admin-role">Ministério da Terra e Ambiente</div>
+            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
+            <div class="admin-role">{{ auth.user?.role_label ?? '' }}</div>
           </div>
-          <div class="admin-avatar">AC</div>
+          <div class="admin-avatar">{{ auth.userInitials }}</div>
         </div>
       </header>
 
@@ -103,15 +110,15 @@
           <div class="title-actions">
             <button class="btn-outline-sm">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
-                <rect x="1" y="2" width="12" height="11" rx="1.5"/>
-                <path d="M4 1v2M10 1v2M1 6h12" stroke-linecap="round"/>
+                <rect x="1" y="2" width="12" height="11" rx="1.5" />
+                <path d="M4 1v2M10 1v2M1 6h12" stroke-linecap="round" />
               </svg>
               Relatório Mensal
             </button>
             <button class="btn-green-sm" @click="drawerOpen = true">
               <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 14 14">
-                <path d="M7 2C4.239 2 2 4.239 2 7c0 3.5 5 7 5 7s5-3.5 5-7c0-2.761-2.239-5-5-5z"/>
-                <circle cx="7" cy="7" r="1.8"/>
+                <path d="M7 2C4.239 2 2 4.239 2 7c0 3.5 5 7 5 7s5-3.5 5-7c0-2.761-2.239-5-5-5z" />
+                <circle cx="7" cy="7" r="1.8" />
               </svg>
               Ocorrência
             </button>
@@ -124,8 +131,8 @@
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
-                  <path d="M2 16l4-8 4 4 3-5 3 4"/>
-                  <circle cx="15" cy="3" r="2" fill="#52B788" stroke="none"/>
+                  <path d="M2 16l4-8 4 4 3-5 3 4" />
+                  <circle cx="15" cy="3" r="2" fill="#52B788" stroke="none" />
                 </svg>
               </div>
               <span class="kpi-badge up">↑ 8.2%</span>
@@ -138,9 +145,10 @@
           <div class="kpi-card highlight">
             <div class="kpi-top">
               <div class="kpi-icon white">
-                <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
-                  <circle cx="9" cy="9" r="7"/>
-                  <path d="M9 5v4l3 3" stroke-linecap="round" stroke-linejoin="round"/>
+                <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8"
+                  viewBox="0 0 18 18">
+                  <circle cx="9" cy="9" r="7" />
+                  <path d="M9 5v4l3 3" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </div>
             </div>
@@ -153,8 +161,8 @@
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
-                  <circle cx="9" cy="9" r="7"/>
-                  <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="9" cy="9" r="7" />
+                  <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </div>
             </div>
@@ -167,8 +175,8 @@
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
-                  <path d="M2 16c0-2.761 2.239-5 5-5h4c2.761 0 5 2.239 5 5"/>
-                  <circle cx="9" cy="7" r="3"/>
+                  <path d="M2 16c0-2.761 2.239-5 5-5h4c2.761 0 5 2.239 5 5" />
+                  <circle cx="9" cy="7" r="3" />
                 </svg>
               </div>
             </div>
@@ -181,8 +189,10 @@
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
-                  <circle cx="6" cy="6" r="2.5"/><circle cx="12" cy="6" r="2.5"/>
-                  <path d="M1 15c0-2.209 2.239-4 5-4M9 15c0-2.209 1.343-4 4-4 2.761 0 5 1.791 5 4" stroke-linecap="round"/>
+                  <circle cx="6" cy="6" r="2.5" />
+                  <circle cx="12" cy="6" r="2.5" />
+                  <path d="M1 15c0-2.209 2.239-4 5-4M9 15c0-2.209 1.343-4 4-4 2.761 0 5 1.791 5 4"
+                    stroke-linecap="round" />
                 </svg>
               </div>
             </div>
@@ -259,7 +269,7 @@
               <a class="ver-todas">
                 Ver Todas
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 13 13">
-                  <path d="M2 6.5h9M7 3l3.5 3.5L7 10" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 6.5h9M7 3l3.5 3.5L7 10" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </a>
             </div>
@@ -287,9 +297,10 @@
                   </td>
                   <td>
                     <div class="cat-cell">
-                      <svg width="13" height="13" fill="none" :stroke="row.catColor" stroke-width="1.7" viewBox="0 0 14 14">
-                        <path d="M7 1C4 1 2 4 2 7c0 4 5 7 5 7s5-3 5-7c0-3-2-6-5-6z"/>
-                        <circle cx="7" cy="7" r="1.8"/>
+                      <svg width="13" height="13" fill="none" :stroke="row.catColor" stroke-width="1.7"
+                        viewBox="0 0 14 14">
+                        <path d="M7 1C4 1 2 4 2 7c0 4 5 7 5 7s5-3 5-7c0-3-2-6-5-6z" />
+                        <circle cx="7" cy="7" r="1.8" />
                       </svg>
                       {{ row.categoria }}
                     </div>
@@ -334,7 +345,7 @@
           </div>
           <button class="drawer-close" @click="closeDrawer">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
-              <path d="M3 3l10 10M13 3L3 13" stroke-linecap="round"/>
+              <path d="M3 3l10 10M13 3L3 13" stroke-linecap="round" />
             </svg>
           </button>
         </div>
@@ -343,8 +354,8 @@
 
           <div class="success-banner" v-if="submitted">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 18 18">
-              <circle cx="9" cy="9" r="7"/>
-              <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="9" r="7" />
+              <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             Ocorrência registada com sucesso!
           </div>
@@ -353,14 +364,12 @@
           <div class="f-row">
             <div class="f-group">
               <label>Seu Nome (Opcional)</label>
-              <input type="text" v-model="form.nome" placeholder="Nome completo ou pseudónimo"/>
+              <input type="text" v-model="form.nome" placeholder="Nome completo ou pseudónimo" />
             </div>
             <div class="f-group">
               <label>Email</label>
-              <input type="email" v-model="form.email"
-                :class="{ 'f-err': errors.email }"
-                placeholder="email@exemplo.com"
-                @input="errors.email = ''"/>
+              <input type="email" v-model="form.email" :class="{ 'f-err': errors.email }"
+                placeholder="email@exemplo.com" @input="errors.email = ''" />
               <span class="f-err-msg" v-if="errors.email">{{ errors.email }}</span>
             </div>
           </div>
@@ -381,16 +390,16 @@
             </div>
             <div class="f-group">
               <label>Telefone</label>
-              <input type="tel" v-model="form.telefone" placeholder="ex: +258 84…"/>
+              <input type="tel" v-model="form.telefone" placeholder="ex: +258 84…" />
             </div>
           </div>
 
-        
+
           <!-- Data + Canal -->
           <div class="f-row">
             <div class="f-group">
               <label>Data da Ocorrência</label>
-              <input type="date" v-model="form.data"/>
+              <input type="date" v-model="form.data" />
             </div>
             <div class="f-group">
               <label>Canal</label>
@@ -428,13 +437,11 @@
           <div class="f-row">
             <div class="f-group">
               <label>Comunidade</label>
-              <input type="text" v-model="form.comunidade" placeholder="Ex: Aldeia Macuacua, Bairro Central…"/>
+              <input type="text" v-model="form.comunidade" placeholder="Ex: Aldeia Macuacua, Bairro Central…" />
             </div>
             <div class="f-group">
               <label>Categoria do Incidente</label>
-              <select v-model="form.categoria"
-                :class="{ 'f-err': errors.categoria }"
-                @change="errors.categoria = ''">
+              <select v-model="form.categoria" :class="{ 'f-err': errors.categoria }" @change="errors.categoria = ''">
                 <option value="" disabled>Seleccione a categoria</option>
                 <option>Fauna</option>
                 <option>Flora</option>
@@ -452,52 +459,46 @@
           <!-- Coordenadas -->
           <div class="f-group">
             <label>Coordenadas (Opcional)</label>
-            <input type="text" v-model="form.coordenadas"
-              placeholder="Ex: -25.9682, 32.5732 ou descrição do local"/>
+            <input type="text" v-model="form.coordenadas" placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
           </div>
-          
-      <!-- Descrição -->
+
+          <!-- Descrição -->
           <div class="f-group">
             <label>Descrição Detalhada</label>
-            <textarea v-model="form.descricao"
-              :class="{ 'f-err': errors.descricao }"
+            <textarea v-model="form.descricao" :class="{ 'f-err': errors.descricao }"
               placeholder="Descreva o que observou, pessoas envolvidas, gravidade e outros detalhes relevantes…"
               @input="errors.descricao = ''"></textarea>
             <span class="f-err-msg" v-if="errors.descricao">{{ errors.descricao }}</span>
           </div>
 
           <!-- Upload -->
-          <div class="upload-zone"
-            :class="{ 'drag-over': isDragging }"
-            @click="fileInput.click()"
-            @dragover.prevent="isDragging = true"
-            @dragleave="isDragging = false"
-            @drop.prevent="handleDrop">
+          <div class="upload-zone" :class="{ 'drag-over': isDragging }" @click="fileInput.click()"
+            @dragover.prevent="isDragging = true" @dragleave="isDragging = false" @drop.prevent="handleDrop">
             <div class="upload-icon-wrap">
               <svg width="20" height="20" fill="none" stroke="#2D6A4F" stroke-width="1.7" viewBox="0 0 20 20">
-                <path d="M3 15v1.5A1.5 1.5 0 0 0 4.5 18h11A1.5 1.5 0 0 0 17 16.5V15" stroke-linecap="round"/>
-                <path d="M10 2v10M6.5 5.5 10 2l3.5 3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3 15v1.5A1.5 1.5 0 0 0 4.5 18h11A1.5 1.5 0 0 0 17 16.5V15" stroke-linecap="round" />
+                <path d="M10 2v10M6.5 5.5 10 2l3.5 3.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
             <h4>Clique para carregar ou arraste e solte</h4>
             <p>PNG, JPG, PDF até 10MB</p>
           </div>
-          <input ref="fileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf"
-            style="display:none" @change="handleFileSelect"/>
+          <input ref="fileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf" style="display:none"
+            @change="handleFileSelect" />
 
           <!-- File list -->
           <div class="file-list" v-if="files.length">
             <div class="file-item" v-for="(f, i) in files" :key="i">
               <svg width="15" height="15" fill="none" stroke="#2D6A4F" stroke-width="1.5" viewBox="0 0 16 16">
-                <rect x="2" y="1" width="10" height="14" rx="1.5"/>
-                <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
-                <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="2" y="1" width="10" height="14" rx="1.5" />
+                <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
+                <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               <span class="file-item-name">{{ f.name }}</span>
               <span class="file-item-size">{{ (f.size / 1024).toFixed(0) }} KB</span>
               <button class="btn-rm" @click.stop="files.splice(i, 1)">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
-                  <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round"/>
+                  <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round" />
                 </svg>
               </button>
             </div>
@@ -506,20 +507,21 @@
           <!-- Actions -->
           <div class="f-actions">
             <button class="btn-registar" @click="submitForm" :disabled="loading">
-              <svg v-if="loading" class="spin" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 16 16">
-                <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round"/>
+              <svg v-if="loading" class="spin" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.2"
+                viewBox="0 0 16 16">
+                <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
               </svg>
               <svg v-else width="14" height="14" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 16 16">
-                <rect x="2" y="1" width="10" height="14" rx="1.5"/>
-                <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
-                <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="2" y="1" width="10" height="14" rx="1.5" />
+                <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
+                <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               {{ loading ? 'A registar…' : 'Registar' }}
             </button>
             <button class="btn-cancelar" @click="closeDrawer">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
-                <circle cx="7" cy="7" r="5.5"/>
-                <path d="M5 5l4 4M9 5L5 9" stroke-linecap="round"/>
+                <circle cx="7" cy="7" r="5.5" />
+                <path d="M5 5l4 4M9 5L5 9" stroke-linecap="round" />
               </svg>
               Cancelar
             </button>
@@ -534,30 +536,40 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Chart, registerables } from 'chart.js'
+import { useAuthStore } from '@/stores/auth'
 
 Chart.register(...registerables)
 
-const searchQ      = ref('')
-const barChartRef  = ref(null)
+const router = useRouter()
+const auth = useAuthStore()
+
+async function handleLogout() {
+  await auth.logout()
+  router.push('/acessoRestrito')
+}
+
+const searchQ = ref('')
+const barChartRef = ref(null)
 const donutChartRef = ref(null)
 const lineChartRef = ref(null)
 
 const submissions = [
-  { name: 'Amélia Mondlane', code: 'REC-2024-001', initials: 'AM', color: '#52B788', categoria: 'Fauna',        catColor: '#52B788', provincia: 'Nampula',   status: 'Pendente',  statusClass: 'pendente', tempo: 'há 2 horas' },
-  { name: 'Carlos Matsinhe', code: 'REC-2024-002', initials: 'CM', color: '#4299E1', categoria: 'Poluição',     catColor: '#F4A52A', provincia: 'Maputo',    status: 'Análise',   statusClass: 'analise',  tempo: 'há 5 horas' },
-  { name: 'Helena Sitoe',    code: 'REC-2024-003', initials: 'HS', color: '#9F7AEA', categoria: 'Flora',        catColor: '#74C0FC', provincia: 'Manica',    status: 'Pendente',  statusClass: 'pendente', tempo: 'há 1 dia'   },
-  { name: 'João Vilanculos', code: 'REC-2024-004', initials: 'JV', color: '#ED8936', categoria: 'Pesca Ilegal', catColor: '#FC8181', provincia: 'Inhambane', status: 'Resolvida', statusClass: 'resolvida', tempo: 'há 2 dias'  },
-  { name: 'Marta Tembe',     code: 'REC-2024-005', initials: 'MT', color: '#F687B3', categoria: 'Poluição',     catColor: '#F4A52A', provincia: 'Sofala',    status: 'Pendente',  statusClass: 'pendente', tempo: 'há 2 dias'  },
+  { name: 'Amélia Mondlane', code: 'REC-2024-001', initials: 'AM', color: '#52B788', categoria: 'Fauna', catColor: '#52B788', provincia: 'Nampula', status: 'Pendente', statusClass: 'pendente', tempo: 'há 2 horas' },
+  { name: 'Carlos Matsinhe', code: 'REC-2024-002', initials: 'CM', color: '#4299E1', categoria: 'Poluição', catColor: '#F4A52A', provincia: 'Maputo', status: 'Análise', statusClass: 'analise', tempo: 'há 5 horas' },
+  { name: 'Helena Sitoe', code: 'REC-2024-003', initials: 'HS', color: '#9F7AEA', categoria: 'Flora', catColor: '#74C0FC', provincia: 'Manica', status: 'Pendente', statusClass: 'pendente', tempo: 'há 1 dia' },
+  { name: 'João Vilanculos', code: 'REC-2024-004', initials: 'JV', color: '#ED8936', categoria: 'Pesca Ilegal', catColor: '#FC8181', provincia: 'Inhambane', status: 'Resolvida', statusClass: 'resolvida', tempo: 'há 2 dias' },
+  { name: 'Marta Tembe', code: 'REC-2024-005', initials: 'MT', color: '#F687B3', categoria: 'Poluição', catColor: '#F4A52A', provincia: 'Sofala', status: 'Pendente', statusClass: 'pendente', tempo: 'há 2 dias' },
 ]
 
 // ── DRAWER ──────────────────────────────────────────────────────────────
 const drawerOpen = ref(false)
-const loading    = ref(false)
-const submitted  = ref(false)
+const loading = ref(false)
+const submitted = ref(false)
 const isDragging = ref(false)
-const files      = ref([])
-const fileInput  = ref(null)
+const files = ref([])
+const fileInput = ref(null)
 
 const form = reactive({
   nome: '', email: '', projeto: '', telefone: '',
@@ -566,17 +578,17 @@ const form = reactive({
 })
 
 const districtsByProvincia = {
-  'Cabo Delgado': ['Ancuabe','Balama','Chiúre','Ibo','Macomia','Mecúfi','Meluco','Mocímboa da Praia','Montepuez','Mueda','Muidumbe','Namuno','Nangade','Palma','Pemba','Quissanga'],
-  'Gaza': ['Bilene','Chibuto','Chicualacuala','Chigubo','Chókwè','Chongoene','Guijá','Limpopo','Mabalane','Manjacaze','Massangena','Massingir','Xai-Xai'],
-  'Inhambane': ['Funhalouro','Govuro','Homoíne','Inhambane','Inharrime','Inhassoro','Jangamo','Mabote','Massinga','Maxixe','Morrumbene','Panda','Vilankulo','Zavala'],
-  'Manica': ['Báruè','Chimoio','Gondola','Guro','Machaze','Macossa','Manica','Mossurize','Sussundenga','Tambara'],
-  'Maputo Cidade': ['KaMavota','KaMaxakeni','KaMpfumo','KaMubukwana','KaNyaka','KaTembe'],
-  'Maputo Província': ['Boane','Magude','Manhiça','Marracuene','Matola','Matutuíne','Moamba','Namaacha'],
-  'Nampula': ['Angoche','Eráti','Ilha de Moçambique','Lalaua','Liúpo','Lúrio','Malema','Meconta','Mecubúri','Memba','Mogincual','Mogovolas','Moma','Monapo','Mossuril','Muecate','Murrupula','Nacala-a-Velha','Nacala-Porto','Nacarôa','Nampula','Napo','Rapale','Ribáuè'],
-  'Niassa': ['Chimbonila','Cuamba','Lago','Lichinga','Majune','Mandimba','Marrupa','Mavago','Mecanhelas','Mecula','Metarica','Muembe','Ngauma','Ngapa','Nipepe','Sanga'],
-  'Sofala': ['Búzi','Caia','Chemba','Cheringoma','Chibabava','Dondo','Gorongosa','Machanga','Maríngué','Marromeu','Muanza','Nhamatanda','Beira'],
-  'Tete': ['Angónia','Cahora-Bassa','Changara','Chifunde','Chiuta','Dôa','Macanga','Magoè','Marara','Moatize','Mutarara','Tete','Tsangano','Zumbo'],
-  'Zambézia': ['Alto Molócuè','Chinde','Derre','Gilé','Guruè','Ile','Inhassunge','Luabo','Lugela','Maganja da Costa','Milange','Mocuba','Molumbo','Mopeia','Morrumbala','Namacurra','Namarrói','Nicoadala','Pebane','Quelimane'],
+  'Cabo Delgado': ['Ancuabe', 'Balama', 'Chiúre', 'Ibo', 'Macomia', 'Mecúfi', 'Meluco', 'Mocímboa da Praia', 'Montepuez', 'Mueda', 'Muidumbe', 'Namuno', 'Nangade', 'Palma', 'Pemba', 'Quissanga'],
+  'Gaza': ['Bilene', 'Chibuto', 'Chicualacuala', 'Chigubo', 'Chókwè', 'Chongoene', 'Guijá', 'Limpopo', 'Mabalane', 'Manjacaze', 'Massangena', 'Massingir', 'Xai-Xai'],
+  'Inhambane': ['Funhalouro', 'Govuro', 'Homoíne', 'Inhambane', 'Inharrime', 'Inhassoro', 'Jangamo', 'Mabote', 'Massinga', 'Maxixe', 'Morrumbene', 'Panda', 'Vilankulo', 'Zavala'],
+  'Manica': ['Báruè', 'Chimoio', 'Gondola', 'Guro', 'Machaze', 'Macossa', 'Manica', 'Mossurize', 'Sussundenga', 'Tambara'],
+  'Maputo Cidade': ['KaMavota', 'KaMaxakeni', 'KaMpfumo', 'KaMubukwana', 'KaNyaka', 'KaTembe'],
+  'Maputo Província': ['Boane', 'Magude', 'Manhiça', 'Marracuene', 'Matola', 'Matutuíne', 'Moamba', 'Namaacha'],
+  'Nampula': ['Angoche', 'Eráti', 'Ilha de Moçambique', 'Lalaua', 'Liúpo', 'Lúrio', 'Malema', 'Meconta', 'Mecubúri', 'Memba', 'Mogincual', 'Mogovolas', 'Moma', 'Monapo', 'Mossuril', 'Muecate', 'Murrupula', 'Nacala-a-Velha', 'Nacala-Porto', 'Nacarôa', 'Nampula', 'Napo', 'Rapale', 'Ribáuè'],
+  'Niassa': ['Chimbonila', 'Cuamba', 'Lago', 'Lichinga', 'Majune', 'Mandimba', 'Marrupa', 'Mavago', 'Mecanhelas', 'Mecula', 'Metarica', 'Muembe', 'Ngauma', 'Ngapa', 'Nipepe', 'Sanga'],
+  'Sofala': ['Búzi', 'Caia', 'Chemba', 'Cheringoma', 'Chibabava', 'Dondo', 'Gorongosa', 'Machanga', 'Maríngué', 'Marromeu', 'Muanza', 'Nhamatanda', 'Beira'],
+  'Tete': ['Angónia', 'Cahora-Bassa', 'Changara', 'Chifunde', 'Chiuta', 'Dôa', 'Macanga', 'Magoè', 'Marara', 'Moatize', 'Mutarara', 'Tete', 'Tsangano', 'Zumbo'],
+  'Zambézia': ['Alto Molócuè', 'Chinde', 'Derre', 'Gilé', 'Guruè', 'Ile', 'Inhassunge', 'Luabo', 'Lugela', 'Maganja da Costa', 'Milange', 'Mocuba', 'Molumbo', 'Mopeia', 'Morrumbala', 'Namacurra', 'Namarrói', 'Nicoadala', 'Pebane', 'Quelimane'],
 }
 
 const currentDistricts = computed(() => districtsByProvincia[form.provincia] ?? [])
@@ -642,7 +654,7 @@ function addFiles(list) {
 
 onMounted(() => {
   Chart.defaults.font.family = "'Poppins', sans-serif"
-  Chart.defaults.color       = '#8A9490'
+  Chart.defaults.color = '#8A9490'
 
   new Chart(barChartRef.value, {
     type: 'bar',
@@ -738,7 +750,8 @@ onMounted(() => {
   flex-direction: column;
   height: 100vh;
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   z-index: 50;
 }
 
@@ -787,10 +800,25 @@ onMounted(() => {
   text-decoration: none;
 }
 
-.nav-item:hover { background: var(--green-bg); color: var(--green-mid); }
-.nav-item.active { background: var(--green-bg); color: var(--green-mid); font-weight: 700; }
-.nav-item svg { flex-shrink: 0; opacity: 0.75; }
-.nav-item.active svg { opacity: 1; }
+.nav-item:hover {
+  background: var(--green-bg);
+  color: var(--green-mid);
+}
+
+.nav-item.active {
+  background: var(--green-bg);
+  color: var(--green-mid);
+  font-weight: 700;
+}
+
+.nav-item svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.nav-item.active svg {
+  opacity: 1;
+}
 
 .sidebar-footer {
   padding: 14px 10px;
@@ -813,7 +841,10 @@ onMounted(() => {
   color: #E53E3E;
   transition: background 0.15s;
 }
-.btn-logout:hover { background: #FFF5F5; }
+
+.btn-logout:hover {
+  background: #FFF5F5;
+}
 
 /* ── MAIN AREA ───────────────────────────── */
 .main {
@@ -849,7 +880,10 @@ onMounted(() => {
   max-width: 420px;
   transition: border-color 0.2s;
 }
-.search-wrap:focus-within { border-color: var(--green-light); }
+
+.search-wrap:focus-within {
+  border-color: var(--green-light);
+}
 
 .search-wrap input {
   border: none;
@@ -860,13 +894,19 @@ onMounted(() => {
   color: var(--text-dark);
   width: 100%;
 }
-.search-wrap input::placeholder { color: var(--text-light); }
 
-.topbar-spacer { flex: 1; }
+.search-wrap input::placeholder {
+  color: var(--text-light);
+}
+
+.topbar-spacer {
+  flex: 1;
+}
 
 .notif-btn {
   position: relative;
-  width: 38px; height: 38px;
+  width: 38px;
+  height: 38px;
   background: #F4F6F5;
   border: 1.5px solid var(--border);
   border-radius: 9px;
@@ -876,24 +916,46 @@ onMounted(() => {
   cursor: pointer;
   transition: border-color 0.2s;
 }
-.notif-btn:hover { border-color: var(--green-light); }
+
+.notif-btn:hover {
+  border-color: var(--green-light);
+}
 
 .notif-dot {
   position: absolute;
-  top: 7px; right: 8px;
-  width: 7px; height: 7px;
+  top: 7px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #E53E3E;
   border: 1.5px solid var(--white);
 }
 
-.admin-info { display: flex; align-items: center; gap: 10px; }
-.admin-text { text-align: right; }
-.admin-name { font-size: 13px; font-weight: 700; color: var(--text-dark); }
-.admin-role { font-size: 11px; color: var(--text-light); }
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-text {
+  text-align: right;
+}
+
+.admin-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.admin-role {
+  font-size: 11px;
+  color: var(--text-light);
+}
 
 .admin-avatar {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #52B788, #1B4332);
   display: flex;
@@ -911,9 +973,19 @@ onMounted(() => {
   overflow-y: auto;
   padding: 24px 28px 32px;
 }
-.content::-webkit-scrollbar { width: 5px; }
-.content::-webkit-scrollbar-track { background: transparent; }
-.content::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+
+.content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #C8D8CE;
+  border-radius: 99px;
+}
 
 /* page title row */
 .page-title-row {
@@ -922,29 +994,64 @@ onMounted(() => {
   justify-content: space-between;
   margin-bottom: 22px;
 }
-.page-title-row h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-.page-title-row p  { font-size: 13px; color: var(--text-gray); }
 
-.title-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.page-title-row h1 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.page-title-row p {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+.title-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
 
 .btn-outline-sm {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--white); color: var(--text-dark);
-  border: 1.5px solid var(--border); border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--white);
+  color: var(--text-dark);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
   padding: 8px 16px;
-  font-family: 'Poppins', sans-serif; font-size: 12.5px; font-weight: 600;
-  cursor: pointer; transition: border-color 0.2s;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s;
 }
-.btn-outline-sm:hover { border-color: var(--green-mid); color: var(--green-mid); }
+
+.btn-outline-sm:hover {
+  border-color: var(--green-mid);
+  color: var(--green-mid);
+}
 
 .btn-green-sm {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--green-mid); color: #fff;
-  border: none; border-radius: 8px; padding: 8px 16px;
-  font-family: 'Poppins', sans-serif; font-size: 12.5px; font-weight: 700;
-  cursor: pointer; transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--green-mid);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
 }
-.btn-green-sm:hover { background: var(--green-dark); }
+
+.btn-green-sm:hover {
+  background: var(--green-dark);
+}
 
 /* ── KPI CARDS ───────────────────────────── */
 .kpi-grid {
@@ -961,40 +1068,97 @@ onMounted(() => {
   padding: 18px 18px 16px;
   transition: box-shadow 0.2s;
 }
-.kpi-card:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07); }
-.kpi-card.highlight { background: var(--green-mid); border-color: var(--green-mid); }
 
-.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.kpi-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+
+.kpi-card.highlight {
+  background: var(--green-mid);
+  border-color: var(--green-mid);
+}
+
+.kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
 
 .kpi-icon {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.kpi-icon.green { background: var(--green-pale); }
-.kpi-icon.white { background: rgba(255, 255, 255, 0.22); }
+
+.kpi-icon.green {
+  background: var(--green-pale);
+}
+
+.kpi-icon.white {
+  background: rgba(255, 255, 255, 0.22);
+}
 
 .kpi-badge {
-  font-size: 10.5px; font-weight: 700;
-  padding: 3px 8px; border-radius: 99px;
-  display: flex; align-items: center; gap: 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
-.kpi-badge.up { background: #E6F7EE; color: var(--green-mid); }
+
+.kpi-badge.up {
+  background: #E6F7EE;
+  color: var(--green-mid);
+}
 
 .kpi-label {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
-.kpi-label.dark  { color: var(--text-light); }
-.kpi-label.light { color: rgba(255, 255, 255, 0.75); }
 
-.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
-.kpi-value.dark  { color: var(--text-dark); }
-.kpi-value.light { color: #fff; }
+.kpi-label.dark {
+  color: var(--text-light);
+}
 
-.kpi-sub { font-size: 11px; }
-.kpi-sub.dark  { color: var(--text-light); }
-.kpi-sub.light { color: rgba(255, 255, 255, 0.75); }
+.kpi-label.light {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.kpi-value.dark {
+  color: var(--text-dark);
+}
+
+.kpi-value.light {
+  color: #fff;
+}
+
+.kpi-sub {
+  font-size: 11px;
+}
+
+.kpi-sub.dark {
+  color: var(--text-light);
+}
+
+.kpi-sub.light {
+  color: rgba(255, 255, 255, 0.75);
+}
 
 /* ── CHARTS ROW ──────────────────────────── */
 .charts-row {
@@ -1011,9 +1175,21 @@ onMounted(() => {
   padding: 22px 22px 18px;
 }
 
-.chart-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
-.chart-sub   { font-size: 11.5px; color: var(--text-light); margin-bottom: 18px; }
-.chart-wrap  { position: relative; }
+.chart-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.chart-sub {
+  font-size: 11.5px;
+  color: var(--text-light);
+  margin-bottom: 18px;
+}
+
+.chart-wrap {
+  position: relative;
+}
 
 /* donut legend */
 .donut-legend {
@@ -1023,14 +1199,43 @@ onMounted(() => {
   margin-top: 16px;
 }
 
-.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; }
-.legend-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.legend-label { color: var(--text-gray); flex: 1; }
-.legend-pct   { font-weight: 700; color: var(--text-dark); }
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  color: var(--text-gray);
+  flex: 1;
+}
+
+.legend-pct {
+  font-weight: 700;
+  color: var(--text-dark);
+}
 
 /* line chart legend */
-.line-legend { display: flex; gap: 16px; margin-bottom: 12px; }
-.line-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.line-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.line-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
 
 /* ── BOTTOM ROW ──────────────────────────── */
 .bottom-row {
@@ -1048,54 +1253,127 @@ onMounted(() => {
 }
 
 .ver-todas {
-  font-size: 12.5px; font-weight: 600; color: var(--green-mid);
-  text-decoration: none; display: flex; align-items: center; gap: 4px;
-  cursor: pointer; transition: gap 0.2s;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--green-mid);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: gap 0.2s;
 }
-.ver-todas:hover { gap: 7px; }
 
-.table-sub { font-size: 11.5px; color: var(--text-light); margin-bottom: 14px; }
+.ver-todas:hover {
+  gap: 7px;
+}
 
-table { width: 100%; border-collapse: collapse; }
+.table-sub {
+  font-size: 11.5px;
+  color: var(--text-light);
+  margin-bottom: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
 thead th {
-  font-size: 11px; font-weight: 700; color: var(--text-light);
-  text-align: left; padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-align: left;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--border);
-  text-transform: uppercase; letter-spacing: 0.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-tbody tr { transition: background 0.15s; cursor: pointer; }
-tbody tr:hover { background: #F4F6F5; }
+tbody tr {
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+tbody tr:hover {
+  background: #F4F6F5;
+}
 
 tbody td {
-  padding: 10px 10px; font-size: 12.5px;
-  border-bottom: 1px solid #F0F4F2; vertical-align: middle;
+  padding: 10px 10px;
+  font-size: 12.5px;
+  border-bottom: 1px solid #F0F4F2;
+  vertical-align: middle;
 }
 
-.citizen-cell { display: flex; align-items: center; gap: 9px; }
+.citizen-cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
 
 .citizen-avatar {
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
 }
 
-.citizen-name { font-size: 12.5px; font-weight: 600; line-height: 1.2; }
-.citizen-code { font-size: 10.5px; color: var(--text-light); }
+.citizen-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
 
-.cat-cell { display: flex; align-items: center; gap: 6px; font-size: 12.5px; }
+.citizen-code {
+  font-size: 10.5px;
+  color: var(--text-light);
+}
 
-.td-provincia { font-size: 12.5px; }
-.td-tempo     { font-size: 12px; color: var(--text-light); }
+.cat-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+.td-provincia {
+  font-size: 12.5px;
+}
+
+.td-tempo {
+  font-size: 12px;
+  color: var(--text-light);
+}
 
 .badge-status {
-  display: inline-block; font-size: 11px; font-weight: 700;
-  padding: 3px 9px; border-radius: 99px;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
 }
-.badge-status.pendente  { background: #FFF8E6; color: #B7791F; }
-.badge-status.analise   { background: #EBF4FF; color: #2B6CB0; }
-.badge-status.resolvida { background: var(--green-pale); color: var(--green-dark); }
+
+.badge-status.pendente {
+  background: #FFF8E6;
+  color: #B7791F;
+}
+
+.badge-status.analise {
+  background: #EBF4FF;
+  color: #2B6CB0;
+}
+
+.badge-status.resolvida {
+  background: var(--green-pale);
+  color: var(--green-dark);
+}
 
 /* ── FOOTER ──────────────────────────────── */
 .dash-footer {
@@ -1116,7 +1394,10 @@ tbody td {
   margin-left: 16px;
   transition: color 0.2s;
 }
-.dash-footer a:hover { color: var(--green-mid); }
+
+.dash-footer a:hover {
+  color: var(--green-mid);
+}
 
 /* ── DRAWER ──────────────────────────────── */
 .drawer-overlay {
@@ -1165,35 +1446,63 @@ tbody td {
 }
 
 .drawer-close {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   border: 1.5px solid var(--border);
   background: transparent;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: var(--text-gray);
   transition: background 0.15s, border-color 0.15s;
   flex-shrink: 0;
 }
-.drawer-close:hover { background: #F4F6F5; border-color: var(--green-light); color: var(--green-mid); }
+
+.drawer-close:hover {
+  background: #F4F6F5;
+  border-color: var(--green-light);
+  color: var(--green-mid);
+}
 
 .drawer-body {
   flex: 1;
   overflow-y: auto;
   padding: 22px 26px 32px;
 }
-.drawer-body::-webkit-scrollbar { width: 4px; }
-.drawer-body::-webkit-scrollbar-track { background: transparent; }
-.drawer-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+
+.drawer-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.drawer-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.drawer-body::-webkit-scrollbar-thumb {
+  background: #C8D8CE;
+  border-radius: 99px;
+}
 
 /* drawer transitions */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
 
-.modal-pop-enter-active, .modal-pop-leave-active {
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.modal-pop-enter-active,
+.modal-pop-leave-active {
   transition: opacity 0.22s ease, transform 0.25s cubic-bezier(.4, 0, .2, 1);
 }
-.modal-pop-enter-from, .modal-pop-leave-to {
+
+.modal-pop-enter-from,
+.modal-pop-leave-to {
   opacity: 0;
   transform: translate(-50%, -46%) scale(0.96);
 }
@@ -1213,7 +1522,9 @@ tbody td {
   margin-bottom: 16px;
 }
 
-.f-row .f-group { margin-bottom: 0; }
+.f-row .f-group {
+  margin-bottom: 0;
+}
 
 .f-group label {
   font-size: 12.5px;
@@ -1239,7 +1550,9 @@ tbody td {
 }
 
 .f-group input::placeholder,
-.f-group textarea::placeholder { color: var(--text-light); }
+.f-group textarea::placeholder {
+  color: var(--text-light);
+}
 
 .f-group input:focus,
 .f-group select:focus,
@@ -1282,42 +1595,79 @@ tbody td {
   transition: border-color 0.2s, background 0.2s;
   margin-bottom: 16px;
 }
-.upload-zone:hover, .upload-zone.drag-over {
+
+.upload-zone:hover,
+.upload-zone.drag-over {
   border-color: var(--green-light);
   background: #EEF7F1;
 }
 
 .upload-icon-wrap {
-  width: 40px; height: 40px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--white);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto 10px;
 }
 
-.upload-zone h4 { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--text-dark); }
-.upload-zone p  { font-size: 11.5px; color: var(--text-light); }
+.upload-zone h4 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: var(--text-dark);
+}
 
-.file-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.upload-zone p {
+  font-size: 11.5px;
+  color: var(--text-light);
+}
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
 
 .file-item {
-  display: flex; align-items: center; gap: 9px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   background: #EEF7F1;
   border: 1px solid #C3E6CE;
   border-radius: 8px;
   padding: 8px 12px;
 }
 
-.file-item-name { font-size: 12.5px; font-weight: 500; color: #2D6A4F; flex: 1; }
-.file-item-size { font-size: 11px; color: var(--text-light); }
+.file-item-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #2D6A4F;
+  flex: 1;
+}
+
+.file-item-size {
+  font-size: 11px;
+  color: var(--text-light);
+}
 
 .btn-rm {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-light); display: flex;
-  transition: color 0.2s; padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  display: flex;
+  transition: color 0.2s;
+  padding: 0;
 }
-.btn-rm:hover { color: #E53E3E; }
+
+.btn-rm:hover {
+  color: #E53E3E;
+}
 
 /* ── FORM ACTIONS ────────────────────────── */
 .f-actions {
@@ -1328,40 +1678,88 @@ tbody td {
 }
 
 .btn-registar {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: #2D6A4F; color: #fff; border: none;
-  border-radius: 9px; padding: 11px 24px;
-  font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 700;
-  cursor: pointer; transition: background 0.2s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2D6A4F;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 11px 24px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
 }
-.btn-registar:hover { background: #1B4332; transform: translateY(-1px); }
-.btn-registar:disabled { background: #A0C4B0; cursor: not-allowed; transform: none; }
+
+.btn-registar:hover {
+  background: #1B4332;
+  transform: translateY(-1px);
+}
+
+.btn-registar:disabled {
+  background: #A0C4B0;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .btn-cancelar {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: transparent; color: #E53E3E;
-  border: 1.5px solid #FC8181; border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: #E53E3E;
+  border: 1.5px solid #FC8181;
+  border-radius: 9px;
   padding: 9px 20px;
-  font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 600;
-  cursor: pointer; transition: background 0.2s, border-color 0.2s;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
-.btn-cancelar:hover { background: #FFF5F5; border-color: #E53E3E; }
+
+.btn-cancelar:hover {
+  background: #FFF5F5;
+  border-color: #E53E3E;
+}
 
 /* success banner */
 .success-banner {
-  background: #EEF7F1; border: 1px solid #C3E6CE;
-  border-radius: 10px; padding: 13px 16px;
-  display: flex; align-items: center; gap: 10px;
-  font-size: 13px; font-weight: 600; color: #2D6A4F;
+  background: #EEF7F1;
+  border: 1px solid #C3E6CE;
+  border-radius: 10px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2D6A4F;
   margin-bottom: 18px;
   animation: fadeInBanner 0.3s ease;
 }
 
 @keyframes fadeInBanner {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin { animation: spin 0.7s linear infinite; }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 0.7s linear infinite;
+}
 </style>
