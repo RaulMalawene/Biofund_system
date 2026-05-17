@@ -75,6 +75,15 @@ class AdminStatisticsController extends Controller
             ->limit(5)
             ->get();
 
+        // Top categorias com mais ocorrências
+        $byCategory = $baseQuery()
+            ->join('categories', 'occurrences.category_id', '=', 'categories.id')
+            ->select('categories.name', DB::raw('count(*) as total'))
+            ->groupBy('categories.name')
+            ->orderByDesc('total')
+            ->limit(6)
+            ->get();
+
         // Ocorrências por mês (últimos 6 meses)
         $byMonth = $baseQuery()
             ->select(
@@ -91,19 +100,38 @@ class AdminStatisticsController extends Controller
                 'total' => $row->total,
             ]);
 
+        // Resolvidas por mês (últimos 6 meses) — segunda linha do gráfico
+        $byMonthResolved = $baseQuery()
+            ->select(
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('count(*) as total')
+            )
+            ->where('status', 'resolved')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('year', 'month')
+            ->orderBy('year')->orderBy('month')
+            ->get()
+            ->map(fn($row) => [
+                'label' => sprintf('%04d-%02d', $row->year, $row->month),
+                'total' => $row->total,
+            ]);
+
         // Ocorrências recentes (últimas 10)
         $recent = $baseQuery()
-            ->with(['project:id,name', 'province:id,name', 'occurrenceType:id,name,alert_level'])
+            ->with(['project:id,name', 'province:id,name', 'category:id,name', 'occurrenceType:id,name,alert_level'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
-            ->get(['id', 'tracking_code', 'subject', 'status', 'created_at', 'project_id', 'province_id', 'occurrence_type_id']);
+            ->get(['id', 'tracking_code', 'complainant_name', 'subject', 'status', 'created_at', 'project_id', 'province_id', 'category_id', 'occurrence_type_id']);
 
         return response()->json([
             'totals' => array_merge(['all' => $totalAll], $totals),
             'overdue' => $overdue,
             'by_alert_level' => $byAlertLevel,
-            'by_province'    => $byProvince,
-            'by_month'       => $byMonth,
+            'by_category'       => $byCategory,
+            'by_province'       => $byProvince,
+            'by_month'          => $byMonth,
+            'by_month_resolved' => $byMonthResolved,
             'recent'         => $recent,
         ], 200);
     }

@@ -48,6 +48,15 @@ export const InternalService = {
     },
 
     /**
+     * Estatísticas do dashboard para KPIs, gráficos e tabela recente.
+     * @returns {{ totals, overdue, by_province, by_category, by_month, by_month_resolved, recent }}
+     */
+    async getDashboardStats() {
+        const { data } = await api.get('/admin/statistics/dashboard')
+        return data
+    },
+
+    /**
      * Dados de referência para o formulário interno.
      * Usa o mesmo endpoint público (não requer auth).
      */
