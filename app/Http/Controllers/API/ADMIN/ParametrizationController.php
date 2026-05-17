@@ -11,19 +11,6 @@ use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * ParametrizationController
- *
- * Gere todas as tabelas de parametrização do sistema:
- *   - Categorias e Subcategorias
- *   - Projectos
- *   - Tipos de Ocorrência
- *
- * Acesso: Admin (CRUD completo) e Gestor (apenas leitura).
- *
- * NOTA: Províncias e Distritos são dados de referência pré-carregados
- * pelos seeders e não são editáveis pela interface (apenas pelo admin técnico).
- */
 class ParametrizationController extends Controller
 {
     public function __construct(
@@ -35,15 +22,13 @@ class ParametrizationController extends Controller
     // ─────────────────────────────────────────────────────────────
 
     /**
-     * Lista todas as categorias com as suas subcategorias.
-     *
+     * Lista todas as categorias com subcategorias e contagem de ocorrências.
      * ROTA: GET /api/admin/categories
-     * ACESSO: Autenticado (admin e gestor)
      */
     public function categoriesIndex(): JsonResponse
     {
         $categories = Category::withCount('occurrences')
-            ->with(['subcategories' => fn($q) => $q->withCount('occurrences')])
+            ->with(['subcategories' => fn($q) => $q->withCount('occurrences')->orderBy('name')])
             ->orderBy('name')
             ->get();
 
@@ -52,19 +37,29 @@ class ParametrizationController extends Controller
 
     /**
      * Cria uma nova categoria.
-     *
      * ROTA: POST /api/admin/categories
-     * ACESSO: Autenticado (apenas admin)
      *
-     * Body: { "code": "ECC", "name": "Económico" }
+     * Body: {
+     *   "code":        "FAU",               (obrigatório, único, max 20)
+     *   "name":        "Fauna",             (obrigatório, max 100)
+     *   "description": "Ocorrências…",      (opcional)
+     *   "icon":        "fauna",             (opcional — fauna|flora|agua|fogo|pesca|lixo|ar|caca)
+     *   "color":       "#52B788",           (opcional — hex)
+     *   "tags":        ["animais","ilegal"] (opcional — array de strings)
+     * }
      */
     public function categoriesStore(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
 
         $data = $request->validate([
-            'code' => ['required', 'string', 'max:20', 'unique:categories,code'],
-            'name' => ['required', 'string', 'max:100'],
+            'code'        => ['required', 'string', 'max:20', 'unique:categories,code'],
+            'name'        => ['required', 'string', 'max:100'],
+            'description' => ['nullable', 'string'],
+            'icon'        => ['nullable', 'string', 'in:fauna,flora,agua,fogo,pesca,lixo,ar,caca'],
+            'color'       => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'tags'        => ['nullable', 'array'],
+            'tags.*'      => ['string', 'max:50'],
         ]);
 
         $category = Category::create([...$data, 'is_active' => true]);
@@ -77,19 +72,22 @@ class ParametrizationController extends Controller
     }
 
     /**
-     * Actualiza uma categoria existente.
-     *
+     * Actualiza uma categoria.
      * ROTA: PUT /api/admin/categories/{category}
-     * ACESSO: Autenticado (apenas admin)
      */
     public function categoriesUpdate(Request $request, Category $category): JsonResponse
     {
         $this->authorizeAdmin($request);
 
         $data = $request->validate([
-            'code'      => ['required', 'string', 'max:20', "unique:categories,code,{$category->id}"],
-            'name'      => ['required', 'string', 'max:100'],
-            'is_active' => ['boolean'],
+            'code'        => ['required', 'string', 'max:20', "unique:categories,code,{$category->id}"],
+            'name'        => ['required', 'string', 'max:100'],
+            'description' => ['nullable', 'string'],
+            'icon'        => ['nullable', 'string', 'in:fauna,flora,agua,fogo,pesca,lixo,ar,caca'],
+            'color'       => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'tags'        => ['nullable', 'array'],
+            'tags.*'      => ['string', 'max:50'],
+            'is_active'   => ['boolean'],
         ]);
 
         $old = $category->toArray();
@@ -106,12 +104,6 @@ class ParametrizationController extends Controller
     // SUBCATEGORIAS
     // ─────────────────────────────────────────────────────────────
 
-    /**
-     * Lista subcategorias de uma categoria.
-     *
-     * ROTA: GET /api/admin/categories/{category}/subcategories
-     * ACESSO: Autenticado (admin e gestor)
-     */
     public function subcategoriesIndex(Category $category): JsonResponse
     {
         return response()->json([
@@ -122,14 +114,6 @@ class ParametrizationController extends Controller
         ], 200);
     }
 
-    /**
-     * Cria uma subcategoria dentro de uma categoria.
-     *
-     * ROTA: POST /api/admin/categories/{category}/subcategories
-     * ACESSO: Autenticado (apenas admin)
-     *
-     * Body: { "name": "Desflorestação" }
-     */
     public function subcategoriesStore(Request $request, Category $category): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -152,12 +136,6 @@ class ParametrizationController extends Controller
         ], 201);
     }
 
-    /**
-     * Actualiza uma subcategoria.
-     *
-     * ROTA: PUT /api/admin/subcategories/{subcategory}
-     * ACESSO: Autenticado (apenas admin)
-     */
     public function subcategoriesUpdate(Request $request, Subcategory $subcategory): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -181,12 +159,6 @@ class ParametrizationController extends Controller
     // PROJECTOS
     // ─────────────────────────────────────────────────────────────
 
-    /**
-     * Lista todos os projectos.
-     *
-     * ROTA: GET /api/admin/projects
-     * ACESSO: Autenticado (admin e gestor)
-     */
     public function projectsIndex(): JsonResponse
     {
         $projects = Project::withCount('occurrences')
@@ -197,14 +169,6 @@ class ParametrizationController extends Controller
         return response()->json(['projects' => $projects], 200);
     }
 
-    /**
-     * Cria um novo projecto.
-     *
-     * ROTA: POST /api/admin/projects
-     * ACESSO: Autenticado (apenas admin)
-     *
-     * Body: { "code": "FNDS-002", "name": "Nome do Projecto", "description": "..." }
-     */
     public function projectsStore(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -224,12 +188,6 @@ class ParametrizationController extends Controller
         ], 201);
     }
 
-    /**
-     * Actualiza um projecto.
-     *
-     * ROTA: PUT /api/admin/projects/{project}
-     * ACESSO: Autenticado (apenas admin)
-     */
     public function projectsUpdate(Request $request, Project $project): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -255,12 +213,6 @@ class ParametrizationController extends Controller
     // TIPOS DE OCORRÊNCIA
     // ─────────────────────────────────────────────────────────────
 
-    /**
-     * Lista todos os tipos de ocorrência.
-     *
-     * ROTA: GET /api/admin/occurrence-types
-     * ACESSO: Autenticado (admin e gestor)
-     */
     public function occurrenceTypesIndex(): JsonResponse
     {
         $types = OccurrenceType::withCount('occurrences')
@@ -270,20 +222,6 @@ class ParametrizationController extends Controller
         return response()->json(['occurrence_types' => $types], 200);
     }
 
-    /**
-     * Cria um novo tipo de ocorrência.
-     *
-     * ROTA: POST /api/admin/occurrence-types
-     * ACESSO: Autenticado (apenas admin)
-     *
-     * Body:
-     *   {
-     *     "code": "DEN",
-     *     "name": "Denúncia",
-     *     "alert_level": "urgent",
-     *     "sla_days": 7
-     *   }
-     */
     public function occurrenceTypesStore(Request $request): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -304,12 +242,6 @@ class ParametrizationController extends Controller
         ], 201);
     }
 
-    /**
-     * Actualiza um tipo de ocorrência.
-     *
-     * ROTA: PUT /api/admin/occurrence-types/{occurrenceType}
-     * ACESSO: Autenticado (apenas admin)
-     */
     public function occurrenceTypesUpdate(Request $request, OccurrenceType $occurrenceType): JsonResponse
     {
         $this->authorizeAdmin($request);
@@ -332,9 +264,6 @@ class ParametrizationController extends Controller
         ], 200);
     }
 
-    /**
-     * Verifica se o utilizador autenticado é administrador.
-     */
     private function authorizeAdmin(Request $request): void
     {
         if (!$request->user()->isAdmin()) {

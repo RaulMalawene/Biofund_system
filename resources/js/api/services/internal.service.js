@@ -59,6 +59,38 @@ export const InternalService = {
         return data
     },
 
+    // ─── Categorias ──────────────────────────────────────────────
+
+    async getCategories() {
+        const { data } = await api.get('/admin/categories')
+        return data   // { categories: [...] }
+    },
+
+    async createCategory(payload) {
+        const { data } = await api.post('/admin/categories', payload)
+        return data   // { message, category }
+    },
+
+    async updateCategory(id, payload) {
+        const { data } = await api.put(`/admin/categories/${id}`, payload)
+        return data
+    },
+
+    async getSubcategories(categoryId) {
+        const { data } = await api.get(`/admin/categories/${categoryId}/subcategories`)
+        return data   // { subcategories: [...] }
+    },
+
+    async createSubcategory(categoryId, payload) {
+        const { data } = await api.post(`/admin/categories/${categoryId}/subcategories`, payload)
+        return data
+    },
+
+    async updateSubcategory(subcategoryId, payload) {
+        const { data } = await api.put(`/admin/subcategories/${subcategoryId}`, payload)
+        return data
+    },
+
     /**
      * Dados de referência para o formulário interno.
      * Usa o mesmo endpoint público (não requer auth).
