@@ -4,7 +4,7 @@
     <!-- ── SIDEBAR ── -->
     <aside class="sidebar">
       <router-link to="/" class="sidebar-logo">
-        <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="sidebar-logo-img"/>
+        <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="sidebar-logo-img" />
         <div>
           <div class="sidebar-logo-text">BioFund Admin</div>
         </div>
@@ -13,50 +13,56 @@
       <nav class="sidebar-nav">
         <router-link class="nav-item" to="/admin/dashboard">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/>
-            <rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/>
+            <rect x="1" y="1" width="6" height="6" rx="1.5" />
+            <rect x="9" y="1" width="6" height="6" rx="1.5" />
+            <rect x="1" y="9" width="6" height="6" rx="1.5" />
+            <rect x="9" y="9" width="6" height="6" rx="1.5" />
           </svg>
           Dashboard
         </router-link>
         <router-link class="nav-item" to="/admin/validacao">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
+            <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z" />
           </svg>
           Validação
         </router-link>
         <router-link class="nav-item" to="/admin/utilizadores">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
+            <circle cx="8" cy="6" r="3" />
+            <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
           </svg>
           Utilizadores
         </router-link>
         <a class="nav-item active">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <rect x="2" y="1" width="10" height="14" rx="1.5"/>
-            <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
-            <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="2" y="1" width="10" height="14" rx="1.5" />
+            <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
+            <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Histórico de Ocorrências
         </a>
         <router-link class="nav-item" to="/admin/categorias">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
-            <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
+            <circle cx="5" cy="5" r="2" />
+            <circle cx="11" cy="5" r="2" />
+            <circle cx="5" cy="11" r="2" />
+            <circle cx="11" cy="11" r="2" />
           </svg>
           Categorias
         </router-link>
         <router-link class="nav-item" to="/admin/projectos">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Projectos
         </router-link>
       </nav>
 
       <div class="sidebar-footer">
-        <button class="btn-logout" @click="$router.push('/acessoRestrito')">
+        <button class="btn-logout" @click="handleLogout">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M10 11l3-3-3-3M13 8H6" stroke-linecap="round"
+              stroke-linejoin="round" />
           </svg>
           Terminar Sessão
         </button>
@@ -70,24 +76,25 @@
       <header class="topbar">
         <div class="search-wrap">
           <svg width="15" height="15" fill="none" stroke="#8A9490" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="7" cy="7" r="5"/><path d="M12 12l3 3" stroke-linecap="round"/>
+            <circle cx="7" cy="7" r="5" />
+            <path d="M12 12l3 3" stroke-linecap="round" />
           </svg>
-          <input type="text" placeholder="Pesquisar por ID, descrição ou responsável…" v-model="topSearch"/>
+          <input type="text" placeholder="Pesquisar por código, assunto ou reclamante…" v-model="topSearch"
+            @keyup.enter="aplicarFiltros" />
         </div>
         <div class="topbar-spacer"></div>
         <div class="notif-btn">
           <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z"/>
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round"/>
+            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z" />
+            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round" />
           </svg>
           <span class="notif-dot"></span>
         </div>
         <div class="admin-info">
           <div class="admin-text">
-            <div class="admin-name">Admin Central</div>
-            <div class="admin-role">Ministério da Terra e Ambiente</div>
+            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
           </div>
-          <div class="admin-avatar">AC</div>
+          <div class="admin-avatar">{{ auth.userInitials }}</div>
         </div>
       </header>
 
@@ -100,9 +107,9 @@
             <h1>Histórico de Ocorrências</h1>
             <p>Consulte e filtre o registo completo de ocorrências ambientais submetidas.</p>
           </div>
-          <button class="btn-export">
+          <button class="btn-export" @click="exportar" :disabled="loading">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-              <path d="M3 13h10M8 2v8M5 7l3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 13h10M8 2v8M5 7l3 3 3-3" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             Exportar
           </button>
@@ -114,56 +121,48 @@
             <div class="filter-group">
               <label>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
-                  <path d="M6 1C3.791 1 2 2.791 2 5c0 3 4 7 4 7s4-4 4-7c0-2.209-1.791-4-4-4z"/><circle cx="6" cy="5" r="1.5"/>
+                  <path d="M6 1C3.791 1 2 2.791 2 5c0 3 4 7 4 7s4-4 4-7c0-2.209-1.791-4-4-4z" />
+                  <circle cx="6" cy="5" r="1.5" />
                 </svg>
                 Província
               </label>
-              <select v-model="filters.provincia">
+              <select v-model="filters.province_id">
                 <option value="">Todas as Províncias</option>
-                <option v-for="p in provincias" :key="p">{{ p }}</option>
+                <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
             <div class="filter-group">
               <label>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
-                  <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 Projecto
               </label>
-              <select v-model="filters.projeto">
+              <select v-model="filters.project_id">
                 <option value="">Todos os Projectos</option>
-                <option>MozRural</option>
-                <option>MozP</option>
-                <option>MozBio</option>
-                <option>MozAmbiente</option>
+                <option v-for="p in refProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
             <div class="filter-group">
               <label>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
-                  <rect x="1" y="1.5" width="10" height="9.5" rx="1.5"/><path d="M4 1v1.5M8 1v1.5M1 5h10" stroke-linecap="round"/>
+                  <rect x="1" y="1.5" width="10" height="9.5" rx="1.5" />
+                  <path d="M4 1v1.5M8 1v1.5M1 5h10" stroke-linecap="round" />
                 </svg>
                 Data de Submissão
               </label>
-              <input type="date" v-model="filters.data"/>
+              <input type="date" v-model="filters.date_from" />
             </div>
             <div class="filter-group">
               <label>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
-                  <path d="M1 2h10l-4 5v4l-2-1V7z" stroke-linejoin="round"/>
+                  <path d="M1 2h10l-4 5v4l-2-1V7z" stroke-linejoin="round" />
                 </svg>
                 Categoria
               </label>
-              <select v-model="filters.categoria">
+              <select v-model="filters.category_id">
                 <option value="">Todas as Categorias</option>
-                <option>Desmatamento Ilegal</option>
-                <option>Poluição Hídrica</option>
-                <option>Caça Furtiva</option>
-                <option>Queimadas Descontroladas</option>
-                <option>Mineração Ilegal</option>
-                <option>Pesca Ilegal</option>
-                <option>Flora</option>
-                <option>Fauna</option>
+                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
             </div>
           </div>
@@ -171,53 +170,60 @@
             <div class="filter-group">
               <label>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
-                  <path d="M2 3h8M2 6h5M2 9h3" stroke-linecap="round"/>
+                  <path d="M2 3h8M2 6h5M2 9h3" stroke-linecap="round" />
                 </svg>
                 Canal
               </label>
-              <select v-model="filters.canal">
+              <select v-model="filters.submission_channel">
                 <option value="">Todos os Canais</option>
-                <option>Telefone</option>
-                <option>Email</option>
-                <option>SMS</option>
-                <option>Reuniao</option>
-                <option>Web</option>
+                <option value="phone">Telefone</option>
+                <option value="email">Email</option>
+                <option value="green_line">Linha Verde</option>
+                <option value="community_meeting">Reunião Comunitária</option>
               </select>
             </div>
             <div class="filter-group">
               <label>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
-                  <rect x="1" y="1" width="10" height="10" rx="1.5"/><path d="M3 4h6M3 6h4M3 8h2" stroke-linecap="round"/>
+                  <rect x="1" y="1" width="10" height="10" rx="1.5" />
+                  <path d="M3 4h6M3 6h4M3 8h2" stroke-linecap="round" />
                 </svg>
-                Código
+                Estado
               </label>
-              <input type="text" placeholder="Ex: REC-2024-001" v-model="filters.codigo"/>
+              <select v-model="filters.status">
+                <option value="">Todos os Estados</option>
+                <option value="pending">Pendente</option>
+                <option value="in_review">Em Análise</option>
+                <option value="resolved">Resolvida</option>
+                <option value="rejected">Rejeitada</option>
+                <option value="closed">Encerrada</option>
+              </select>
             </div>
             <div class="filter-group">
               <label>
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
-                  <circle cx="6" cy="6" r="4.5"/><path d="M4 6h4M6 4v4" stroke-linecap="round"/>
+                  <circle cx="6" cy="6" r="4.5" />
+                  <path d="M4 6h4M6 4v4" stroke-linecap="round" />
                 </svg>
                 Origem
               </label>
-              <select v-model="filters.origem">
+              <select v-model="filters.origin">
                 <option value="">Todas as Ocorrências</option>
-                <option value="minhas">Suas Ocorrências</option>
-                <option value="gestor">Gestores</option>
-                <option value="externo">Utilizadores Externos</option>
-                <option value="interno">Funcionários Internos</option>
+                <option value="only_mine">Minhas Ocorrências</option>
+                <option value="external">Utilizadores Externos</option>
+                <option value="internal">Funcionários Internos</option>
               </select>
             </div>
             <div class="filter-actions">
               <button class="btn-limpar" @click="limparFiltros">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 14 14">
-                  <path d="M2 2l10 10M12 2L2 12" stroke-linecap="round"/>
+                  <path d="M2 2l10 10M12 2L2 12" stroke-linecap="round" />
                 </svg>
                 Limpar
               </button>
-              <button class="btn-filtrar" @click="aplicarFiltros">
+              <button class="btn-filtrar" @click="aplicarFiltros" :disabled="loading">
                 <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 14 14">
-                  <path d="M1 2h12l-5 6v5l-2-1V8z" stroke-linejoin="round"/>
+                  <path d="M1 2h12l-5 6v5l-2-1V8z" stroke-linejoin="round" />
                 </svg>
                 Filtrar
               </button>
@@ -227,9 +233,13 @@
 
         <!-- STAT BAR -->
         <div class="stat-bar">
-          <span class="stat-label">Resultados filtrados:</span>
-          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('Resolvido') }}</span>
-          <span class="badge-status rejeitado">Rejeitadas · {{ countByStatus('Rejeitado') }}</span>
+          <span class="stat-label">
+            <span v-if="loading" class="stat-spin"></span>
+            {{ loading ? 'A carregar…' : `${meta.total} resultado${meta.total !== 1 ? 's' : ''}` }}
+          </span>
+          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolved') }}</span>
+          <span class="badge-status rejeitado">Rejeitadas · {{ countByStatus('rejected') }}</span>
+          <span class="badge-status pendente">Pendentes · {{ countByStatus('pending') }}</span>
         </div>
 
         <!-- TABLE CARD -->
@@ -237,7 +247,7 @@
           <table>
             <thead>
               <tr>
-                <th>ID / Código</th>
+                <th>Código</th>
                 <th>Data</th>
                 <th>Província</th>
                 <th>Categoria</th>
@@ -250,58 +260,72 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="r in paginatedRows" :key="r.id" @click="openDetail(r)">
-                <td>
-                  <span class="id-link" @click.stop="openDetail(r)">{{ r.id }}</span>
-                </td>
-                <td class="td-muted">{{ r.data }}</td>
-                <td>{{ r.provincia }}</td>
-                <td class="td-small">{{ r.categoria }}</td>
-                <td class="td-small">{{ r.canal }}</td>
-                <td>
-                  <span class="badge-origem" :class="r.origem">{{ origemLabel(r.origem) }}</span>
-                </td>
-                <td>
-                  <div class="resp-cell" v-if="r.responsavel">
-                    <div class="resp-avatar">{{ r.responsavel[0] }}</div>
-                    <span class="td-small">{{ r.responsavel }}</span>
-                  </div>
-                  <span v-else class="resp-none">Sem responsável</span>
-                </td>
-                <td class="td-muted td-small">{{ r.projeto }}</td>
-                <td>
-                  <span class="badge-status" :class="r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
-                </td>
-                <td>
-                  <button class="btn-detail" @click.stop="openDetail(r)">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
-                      <circle cx="7" cy="7" r="5.5"/><path d="M7 5v4M7 10h.01" stroke-linecap="round"/>
-                    </svg>
-                    Detalhes
-                  </button>
+
+              <!-- Skeleton loading -->
+              <tr v-if="loading" v-for="n in 5" :key="'sk-' + n" class="skeleton-row">
+                <td colspan="10">
+                  <div class="skeleton-bar"></div>
                 </td>
               </tr>
-              <tr v-if="paginatedRows.length === 0">
-                <td colspan="10" class="empty-row">
-                  Nenhuma ocorrência encontrada com os filtros aplicados.
-                </td>
-              </tr>
+
+              <!-- Rows -->
+              <template v-if="!loading">
+                <tr v-for="r in rows" :key="r.id" @click="openDetail(r)">
+                  <td>
+                    <span class="id-link">{{ r.tracking_code }}</span>
+                    <div class="id-sub">{{ r.subject ?? '—' }}</div>
+                  </td>
+                  <td class="td-muted">{{ r.submitted_at }}</td>
+                  <td>{{ r.province?.name ?? '—' }}</td>
+                  <td class="td-small">{{ r.category?.name ?? '—' }}</td>
+                  <td class="td-small">{{ r.submission_channel_label ?? '—' }}</td>
+                  <td>
+                    <span class="badge-origem" :class="r.origin">{{ r.origin_label }}</span>
+                  </td>
+                  <td>
+                    <div class="resp-cell" v-if="r.assigned_to?.name">
+                      <div class="resp-avatar">{{ r.assigned_to.name[0] }}</div>
+                      <span class="td-small">{{ r.assigned_to.name }}</span>
+                    </div>
+                    <span v-else class="resp-none">Sem responsável</span>
+                  </td>
+                  <td class="td-muted td-small">{{ r.project?.name ?? '—' }}</td>
+                  <td>
+                    <span class="badge-status" :class="r.status">{{ r.status_label }}</span>
+                  </td>
+                  <td>
+                    <button class="btn-detail" @click.stop="openDetail(r)">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"
+                        viewBox="0 0 14 14">
+                        <circle cx="7" cy="7" r="5.5" />
+                        <path d="M7 5v4M7 10h.01" stroke-linecap="round" />
+                      </svg>
+                      Detalhes
+                    </button>
+                  </td>
+                </tr>
+
+                <tr v-if="rows.length === 0">
+                  <td colspan="10" class="empty-row">
+                    Nenhuma ocorrência encontrada com os filtros aplicados.
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
 
           <!-- Pagination -->
           <div class="pagination-bar">
             <span class="pagination-info">
-              Mostrando {{ paginationInfo }} de {{ filteredRows.length }} ocorrências
+              Mostrando {{ paginationInfo }} de {{ meta.total }} ocorrências
             </span>
             <div class="pagination-btns">
-              <button class="pg-btn" :disabled="page === 1" @click="page--">Anterior</button>
-              <button
-                v-for="p in totalPages" :key="p"
-                class="pg-btn" :class="{ active: page === p }"
-                @click="page = p"
-              >{{ p }}</button>
-              <button class="pg-btn" :disabled="page === totalPages" @click="page++">Próximo</button>
+              <button class="pg-btn" :disabled="meta.current_page <= 1 || loading"
+                @click="goToPage(meta.current_page - 1)">Anterior</button>
+              <button v-for="p in visiblePages" :key="p" class="pg-btn" :class="{ active: meta.current_page === p }"
+                @click="goToPage(p)">{{ p }}</button>
+              <button class="pg-btn" :disabled="meta.current_page >= meta.last_page || loading"
+                @click="goToPage(meta.current_page + 1)">Próximo</button>
             </div>
           </div>
         </div>
@@ -326,74 +350,133 @@
       <div v-if="selected" class="drawer">
         <div class="drawer-hd">
           <div>
-            <h3>{{ selected.id }}</h3>
-            <p>Detalhes da ocorrência ambiental</p>
+            <h3>{{ selected.tracking_code }}</h3>
+            <p>{{ selected.subject ?? 'Sem assunto' }}</p>
           </div>
           <button class="btn-close" @click="selected = null">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
-              <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round"/>
+              <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round" />
             </svg>
           </button>
         </div>
 
-        <div class="drawer-body">
+        <!-- Loading detalhe -->
+        <div class="drawer-loading" v-if="detailLoading">
+          <span class="stat-spin"></span> A carregar detalhes…
+        </div>
+
+        <div class="drawer-body" v-else>
           <!-- Status badge -->
           <div class="drawer-status-row">
-            <span class="badge-status" :class="selected.status.toLowerCase()">
-              {{ statusLabel(selected.status) }}
-            </span>
+            <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
+            <span class="badge-overdue" v-if="selected.is_overdue">⚠ Fora do prazo</span>
+          </div>
+
+          <!-- Reclamante -->
+          <div class="drawer-section" v-if="selected.complainant">
+            <div class="drawer-section-label">Reclamante</div>
+            <div class="detail-row">
+              <span class="detail-key">Nome</span>
+              <span class="detail-val">{{ selected.complainant.name ?? 'Anónimo' }}</span>
+            </div>
+            <div class="detail-row" v-if="selected.complainant.email">
+              <span class="detail-key">Email</span>
+              <span class="detail-val">{{ selected.complainant.email }}</span>
+            </div>
+            <div class="detail-row" v-if="selected.complainant.phone">
+              <span class="detail-key">Telefone</span>
+              <span class="detail-val">{{ selected.complainant.phone }}</span>
+            </div>
           </div>
 
           <!-- Details grid -->
           <div class="detail-row">
             <span class="detail-key">Data de Submissão</span>
-            <span class="detail-val">{{ selected.data }}</span>
+            <span class="detail-val">{{ selected.submitted_at }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.occurrence_date">
+            <span class="detail-key">Data da Ocorrência</span>
+            <span class="detail-val">{{ selected.occurrence_date }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-key">Província</span>
-            <span class="detail-val">{{ selected.provincia }}</span>
+            <span class="detail-val">{{ selected.province?.name ?? '—' }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.district?.name">
+            <span class="detail-key">Distrito</span>
+            <span class="detail-val">{{ selected.district.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.location_detail">
+            <span class="detail-key">Localização</span>
+            <span class="detail-val">{{ selected.location_detail }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-key">Categoria</span>
-            <span class="detail-val">{{ selected.categoria }}</span>
+            <span class="detail-val">{{ selected.category?.name ?? '—' }}</span>
           </div>
-          <div class="detail-row">
+          <div class="detail-row" v-if="selected.type?.name">
+            <span class="detail-key">Tipo de Ocorrência</span>
+            <span class="detail-val">{{ selected.type.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.submission_channel_label">
             <span class="detail-key">Canal de entrada</span>
-            <span class="detail-val">{{ selected.canal }}</span>
+            <span class="detail-val">{{ selected.submission_channel_label }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-key">Origem</span>
             <span class="detail-val">
-              <span class="badge-origem" :class="selected.origem">{{ origemLabel(selected.origem) }}</span>
+              <span class="badge-origem" :class="selected.origin">{{ selected.origin_label }}</span>
             </span>
           </div>
           <div class="detail-row">
             <span class="detail-key">Responsável</span>
-            <span class="detail-val">{{ selected.responsavel || '—' }}</span>
+            <span class="detail-val">{{ selected.assigned_to?.name ?? 'Sem responsável' }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-key">Projecto</span>
-            <span class="detail-val">{{ selected.projeto }}</span>
+            <span class="detail-val">{{ selected.project?.name ?? '—' }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.due_date">
+            <span class="detail-key">Prazo</span>
+            <span class="detail-val" :class="{ 'overdue-text': selected.is_overdue }">{{ selected.due_date }}</span>
           </div>
 
-          <!-- Description -->
+          <!-- Descrição -->
           <div class="drawer-section">
             <div class="drawer-section-label">Descrição</div>
-            <div class="drawer-desc">{{ selected.descricao }}</div>
+            <div class="drawer-desc">{{ selected.description }}</div>
+          </div>
+
+          <!-- Anexos -->
+          <div class="drawer-section" v-if="selected.attachments?.length">
+            <div class="drawer-section-label">Anexos ({{ selected.attachments.length }})</div>
+            <div class="attach-list">
+              <a v-for="a in selected.attachments" :key="a.id" class="attach-item" :href="a.url" target="_blank">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 16 16">
+                  <rect x="2" y="1" width="10" height="14" rx="1.5" />
+                  <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
+                  <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>{{ a.name }}</span>
+                <span class="attach-size">{{ a.size }}</span>
+              </a>
+            </div>
           </div>
 
           <!-- Timeline -->
           <div class="drawer-section">
             <div class="drawer-section-label">Histórico de Estados</div>
-            <div class="timeline">
-              <div class="timeline-item" v-for="(ev, i) in selected.timeline" :key="i">
-                <div class="tl-dot" :class="ev.tipo"></div>
+            <div class="timeline" v-if="selected.history?.length">
+              <div class="timeline-item" v-for="(ev, i) in selected.history" :key="i">
+                <div class="tl-dot" :style="{ borderColor: ev.to_color, background: ev.to_color + '22' }"></div>
                 <div class="tl-content">
-                  <div class="tl-title">{{ ev.titulo }}</div>
-                  <div class="tl-date">{{ ev.data }}</div>
+                  <div class="tl-title">{{ ev.to }}</div>
+                  <div class="tl-comment" v-if="ev.comment">{{ ev.comment }}</div>
+                  <div class="tl-date">{{ ev.date }} · {{ ev.changed_by }}</div>
                 </div>
               </div>
             </div>
+            <p v-else class="tl-empty">Sem histórico disponível.</p>
           </div>
         </div>
       </div>
@@ -403,164 +486,175 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { InternalService } from '@/api/services/internal.service'
 
+const router = useRouter()
+const auth = useAuthStore()
+
+async function handleLogout() {
+  await auth.logout()
+  router.push('/acessoRestrito')
+}
+
+// ── Estado ────────────────────────────────────────────────────
+const loading = ref(false)
+const detailLoading = ref(false)
 const topSearch = ref('')
-const selected  = ref(null)
-const page      = ref(1)
-const perPage   = 7
+const selected = ref(null)
+const rows = ref([])
 
-const provincias = [
-  'Cabo Delgado', 'Gaza', 'Inhambane', 'Manica',
-  'Maputo Cidade', 'Maputo Província', 'Nampula',
-  'Niassa', 'Sofala', 'Tete', 'Zambézia'
-]
-
-const currentUser = 'Admin Central'
-const filters = reactive({ provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
-const applied = reactive({ provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
-
-const rows = ref([
-  {
-    id: 'REC-2024-001', data: '2024-05-15', provincia: 'Cabo Delgado',
-    categoria: 'Desmatamento Ilegal', canal: 'Telefone', responsavel: 'Sara',
-    projeto: 'MozRural', status: 'Rejeitado', origem: 'gestor',
-    descricao: 'Foram identificadas áreas de desflorestação ilegal na zona norte da reserva florestal. Estimativa de 5 hectares afetados.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-15 09:12', tipo: 'neutro' },
-      { titulo: 'Em análise por Sara', data: '2024-05-16 11:30', tipo: 'analise' },
-      { titulo: 'Rejeitada — prova insuficiente', data: '2024-05-18 15:00', tipo: 'rejeitado' },
-    ]
-  },
-  {
-    id: 'REC-2024-002', data: '2024-05-14', provincia: 'Nampula',
-    categoria: 'Poluição Hídrica', canal: 'Email', responsavel: null,
-    projeto: 'MozP', status: 'Resolvido', origem: 'externo',
-    descricao: 'Descarte de resíduos industriais no rio Ligonha. A situação foi controlada após intervenção da equipa técnica regional.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-14 08:00', tipo: 'neutro' },
-      { titulo: 'Resolvida com sucesso', data: '2024-05-17 14:20', tipo: 'resolvido' },
-    ]
-  },
-  {
-    id: 'REC-2024-003', data: '2024-05-12', provincia: 'Sofala',
-    categoria: 'Caça Furtiva', canal: 'Email', responsavel: 'Sara',
-    projeto: 'MozBio', status: 'Resolvido', origem: 'interno',
-    descricao: 'Armadilhas ilegais detectadas na área tampão do Parque da Gorongosa. Autoridades notificadas e armadilhas removidas.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-12 10:00', tipo: 'neutro' },
-      { titulo: 'Atribuída a Sara', data: '2024-05-13 09:00', tipo: 'analise' },
-      { titulo: 'Resolvida', data: '2024-05-15 17:00', tipo: 'resolvido' },
-    ]
-  },
-  {
-    id: 'REC-2024-004', data: '2024-05-10', provincia: 'Maputo',
-    categoria: 'Queimadas Descontroladas', canal: 'Telefone', responsavel: 'Admin Central',
-    projeto: 'MozAmbiente', status: 'Resolvido', origem: 'gestor',
-    descricao: 'Queimadas de grandes proporções na zona sul. Equipa de resposta rápida mobilizada. Incêndio controlado em 48h.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-10 07:30', tipo: 'neutro' },
-      { titulo: 'Equipa mobilizada', data: '2024-05-10 09:00', tipo: 'analise' },
-      { titulo: 'Resolvida em 48h', data: '2024-05-12 08:00', tipo: 'resolvido' },
-    ]
-  },
-  {
-    id: 'REC-2024-005', data: '2024-05-09', provincia: 'Gaza',
-    categoria: 'Mineração Ilegal', canal: 'Reuniao', responsavel: 'Joao',
-    projeto: 'MozRural', status: 'Removido', origem: 'externo',
-    descricao: 'Actividade de mineração ilegal detectada na margem do Rio Limpopo. Caso transferido para autoridades competentes.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-09 11:00', tipo: 'neutro' },
-      { titulo: 'Removida pelo admin', data: '2024-05-11 16:00', tipo: 'rejeitado' },
-    ]
-  },
-  {
-    id: 'REC-2024-006', data: '2024-05-07', provincia: 'Niassa',
-    categoria: 'Pesca Ilegal', canal: 'SMS', responsavel: 'Maria',
-    projeto: 'MozBio', status: 'Pendente', origem: 'interno',
-    descricao: 'Redes de pesca ilegal no Lago Niassa. Autoridades lacustres informadas. Investigação em curso.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-07 14:00', tipo: 'neutro' },
-    ]
-  },
-  {
-    id: 'REC-2024-007', data: '2024-05-05', provincia: 'Tete',
-    categoria: 'Desmatamento Ilegal', canal: 'Web', responsavel: 'Admin Central',
-    projeto: 'MozAmbiente', status: 'Analise', origem: 'gestor',
-    descricao: 'Corte ilegal de madeira detetado próximo da aldeia de Changara. Amostras recolhidas para análise laboratorial.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-05 10:00', tipo: 'neutro' },
-      { titulo: 'Em análise por Sara', data: '2024-05-06 09:30', tipo: 'analise' },
-    ]
-  },
-  {
-    id: 'REC-2024-008', data: '2024-05-03', provincia: 'Inhambane',
-    categoria: 'Fauna', canal: 'Email', responsavel: null,
-    projeto: 'MozBio', status: 'Rejeitado', origem: 'externo',
-    descricao: 'Denúncia de captura de tartarugas marinhas em Inhassoro. Investigação concluída — denúncia considerada infundada.',
-    timeline: [
-      { titulo: 'Ocorrência submetida', data: '2024-05-03 08:00', tipo: 'neutro' },
-      { titulo: 'Rejeitada — infundada', data: '2024-05-05 10:00', tipo: 'rejeitado' },
-    ]
-  },
-])
-
-const filteredRows = computed(() => {
-  let list = rows.value.filter(r => r.status === 'Resolvido' || r.status === 'Rejeitado')
-  if (topSearch.value.trim()) {
-    const q = topSearch.value.toLowerCase()
-    list = list.filter(r =>
-      r.id.toLowerCase().includes(q) ||
-      r.descricao.toLowerCase().includes(q) ||
-      (r.responsavel && r.responsavel.toLowerCase().includes(q))
-    )
-  }
-  if (applied.provincia) list = list.filter(r => r.provincia === applied.provincia)
-  if (applied.projeto)   list = list.filter(r => r.projeto === applied.projeto)
-  if (applied.data)      list = list.filter(r => r.data === applied.data)
-  if (applied.categoria) list = list.filter(r => r.categoria === applied.categoria)
-  if (applied.canal)     list = list.filter(r => r.canal === applied.canal)
-  if (applied.codigo)    list = list.filter(r => r.id.toLowerCase().includes(applied.codigo.toLowerCase()))
-  if (applied.origem) {
-    if (applied.origem === 'minhas') list = list.filter(r => r.responsavel === currentUser)
-    else list = list.filter(r => r.origem === applied.origem)
-  }
-  return list
+const meta = reactive({
+  total: 0,
+  last_page: 1,
+  current_page: 1,
+  per_page: 15,
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredRows.value.length / perPage)))
+// ── Dados de referência para os filtros ───────────────────────
+const refProvinces = ref([])
+const refProjects = ref([])
+const refCategories = ref([])
 
-const paginatedRows = computed(() => {
-  const start = (page.value - 1) * perPage
-  return filteredRows.value.slice(start, start + perPage)
+// ── Filtros ───────────────────────────────────────────────────
+const filters = reactive({
+  province_id: '',
+  project_id: '',
+  date_from: '',
+  category_id: '',
+  submission_channel: '',
+  status: '',
+  origin: '',
+})
+
+// ── Init ──────────────────────────────────────────────────────
+onMounted(async () => {
+  // Carrega dados de referência para os selects dos filtros
+  try {
+    const data = await InternalService.getFormData()
+    refProvinces.value = data.provinces ?? []
+    refProjects.value = data.projects ?? []
+    refCategories.value = data.categories ?? []
+  } catch (err) {
+    console.error('Erro ao carregar filtros:', err)
+  }
+  // Carrega a primeira página
+  await loadOccurrences()
+})
+
+// ── Carregar ocorrências ──────────────────────────────────────
+async function loadOccurrences(page = 1) {
+  loading.value = true
+  try {
+    const params = {
+      per_page: meta.per_page,
+      page,
+    }
+
+    // Pesquisa global (barra de topo)
+    if (topSearch.value.trim()) params.search = topSearch.value.trim()
+
+    // Filtros activos
+    if (filters.province_id) params.province_id = filters.province_id
+    if (filters.project_id) params.project_id = filters.project_id
+    if (filters.date_from) params.date_from = filters.date_from
+    if (filters.category_id) params.category_id = filters.category_id
+    if (filters.submission_channel) params.submission_channel = filters.submission_channel
+    if (filters.status) params.status = filters.status
+
+    // Origem
+    if (filters.origin === 'only_mine') {
+      params.only_mine = true
+    } else if (filters.origin) {
+      params.origin = filters.origin
+    }
+
+    const response = await InternalService.getOccurrences(params)
+
+    rows.value = response.data ?? []
+    Object.assign(meta, {
+      total: response.meta?.total ?? 0,
+      last_page: response.meta?.last_page ?? 1,
+      current_page: response.meta?.current_page ?? 1,
+      per_page: response.meta?.per_page ?? 15,
+    })
+  } catch (err) {
+    console.error('Erro ao carregar ocorrências:', err)
+    rows.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+// ── Filtros ───────────────────────────────────────────────────
+function aplicarFiltros() { loadOccurrences(1) }
+
+function limparFiltros() {
+  Object.assign(filters, {
+    province_id: '', project_id: '', date_from: '',
+    category_id: '', submission_channel: '', status: '', origin: '',
+  })
+  topSearch.value = ''
+  loadOccurrences(1)
+}
+
+// ── Paginação ─────────────────────────────────────────────────
+function goToPage(p) {
+  if (p < 1 || p > meta.last_page) return
+  loadOccurrences(p)
+}
+
+const visiblePages = computed(() => {
+  const pages = []
+  const cur = meta.current_page
+  const last = meta.last_page
+  const range = 2
+  for (let i = Math.max(1, cur - range); i <= Math.min(last, cur + range); i++) {
+    pages.push(i)
+  }
+  return pages
 })
 
 const paginationInfo = computed(() => {
-  if (!filteredRows.value.length) return '0'
-  const start = (page.value - 1) * perPage + 1
-  const end   = Math.min(page.value * perPage, filteredRows.value.length)
+  if (!meta.total) return '0'
+  const start = (meta.current_page - 1) * meta.per_page + 1
+  const end = Math.min(meta.current_page * meta.per_page, meta.total)
   return `${start}–${end}`
 })
 
-function countByStatus(s) { return filteredRows.value.filter(r => r.status === s).length }
+// ── Contadores por estado (página actual) ─────────────────────
+function countByStatus(s) { return rows.value.filter(r => r.status === s).length }
 
-function origemLabel(o) {
-  return { gestor: 'Gestor', externo: 'Ext.', interno: 'Interno' }[o] ?? o
+// ── Abrir detalhe ─────────────────────────────────────────────
+async function openDetail(row) {
+  // Mostra imediatamente o que já temos enquanto carrega o detalhe completo
+  selected.value = { ...row, history: null, attachments: null }
+  detailLoading.value = true
+
+  try {
+    const response = await InternalService.getOccurrence(row.id)
+    // Laravel envolve recursos individuais em { data: {...} }
+    selected.value = response.data ?? response
+  } catch (err) {
+    console.error('Erro ao carregar detalhe:', err)
+  } finally {
+    detailLoading.value = false
+  }
 }
 
-function statusLabel(s) {
-  return { Pendente: 'Pendente', Analise: 'Em Análise', Resolvido: 'Resolvido', Rejeitado: 'Rejeitado', Removido: 'Removido' }[s] ?? s
+// ── Exportar ──────────────────────────────────────────────────
+function exportar() {
+  // Abre o endpoint do relatório numa nova aba para download
+  const url = new URL(`${import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'}/admin/statistics/report`)
+  if (filters.status) url.searchParams.set('status', filters.status)
+  if (filters.province_id) url.searchParams.set('province_id', filters.province_id)
+  if (filters.project_id) url.searchParams.set('project_id', filters.project_id)
+  if (filters.category_id) url.searchParams.set('category_id', filters.category_id)
+  if (filters.date_from) url.searchParams.set('date_from', filters.date_from)
+  window.open(url.toString(), '_blank')
 }
-
-function aplicarFiltros() { Object.assign(applied, { ...filters }); page.value = 1 }
-
-function limparFiltros() {
-  Object.assign(filters,  { provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
-  Object.assign(applied,  { provincia: '', projeto: '', data: '', categoria: '', canal: '', codigo: '', origem: '' })
-  page.value = 1
-}
-
-function openDetail(r) { selected.value = r }
 </script>
 
 <style scoped>
@@ -574,397 +668,1026 @@ function openDetail(r) { selected.value = r }
 
 /* ── SIDEBAR ─────────────────────────────── */
 .sidebar {
-  width: 210px; flex-shrink: 0;
+  width: 210px;
+  flex-shrink: 0;
   background: var(--white);
   border-right: none;
-  box-shadow: 2px 0 18px rgba(0,0,0,.07);
-  display: flex; flex-direction: column;
-  height: 100vh; position: fixed;
-  top: 0; left: 0; z-index: 50;
+  box-shadow: 2px 0 18px rgba(0, 0, 0, .07);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
 }
+
 .sidebar-logo {
-  display: flex; align-items: center; gap: 9px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   padding: 18px 16px 16px;
-  border-bottom: 1px solid rgba(0,0,0,.06);
+  border-bottom: 1px solid rgba(0, 0, 0, .06);
   text-decoration: none;
 }
-.sidebar-logo-img { width: 32px; height: 32px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
-.sidebar-logo-text { font-size: 13.5px; font-weight: 800; color: var(--green-dark); line-height: 1.2; }
 
-.sidebar-nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+.sidebar-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.sidebar-logo-text {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--green-dark);
+  line-height: 1.2;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 14px 10px;
+  overflow-y: auto;
+}
+
 .nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; border-radius: 9px; margin-bottom: 2px;
-  font-size: 13px; font-weight: 500; color: var(--text-gray);
-  cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  margin-bottom: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-gray);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
 }
-.nav-item:hover { background: var(--green-bg); color: var(--green-mid); }
-.nav-item.active { background: var(--green-bg); color: var(--green-mid); font-weight: 700; }
-.nav-item svg { flex-shrink: 0; opacity: 0.75; }
-.nav-item.active svg { opacity: 1; }
 
-.sidebar-footer { padding: 14px 10px; border-top: 1px solid rgba(0,0,0,.06); }
-.btn-logout {
-  display: flex; align-items: center; gap: 9px; width: 100%;
-  background: none; border: none; cursor: pointer;
-  padding: 10px 12px; border-radius: 9px;
-  font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500;
-  color: #E53E3E; transition: background 0.15s;
+.nav-item:hover {
+  background: var(--green-bg);
+  color: var(--green-mid);
 }
-.btn-logout:hover { background: #FFF5F5; }
+
+.nav-item.active {
+  background: var(--green-bg);
+  color: var(--green-mid);
+  font-weight: 700;
+}
+
+.nav-item svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.nav-item.active svg {
+  opacity: 1;
+}
+
+.sidebar-footer {
+  padding: 14px 10px;
+  border-top: 1px solid rgba(0, 0, 0, .06);
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #E53E3E;
+  transition: background 0.15s;
+}
+
+.btn-logout:hover {
+  background: #FFF5F5;
+}
 
 /* ── MAIN ───────────────────────────────── */
 .main {
-  margin-left: 210px; flex: 1;
-  display: flex; flex-direction: column;
-  height: 100vh; overflow: hidden;
+  margin-left: 210px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* ── TOPBAR ─────────────────────────────── */
 .topbar {
-  display: flex; align-items: center; gap: 14px;
-  padding: 0 28px; height: 58px;
-  background: var(--white); border-bottom: none;
-  box-shadow: 0 1px 12px rgba(0,0,0,.07);
-  flex-shrink: 0; position: relative; z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 28px;
+  height: 58px;
+  background: var(--white);
+  box-shadow: 0 1px 12px rgba(0, 0, 0, .07);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
 }
+
 .search-wrap {
-  flex: 1; display: flex; align-items: center; gap: 10px;
-  background: #F4F6F5; border: 1.5px solid var(--border);
-  border-radius: 9px; padding: 8px 14px; max-width: 420px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 14px;
+  max-width: 420px;
   transition: border-color 0.2s;
 }
-.search-wrap:focus-within { border-color: var(--green-light); }
+
+.search-wrap:focus-within {
+  border-color: var(--green-light);
+}
+
 .search-wrap input {
-  border: none; outline: none; background: transparent;
-  font-family: 'Poppins', sans-serif; font-size: 13px;
-  color: var(--text-dark); width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  width: 100%;
 }
-.search-wrap input::placeholder { color: var(--text-light); }
-.topbar-spacer { flex: 1; }
+
+.search-wrap input::placeholder {
+  color: var(--text-light);
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
 .notif-btn {
-  position: relative; width: 38px; height: 38px;
-  background: #F4F6F5; border: 1.5px solid var(--border);
-  border-radius: 9px; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: border-color 0.2s;
+  position: relative;
+  width: 38px;
+  height: 38px;
+  background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
 }
-.notif-btn:hover { border-color: var(--green-light); }
+
+.notif-btn:hover {
+  border-color: var(--green-light);
+}
+
 .notif-dot {
-  position: absolute; top: 7px; right: 8px;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #E53E3E; border: 1.5px solid var(--white);
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #E53E3E;
+  border: 1.5px solid var(--white);
 }
-.admin-info { display: flex; align-items: center; gap: 10px; }
-.admin-text { text-align: right; }
-.admin-name { font-size: 13px; font-weight: 700; color: var(--text-dark); }
-.admin-role { font-size: 11px; color: var(--text-light); }
+
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-text {
+  text-align: right;
+}
+
+.admin-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.admin-role {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
 .admin-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   background: linear-gradient(135deg, #52B788, #1B4332);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
 }
 
 /* ── CONTENT ────────────────────────────── */
-.content { flex: 1; overflow-y: auto; padding: 24px 28px 32px; background: #F2F6F4; }
-.content::-webkit-scrollbar { width: 5px; }
-.content::-webkit-scrollbar-track { background: transparent; }
-.content::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
-
-/* page title */
-.page-title-row {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; margin-bottom: 20px;
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 32px;
+  background: #F2F6F4;
 }
-.page-title-row h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-.page-title-row p  { font-size: 13px; color: var(--text-gray); }
+
+.content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: #C8D8CE;
+  border-radius: 99px;
+}
+
+.page-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-title-row h1 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.page-title-row p {
+  font-size: 13px;
+  color: var(--text-gray);
+}
 
 .btn-export {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--white); color: var(--text-dark);
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 9px 18px; font-family: 'Poppins', sans-serif;
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  transition: border-color 0.2s, color 0.2s; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--white);
+  color: var(--text-dark);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
 }
-.btn-export:hover { border-color: var(--green-mid); color: var(--green-mid); }
 
-/* ── KPI STRIP ──────────────────────────── */
-.kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px; margin-bottom: 18px;
+.btn-export:hover:not(:disabled) {
+  border-color: var(--green-mid);
+  color: var(--green-mid);
 }
-.kpi-card {
-  background: var(--white); border: none;
-  border-radius: 16px; padding: 16px 18px;
-  display: flex; align-items: center; gap: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
-  transition: box-shadow 0.25s, transform 0.25s;
-}
-.kpi-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,.09), 0 16px 40px rgba(0,0,0,.1); transform: translateY(-2px); }
-.kpi-card.highlight { background: var(--green-mid); border: none; box-shadow: 0 4px 12px rgba(45,106,79,.35), 0 12px 32px rgba(45,106,79,.25); }
 
-.kpi-icon {
-  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
+.btn-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
-.kpi-icon.green { background: var(--green-pale); }
-.kpi-icon.white { background: rgba(255,255,255,.22); }
-.kpi-icon.blue  { background: #EBF4FF; }
-.kpi-icon.red   { background: #FFF5F5; }
-
-.kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 3px; }
-.kpi-label.dark  { color: var(--text-light); }
-.kpi-label.light { color: rgba(255,255,255,.75); }
-.kpi-value { font-size: 26px; font-weight: 800; line-height: 1; }
-.kpi-value.dark  { color: var(--text-dark); }
-.kpi-value.light { color: #fff; }
 
 /* ── FILTER CARD ────────────────────────── */
 .filter-card {
-  background: var(--white); border: none;
-  border-radius: 16px; padding: 18px 20px 20px; margin-bottom: 18px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
+  background: var(--white);
+  border-radius: 16px;
+  padding: 18px 20px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .05), 0 6px 20px rgba(0, 0, 0, .07);
 }
+
 .filter-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr auto;
-  gap: 12px; align-items: end; margin-bottom: 12px;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
 }
-.filter-row:last-child { margin-bottom: 0; }
 
-.filter-group { display: flex; flex-direction: column; gap: 5px; }
-.filter-group label {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 11.5px; font-weight: 600; color: var(--text-gray);
+.filter-row:last-child {
+  margin-bottom: 0;
 }
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-gray);
+}
+
 .filter-group input,
 .filter-group select {
-  font-family: 'Poppins', sans-serif; font-size: 13px;
-  color: var(--text-dark); background: var(--white);
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 9px 30px 9px 12px; outline: none; width: 100%;
-  appearance: none; -webkit-appearance: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 30px 9px 12px;
+  outline: none;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238A9490' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
   transition: border-color 0.2s;
 }
-.filter-group input { background-image: none; padding-right: 12px; }
-.filter-group input:focus,
-.filter-group select:focus { border-color: var(--green-light); box-shadow: 0 0 0 3px rgba(82,183,136,.12); }
 
-.filter-actions { display: flex; gap: 8px; align-items: flex-end; }
+.filter-group input {
+  background-image: none;
+  padding-right: 12px;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: var(--green-light);
+  box-shadow: 0 0 0 3px rgba(82, 183, 136, .12);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
 
 .btn-limpar {
-  display: inline-flex; align-items: center; gap: 6px; height: 39px;
-  background: var(--white); color: var(--text-gray);
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 0 14px; font-family: 'Poppins', sans-serif;
-  font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 39px;
+  background: var(--white);
+  color: var(--text-gray);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 0 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
   transition: border-color 0.2s, color 0.2s;
 }
-.btn-limpar:hover { border-color: var(--text-gray); color: var(--text-dark); }
+
+.btn-limpar:hover {
+  border-color: var(--text-gray);
+  color: var(--text-dark);
+}
 
 .btn-filtrar {
-  display: inline-flex; align-items: center; gap: 7px; height: 39px;
-  background: var(--green-mid); color: #fff; border: none;
-  border-radius: 8px; padding: 0 22px; font-family: 'Poppins', sans-serif;
-  font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 39px;
+  background: var(--green-mid);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0 22px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
   transition: background 0.2s;
 }
-.btn-filtrar:hover { background: var(--green-dark); }
+
+.btn-filtrar:hover:not(:disabled) {
+  background: var(--green-dark);
+}
+
+.btn-filtrar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* ── STAT BAR ───────────────────────────── */
 .stat-bar {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 14px;
 }
-.stat-label { font-size: 12px; font-weight: 600; color: var(--text-light); }
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── SKELETON ───────────────────────────── */
+.skeleton-row td {
+  padding: 14px 16px;
+}
+
+.skeleton-bar {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f4f2 25%, #e0eae5 50%, #f0f4f2 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.stat-spin {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #C8D8CE;
+  border-top-color: var(--green-mid);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* ── TABLE CARD ─────────────────────────── */
 .table-card {
-  background: var(--white); border: none;
-  border-radius: 16px; overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .05), 0 6px 20px rgba(0, 0, 0, .07);
 }
-table { width: 100%; border-collapse: collapse; }
-thead th {
-  padding: 11px 16px; font-size: 11px; font-weight: 700;
-  color: var(--text-light); text-align: left;
-  background: #F4F6F5; border-bottom: 1px solid var(--border);
-  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
-}
-tbody tr { transition: background 0.15s; cursor: pointer; }
-tbody tr:hover { background: #F9FBFA; }
-tbody td {
-  padding: 13px 16px; font-size: 13px;
-  border-bottom: 1px solid var(--border); vertical-align: middle;
-}
-tbody tr:last-child td { border-bottom: none; }
 
-.td-muted { color: var(--text-gray); font-size: 12.5px; }
-.td-small { font-size: 12.5px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  padding: 11px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-align: left;
+  background: #F4F6F5;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+tbody tr {
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+tbody tr:hover {
+  background: #F9FBFA;
+}
+
+tbody td {
+  padding: 13px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.td-muted {
+  color: var(--text-gray);
+  font-size: 12.5px;
+}
+
+.td-small {
+  font-size: 12.5px;
+}
 
 .id-link {
-  color: var(--green-mid); font-weight: 600;
-  font-size: 12.5px; cursor: pointer;
+  color: var(--green-mid);
+  font-weight: 700;
+  font-size: 12.5px;
+  display: block;
 }
-.id-link:hover { text-decoration: underline; }
 
-.resp-cell { display: flex; align-items: center; gap: 8px; }
-.resp-avatar {
-  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-  background: var(--green-bg); color: var(--green-mid);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 800;
+.id-sub {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.resp-none { color: var(--text-light); font-size: 12.5px; font-style: italic; }
+
+.resp-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resp-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--green-bg);
+  color: var(--green-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.resp-none {
+  color: var(--text-light);
+  font-size: 12.5px;
+  font-style: italic;
+}
 
 /* status badges */
 .badge-status {
-  display: inline-block; padding: 3px 10px; border-radius: 99px;
-  font-size: 11.5px; font-weight: 700;
-  border-width: 1.5px; border-style: solid;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-width: 1.5px;
+  border-style: solid;
 }
-.badge-status.rejeitado { color: #E53E3E; border-color: #FC8181; background: #FFF5F5; }
-.badge-status.resolvido { color: var(--green-mid); border-color: #68D391; background: var(--green-pale); }
-.badge-status.removido  { color: #C05621; border-color: #F6AD55; background: #FFFAF0; }
-.badge-status.pendente  { color: #744210; border-color: #F6D860; background: #FEFCBF; }
-.badge-status.analise   { color: #2B6CB0; border-color: #90CDF4; background: #EBF8FF; }
+
+.badge-status.rejected {
+  color: #E53E3E;
+  border-color: #FC8181;
+  background: #FFF5F5;
+}
+
+.badge-status.resolved {
+  color: var(--green-mid);
+  border-color: #68D391;
+  background: var(--green-pale);
+}
+
+.badge-status.closed {
+  color: #C05621;
+  border-color: #F6AD55;
+  background: #FFFAF0;
+}
+
+.badge-status.pending {
+  color: #744210;
+  border-color: #F6D860;
+  background: #FEFCBF;
+}
+
+.badge-status.in_review {
+  color: #2B6CB0;
+  border-color: #90CDF4;
+  background: #EBF8FF;
+}
+
+/* aliases for stat bar */
+.badge-status.resolvido {
+  color: var(--green-mid);
+  border-color: #68D391;
+  background: var(--green-pale);
+}
+
+.badge-status.rejeitado {
+  color: #E53E3E;
+  border-color: #FC8181;
+  background: #FFF5F5;
+}
+
+.badge-status.pendente {
+  color: #744210;
+  border-color: #F6D860;
+  background: #FEFCBF;
+}
+
+.badge-overdue {
+  font-size: 11px;
+  font-weight: 700;
+  color: #C05621;
+  background: #FFFAF0;
+  border: 1px solid #F6AD55;
+  border-radius: 99px;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
+
+.overdue-text {
+  color: #C05621;
+  font-weight: 600;
+}
 
 .badge-origem {
-  display: inline-block; padding: 3px 9px; border-radius: 99px;
-  font-size: 11px; font-weight: 700; border: 1.5px solid;
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1.5px solid;
 }
-.badge-origem.gestor  { color: #6B46C1; border-color: #B794F4; background: #FAF5FF; }
-.badge-origem.externo { color: #C05621; border-color: #F6AD55; background: #FFFAF0; }
-.badge-origem.interno { color: #2B6CB0; border-color: #90CDF4; background: #EBF8FF; }
+
+.badge-origem.external {
+  color: #C05621;
+  border-color: #F6AD55;
+  background: #FFFAF0;
+}
+
+.badge-origem.internal {
+  color: #2B6CB0;
+  border-color: #90CDF4;
+  background: #EBF8FF;
+}
 
 .btn-detail {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: var(--green-bg); color: var(--green-mid);
-  border: none; border-radius: 7px; padding: 6px 12px;
-  font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--green-bg);
+  color: var(--green-mid);
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.btn-detail:hover { background: var(--green-pale); }
+
+.btn-detail:hover {
+  background: var(--green-pale);
+}
 
 /* pagination */
 .pagination-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px; border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
 }
-.pagination-info { font-size: 12.5px; color: var(--text-light); }
-.pagination-btns { display: flex; align-items: center; gap: 6px; }
+
+.pagination-info {
+  font-size: 12.5px;
+  color: var(--text-light);
+}
+
+.pagination-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .pg-btn {
-  height: 32px; min-width: 32px; border-radius: 7px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: 'Poppins', sans-serif; font-size: 12.5px; font-weight: 600;
-  cursor: pointer; border: 1.5px solid var(--border);
-  background: var(--white); color: var(--text-gray); padding: 0 10px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--text-gray);
+  padding: 0 10px;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
-.pg-btn:hover { border-color: var(--green-mid); color: var(--green-mid); }
-.pg-btn.active { background: var(--green-mid); border-color: var(--green-mid); color: #fff; }
-.pg-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.empty-row { text-align: center; padding: 36px; color: var(--text-light); font-size: 13px; }
+.pg-btn:hover {
+  border-color: var(--green-mid);
+  color: var(--green-mid);
+}
+
+.pg-btn.active {
+  background: var(--green-mid);
+  border-color: var(--green-mid);
+  color: #fff;
+}
+
+.pg-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 36px;
+  color: var(--text-light);
+  font-size: 13px;
+}
 
 /* ── FOOTER ─────────────────────────────── */
 .dash-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 28px; background: var(--white);
-  border-top: none;
-  box-shadow: 0 -1px 10px rgba(0,0,0,.06);
-  font-size: 11.5px; color: var(--text-light); flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  background: var(--white);
+  box-shadow: 0 -1px 10px rgba(0, 0, 0, .06);
+  font-size: 11.5px;
+  color: var(--text-light);
+  flex-shrink: 0;
 }
-.dash-footer a { color: var(--text-light); text-decoration: none; margin-left: 16px; transition: color 0.2s; }
-.dash-footer a:hover { color: var(--green-mid); }
+
+.dash-footer a {
+  color: var(--text-light);
+  text-decoration: none;
+  margin-left: 16px;
+  transition: color 0.2s;
+}
+
+.dash-footer a:hover {
+  color: var(--green-mid);
+}
 
 /* ── DETAIL DRAWER ──────────────────────── */
 .drawer-overlay {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: rgba(15, 28, 22, 0.4);
   z-index: 200;
 }
+
 .drawer {
-  position: fixed; top: 0; right: 0; bottom: 0;
-  width: 460px; max-width: 95vw;
-  background: var(--white); z-index: 201;
-  display: flex; flex-direction: column;
-  box-shadow: -6px 0 32px rgba(0,0,0,.14);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 480px;
+  max-width: 95vw;
+  background: var(--white);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -6px 0 32px rgba(0, 0, 0, .14);
   overflow: hidden;
 }
-.drawer::-webkit-scrollbar { width: 4px; }
-.drawer::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 
 .drawer-hd {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 24px 18px; border-bottom: 1px solid var(--border);
-  flex-shrink: 0; background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-.drawer-hd h3 { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
-.drawer-hd p  { font-size: 12px; color: var(--text-light); }
+
+.drawer-hd h3 {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.drawer-hd p {
+  font-size: 12px;
+  color: var(--text-light);
+}
 
 .btn-close {
-  width: 32px; height: 32px; background: #F4F6F5;
-  border: 1.5px solid var(--border); border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
 }
-.btn-close:hover { background: #FFF5F5; border-color: #FC8181; }
 
-.drawer-body { flex: 1; overflow-y: auto; padding: 22px 24px; }
-.drawer-body::-webkit-scrollbar { width: 4px; }
-.drawer-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+.btn-close:hover {
+  background: #FFF5F5;
+  border-color: #FC8181;
+}
 
-.drawer-status-row { margin-bottom: 18px; }
+.drawer-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 24px;
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 24px;
+}
+
+.drawer-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.drawer-body::-webkit-scrollbar-thumb {
+  background: #C8D8CE;
+  border-radius: 99px;
+}
+
+.drawer-status-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
 
 .detail-row {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  padding: 11px 0; border-bottom: 1px solid #F0F4F2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #F0F4F2;
 }
-.detail-row:last-of-type { border-bottom: none; }
-.detail-key { font-size: 12px; font-weight: 600; color: var(--text-light); min-width: 140px; }
-.detail-val { font-size: 13px; color: var(--text-dark); text-align: right; flex: 1; }
 
-.drawer-section { margin-top: 20px; }
-.drawer-section-label { font-size: 11.5px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+.detail-row:last-of-type {
+  border-bottom: none;
+}
+
+.detail-key {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  min-width: 140px;
+}
+
+.detail-val {
+  font-size: 13px;
+  color: var(--text-dark);
+  text-align: right;
+  flex: 1;
+}
+
+.drawer-section {
+  margin-top: 20px;
+}
+
+.drawer-section-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+}
+
 .drawer-desc {
-  background: #F4F6F5; border-radius: 9px;
-  padding: 14px; font-size: 13px; color: var(--text-gray); line-height: 1.7;
+  background: #F4F6F5;
+  border-radius: 9px;
+  padding: 14px;
+  font-size: 13px;
+  color: var(--text-gray);
+  line-height: 1.7;
+}
+
+/* Anexos no drawer */
+.attach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.attach-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--green-bg);
+  border: 1px solid #C3E6CE;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--green-dark);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.attach-item:hover {
+  background: var(--green-pale);
+}
+
+.attach-size {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-light);
 }
 
 /* Timeline */
-.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
 .timeline-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding-bottom: 16px; position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 16px;
+  position: relative;
 }
+
 .timeline-item:not(:last-child)::before {
-  content: ''; position: absolute;
-  left: 5px; top: 14px; bottom: 0;
-  width: 1.5px; background: var(--border);
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 0;
+  width: 1.5px;
+  background: var(--border);
 }
+
 .tl-dot {
-  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
   border: 2px solid;
 }
-.tl-dot.neutro   { background: #F4F6F5; border-color: var(--border); }
-.tl-dot.analise  { background: #EBF8FF; border-color: #90CDF4; }
-.tl-dot.resolvido{ background: var(--green-pale); border-color: #68D391; }
-.tl-dot.rejeitado{ background: #FFF5F5; border-color: #FC8181; }
 
-.tl-title { font-size: 13px; font-weight: 600; color: var(--text-dark); }
-.tl-date  { font-size: 11.5px; color: var(--text-light); margin-top: 2px; }
+.tl-content {
+  flex: 1;
+}
+
+.tl-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.tl-comment {
+  font-size: 12.5px;
+  color: var(--text-gray);
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+.tl-date {
+  font-size: 11.5px;
+  color: var(--text-light);
+  margin-top: 3px;
+}
+
+.tl-empty {
+  font-size: 13px;
+  color: var(--text-light);
+  font-style: italic;
+}
 
 /* ── TRANSITIONS ────────────────────────── */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-
-.slide-right-enter-active, .slide-right-leave-active {
-  transition: transform 0.3s cubic-bezier(.16,1,.3,1);
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
 }
-.slide-right-enter-from, .slide-right-leave-to { transform: translateX(100%); }
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.3s cubic-bezier(.16, 1, .3, 1);
+}
+
+.slide-right-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+}
 </style>

@@ -25,8 +25,8 @@ enum OriginEnum: string
     public function label(): string
     {
         return match($this) {
-            OriginEnum::External => 'Externo (Público)',
-            OriginEnum::Internal => 'Interno (Autenticado)',
+            OriginEnum::External => 'Externo',
+            OriginEnum::Internal => 'Interno',
         };
     }
 }

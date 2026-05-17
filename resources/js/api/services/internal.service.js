@@ -19,6 +19,8 @@ export const InternalService = {
      * @param {Object} params - filtros opcionais
      */
     async getOccurrences(params = {}) {
+        // Suporta: status, province_id, project_id, category_id,
+        //          date_from, date_to, search, only_mine, origin, per_page, page
         const { data } = await api.get('/occurrences', { params })
         return data
     },
@@ -28,7 +30,8 @@ export const InternalService = {
      */
     async getOccurrence(id) {
         const { data } = await api.get(`/occurrences/${id}`)
-        return data
+        // Laravel envolve recursos individuais em { data: {...} }
+        return data.data ?? data
     },
 
     /**
