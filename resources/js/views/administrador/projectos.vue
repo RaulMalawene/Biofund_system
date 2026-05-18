@@ -507,7 +507,8 @@ async function saveProject() {
   color: var(--green-mid);
 }
 
-.nav-item.active {
+.nav-item.active,
+.nav-item.router-link-exact-active {
   background: var(--green-bg);
   color: var(--green-mid);
   font-weight: 700;
@@ -518,7 +519,8 @@ async function saveProject() {
   opacity: 0.75;
 }
 
-.nav-item.active svg {
+.nav-item.active svg,
+.nav-item.router-link-exact-active svg {
   opacity: 1;
 }
 

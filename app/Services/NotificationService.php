@@ -107,17 +107,17 @@ class NotificationService
         string $subject,
         string $body
     ): void {
-        $log = NotificationLog::create([
-            'occurrence_id'   => $occurrence->id,
-            'user_id'         => $userId,
-            'recipient_email' => $recipientEmail,
-            'channel'         => 'email',
-            'event_type'      => $eventType,
-            'message'         => $body,
-            'status'          => 'pending',
-        ]);
-
         try {
+            $log = NotificationLog::create([
+                'occurrence_id'   => $occurrence->id,
+                'user_id'         => $userId,
+                'recipient_email' => $recipientEmail,
+                'channel'         => 'email',
+                'event_type'      => $eventType,
+                'message'         => $body,
+                'status'          => 'pending',
+            ]);
+
             Mail::raw($body, function ($mail) use ($recipientEmail, $subject) {
                 $mail->to($recipientEmail)->subject($subject);
             });
@@ -125,11 +125,6 @@ class NotificationService
             $log->update(['status' => 'sent', 'sent_at' => now()]);
 
         } catch (\Throwable $e) {
-            $log->update([
-                'status'        => 'failed',
-                'error_message' => $e->getMessage(),
-            ]);
-
             Log::error("MDR NotificationService: falha ao enviar email para {$recipientEmail}", [
                 'occurrence_id' => $occurrence->id,
                 'event_type'    => $eventType,

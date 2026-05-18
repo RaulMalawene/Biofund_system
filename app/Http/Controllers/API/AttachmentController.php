@@ -9,7 +9,7 @@ use App\Models\OccurrenceAttachment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AttachmentController extends Controller
 {
@@ -27,7 +27,7 @@ class AttachmentController extends Controller
         Request $request,
         Occurrence $occurrence,
         OccurrenceAttachment $attachment
-    ): StreamedResponse|JsonResponse {
+    ): BinaryFileResponse|JsonResponse {
         if ($attachment->occurrence_id !== $occurrence->id) {
             return response()->json(['message' => 'Ficheiro não encontrado.'], 404);
         }
@@ -48,10 +48,14 @@ class AttachmentController extends Controller
             return response()->json(['message' => 'Ficheiro não encontrado no servidor.'], 404);
         }
 
-        return Storage::disk($attachment->disk)->download(
-            $attachment->path,
-            $attachment->original_name,
-            ['Content-Type' => $attachment->mime_type]
-        );
+        $fullPath = Storage::disk($attachment->disk)->path($attachment->path);
+
+        $inlineTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+        $disposition = in_array($attachment->mime_type, $inlineTypes) ? 'inline' : 'attachment';
+
+        return response()->file($fullPath, [
+            'Content-Type'        => $attachment->mime_type,
+            'Content-Disposition' => $disposition . '; filename="' . $attachment->original_name . '"',
+        ]);
     }
 }

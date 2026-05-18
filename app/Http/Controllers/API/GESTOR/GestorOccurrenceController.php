@@ -43,8 +43,31 @@ class GestorOccurrenceController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $user  = $request->user();
-        $query = Occurrence::with([
+        $user      = $request->user();
+        $isHistory = $request->boolean('history');
+
+        // Modo histórico: filtra a resolvidas e/ou removidas (soft-deleted)
+        if ($isHistory) {
+            if ($request->boolean('deleted_only')) {
+                // Só removidas
+                $query = Occurrence::onlyTrashed();
+            } elseif ($request->status === OccurrenceStatusEnum::Resolved->value) {
+                // Só resolvidas (exclui removidas)
+                $query = Occurrence::query()
+                    ->where('status', OccurrenceStatusEnum::Resolved->value);
+            } else {
+                // Todas: resolvidas + removidas
+                $query = Occurrence::withTrashed()
+                    ->where(fn($q) =>
+                        $q->where('status', OccurrenceStatusEnum::Resolved->value)
+                          ->orWhereNotNull('deleted_at')
+                    );
+            }
+        } else {
+            $query = Occurrence::query();
+        }
+
+        $query->with([
             'project:id,name,code',
             'province:id,name',
             'category:id,name',
@@ -52,16 +75,14 @@ class GestorOccurrenceController extends Controller
             'submittedBy:id,name,email,phone',
         ])->withCount('attachments');
 
-        // Restrição por perfil
+        // Restrição por perfil (aplica-se também no histórico)
         match ($user->role) {
             RoleEnum::Funcionario => $query->where('submitted_by_user_id', $user->id),
             RoleEnum::Gestor      => $query->where('province_id', $user->province_id),
             RoleEnum::Admin       => null,
         };
 
-        // Filtro de visibilidade de alertas para gestores:
-        // Se o gestor não tem permissão para ver um tipo de alerta,
-        // as ocorrências com esse alert_type são excluídas da listagem.
+        // Filtro de visibilidade de alertas para gestores
         if ($user->isGestor()) {
             if (!$user->receives_urgent_alerts) {
                 $query->where(fn($q) =>
@@ -77,8 +98,10 @@ class GestorOccurrenceController extends Controller
             }
         }
 
-        // Filtros opcionais
-        $query->when($request->status, fn($q) => $q->where('status', $request->status));
+        // Filtros opcionais (no modo histórico, status só filtra resolvidas se não for deleted_only)
+        if (!$isHistory) {
+            $query->when($request->status, fn($q) => $q->where('status', $request->status));
+        }
         $query->when($request->alert_type, fn($q) => $q->where('alert_type', $request->alert_type));
         $query->when($request->project_id, fn($q) => $q->where('project_id', $request->project_id));
         $query->when($request->province_id, fn($q) => $q->where('province_id', $request->province_id));

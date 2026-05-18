@@ -145,7 +145,7 @@
             </div>
             <div class="attachments-grid">
               <div class="attach-thumb" v-for="(a, i) in result.anexos" :key="i">
-                <img v-if="a.type === 'img'" :src="a.src" :alt="a.nome" />
+                <img v-if="a.type === 'img' && a.src" :src="a.src" :alt="a.nome" />
                 <div v-else class="attach-doc">
                   <svg width="28" height="28" fill="none" stroke="#888E8C" stroke-width="1.5" viewBox="0 0 28 28">
                     <rect x="4" y="2" width="16" height="22" rx="2" />
@@ -159,8 +159,8 @@
                     <span class="attach-name">{{ a.nome }}</span>
                     <span class="attach-size" v-if="a.size">{{ a.size }}</span>
                   </div>
-                  <a class="btn-dl" :href="a.downloadUrl" target="_blank"
-                    :title="a.isPreviewable ? 'Pré-visualizar' : 'Descarregar'">
+                  <button class="btn-dl" @click="downloadAnexo(a)"
+                    :title="a.isPreviewable ? 'Pré-visualizar / Descarregar' : 'Descarregar'">
                     <svg v-if="a.isPreviewable" width="15" height="15" fill="none" stroke="currentColor"
                       stroke-width="1.8" viewBox="0 0 14 14">
                       <path d="M1 7s2.5-4 6-4 6 4 6 4-2.5 4-6 4-6-4-6-4z" stroke-linecap="round" />
@@ -171,7 +171,7 @@
                       <path d="M7 2v7M4 7l3 3 3-3" stroke-linecap="round" stroke-linejoin="round" />
                       <path d="M2 12h10" stroke-linecap="round" />
                     </svg>
-                  </a>
+                  </button>
                 </div>
               </div>
               <div class="attach-end">Fim dos anexos</div>
@@ -301,20 +301,29 @@ function mapApiResponse(data) {
       const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp']
       const previewExts = [...imageExts, 'pdf']
       const ext = a.name.split('.').pop().toLowerCase()
-      const base = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'
-      const downloadUrl = `${base}/public/occurrences/${data.tracking_code}/attachments/${a.id}`
       const isImage = imageExts.includes(ext)
       return {
+        _id:  a.id,
         type: isImage ? 'img' : 'doc',
         nome: a.name,
-        ext: ext.toUpperCase(),
+        ext:  ext.toUpperCase(),
         size: a.size,
-        src: isImage ? downloadUrl : null,   // thumbnail da imagem
+        src:  null,   // preenchido via blob após o carregamento
         isPreviewable: previewExts.includes(ext),
-        downloadUrl,
       }
     }),
   }
+}
+
+async function downloadAnexo(a) {
+  try {
+    const blobUrl = await PublicService.getAttachmentBlobUrl(result.value.codigo, a._id)
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = a.nome
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000)
+  } catch {}
 }
 
 async function consultar() {
@@ -329,6 +338,14 @@ async function consultar() {
   try {
     const data = await PublicService.trackOccurrence(code)
     result.value = mapApiResponse(data)
+
+    // Carregar imagens como blob (garante exibição independente de CORS/cache)
+    for (const a of result.value.anexos) {
+      if (a.type !== 'img') continue
+      PublicService.getAttachmentBlobUrl(data.tracking_code, a._id)
+        .then(blobUrl => { a.src = blobUrl })
+        .catch(() => {})
+    }
   } catch (err) {
     if (err.response?.status === 404) {
       notFound.value = true
@@ -671,12 +688,13 @@ async function consultar() {
 .btn-dl {
   background: none;
   border: none;
+  padding: 0;
   cursor: pointer;
   color: var(--green-mid);
   display: flex;
   align-items: center;
   transition: color 0.2s;
-  text-decoration: none;
+  font-family: inherit;
 }
 
 .btn-dl:hover {

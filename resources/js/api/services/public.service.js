@@ -32,4 +32,17 @@ export const PublicService = {
         const { data } = await api.get(ENDPOINTS.TRACK_OCCURRENCE(code))
         return data
     },
+
+    /**
+     * Descarrega um anexo público como blob URL (para exibir em <img> ou fazer download).
+     * @param {string} trackingCode
+     * @param {number} attachmentId
+     * @returns {string} blob: URL
+     */
+    async getAttachmentBlobUrl(trackingCode, attachmentId) {
+        const response = await api.get(ENDPOINTS.ATTACHMENT_DOWNLOAD(trackingCode, attachmentId), {
+            responseType: 'blob',
+        })
+        return URL.createObjectURL(response.data)
+    },
 }

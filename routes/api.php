@@ -149,6 +149,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('users.update');
         Route::patch('users/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])
             ->name('users.toggle-status');
+        Route::delete('users/{user}', [AdminUserController::class, 'destroy'])
+            ->name('users.destroy');
     });
 
     // Gestores também podem listar para atribuição

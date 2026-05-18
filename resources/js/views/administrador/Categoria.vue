@@ -652,9 +652,9 @@ async function toggleSubActive(sub) {
 .sidebar-nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; margin-bottom: 2px; font-size: 13px; font-weight: 500; color: var(--text-gray); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; }
 .nav-item:hover { background: var(--green-bg); color: var(--green-mid); }
-.nav-item.active { background: var(--green-bg); color: var(--green-mid); font-weight: 700; }
+.nav-item.active, .nav-item.router-link-exact-active { background: var(--green-bg); color: var(--green-mid); font-weight: 700; }
 .nav-item svg { flex-shrink: 0; opacity: 0.75; }
-.nav-item.active svg { opacity: 1; }
+.nav-item.active svg, .nav-item.router-link-exact-active svg { opacity: 1; }
 .sidebar-footer { padding: 14px 10px; border-top: 1px solid rgba(0,0,0,.06); }
 .btn-logout { display: flex; align-items: center; gap: 9px; width: 100%; background: none; border: none; cursor: pointer; padding: 10px 12px; border-radius: 9px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500; color: #E53E3E; transition: background 0.15s; }
 .btn-logout:hover { background: #FFF5F5; }

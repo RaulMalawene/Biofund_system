@@ -82,6 +82,8 @@ class OccurrenceResource extends JsonResource
             'submitted_at'    => $this->created_at->format('d/m/Y H:i'),
             'due_date'        => $this->due_date?->format('d/m/Y'),
             'reviewed_at'     => $this->reviewed_at?->format('d/m/Y H:i'),
+            'deleted_at'      => $this->deleted_at?->format('d/m/Y H:i'),
+            'is_removed'      => $this->deleted_at !== null,
 
             // Responsáveis (apenas para gestor/admin)
             'assigned_to'  => $this->when($isManagerOrAbove, fn() =>

@@ -136,6 +136,19 @@ export const InternalService = {
     },
 
     /**
+     * Descarrega um anexo autenticado como blob URL (para exibir em <img>).
+     * @param {number} occurrenceId
+     * @param {number} attachmentId
+     * @returns {string} blob: URL
+     */
+    async getAttachmentBlobUrl(occurrenceId, attachmentId) {
+        const response = await api.get(`/occurrences/${occurrenceId}/attachments/${attachmentId}`, {
+            responseType: 'blob',
+        })
+        return URL.createObjectURL(response.data)
+    },
+
+    /**
      * Dados de referência para o formulário interno.
      * Usa o mesmo endpoint público (não requer auth).
      */

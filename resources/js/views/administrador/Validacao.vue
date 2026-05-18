@@ -634,6 +634,12 @@
                       <path d="M5 7h4M7 5v4" stroke-linecap="round"/>
                     </svg>
                   </div>
+                  <button class="btn-img-dl" @click.stop="downloadAnexo(a)" title="Descarregar">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
+                      <path d="M7 2v8M3 7l4 5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M2 12h10" stroke-linecap="round"/>
+                    </svg>
+                  </button>
                   <div class="attachment-thumb-name">{{ a.nome }}</div>
                 </div>
               </div>
@@ -653,12 +659,12 @@
                     <div class="doc-name">{{ a.nome }}</div>
                     <div class="doc-size" v-if="a.tamanho">{{ a.tamanho }}</div>
                   </div>
-                  <button class="btn-doc-open">
+                  <button class="btn-doc-open" @click="downloadAnexo(a)">
                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
                       <path d="M7 2v8M3 7l4 5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M2 12h10" stroke-linecap="round"/>
                     </svg>
-                    Abrir
+                    Descarregar
                   </button>
                 </div>
               </div>
@@ -908,13 +914,28 @@ async function selectRow(r) {
   try {
     const res  = await InternalService.getOccurrence(r._id)
     const full = res.data ?? res
-    selected.value.anexos = (full.attachments ?? []).map(a => ({
+
+    const rawAnexos = (full.attachments ?? []).map(a => ({
+      _attId:  a.id,
       tipo:    a.is_image ? 'imagem' : (a.name.split('.').pop().toLowerCase()),
       nome:    a.name,
       url:     a.url ?? '',
       tamanho: a.size ?? '',
     }))
-    selected.value.foto = selected.value.anexos.find(a => a.tipo === 'imagem')?.url ?? null
+
+    // Imagens precisam de token — fetch como blob e usar blob URL no <img>
+    const anexos = await Promise.all(rawAnexos.map(async (a) => {
+      if (a.tipo === 'imagem') {
+        try {
+          a.url = await InternalService.getAttachmentBlobUrl(r._id, a._attId)
+        } catch {}
+      }
+      return a
+    }))
+
+    selected.value.anexos = anexos
+    selected.value.foto   = anexos.find(a => a.tipo === 'imagem')?.url ?? null
+
     if (full.history?.length) {
       const last = [...full.history].reverse().find(h => h.comment)
       if (last) selected.value.comentario = last.comment
@@ -989,6 +1010,19 @@ async function confirmComment() {
   const comment = commentModal.text.trim()
   commentModal.show = false
   await changeStatus(action, comment)
+}
+
+async function downloadAnexo(a) {
+  try {
+    const blobUrl = await InternalService.getAttachmentBlobUrl(selected.value._id, a._attId)
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = a.nome
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000)
+  } catch {
+    showToast('Erro ao descarregar o ficheiro.', true)
+  }
 }
 
 async function changeStatus(newState, comment = '') {
@@ -1608,6 +1642,15 @@ tbody tr:last-child td { border-bottom: none; }
   overflow: hidden; text-overflow: ellipsis;
   background: #F4F6F5;
 }
+.btn-img-dl {
+  position: absolute; bottom: 26px; right: 6px;
+  width: 24px; height: 24px;
+  background: rgba(0,0,0,.55); border: none; border-radius: 5px;
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0; transition: opacity 0.18s;
+  z-index: 2;
+}
+.attachment-thumb:hover .btn-img-dl { opacity: 1; }
 
 /* Document list */
 .attachment-doc-list { display: flex; flex-direction: column; gap: 8px; }

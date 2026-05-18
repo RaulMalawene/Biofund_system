@@ -105,7 +105,7 @@
         <div class="page-title-row">
           <div>
             <h1>Histórico de Ocorrências</h1>
-            <p>Consulte e filtre o registo completo de ocorrências ambientais submetidas.</p>
+            <p>Ocorrências resolvidas e removidas do sistema.</p>
           </div>
           <button class="btn-export" @click="exportar" :disabled="loading">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
@@ -191,12 +191,9 @@
                 Estado
               </label>
               <select v-model="filters.status">
-                <option value="">Todos os Estados</option>
-                <option value="pending">Pendente</option>
-                <option value="in_review">Em Análise</option>
-                <option value="resolved">Resolvida</option>
-                <option value="rejected">Rejeitada</option>
-                <option value="closed">Encerrada</option>
+                <option value="">Resolvidas e Removidas</option>
+                <option value="resolved">Resolvidas</option>
+                <option value="removed">Removidas</option>
               </select>
             </div>
             <div class="filter-group">
@@ -238,8 +235,7 @@
             {{ loading ? 'A carregar…' : `${meta.total} resultado${meta.total !== 1 ? 's' : ''}` }}
           </span>
           <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolved') }}</span>
-          <span class="badge-status rejeitado">Rejeitadas · {{ countByStatus('rejected') }}</span>
-          <span class="badge-status pendente">Pendentes · {{ countByStatus('pending') }}</span>
+          <span class="badge-status removido">Removidas · {{ countByStatus('removed') }}</span>
         </div>
 
         <!-- TABLE CARD -->
@@ -262,11 +258,13 @@
             <tbody>
 
               <!-- Skeleton loading -->
-              <tr v-if="loading" v-for="n in 5" :key="'sk-' + n" class="skeleton-row">
-                <td colspan="10">
-                  <div class="skeleton-bar"></div>
-                </td>
-              </tr>
+              <template v-if="loading">
+                <tr v-for="n in 5" :key="'sk-' + n" class="skeleton-row">
+                  <td colspan="10">
+                    <div class="skeleton-bar"></div>
+                  </td>
+                </tr>
+              </template>
 
               <!-- Rows -->
               <template v-if="!loading">
@@ -291,7 +289,8 @@
                   </td>
                   <td class="td-muted td-small">{{ r.project?.name ?? '—' }}</td>
                   <td>
-                    <span class="badge-status" :class="r.status">{{ r.status_label }}</span>
+                    <span v-if="r.is_removed" class="badge-status removed">Removida</span>
+                    <span v-else class="badge-status" :class="r.status">{{ r.status_label }}</span>
                   </td>
                   <td>
                     <button class="btn-detail" @click.stop="openDetail(r)">
@@ -368,8 +367,11 @@
         <div class="drawer-body" v-else>
           <!-- Status badge -->
           <div class="drawer-status-row">
-            <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
-            <span class="badge-overdue" v-if="selected.is_overdue">⚠ Fora do prazo</span>
+            <span v-if="selected.is_removed" class="badge-status removed">Removida</span>
+            <span v-else class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
+            <span class="badge-overdue" v-if="selected.is_removed && selected.deleted_at">
+              Removida em {{ selected.deleted_at }}
+            </span>
           </div>
 
           <!-- Reclamante -->
@@ -451,7 +453,7 @@
           <div class="drawer-section" v-if="selected.attachments?.length">
             <div class="drawer-section-label">Anexos ({{ selected.attachments.length }})</div>
             <div class="attach-list">
-              <a v-for="a in selected.attachments" :key="a.id" class="attach-item" :href="a.url" target="_blank">
+              <button v-for="a in selected.attachments" :key="a.id" class="attach-item" @click="downloadAttachment(a)">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 16 16">
                   <rect x="2" y="1" width="10" height="14" rx="1.5" />
                   <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
@@ -459,7 +461,11 @@
                 </svg>
                 <span>{{ a.name }}</span>
                 <span class="attach-size">{{ a.size }}</span>
-              </a>
+                <svg class="dl-icon" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
+                  <path d="M7 2v8M3 7l4 5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 12h10" stroke-linecap="round"/>
+                </svg>
+              </button>
             </div>
           </div>
 
@@ -551,6 +557,7 @@ async function loadOccurrences(page = 1) {
     const params = {
       per_page: meta.per_page,
       page,
+      history: 1, // sempre no modo histórico: só resolvidas e removidas
     }
 
     // Pesquisa global (barra de topo)
@@ -562,7 +569,13 @@ async function loadOccurrences(page = 1) {
     if (filters.date_from) params.date_from = filters.date_from
     if (filters.category_id) params.category_id = filters.category_id
     if (filters.submission_channel) params.submission_channel = filters.submission_channel
-    if (filters.status) params.status = filters.status
+
+    // Filtro de estado: "removed" é um valor especial para só mostrar removidas
+    if (filters.status === 'removed') {
+      params.deleted_only = 1
+    } else if (filters.status === 'resolved') {
+      params.status = 'resolved'
+    }
 
     // Origem
     if (filters.origin === 'only_mine') {
@@ -625,7 +638,10 @@ const paginationInfo = computed(() => {
 })
 
 // ── Contadores por estado (página actual) ─────────────────────
-function countByStatus(s) { return rows.value.filter(r => r.status === s).length }
+function countByStatus(s) {
+  if (s === 'removed') return rows.value.filter(r => r.is_removed).length
+  return rows.value.filter(r => r.status === s && !r.is_removed).length
+}
 
 // ── Abrir detalhe ─────────────────────────────────────────────
 async function openDetail(row) {
@@ -642,6 +658,18 @@ async function openDetail(row) {
   } finally {
     detailLoading.value = false
   }
+}
+
+// ── Descarregar anexo ─────────────────────────────────────────
+async function downloadAttachment(a) {
+  try {
+    const blobUrl = await InternalService.getAttachmentBlobUrl(selected.value.id, a.id)
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = a.name
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000)
+  } catch {}
 }
 
 // ── Exportar ──────────────────────────────────────────────────
@@ -732,7 +760,8 @@ function exportar() {
   color: var(--green-mid);
 }
 
-.nav-item.active {
+.nav-item.active,
+.nav-item.router-link-exact-active {
   background: var(--green-bg);
   color: var(--green-mid);
   font-weight: 700;
@@ -743,7 +772,8 @@ function exportar() {
   opacity: 0.75;
 }
 
-.nav-item.active svg {
+.nav-item.active svg,
+.nav-item.router-link-exact-active svg {
   opacity: 1;
 }
 
@@ -1282,16 +1312,11 @@ tbody tr:last-child td {
   background: var(--green-pale);
 }
 
-.badge-status.rejeitado {
-  color: #E53E3E;
-  border-color: #FC8181;
-  background: #FFF5F5;
-}
-
-.badge-status.pendente {
-  color: #744210;
-  border-color: #F6D860;
-  background: #FEFCBF;
+.badge-status.removido,
+.badge-status.removed {
+  color: #6B46C1;
+  border-color: #B794F4;
+  background: #FAF5FF;
 }
 
 .badge-overdue {
@@ -1591,11 +1616,14 @@ tbody tr:last-child td {
   background: var(--green-bg);
   border: 1px solid #C3E6CE;
   border-radius: 8px;
-  text-decoration: none;
   color: var(--green-dark);
+  font-family: 'Poppins', sans-serif;
   font-size: 12.5px;
   font-weight: 500;
+  cursor: pointer;
   transition: background 0.2s;
+  width: 100%;
+  text-align: left;
 }
 
 .attach-item:hover {
@@ -1606,6 +1634,11 @@ tbody tr:last-child td {
   margin-left: auto;
   font-size: 11px;
   color: var(--text-light);
+}
+
+.dl-icon {
+  flex-shrink: 0;
+  opacity: 0.5;
 }
 
 /* Timeline */

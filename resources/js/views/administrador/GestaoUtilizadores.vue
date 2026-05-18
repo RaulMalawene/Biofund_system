@@ -334,7 +334,7 @@
                 {{ editingUser ? 'Editar Utilizador' : (modalTipo === 'gestor' ? 'Adicionar Gestor' : 'Adicionar Funcionário') }}
               </h2>
             </div>
-            <button class="btn-close" @click="closeModal">
+            <button type="button" class="btn-close" @click="closeModal">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
                 <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round" />
               </svg>
@@ -386,21 +386,32 @@
                   <span class="err-msg" v-if="mErrors.password">{{ mErrors.password }}</span>
                 </div>
 
-                <!-- Províncias — GESTOR: multi-select com checkboxes -->
+                <!-- Províncias — GESTOR: select com tags -->
                 <div class="mf-field" v-if="modalTipo === 'gestor'">
-                  <label>Províncias <span class="req">*</span> <span class="field-hint">(pode seleccionar
-                      várias)</span></label>
-                  <div class="province-checks" :class="{ err: mErrors.province_ids }">
-                    <label class="pcheck-item" v-for="p in refProvinces" :key="p.id">
-                      <input type="checkbox" :value="p.id" v-model="mForm.province_ids" />
-                      <span class="pcheck-name">{{ p.name }}</span>
-                    </label>
+                  <label>Províncias <span class="req">*</span></label>
+                  <div class="input-wrap" :class="{ err: mErrors.province_ids }">
+                    <div class="input-icon">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <path d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.75 4.5 9 4.5 9s4.5-5.25 4.5-9c0-2.485-2.015-4.5-4.5-4.5z" />
+                        <circle cx="8" cy="6" r="1.8" />
+                      </svg>
+                    </div>
+                    <select @change="addProvince($event.target.value); $event.target.value = ''">
+                      <option value="">Seleccionar província…</option>
+                      <option v-for="p in availableProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+                    </select>
+                  </div>
+                  <div class="selected-tags" v-if="mForm.province_ids.length">
+                    <span class="tag-badge" v-for="pid in mForm.province_ids" :key="pid">
+                      {{ provinceName(pid) }}
+                      <button type="button" class="tag-remove" @click="removeProvince(pid)">
+                        <svg width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 10 10">
+                          <path d="M2 2l6 6M8 2L2 8" stroke-linecap="round" />
+                        </svg>
+                      </button>
+                    </span>
                   </div>
                   <span class="err-msg" v-if="mErrors.province_ids">{{ mErrors.province_ids }}</span>
-                  <span class="field-hint-bottom" v-if="mForm.province_ids.length">
-                    {{ mForm.province_ids.length }} província{{ mForm.province_ids.length > 1 ? 's' : '' }}
-                    seleccionada{{ mForm.province_ids.length > 1 ? 's' : '' }}
-                  </span>
                 </div>
 
                 <!-- Província — FUNCIONÁRIO: single select -->
@@ -423,14 +434,29 @@
                   <span class="err-msg" v-if="mErrors.province_ids">{{ mErrors.province_ids }}</span>
                 </div>
 
-                <!-- Projecto(s) -->
+                <!-- Projectos — GESTOR: select com tags -->
                 <div class="mf-field" v-if="modalTipo === 'gestor'">
                   <label>Projectos</label>
-                  <div class="province-checks small">
-                    <label class="pcheck-item" v-for="p in refProjects" :key="p.id">
-                      <input type="checkbox" :value="p.id" v-model="mForm.project_ids" />
-                      <span class="pcheck-name">{{ p.name }}</span>
-                    </label>
+                  <div class="input-wrap">
+                    <div class="input-icon">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
+                    <select @change="addProject($event.target.value); $event.target.value = ''">
+                      <option value="">Adicionar projecto…</option>
+                      <option v-for="p in availableProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+                    </select>
+                  </div>
+                  <div class="selected-tags" v-if="mForm.project_ids.length">
+                    <span class="tag-badge proj" v-for="pid in mForm.project_ids" :key="pid">
+                      {{ projectName(pid) }}
+                      <button type="button" class="tag-remove" @click="removeProject(pid)">
+                        <svg width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 10 10">
+                          <path d="M2 2l6 6M8 2L2 8" stroke-linecap="round" />
+                        </svg>
+                      </button>
+                    </span>
                   </div>
                 </div>
 
@@ -527,7 +553,7 @@
           </div>
 
           <div class="mf-footer">
-            <button class="btn-gravar" @click="saveUser" :disabled="mLoading">
+            <button type="button" class="btn-gravar" @click="saveUser" :disabled="mLoading">
               <span v-if="mLoading" class="spin"></span>
               <svg v-else width="14" height="14" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 16 16">
                 <path d="M2 14V9h4v5M2 2h9l3 3v9a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke-linecap="round"
@@ -536,7 +562,7 @@
               </svg>
               {{ mLoading ? 'A gravar…' : (editingUser ? 'Guardar Alterações' : 'Criar Conta') }}
             </button>
-            <button class="btn-cancelar" @click="closeModal">Cancelar</button>
+            <button type="button" class="btn-cancelar" @click="closeModal">Cancelar</button>
           </div>
 
         </div>
@@ -623,6 +649,48 @@ function showToast(msg, red = false) {
 function initials(name) {
   if (!name) return '?'
   return name.split(' ').slice(0, 2).map(n => n[0]?.toUpperCase() ?? '').join('')
+}
+
+// ── Províncias e Projectos — select com tags ──────────────────
+const availableProvinces = computed(() =>
+  refProvinces.value.filter(p => !mForm.province_ids.includes(p.id))
+)
+
+const availableProjects = computed(() =>
+  refProjects.value.filter(p => !mForm.project_ids.includes(p.id))
+)
+
+function provinceName(id) {
+  return refProvinces.value.find(p => p.id === id)?.name ?? ''
+}
+
+function projectName(id) {
+  return refProjects.value.find(p => p.id === id)?.name ?? ''
+}
+
+function addProvince(id) {
+  const idNum = Number(id)
+  if (idNum && !mForm.province_ids.includes(idNum)) {
+    mForm.province_ids.push(idNum)
+    mErrors.province_ids = ''
+  }
+}
+
+function removeProvince(id) {
+  const idx = mForm.province_ids.indexOf(id)
+  if (idx !== -1) mForm.province_ids.splice(idx, 1)
+}
+
+function addProject(id) {
+  const idNum = Number(id)
+  if (idNum && !mForm.project_ids.includes(idNum)) {
+    mForm.project_ids.push(idNum)
+  }
+}
+
+function removeProject(id) {
+  const idx = mForm.project_ids.indexOf(id)
+  if (idx !== -1) mForm.project_ids.splice(idx, 1)
 }
 
 // ── Paginação ─────────────────────────────────────────────────
@@ -912,7 +980,8 @@ async function doDelete() {
   color: var(--green-mid);
 }
 
-.nav-item.active {
+.nav-item.active,
+.nav-item.router-link-exact-active {
   background: var(--green-bg);
   color: var(--green-mid);
   font-weight: 700;
@@ -923,7 +992,8 @@ async function doDelete() {
   opacity: 0.75;
 }
 
-.nav-item.active svg {
+.nav-item.active svg,
+.nav-item.router-link-exact-active svg {
   opacity: 1;
 }
 
@@ -1858,6 +1928,7 @@ tbody tr:last-child td {
   background: var(--white);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 44px;
 }
 
 .input-wrap:focus-within {
@@ -1886,7 +1957,8 @@ tbody tr:last-child td {
   font-family: 'Poppins', sans-serif;
   font-size: 13px;
   color: var(--text-dark);
-  padding: 11px 12px 11px 0;
+  padding: 0 12px 0 0;
+  height: 44px;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
@@ -1918,55 +1990,52 @@ tbody tr:last-child td {
   color: #E53E3E;
 }
 
-/* Province checkboxes */
-.province-checks {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  padding: 12px 14px;
-  max-height: 200px;
-  overflow-y: auto;
-  transition: border-color 0.2s;
+/* Tags de províncias / projectos seleccionados */
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
 }
 
-.province-checks.small {
-  max-height: 140px;
-}
-
-.province-checks.err {
-  border-color: #FC8181;
-}
-
-.province-checks::-webkit-scrollbar {
-  width: 4px;
-}
-
-.province-checks::-webkit-scrollbar-thumb {
-  background: #C8D8CE;
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px 4px 10px;
+  background: var(--green-bg);
+  border: 1px solid #B7DFC8;
   border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-dark);
+  line-height: 1;
 }
 
-.pcheck-item {
+.tag-badge.proj {
+  background: #EBF4FF;
+  border-color: #90CDF4;
+  color: #2B6CB0;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 4px 0;
-}
-
-.pcheck-item input[type=checkbox] {
-  width: 15px;
-  height: 15px;
-  accent-color: var(--green-mid);
-  cursor: pointer;
+  justify-content: center;
+  color: inherit;
+  opacity: 0.55;
+  border-radius: 50%;
+  transition: opacity 0.15s, background 0.15s;
   flex-shrink: 0;
 }
 
-.pcheck-name {
-  font-size: 12.5px;
-  color: var(--text-dark);
+.tag-remove:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 /* Checks row */

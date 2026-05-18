@@ -11,7 +11,7 @@
       </router-link>
 
       <nav class="sidebar-nav">
-        <a class="nav-item active">
+        <router-link class="nav-item" to="/admin/dashboard">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="1" y="1" width="6" height="6" rx="1.5" />
             <rect x="9" y="1" width="6" height="6" rx="1.5" />
@@ -19,29 +19,29 @@
             <rect x="9" y="9" width="6" height="6" rx="1.5" />
           </svg>
           Dashboard
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/validacao">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z" />
           </svg>
           Validação
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/utilizadores">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="8" cy="6" r="3" />
             <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
           </svg>
           Utilizadores
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/historico">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="2" y="1" width="10" height="14" rx="1.5" />
             <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
             <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Histórico de Ocorrências
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/categorias">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="5" cy="5" r="2" />
             <circle cx="11" cy="5" r="2" />
@@ -49,13 +49,13 @@
             <circle cx="11" cy="11" r="2" />
           </svg>
           Categorias
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/projectos">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
           Projectos
-        </a>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -1091,7 +1091,8 @@ onMounted(async () => {
   color: var(--green-mid);
 }
 
-.nav-item.active {
+.nav-item.active,
+.nav-item.router-link-exact-active {
   background: var(--green-bg);
   color: var(--green-mid);
   font-weight: 700;
@@ -1102,7 +1103,8 @@ onMounted(async () => {
   opacity: 0.75;
 }
 
-.nav-item.active svg {
+.nav-item.active svg,
+.nav-item.router-link-exact-active svg {
   opacity: 1;
 }
 

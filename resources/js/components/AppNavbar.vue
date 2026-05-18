@@ -11,14 +11,30 @@
       <router-link to="/visualizarReclamacao">Consultar</router-link>
     </div>
 
-    <button class="btn-restricted" @click="$router.push('/acessoRestrito')">Acesso Restrito</button>
+    <button class="btn-restricted" @click="handleAccess">
+      {{ auth.isAuthenticated ? 'Painel' : 'Acesso Restrito' }}
+    </button>
   </nav>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
 defineProps({
   variant: { type: String, default: 'sticky' }
 })
+
+const router = useRouter()
+const auth = useAuthStore()
+
+function handleAccess() {
+  if (auth.isAuthenticated) {
+    router.push(auth.dashboardRoute)
+  } else {
+    router.push('/acessoRestrito')
+  }
+}
 </script>
 
 <style scoped>
