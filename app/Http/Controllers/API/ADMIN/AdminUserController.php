@@ -14,17 +14,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
-/**
- * AdminUserController
- *
- * Gere os utilizadores internos do sistema.
- * Exclusivo para administradores (protegido via middleware 'role:admin' na rota).
- *
- * Ao criar um utilizador, a província é SEMPRE obrigatória.
- * A senha inicial é gerada e enviada por email.
- */
 class AdminUserController extends Controller
 {
     public function __construct(
@@ -32,22 +22,22 @@ class AdminUserController extends Controller
     ) {}
 
     /**
+     * Lista utilizadores com filtros e paginação.
      * ROTA: GET /api/admin/users
-     * ACESSO: admin (middleware na rota)
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = User::with(['province:id,name', 'projects:id,name,code'])
+        $query = User::with(['province:id,name', 'provinces:id,name', 'projects:id,name,code'])
             ->withCount(['assignedOccurrences', 'submittedOccurrences']);
 
-        $query->when($request->role, fn($q) => $q->where('role', $request->role));
+        $query->when($request->role,        fn($q) => $q->where('role', $request->role));
         $query->when($request->province_id, fn($q) => $q->where('province_id', $request->province_id));
         $query->when(!is_null($request->is_active), fn($q) =>
             $q->where('is_active', filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN))
         );
         $query->when($request->search, fn($q) =>
             $q->where(fn($q2) =>
-                $q2->where('name', 'like', "%{$request->search}%")
+                $q2->where('name',  'like', "%{$request->search}%")
                    ->orWhere('email', 'like', "%{$request->search}%")
             )
         );
@@ -58,36 +48,47 @@ class AdminUserController extends Controller
     }
 
     /**
+     * Detalhe de um utilizador.
      * ROTA: GET /api/admin/users/{user}
-     * ACESSO: admin
      */
     public function show(User $user): UserResource
     {
-        $user->load(['province:id,name', 'projects:id,name,code', 'createdBy:id,name']);
+        $user->load(['province:id,name', 'provinces:id,name', 'projects:id,name,code', 'createdBy:id,name']);
 
         return new UserResource($user);
     }
 
     /**
-     * Cria um novo utilizador interno.
-     * A senha inicial é gerada e enviada por email.
-     * A província é sempre obrigatória.
+     * Cria um utilizador interno.
+     * A senha temporária é gerada e enviada por email.
+     * Províncias ficam na pivot user_provinces.
+     * province_id na users = primeira província da lista.
      *
      * ROTA: POST /api/admin/users
-     * ACESSO: admin
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
-        $temporaryPassword = 12345678;
+        $temporaryPassword = '12345678';
+        $provinceIds       = $request->province_ids ?? [];
 
         $user = User::create([
-            ...$request->validated(),
-            'password'         => $temporaryPassword,
-            'created_by'       => $request->user()->id,
-            'is_active'        => true,
-            'management_scope' => 'provincial',
+            'name'                   => $request->name,
+            'email'                  => $request->email,
+            'phone'                  => $request->phone,
+            'password'               => $temporaryPassword,
+            'role'                   => $request->role,
+            'management_scope'       => 'provincial',
+            'province_id'            => $provinceIds[0] ?? null,  // província principal
+            'receives_urgent_alerts' => $request->boolean('receives_urgent_alerts'),
+            'receives_gbv_alerts'    => $request->boolean('receives_gbv_alerts'),
+            'is_active'              => true,
+            'created_by'             => $request->user()->id,
         ]);
 
+        // Sync províncias (pivot user_provinces)
+        $user->provinces()->sync($provinceIds);
+
+        // Sync projectos
         if ($request->has('project_ids')) {
             $user->projects()->sync($request->project_ids);
         }
@@ -97,19 +98,34 @@ class AdminUserController extends Controller
 
         return response()->json([
             'message' => "Utilizador {$user->name} criado com sucesso. Credenciais enviadas por email.",
-            'user'    => new UserResource($user->load('province:id,name', 'projects:id,name')),
+            'user'    => new UserResource($user->load('province:id,name', 'provinces:id,name', 'projects:id,name')),
         ], 201);
     }
 
     /**
+     * Actualiza um utilizador.
      * ROTA: PUT /api/admin/users/{user}
-     * ACESSO: admin
      */
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $oldValues = $user->toArray();
-        $user->update($request->validated());
+        $oldValues   = $user->toArray();
+        $provinceIds = $request->province_ids ?? [];
 
+        $user->update([
+            'name'                   => $request->name,
+            'email'                  => $request->email,
+            'phone'                  => $request->phone,
+            'role'                   => $request->role,
+            'management_scope'       => $request->management_scope,
+            'province_id'            => $provinceIds[0] ?? null,
+            'receives_urgent_alerts' => $request->boolean('receives_urgent_alerts'),
+            'receives_gbv_alerts'    => $request->boolean('receives_gbv_alerts'),
+        ]);
+
+        // Sync províncias (pivot)
+        $user->provinces()->sync($provinceIds);
+
+        // Sync projectos
         if ($request->has('project_ids')) {
             $user->projects()->sync($request->project_ids);
         }
@@ -118,23 +134,18 @@ class AdminUserController extends Controller
 
         return response()->json([
             'message' => 'Utilizador actualizado com sucesso.',
-            'user'    => new UserResource($user->fresh(['province', 'projects'])),
+            'user'    => new UserResource($user->fresh(['province', 'provinces', 'projects'])),
         ], 200);
     }
 
     /**
-     * Activa ou desactiva a conta de um utilizador.
-     * Um admin não pode desactivar a sua própria conta.
-     *
+     * Activa ou desactiva a conta.
      * ROTA: PATCH /api/admin/users/{user}/toggle-status
-     * ACESSO: admin
      */
     public function toggleStatus(Request $request, User $user): JsonResponse
     {
         if ($user->id === $request->user()->id) {
-            return response()->json([
-                'message' => 'Não pode alterar o estado da sua própria conta.',
-            ], 422);
+            return response()->json(['message' => 'Não pode alterar o estado da sua própria conta.'], 422);
         }
 
         $user->update(['is_active' => !$user->is_active]);
@@ -144,42 +155,50 @@ class AdminUserController extends Controller
         }
 
         $status = $user->is_active ? 'activada' : 'desactivada';
-        $this->auditService->logUpdated(
-            $user,
-            ['is_active' => !$user->is_active],
-            ['is_active' => $user->is_active]
-        );
+        $this->auditService->logUpdated($user, ['is_active' => !$user->is_active], ['is_active' => $user->is_active]);
 
-        return response()->json([
-            'message'   => "Conta {$status} com sucesso.",
-            'is_active' => $user->is_active,
-        ], 200);
+        return response()->json(['message' => "Conta {$status} com sucesso.", 'is_active' => $user->is_active], 200);
+    }
+
+    /**
+     * Elimina um utilizador (soft delete).
+     * ROTA: DELETE /api/admin/users/{user}
+     */
+    public function destroy(Request $request, User $user): JsonResponse
+    {
+        if ($user->id === $request->user()->id) {
+            return response()->json(['message' => 'Não pode eliminar a sua própria conta.'], 422);
+        }
+
+        $user->provinces()->detach();
+        $user->projects()->detach();
+        $user->delete();
+
+        $this->auditService->logDeleted($user);
+
+        return response()->json(['message' => "Utilizador {$user->name} eliminado com sucesso."], 200);
     }
 
     /**
      * Lista gestores e admins elegíveis para atribuição de ocorrências.
-     *
      * ROTA: GET /api/admin/users/gestores
-     * ACESSO: admin, gestor
      */
     public function gestores(Request $request): JsonResponse
     {
         $gestores = User::active()
             ->whereIn('role', ['gestor', 'admin'])
-            ->with('province:id,name')
+            ->with(['provinces:id,name'])
             ->when($request->province_id, fn($q) =>
                 $q->where(fn($q2) =>
                     $q2->where('management_scope', 'national')
-                       ->orWhere('province_id', $request->province_id)
+                       ->orWhereHas('provinces', fn($q3) => $q3->where('provinces.id', $request->province_id))
                 )
             )
             ->select('id', 'name', 'email', 'role', 'management_scope', 'province_id')
             ->orderBy('name')
             ->get();
 
-        return response()->json([
-            'gestores' => UserResource::collection($gestores),
-        ], 200);
+        return response()->json(['gestores' => UserResource::collection($gestores)], 200);
     }
 
     // ─── Private ────────────────────────────────────────────────

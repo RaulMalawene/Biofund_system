@@ -1,24 +1,16 @@
 <?php
-// ============================================================
-// FICHEIRO: app/Http/Requests/User/UpdateUserRequest.php
-// ============================================================
+
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-/**
- * UpdateUserRequest
- * Valida a edição de um utilizador existente pelo administrador.
- * Ignora o email único do próprio utilizador a ser editado.
- */
 class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool { return true; }
 
     public function rules(): array
     {
-        // Pega o ID do utilizador a ser editado via route model binding
         $userId = $this->route('user')?->id;
 
         return [
@@ -27,14 +19,23 @@ class UpdateUserRequest extends FormRequest
             'phone'                  => ['nullable', 'string', 'max:30'],
             'role'                   => ['required', Rule::in(['admin', 'gestor', 'funcionario'])],
             'management_scope'       => ['required', Rule::in(['national', 'provincial'])],
-            'province_id'            => [
-                Rule::requiredIf(fn() => $this->management_scope === 'provincial'),
-                'nullable', 'integer', 'exists:provinces,id',
-            ],
+            // Províncias — array com 1 ou mais elementos
+            'province_ids'           => ['required', 'array', 'min:1'],
+            'province_ids.*'         => ['integer', 'exists:provinces,id'],
+            // Projectos
             'project_ids'            => ['nullable', 'array'],
             'project_ids.*'          => ['integer', 'exists:projects,id'],
+            // Alertas
             'receives_urgent_alerts' => ['boolean'],
             'receives_gbv_alerts'    => ['boolean'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'province_ids.required' => 'Seleccione pelo menos uma província.',
+            'province_ids.min'      => 'Seleccione pelo menos uma província.',
         ];
     }
 }
