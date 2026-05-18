@@ -59,6 +59,23 @@ export const InternalService = {
         return data
     },
 
+    // ─── Projectos ───────────────────────────────────────────────
+
+    async getProjects() {
+        const { data } = await api.get('/admin/projects')
+        return data   // { projects: [...] }
+    },
+
+    async createProject(payload) {
+        const { data } = await api.post('/admin/projects', payload)
+        return data
+    },
+
+    async updateProject(id, payload) {
+        const { data } = await api.put(`/admin/projects/${id}`, payload)
+        return data
+    },
+
     // ─── Categorias ──────────────────────────────────────────────
 
     async getCategories() {

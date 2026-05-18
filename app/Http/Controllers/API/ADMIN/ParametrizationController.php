@@ -177,6 +177,7 @@ class ParametrizationController extends Controller
             'code'        => ['required', 'string', 'max:20', 'unique:projects,code'],
             'name'        => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string'],
+            'icon'        => ['nullable', 'string', 'in:nature,tree,water,fire,drop,person,leaf,fish'],
         ]);
 
         $project = Project::create([...$data, 'is_active' => true]);
@@ -196,6 +197,7 @@ class ParametrizationController extends Controller
             'code'        => ['required', 'string', 'max:20', "unique:projects,code,{$project->id}"],
             'name'        => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string'],
+            'icon'        => ['nullable', 'string', 'in:nature,tree,water,fire,drop,person,leaf,fish'],
             'is_active'   => ['boolean'],
         ]);
 
