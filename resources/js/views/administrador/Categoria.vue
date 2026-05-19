@@ -71,19 +71,8 @@
           <input type="text" placeholder="Pesquisar categorias…" v-model="f.pesquisa"/>
         </div>
         <div class="topbar-spacer"></div>
-        <div class="notif-btn">
-          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z"/>
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round"/>
-          </svg>
-          <span class="notif-dot"></span>
-        </div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -403,6 +392,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
 const auth   = useAuthStore()

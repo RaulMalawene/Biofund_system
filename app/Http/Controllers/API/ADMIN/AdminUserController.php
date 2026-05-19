@@ -28,7 +28,8 @@ class AdminUserController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = User::with(['province:id,name', 'provinces:id,name', 'projects:id,name,code'])
-            ->withCount(['assignedOccurrences', 'submittedOccurrences']);
+            ->withCount(['assignedOccurrences', 'submittedOccurrences'])
+            ->where('role', '!=', 'admin');
 
         $query->when($request->role,        fn($q) => $q->where('role', $request->role));
         $query->when($request->province_id, fn($q) => $q->where('province_id', $request->province_id));

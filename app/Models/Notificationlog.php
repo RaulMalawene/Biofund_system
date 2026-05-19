@@ -43,11 +43,13 @@ class NotificationLog extends Model
         'message',
         'status',
         'sent_at',
+        'read_at',
         'error_message',
     ];
 
     protected $casts = [
         'sent_at' => 'datetime',
+        'read_at' => 'datetime',
     ];
 
     // ─── Relationships ──────────────────────────────────────────
@@ -70,11 +72,18 @@ class NotificationLog extends Model
 
     // ─── Scopes ─────────────────────────────────────────────────
 
-    /**
-     * Filtra notificações que falharam (para reenvio).
-     */
     public function scopeFailed($query)
     {
         return $query->where('status', 'failed');
+    }
+
+    public function scopeUnread($query)
+    {
+        return $query->whereNull('read_at');
+    }
+
+    public function scopeSystem($query)
+    {
+        return $query->where('channel', 'system');
     }
 }

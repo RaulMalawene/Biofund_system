@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsController;
 use App\Http\Controllers\Api\Admin\ParametrizationController;
 use App\Http\Controllers\Api\AttachmentController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,6 +81,19 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('logout');
         Route::post('change-password', [PasswordResetController::class, 'changePassword'])
             ->name('change-password');
+        Route::post('profile', [LoginController::class, 'updateProfile'])
+            ->name('profile.update');
+    });
+
+    // ── 3.1b NOTIFICAÇÕES DE SISTEMA (admin + gestor) ───────────
+
+    Route::prefix('notifications')->name('notifications.')
+        ->middleware('role:admin,gestor')
+        ->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('count', [NotificationController::class, 'count'])->name('count');
+        Route::patch('{notification}/read', [NotificationController::class, 'markRead'])->name('mark-read');
+        Route::post('read-all', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
     });
 
     // ── 3.2 OCORRÊNCIAS — leitura e registo (admin + gestor + funcionario) ──

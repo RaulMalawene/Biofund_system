@@ -36,15 +36,11 @@ class OccurrenceResource extends JsonResource
             'status_color'   => $this->status->color(),
             'is_overdue'     => $this->isOverdue(),
 
-            // Reclamante — dados sensíveis apenas para gestor/admin
+            // Reclamante/Pessoa Afectada — dados sensíveis apenas para gestor/admin
             'complainant' => $this->when($isManagerOrAbove, fn() => [
                 'name'  => $this->complainant_name,
-                'email' => $this->isExternal()
-                    ? $this->attributes['complainant_email'] ?? null
-                    : $this->submittedBy?->email,
-                'phone' => $this->isExternal()
-                    ? $this->complainant_phone
-                    : $this->submittedBy?->phone,
+                'email' => $this->complainant_email,
+                'phone' => $this->complainant_phone,
             ]),
 
             // Classificação

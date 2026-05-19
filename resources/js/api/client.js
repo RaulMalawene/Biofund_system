@@ -11,10 +11,15 @@ const api = axios.create({
 
 // ── Interceptor de REQUEST ────────────────────────────────────
 // Anexa o token Sanctum em cada pedido autenticado
+// Quando o body é FormData, remove o Content-Type para o browser
+// definir automaticamente com o multipart boundary correto
 api.interceptors.request.use(config => {
     const token = localStorage.getItem('mdr_token')
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
+    }
+    if (config.data instanceof FormData) {
+        delete config.headers['Content-Type']
     }
     return config
 })

@@ -34,6 +34,9 @@ class NotificationService
             $alertLevel = $occurrence->occurrenceType->alert_level;
             $this->notifyByAlertLevel($occurrence, $alertLevel);
         }
+
+        // Notificação interna (sistema) para todos os admins e gestores
+        $this->notifySystemInternalUsers($occurrence);
     }
 
     public function notifyStatusChanged(Occurrence $occurrence, ?string $comment): void
@@ -66,6 +69,27 @@ class NotificationService
             subject: "MDR — Nova ocorrência atribuída | {$occurrence->tracking_code}",
             body: $this->buildAssignedMessage($occurrence, $gestor)
         );
+    }
+
+    private function notifySystemInternalUsers(Occurrence $occurrence): void
+    {
+        $subject = $occurrence->subject ?? $occurrence->tracking_code;
+        $message = "Nova ocorrência registada: {$subject} [{$occurrence->tracking_code}]";
+
+        $users = User::active()->whereIn('role', ['admin', 'gestor'])->get();
+
+        foreach ($users as $user) {
+            NotificationLog::create([
+                'occurrence_id'   => $occurrence->id,
+                'user_id'         => $user->id,
+                'recipient_email' => $user->email,
+                'channel'         => 'system',
+                'event_type'      => 'occurrence_created',
+                'message'         => $message,
+                'status'          => 'sent',
+                'sent_at'         => now(),
+            ]);
+        }
     }
 
     private function notifyByAlertLevel(Occurrence $occurrence, AlertLevelEnum $level): void

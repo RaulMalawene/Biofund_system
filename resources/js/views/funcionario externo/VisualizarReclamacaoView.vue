@@ -277,7 +277,7 @@ function mapApiResponse(data) {
     codigo: data.tracking_code,
     dataSubmissao: data.submitted_at,
     prazo: data.due_date ?? 'A definir',
-    titulo: data.subject ?? 'Sem assunto',
+    titulo: data.type?.name ?? data.subject ?? 'Sem assunto',
     categoria: data.category ?? '—',
     projeto: data.project?.name ?? '—',
     localizacao: locationParts.join(', ') || '—',

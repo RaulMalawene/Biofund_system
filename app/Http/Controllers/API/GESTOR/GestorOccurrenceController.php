@@ -56,10 +56,14 @@ class GestorOccurrenceController extends Controller
                 $query = Occurrence::query()
                     ->where('status', OccurrenceStatusEnum::Resolved->value);
             } else {
-                // Todas: resolvidas + removidas
+                // Todas: resolvidas + rejeitadas + encerradas + removidas
                 $query = Occurrence::withTrashed()
                     ->where(fn($q) =>
-                        $q->where('status', OccurrenceStatusEnum::Resolved->value)
+                        $q->whereIn('status', [
+                              OccurrenceStatusEnum::Resolved->value,
+                              OccurrenceStatusEnum::Rejected->value,
+                              OccurrenceStatusEnum::Closed->value,
+                           ])
                           ->orWhereNotNull('deleted_at')
                     );
             }

@@ -83,19 +83,8 @@
             @keyup.enter="aplicarFiltros" />
         </div>
         <div class="topbar-spacer"></div>
-        <div class="notif-btn">
-          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z" />
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round" />
-          </svg>
-          <span class="notif-dot"></span>
-        </div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -240,6 +229,7 @@
 
         <!-- TABLE CARD -->
         <div class="table-card">
+          <div class="table-overflow">
           <table>
             <thead>
               <tr>
@@ -312,6 +302,7 @@
               </template>
             </tbody>
           </table>
+          </div>
 
           <!-- Pagination -->
           <div class="pagination-bar">
@@ -374,9 +365,9 @@
             </span>
           </div>
 
-          <!-- Reclamante -->
+          <!-- Pessoa Afectada -->
           <div class="drawer-section" v-if="selected.complainant">
-            <div class="drawer-section-label">Reclamante</div>
+            <div class="drawer-section-label">Pessoa Afectada</div>
             <div class="detail-row">
               <span class="detail-key">Nome</span>
               <span class="detail-val">{{ selected.complainant.name ?? 'Anónimo' }}</span>
@@ -433,6 +424,10 @@
           <div class="detail-row">
             <span class="detail-key">Responsável</span>
             <span class="detail-val">{{ selected.assigned_to?.name ?? 'Sem responsável' }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.submitted_by?.name">
+            <span class="detail-key">Registado por</span>
+            <span class="detail-val">{{ selected.submitted_by.name }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-key">Projecto</span>
@@ -496,6 +491,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -1174,9 +1171,15 @@ function exportar() {
   box-shadow: 0 1px 3px rgba(0, 0, 0, .05), 0 6px 20px rgba(0, 0, 0, .07);
 }
 
+.table-overflow {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 900px;
 }
 
 thead th {

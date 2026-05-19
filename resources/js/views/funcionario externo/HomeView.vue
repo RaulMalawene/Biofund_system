@@ -7,12 +7,12 @@
       <div class="hero-bg"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <div class="hero-badge">Iniciativa de RAULLLLLLLLLLLLLLLLLEEEEEEEEEEEEEEEEEEEEEEE Conservação Biofund</div>
+        <div class="hero-badge">Iniciativa de Conservação da Biofund</div>
         <h1>
           Registe a sua
           <span>reclamação ambiental</span>
         </h1>
-        <p>Ajude-nos a proteger a biodiversidade de Moçambique. O BioQueixa é o seu canal direto para reportar incidentes e monitorar a saúde dos nossos ecossistemas.</p>
+        <p>Ajude-nos a proteger a biodiversidade de Moçambique. A Biofund é o seu canal direto para reportar incidentes e monitorar a saúde dos nossos ecossistemas.</p>
         <div class="hero-buttons">
           <button class="btn-primary" @click="$router.push('/submeterReclamacao')">
             Submeter Reclamação

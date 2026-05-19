@@ -88,6 +88,11 @@ export const useAuthStore = defineStore("auth", () => {
         localStorage.removeItem(USER_KEY);
     }
 
+    function updateUser(patch) {
+        user.value = { ...user.value, ...patch };
+        localStorage.setItem(USER_KEY, JSON.stringify(user.value));
+    }
+
     return {
         token,
         user,
@@ -101,5 +106,6 @@ export const useAuthStore = defineStore("auth", () => {
         logout,
         fetchMe,
         clearSession,
+        updateUser,
     };
 });

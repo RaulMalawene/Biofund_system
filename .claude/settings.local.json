@@ -17,7 +17,15 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\wamp64\\\\www\\\\facul.php\\\\biofund_api\" -Recurse -Directory | Where-Object { $_.Name -match \"\\(components|views|pages|src\\)\" } | Select-Object -First 20)",
       "Bash(git add *)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(xargs grep -l \"occurrence\\\\|reclamacao\")",
+      "Bash(Select-Object Name)",
+      "Bash(node -e \"const pkg = require\\('./node_modules/axios/package.json'\\); console.log\\('axios:', pkg.version\\)\")",
+      "Bash(Get-Content storage/logs/laravel.log -Tail 40)",
+      "Bash(curl *)",
+      "Bash(broadcast)",
+      "Bash(queue\")",
+      "Bash(npm run *)"
     ]
   }
 }

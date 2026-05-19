@@ -116,6 +116,7 @@ class OccurrenceService
                 'tracking_code'        => $this->trackingCodeService->generate(),
                 'origin'               => OriginEnum::Internal,
                 'submitted_by_user_id' => $user->id,
+                'assigned_to'          => $user->id,
                 'status'               => OccurrenceStatusEnum::Pending,
                 'due_date'             => $type?->calculateDueDate(),
             ]);

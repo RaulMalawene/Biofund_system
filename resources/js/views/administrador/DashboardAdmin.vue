@@ -82,20 +82,8 @@
           <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="searchQ" />
         </div>
         <div class="topbar-spacer"></div>
-        <div class="notif-btn">
-          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z" />
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round" />
-          </svg>
-          <span class="notif-dot"></span>
-        </div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
-            <div class="admin-role">{{ auth.user?.role_label ?? '' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -259,7 +247,8 @@
                 </svg>
               </a>
             </div>
-            <div class="table-sub">Reclamações recebidas nas últimas 48 horas</div>
+            <div class="table-sub">Reclamações recebidas nas últimas horas</div>
+            <div class="table-overflow">
             <table>
               <thead>
                 <tr>
@@ -299,6 +288,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
@@ -314,6 +304,21 @@
       </footer>
 
     </div>
+
+    <!-- ── TOAST DE SUCESSO ── -->
+    <transition name="fade">
+      <div class="page-success-toast" v-if="pageToast.visible">
+        <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="2.2" viewBox="0 0 18 18">
+          <circle cx="9" cy="9" r="7" />
+          <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="page-success-body">
+          <strong>Ocorrência registada com sucesso!</strong>
+          <span v-if="pageToast.code">Código: {{ pageToast.code }}</span>
+        </div>
+        <button class="page-success-close" @click="pageToast.visible = false">×</button>
+      </div>
+    </transition>
 
     <!-- ── SUBMIT LOADING OVERLAY ── -->
     <transition name="fade">
@@ -361,27 +366,27 @@
             {{ submitError }}
           </div>
 
-          <!-- Banner de sucesso -->
-          <div class="success-banner" v-if="submitted">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 18 18">
-              <circle cx="9" cy="9" r="7" />
-              <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <div>
-              Ocorrência registada com sucesso!
-              <span class="tracking-inline" v-if="lastTrackingCode">Código: <strong>{{ lastTrackingCode
-                  }}</strong></span>
+          <!-- Responsável (utilizador autenticado) -->
+          <div class="f-group">
+            <label>Responsável</label>
+            <div class="f-readonly">
+              <svg width="14" height="14" fill="none" stroke="#2D6A4F" stroke-width="1.7" viewBox="0 0 16 16">
+                <circle cx="8" cy="6" r="3" />
+                <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
+              </svg>
+              <span>{{ auth.user?.name ?? '—' }}</span>
+              <span class="f-readonly-role">{{ auth.user?.role_label ?? auth.user?.role }}</span>
             </div>
           </div>
 
-          <!-- Contacto do Reclamante -->
+          <!-- Pessoa Afectada -->
           <div class="f-row">
             <div class="f-group">
-              <label>Nome do Reclamante (Opcional)</label>
+              <label>Nome da Pessoa Afectada (Opcional)</label>
               <input type="text" v-model="form.complainant_name" placeholder="Nome completo ou pseudónimo" />
             </div>
             <div class="f-group">
-              <label>Email do Reclamante</label>
+              <label>Email da Pessoa Afectada</label>
               <input type="email" v-model="form.complainant_email" :class="{ 'f-err': errors.complainant_email }"
                 placeholder="email@exemplo.com" @input="errors.complainant_email = ''" />
               <span class="f-err-msg" v-if="errors.complainant_email">{{ errors.complainant_email }}</span>
@@ -389,7 +394,7 @@
           </div>
           <div class="f-row" style="margin-bottom:6px">
             <div class="f-group">
-              <label>Telefone do Reclamante</label>
+              <label>Telefone da Pessoa Afectada</label>
               <input type="tel" v-model="form.complainant_phone" placeholder="ex: +258 84 000 0000" />
             </div>
             <div class="f-group contact-note">
@@ -397,7 +402,7 @@
                 <circle cx="8" cy="8" r="6" />
                 <path d="M8 7v4M8 5h.01" stroke-linecap="round" />
               </svg>
-              Preencha pelo menos um contacto para que o reclamante possa ser notificado.
+              Preencha pelo menos um contacto para que a pessoa afectada possa ser notificada.
             </div>
           </div>
 
@@ -576,15 +581,18 @@
       </div>
     </transition>
 
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { Chart, registerables } from 'chart.js'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 Chart.register(...registerables)
 
@@ -791,10 +799,9 @@ watch(drawerOpen, (isOpen) => {
   if (isOpen) loadRefData()
 })
 const loading = ref(false)
-const submitted = ref(false)
 const submitError = ref('')
-const lastTrackingCode = ref('')
 const isDragging = ref(false)
+const pageToast = reactive({ visible: false, code: '' })
 const files = ref([])
 const fileInput = ref(null)
 
@@ -829,14 +836,14 @@ const errors = reactive({
 
 function validate() {
   let ok = true
-  if (!form.subject.trim()) { errors.subject = 'O assunto é obrigatório.'; ok = false }
-  if (!form.project_id) { errors.project_id = 'Seleccione o projecto.'; ok = false }
-  if (!form.category_id) { errors.category_id = 'Seleccione a categoria.'; ok = false }
-  if (!form.occurrence_type_id) { errors.occurrence_type_id = 'Seleccione o tipo de ocorrência.'; ok = false }
-  if (!form.alert_type) { errors.alert_type = 'Seleccione o nível de alerta.'; ok = false }
-  if (!form.submission_channel) { errors.submission_channel = 'Seleccione o canal de submissão.'; ok = false }
-  if (!form.province_id) { errors.province_id = 'Seleccione a província.'; ok = false }
-  if (!form.description.trim()) { errors.description = 'A descrição é obrigatória.'; ok = false }
+  if (!form.subject.trim())        { errors.subject = 'O assunto é obrigatório.'; ok = false }
+  if (!form.project_id)            { errors.project_id = 'Seleccione o projecto.'; ok = false }
+  if (!form.category_id)           { errors.category_id = 'Seleccione a categoria.'; ok = false }
+  if (!form.occurrence_type_id)    { errors.occurrence_type_id = 'Seleccione o tipo de ocorrência.'; ok = false }
+  if (!form.alert_type)            { errors.alert_type = 'Seleccione o nível de alerta.'; ok = false }
+  if (!form.submission_channel)    { errors.submission_channel = 'Seleccione o canal de submissão.'; ok = false }
+  if (!form.province_id)           { errors.province_id = 'Seleccione a província.'; ok = false }
+  if (!form.description.trim())    { errors.description = 'A descrição é obrigatória.'; ok = false }
   else if (form.description.trim().length < 20) {
     errors.description = 'A descrição deve ter pelo menos 20 caracteres.'; ok = false
   }
@@ -844,7 +851,6 @@ function validate() {
 }
 
 async function submitForm() {
-  submitted.value = false
   submitError.value = ''
   if (!validate()) return
 
@@ -868,10 +874,11 @@ async function submitForm() {
   loading.value = true
   try {
     const result = await InternalService.createOccurrence(fd)
-    lastTrackingCode.value = result.tracking_code ?? ''
-    submitted.value = true
-    resetDrawerForm(false)
-    refreshStats()  // actualiza cards, gráficos e tabela
+    closeDrawer()
+    refreshStats()
+    pageToast.code = result.tracking_code ?? ''
+    pageToast.visible = true
+    setTimeout(() => { pageToast.visible = false }, 6000)
   } catch (err) {
     if (err.response?.status === 422) {
       const serverErrors = err.response.data.errors ?? {}
@@ -887,8 +894,7 @@ async function submitForm() {
   }
 }
 
-function resetDrawerForm(clearSuccess = true) {
-  if (clearSuccess) { submitted.value = false; lastTrackingCode.value = '' }
+function resetDrawerForm() {
   submitError.value = ''
   Object.assign(form, {
     complainant_name: '', complainant_email: '', complainant_phone: '',
@@ -1241,20 +1247,6 @@ onMounted(async () => {
   color: var(--text-light);
 }
 
-.admin-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #52B788, #1B4332);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
-  color: #fff;
-  flex-shrink: 0;
-}
-
 /* ── CONTENT ─────────────────────────────── */
 .content {
   flex: 1;
@@ -1562,9 +1554,15 @@ onMounted(async () => {
   margin-bottom: 14px;
 }
 
+.table-overflow {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 580px;
 }
 
 thead th {
@@ -1773,6 +1771,12 @@ tbody td {
   border-radius: 99px;
 }
 
+.drawer-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px;
+}
+
 /* drawer transitions */
 .fade-enter-active,
 .fade-leave-active {
@@ -1808,6 +1812,31 @@ tbody td {
   flex-direction: column;
   gap: 6px;
   margin-bottom: 16px;
+}
+
+.f-readonly {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.f-readonly-role {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--green-mid);
+  background: var(--green-bg);
+  padding: 2px 8px;
+  border-radius: 99px;
 }
 
 .f-row .f-group {
@@ -2013,35 +2042,56 @@ tbody td {
   border-color: #E53E3E;
 }
 
-/* success banner */
-.success-banner {
-  background: #EEF7F1;
-  border: 1px solid #C3E6CE;
-  border-radius: 10px;
-  padding: 13px 16px;
+
+/* ── Toast de sucesso (página) ── */
+.page-success-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2000;
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #2D6A4F;
-  margin-bottom: 18px;
-  animation: fadeInBanner 0.3s ease;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-left: 3px solid #52B788;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+  padding: 14px 18px;
+  max-width: 340px;
+  animation: fadeInBanner 0.25s ease;
 }
 
-.tracking-inline {
-  display: block;
+.page-success-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.page-success-body strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1A2421;
+}
+
+.page-success-body span {
   font-size: 12px;
-  font-weight: 400;
   color: #2D6A4F;
-  margin-top: 3px;
+  font-weight: 600;
   letter-spacing: 0.5px;
 }
 
-.tracking-inline strong {
-  font-weight: 800;
-  letter-spacing: 1px;
+.page-success-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #A0ABA7;
+  font-size: 18px;
+  padding: 0;
+  line-height: 1;
+  margin-left: 4px;
 }
+.page-success-close:hover { color: #555B5A; }
 
 .error-banner {
   background: #FFF5F5;

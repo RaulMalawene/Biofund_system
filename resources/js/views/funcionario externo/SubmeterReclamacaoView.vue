@@ -56,6 +56,18 @@
 
         <div class="field-row single">
           <div class="field-group">
+            <label>Tipo de Ocorrência</label>
+            <div class="select-wrap">
+              <select v-model="form.tipoOcorrencia" :disabled="loadingFormData">
+                <option value="">{{ loadingFormData ? 'A carregar…' : 'Seleccione o tipo (opcional)' }}</option>
+                <option v-for="t in tiposOcorrencia" :key="t.id" :value="t.id">{{ t.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row single">
+          <div class="field-group">
             <label>Descrição Detalhada</label>
             <textarea v-model="form.descricao"
               placeholder="Descreva o que observou, pessoas envolvidas, gravidade e outros detalhes relevantes..."
@@ -315,7 +327,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import { PublicService } from '../../api/services/public.service'
@@ -325,18 +337,25 @@ import { PublicService } from '../../api/services/public.service'
 // ─── Data máxima para o campo de data ────────────────────────
 const today = new Date().toISOString().split('T')[0]
 
-// ─── Formulário (estrutura original) ─────────────────────────
+// ─── Formulário ───────────────────────────────────────────────
 const form = reactive({
-  projeto: '', categoria: '', descricao: '', data: '',
+  projeto: '', categoria: '', tipoOcorrencia: '', descricao: '', data: '',
   provincia: '', distrito: '', comunidade: '', coordenadas: '',
   nome: '', email: '', phone: '',
 })
 
 // ─── Listas de referência ─────────────────────────────────────
-const projectos  = ref([])
-const categorias = ref([])
-const provincias = ref([])
-const distritos  = ref([])
+const projectos       = ref([])
+const categorias      = ref([])
+const tiposOcorrencia = ref([])
+const provincias      = ref([])
+const distritos       = ref([])
+
+// Nome do tipo seleccionado — usado como subject ao submeter
+const selectedTipoName = computed(() => {
+  const t = tiposOcorrencia.value.find(t => t.id === form.tipoOcorrencia)
+  return t?.name ?? ''
+})
 
 // ─── Ficheiros ────────────────────────────────────────────────
 const files     = ref([])
@@ -361,9 +380,10 @@ async function loadFormData() {
   try {
     loadingFormData.value = true
     const data = await PublicService.getFormData()
-    projectos.value  = data.projects   ?? []
-    categorias.value = data.categories ?? []
-    provincias.value = data.provinces  ?? []
+    projectos.value       = data.projects        ?? []
+    categorias.value      = data.categories      ?? []
+    tiposOcorrencia.value = data.occurrence_types ?? []
+    provincias.value      = data.provinces        ?? []
   } catch (error) {
     console.error('Erro ao carregar formulário:', error)
     globalError.value = 'Não foi possível carregar os dados do formulário. Recarregue a página.'
@@ -422,9 +442,11 @@ async function submitForm() {
   if (form.email.trim()) fd.append('complainant_email', form.email.trim())
   if (form.phone.trim()) fd.append('complainant_phone', form.phone.trim())
 
-  if (form.projeto)   fd.append('project_id',      form.projeto)
-  if (form.categoria) fd.append('category_id',     form.categoria)
-  if (form.descricao) fd.append('description',     form.descricao.trim())
+  if (form.projeto)          fd.append('project_id',          form.projeto)
+  if (form.categoria)        fd.append('category_id',         form.categoria)
+  if (form.tipoOcorrencia)   fd.append('occurrence_type_id',  form.tipoOcorrencia)
+  if (selectedTipoName.value) fd.append('subject',            selectedTipoName.value)
+  if (form.descricao)        fd.append('description',         form.descricao.trim())
   if (form.data)      fd.append('occurrence_date', form.data)
   if (form.provincia) fd.append('province_id',     form.provincia)
   if (form.distrito)  fd.append('district_id',     form.distrito)
@@ -469,6 +491,7 @@ function closeSuccess() {
   distritos.value    = []
   trackingCode.value = ''
   dueDate.value      = ''
+  // tipoOcorrencia já está coberto pelo Object.keys reset acima
 }
 
 async function copyCode() {

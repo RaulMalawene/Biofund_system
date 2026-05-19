@@ -75,20 +75,8 @@
           <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="topSearch"/>
         </div>
         <div class="topbar-spacer"></div>
-        <div class="notif-btn">
-          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z"/>
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round"/>
-          </svg>
-          <span class="notif-dot"></span>
-        </div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Admin' }}</div>
-            <div class="admin-role">{{ auth.user?.role ?? '' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -206,6 +194,7 @@
 
           <!-- LEFT: TABLE -->
           <div class="table-card">
+            <div class="table-overflow">
             <table>
               <thead>
                 <tr>
@@ -242,6 +231,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
             <div class="pagination-bar">
               <span class="pagination-info">
                 Mostrando {{ pagedRows.length }} de {{ filteredRows.length }} reclamações
@@ -594,10 +584,12 @@
                   <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 12 12">
                     <circle cx="6" cy="4.5" r="2.5"/><path d="M1 11c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5" stroke-linecap="round"/>
                   </svg>
-                  Denunciante
+                  Pessoa Afectada
                 </div>
-                <div class="modal-info-val">{{ selected.denunciante }}</div>
-                <div class="modal-info-sub">{{ selected.telefone }}</div>
+                <div class="modal-info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
+                <div class="modal-info-sub" v-if="selected.email_afectado">{{ selected.email_afectado }}</div>
+                <div class="modal-info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
+                <div class="modal-info-sub" v-if="selected.registado_por">Registado por: {{ selected.registado_por }}</div>
               </div>
             </div>
 
@@ -758,6 +750,7 @@
               ref="commentTextareaRef"
               class="comment-textarea"
               v-model="commentModal.text"
+              @input="commentModal.error = ''"
               :maxlength="500"
               :placeholder="commentModal.action === 'Rejeitado'
                 ? 'Ex: Informação insuficiente para validação. O denunciante deve resubmeter com coordenadas GPS e evidências fotográficas claras.'
@@ -767,6 +760,7 @@
             <div class="comment-char" :class="{ 'comment-char-warn': commentModal.text.length > 440 }">
               {{ commentModal.text.length }}/500
             </div>
+            <p v-if="commentModal.error" class="comment-error">{{ commentModal.error }}</p>
           </div>
 
           <!-- Footer -->
@@ -778,7 +772,7 @@
               class="btn-confirm-comment"
               :class="commentModal.action === 'Rejeitado' ? 'bcc-rejeitar' : 'bcc-resolver'"
               @click="confirmComment"
-              :disabled="!commentModal.text.trim() || confirming"
+              :disabled="confirming"
             >
               <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                 <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round"/>
@@ -818,6 +812,8 @@ import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
 const auth   = useAuthStore()
@@ -831,7 +827,7 @@ const confirming         = ref(false)
 const showModal          = ref(false)
 const lightboxImg        = ref(null)
 const commentTextareaRef = ref(null)
-const commentModal = reactive({ show: false, action: '', text: '' })
+const commentModal = reactive({ show: false, action: '', text: '', error: '' })
 const toast        = reactive({ show: false, msg: '', red: false })
 const loading      = ref(false)
 const loadError    = ref('')
@@ -879,8 +875,10 @@ function mapOccurrence(o) {
     status_label:     o.status_label,
     origem:           o.origin,
     coords:           o.location_detail ?? '',
-    denunciante:      o.complainant?.name  ?? 'Anónimo',
-    telefone:         o.complainant?.phone ?? '',
+    denunciante:      o.complainant?.name  ?? null,
+    email_afectado:   o.complainant?.email ?? null,
+    telefone:         o.complainant?.phone ?? null,
+    registado_por:    o.submitted_by?.name ?? null,
     descricao:        o.description ?? '',
     assunto:          o.subject     ?? '',
     foto:             null,
@@ -896,7 +894,10 @@ async function loadOccurrences() {
   loadError.value = ''
   try {
     const res  = await InternalService.getOccurrences({ per_page: 100 })
-    rows.value = (res.data ?? []).map(mapOccurrence)
+    const TERMINAL = ['resolved', 'rejected', 'closed']
+    rows.value = (res.data ?? [])
+      .filter(o => !TERMINAL.includes(o.status))
+      .map(mapOccurrence)
   } catch (e) {
     loadError.value = 'Erro ao carregar ocorrências.'
     console.error(e)
@@ -995,19 +996,31 @@ function openCommentModal(action) {
   if (!selected.value || confirming.value) return
   commentModal.action = action
   commentModal.text   = ''
+  commentModal.error  = ''
   commentModal.show   = true
   nextTick(() => commentTextareaRef.value?.focus())
 }
 
 function cancelComment() {
-  commentModal.show = false
-  commentModal.text = ''
+  commentModal.show  = false
+  commentModal.text  = ''
+  commentModal.error = ''
 }
 
 async function confirmComment() {
-  if (!commentModal.text.trim() || confirming.value) return
+  if (confirming.value) return
+  const trimmed = commentModal.text.trim()
+  if (!trimmed) {
+    commentModal.error = 'Este campo é obrigatório.'
+    return
+  }
+  if (trimmed.length < 10) {
+    commentModal.error = 'O comentário deve ter pelo menos 10 caracteres.'
+    return
+  }
+  commentModal.error = ''
   const action  = commentModal.action
-  const comment = commentModal.text.trim()
+  const comment = trimmed
   commentModal.show = false
   await changeStatus(action, comment)
 }
@@ -1031,23 +1044,36 @@ async function changeStatus(newState, comment = '') {
   const apiStatus = ACTION_TO_API[newState]
   try {
     await InternalService.updateStatus(selected.value._id, { status: apiStatus, comment })
-    const idx = rows.value.findIndex(r => r._id === selected.value._id)
-    if (idx !== -1) {
-      rows.value[idx].status       = apiStatus
-      rows.value[idx].status_label = STATUS_LABEL[apiStatus]
+    const trackingCode = selected.value.id
+    const isFinal = apiStatus === 'resolved' || apiStatus === 'rejected'
+    if (isFinal) {
+      rows.value = rows.value.filter(r => r._id !== selected.value._id)
+      selected.value = null
+    } else {
+      const idx = rows.value.findIndex(r => r._id === selected.value._id)
+      if (idx !== -1) {
+        rows.value[idx].status       = apiStatus
+        rows.value[idx].status_label = STATUS_LABEL[apiStatus]
+      }
+      selected.value.status       = apiStatus
+      selected.value.status_label = STATUS_LABEL[apiStatus]
+      selected.value.comentario   = comment
     }
-    selected.value.status       = apiStatus
-    selected.value.status_label = STATUS_LABEL[apiStatus]
-    selected.value.comentario   = comment
     showToast(
       newState === 'Rejeitado'
-        ? `${selected.value.id} foi rejeitada.`
-        : `${selected.value.id} passou para "${STATUS_LABEL[apiStatus]}".`,
+        ? `${trackingCode} foi rejeitada.`
+        : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`,
       newState === 'Rejeitado'
     )
   } catch (e) {
     console.error('Erro ao atualizar estado:', e)
-    showToast('Erro ao actualizar o estado. Tente novamente.', true)
+    const errors = e?.response?.data?.errors
+    if (errors) {
+      const first = Object.values(errors).flat()[0]
+      showToast(first ?? 'Erro de validação.', true)
+    } else {
+      showToast('Erro ao actualizar o estado. Tente novamente.', true)
+    }
   } finally {
     confirming.value = false
   }
@@ -1216,7 +1242,12 @@ async function handleLogout() {
   background: var(--white); border-radius: 16px; overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.07);
 }
-table { width: 100%; border-collapse: collapse; }
+.table-overflow {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
 thead th {
   padding: 11px 14px; font-size: 11px; font-weight: 700;
   color: var(--text-light); text-align: left;
@@ -1823,6 +1854,7 @@ tbody tr:last-child td { border-bottom: none; }
   margin-top: 5px; transition: color 0.2s;
 }
 .comment-char-warn { color: #C05621; font-weight: 600; }
+.comment-error { margin: 6px 0 0; font-size: 12px; color: #C53030; font-weight: 500; }
 
 /* Comment footer */
 .comment-footer {

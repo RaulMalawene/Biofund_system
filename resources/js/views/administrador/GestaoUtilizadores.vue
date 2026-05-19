@@ -80,19 +80,8 @@
           <input type="text" placeholder="Pesquisar utilizadores…" v-model="tableSearch" @keyup.enter="loadUsers(1)" />
         </div>
         <div class="topbar-spacer"></div>
-        <div class="notif-btn">
-          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z" />
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round" />
-          </svg>
-          <span class="notif-dot"></span>
-        </div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -192,7 +181,8 @@
             </div>
           </div>
 
-          <table v-else>
+          <div v-else class="table-overflow">
+          <table>
             <thead>
               <tr>
                 <th>Utilizador</th>
@@ -266,6 +256,7 @@
               </tr>
             </tbody>
           </table>
+          </div>
 
           <div class="pagination-bar">
             <span class="pagination-info">{{ paginationInfo }}</span>
@@ -276,23 +267,6 @@
                 @click="loadUsers(p)">{{ p }}</button>
               <button class="pg-btn" :disabled="meta.current_page >= meta.last_page || loading"
                 @click="loadUsers(meta.current_page + 1)">Próximo</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Security card -->
-        <div class="security-card">
-          <div class="security-left">
-            <div class="security-icon">
-              <svg width="22" height="22" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 22 22">
-                <path d="M11 2L20 6.5v6c0 5-4.5 8.5-9 10-4.5-1.5-9-5-9-10v-6z" stroke-linejoin="round" />
-                <path d="M8 11l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-            <div>
-              <div class="security-title">Credenciais Temporárias</div>
-              <div class="security-desc">Ao criar uma conta, a senha temporária <strong>12345678</strong> é enviada por
-                email. O utilizador deve alterá-la no primeiro acesso.</div>
             </div>
           </div>
         </div>
@@ -609,6 +583,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -1399,10 +1375,16 @@ async function doDelete() {
   }
 }
 
+.table-overflow {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 14px;
+  min-width: 780px;
 }
 
 thead th {
@@ -1880,12 +1862,13 @@ tbody tr:last-child td {
 .mf-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0 48px;
+  gap: 0 28px;
 }
 
 .mf-col {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .mf-field {
@@ -1928,7 +1911,9 @@ tbody tr:last-child td {
   background: var(--white);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
-  min-height: 44px;
+  height: 44px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input-wrap:focus-within {
@@ -1958,7 +1943,8 @@ tbody tr:last-child td {
   font-size: 13px;
   color: var(--text-dark);
   padding: 0 12px 0 0;
-  height: 44px;
+  height: 100%;
+  min-width: 0;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;

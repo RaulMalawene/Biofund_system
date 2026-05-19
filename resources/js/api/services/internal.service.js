@@ -8,9 +8,7 @@ export const InternalService = {
      * @returns {{ message, tracking_code, occurrence_id, attachments }}
      */
     async createOccurrence(formData) {
-        const { data } = await api.post('/occurrences', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        const { data } = await api.post('/occurrences', formData)
         return data
     },
 
@@ -57,6 +55,13 @@ export const InternalService = {
     async getDashboardStats() {
         const { data } = await api.get('/admin/statistics/dashboard')
         return data
+    },
+
+    // ─── Perfil ──────────────────────────────────────────────────
+
+    async updateProfile(formData) {
+        const { data } = await api.post('/auth/profile', formData)
+        return data  // { message, user }
     },
 
     // ─── Utilizadores ────────────────────────────────────────────

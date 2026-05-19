@@ -221,16 +221,11 @@ class Occurrence extends Model
     }
 
     /**
-     * Retorna o nome do reclamante independentemente da origem.
-     * Se interno, retorna o nome do utilizador autenticado.
-     * Se externo, retorna o nome fornecido no formulário.
+     * Retorna o nome da pessoa afectada conforme digitado no formulário.
      */
-    public function getComplainantNameAttribute(): string
+    public function getComplainantNameAttribute(): ?string
     {
-        if ($this->origin === OriginEnum::Internal && $this->submittedBy) {
-            return $this->submittedBy->name;
-        }
-        return $this->attributes['complainant_name'] ?? 'Anónimo';
+        return $this->attributes['complainant_name'] ?? null;
     }
 
     // ─── Scopes ─────────────────────────────────────────────────

@@ -8,6 +8,8 @@ use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 
 /**
@@ -137,26 +139,61 @@ class LoginController extends Controller
         $user = $request->user()->load('province', 'projects');
 
         return response()->json([
-            'user' => [
-                'id'                     => $user->id,
-                'name'                   => $user->name,
-                'email'                  => $user->email,
-                'phone'                  => $user->phone,
-                'role'                   => $user->role->value,
-                'role_label'             => $user->role->label(),
-                'management_scope'       => $user->management_scope,
-                'province_id'            => $user->province_id,
-                'province'               => $user->province?->name,
-                'projects'               => $user->projects->map(fn($p) => [
-                    'id'   => $p->id,
-                    'name' => $p->name,
-                ]),
-                'receives_urgent_alerts' => $user->receives_urgent_alerts,
-                'receives_gbv_alerts'    => $user->receives_gbv_alerts,
-                'can_validate'           => $user->canValidate(),
-                'last_login_at'          => $user->last_login_at?->format('d/m/Y H:i'),
-            ],
+            'user' => $this->userPayload($user),
         ], 200);
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'   => 'sometimes|string|max:255',
+            'email'  => ['sometimes', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'phone'  => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|max:3072',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($validated);
+        $user->load('province', 'projects');
+
+        return response()->json([
+            'message' => 'Perfil actualizado com sucesso.',
+            'user'    => $this->userPayload($user),
+        ]);
+    }
+
+    private function userPayload(User $user): array
+    {
+        return [
+            'id'                     => $user->id,
+            'name'                   => $user->name,
+            'email'                  => $user->email,
+            'phone'                  => $user->phone,
+            'avatar_url'             => $user->avatar
+                                          ? Storage::disk('public')->url($user->avatar)
+                                          : null,
+            'role'                   => $user->role->value,
+            'role_label'             => $user->role->label(),
+            'management_scope'       => $user->management_scope,
+            'province_id'            => $user->province_id,
+            'province'               => $user->province?->name,
+            'projects'               => $user->projects->map(fn($p) => [
+                'id'   => $p->id,
+                'name' => $p->name,
+            ]),
+            'receives_urgent_alerts' => $user->receives_urgent_alerts,
+            'receives_gbv_alerts'    => $user->receives_gbv_alerts,
+            'can_validate'           => $user->canValidate(),
+            'last_login_at'          => $user->last_login_at?->format('d/m/Y H:i'),
+        ];
     }
 
     /**
