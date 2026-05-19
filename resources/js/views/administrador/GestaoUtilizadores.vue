@@ -1876,7 +1876,7 @@ tbody tr:last-child td {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .mf-field>label {
@@ -1912,7 +1912,8 @@ tbody tr:last-child td {
   background: var(--white);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
-  min-height: 44px;
+  height: 44px;
+  box-sizing: border-box;
 }
 
 .input-wrap:focus-within {
@@ -1931,6 +1932,7 @@ tbody tr:last-child td {
   align-items: center;
   color: var(--text-light);
   flex-shrink: 0;
+  height: 100%;
 }
 
 .input-wrap input,
@@ -1942,10 +1944,11 @@ tbody tr:last-child td {
   font-size: 13px;
   color: var(--text-dark);
   padding: 0 12px 0 0;
-  height: 44px;
+  height: 100%;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
+  box-sizing: border-box;
 }
 
 .input-wrap input::placeholder {
@@ -1967,6 +1970,9 @@ tbody tr:last-child td {
   padding: 0 11px;
   color: var(--text-light);
   display: flex;
+  align-items: center;
+  height: 100%;
+  flex-shrink: 0;
 }
 
 .err-msg {
