@@ -119,20 +119,29 @@ class AdminStatisticsController extends Controller
 
         // Ocorrências recentes (últimas 10)
         $recent = $baseQuery()
-            ->with(['project:id,name', 'province:id,name', 'category:id,name', 'occurrenceType:id,name,alert_level'])
+            ->with([
+                'project:id,name',
+                'province:id,name',
+                'category:id,name',
+                'occurrenceType:id,name,alert_level',
+            ])
             ->orderBy('created_at', 'desc')
             ->limit(10)
-            ->get(['id', 'tracking_code', 'complainant_name', 'subject', 'status', 'created_at', 'project_id', 'province_id', 'category_id', 'occurrence_type_id']);
+            ->get([
+                'id', 'tracking_code', 'complainant_name', 'subject',
+                'status', 'created_at',
+                'project_id', 'province_id', 'category_id', 'occurrence_type_id',
+            ]);
 
         return response()->json([
-            'totals' => array_merge(['all' => $totalAll], $totals),
-            'overdue' => $overdue,
-            'by_alert_level' => $byAlertLevel,
+            'totals'            => array_merge(['all' => $totalAll], $totals),
+            'overdue'           => $overdue,
+            'by_alert_level'    => $byAlertLevel,
             'by_category'       => $byCategory,
             'by_province'       => $byProvince,
             'by_month'          => $byMonth,
             'by_month_resolved' => $byMonthResolved,
-            'recent'         => $recent,
+            'recent'            => $recent,
         ], 200);
     }
 

@@ -8,17 +8,19 @@ export const InternalService = {
      * @returns {{ message, tracking_code, occurrence_id, attachments }}
      */
     async createOccurrence(formData) {
-        const { data } = await api.post('/occurrences', formData)
+        const { data } = await api.post('/occurrences', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
         return data
     },
 
     /**
      * Lista ocorrências (visibilidade filtrada por role no backend).
      * @param {Object} params - filtros opcionais
+     * Suporta: status, province_id, project_id, category_id,
+     *          date_from, date_to, search, only_mine, origin, per_page, page
      */
     async getOccurrences(params = {}) {
-        // Suporta: status, province_id, project_id, category_id,
-        //          date_from, date_to, search, only_mine, origin, per_page, page
         const { data } = await api.get('/occurrences', { params })
         return data
     },
@@ -30,6 +32,16 @@ export const InternalService = {
         const { data } = await api.get(`/occurrences/${id}`)
         // Laravel envolve recursos individuais em { data: {...} }
         return data.data ?? data
+    },
+
+    /**
+     * Actualiza a classificação de uma ocorrência (projecto e/ou categoria).
+     * @param {number} id
+     * @param {{ project_id?, category_id? }} payload
+     */
+    async updateClassification(id, payload) {
+        const { data } = await api.patch(`/occurrences/${id}/classification`, payload)
+        return data
     },
 
     /**
@@ -140,6 +152,8 @@ export const InternalService = {
         return data
     },
 
+    // ─── Anexos ──────────────────────────────────────────────────
+
     /**
      * Descarrega um anexo autenticado como blob URL (para exibir em <img>).
      * @param {number} occurrenceId
@@ -152,6 +166,8 @@ export const InternalService = {
         })
         return URL.createObjectURL(response.data)
     },
+
+    // ─── Dados de referência ─────────────────────────────────────
 
     /**
      * Dados de referência para o formulário interno.

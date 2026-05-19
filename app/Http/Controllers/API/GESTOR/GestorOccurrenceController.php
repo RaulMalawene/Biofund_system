@@ -43,50 +43,28 @@ class GestorOccurrenceController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $user      = $request->user();
-        $isHistory = $request->boolean('history');
-
-        // Modo histórico: filtra a resolvidas e/ou removidas (soft-deleted)
-        if ($isHistory) {
-            if ($request->boolean('deleted_only')) {
-                // Só removidas
-                $query = Occurrence::onlyTrashed();
-            } elseif ($request->status === OccurrenceStatusEnum::Resolved->value) {
-                // Só resolvidas (exclui removidas)
-                $query = Occurrence::query()
-                    ->where('status', OccurrenceStatusEnum::Resolved->value);
-            } else {
-                // Todas: resolvidas + rejeitadas + encerradas + removidas
-                $query = Occurrence::withTrashed()
-                    ->where(fn($q) =>
-                        $q->whereIn('status', [
-                              OccurrenceStatusEnum::Resolved->value,
-                              OccurrenceStatusEnum::Rejected->value,
-                              OccurrenceStatusEnum::Closed->value,
-                           ])
-                          ->orWhereNotNull('deleted_at')
-                    );
-            }
-        } else {
-            $query = Occurrence::query();
-        }
-
-        $query->with([
+        $user  = $request->user();
+        $query = Occurrence::with([
             'project:id,name,code',
             'province:id,name',
+            'district:id,name',
             'category:id,name',
+            'subcategory:id,name',
+            'occurrenceType:id,name,alert_level',
             'assignedTo:id,name',
-            'submittedBy:id,name,email,phone',
+            'submittedBy:id,name',
         ])->withCount('attachments');
 
-        // Restrição por perfil (aplica-se também no histórico)
+        // Restrição por perfil
         match ($user->role) {
             RoleEnum::Funcionario => $query->where('submitted_by_user_id', $user->id),
             RoleEnum::Gestor      => $query->where('province_id', $user->province_id),
             RoleEnum::Admin       => null,
         };
 
-        // Filtro de visibilidade de alertas para gestores
+        // Filtro de visibilidade de alertas para gestores:
+        // Se o gestor não tem permissão para ver um tipo de alerta,
+        // as ocorrências com esse alert_type são excluídas da listagem.
         if ($user->isGestor()) {
             if (!$user->receives_urgent_alerts) {
                 $query->where(fn($q) =>
@@ -102,10 +80,8 @@ class GestorOccurrenceController extends Controller
             }
         }
 
-        // Filtros opcionais (no modo histórico, status só filtra resolvidas se não for deleted_only)
-        if (!$isHistory) {
-            $query->when($request->status, fn($q) => $q->where('status', $request->status));
-        }
+        // Filtros opcionais
+        $query->when($request->status, fn($q) => $q->where('status', $request->status));
         $query->when($request->alert_type, fn($q) => $q->where('alert_type', $request->alert_type));
         $query->when($request->project_id, fn($q) => $q->where('project_id', $request->project_id));
         $query->when($request->province_id, fn($q) => $q->where('province_id', $request->province_id));
@@ -287,6 +263,35 @@ class GestorOccurrenceController extends Controller
             ->paginate(15);
 
         return OccurrenceResource::collection($occurrences);
+    }
+
+    /**
+     * Actualiza o projecto e/ou categoria de uma ocorrência.
+     * Apenas admin e gestor podem re-classificar.
+     *
+     * ROTA: PATCH /api/occurrences/{occurrence}/classification
+     * ACESSO: admin, gestor
+     */
+    public function updateClassification(Request $request, Occurrence $occurrence): JsonResponse
+    {
+        if (!$this->canAccess($request->user(), $occurrence)) {
+            return response()->json(['message' => 'Não tem acesso a esta ocorrência.'], 403);
+        }
+
+        $data = $request->validate([
+            'project_id'  => ['sometimes', 'integer', 'exists:projects,id'],
+            'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
+        ]);
+
+        $occurrence->update($data);
+
+        $occurrence->load(['project:id,name,code', 'category:id,name']);
+
+        return response()->json([
+            'message'     => 'Classificação actualizada com sucesso.',
+            'project'     => $occurrence->project  ? ['id' => $occurrence->project->id,  'name' => $occurrence->project->name]  : null,
+            'category'    => $occurrence->category ? ['id' => $occurrence->category->id, 'name' => $occurrence->category->name] : null,
+        ], 200);
     }
 
     // ─── Helpers ────────────────────────────────────────────────
