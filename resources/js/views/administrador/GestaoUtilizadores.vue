@@ -80,8 +80,19 @@
           <input type="text" placeholder="Pesquisar utilizadores…" v-model="tableSearch" @keyup.enter="loadUsers(1)" />
         </div>
         <div class="topbar-spacer"></div>
-        <AdminNotificationPanel />
-        <AdminProfilePanel />
+        <div class="notif-btn">
+          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
+            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z" />
+            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round" />
+          </svg>
+          <span class="notif-dot"></span>
+        </div>
+        <div class="admin-info">
+          <div class="admin-text">
+            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
+          </div>
+          <div class="admin-avatar">{{ auth.userInitials }}</div>
+        </div>
       </header>
 
       <!-- CONTENT -->
@@ -181,8 +192,7 @@
             </div>
           </div>
 
-          <div v-else class="table-overflow">
-          <table>
+          <table v-else>
             <thead>
               <tr>
                 <th>Utilizador</th>
@@ -202,7 +212,8 @@
                     </div>
                     <div>
                       <div class="user-name">{{ u.name }}</div>
-                      <div class="user-email">{{ u.email }}</div>
+                      <div class="user-email">{{ u.email
+                       }}</div>
                       <div class="user-phone" v-if="u.phone">{{ u.phone }}</div>
                     </div>
                   </div>
@@ -256,7 +267,6 @@
               </tr>
             </tbody>
           </table>
-          </div>
 
           <div class="pagination-bar">
             <span class="pagination-info">{{ paginationInfo }}</span>
@@ -583,8 +593,6 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
-import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
-import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -1143,7 +1151,7 @@ async function doDelete() {
 .btn-green-sm {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 7px; 
   background: var(--green-mid);
   color: #fff;
   border: none;
@@ -1375,16 +1383,10 @@ async function doDelete() {
   }
 }
 
-.table-overflow {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 14px;
-  min-width: 780px;
 }
 
 thead th {
@@ -1862,13 +1864,12 @@ tbody tr:last-child td {
 .mf-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0 28px;
+  gap: 0 48px;
 }
 
 .mf-col {
   display: flex;
   flex-direction: column;
-  min-width: 0;
 }
 
 .mf-field {
@@ -1911,9 +1912,7 @@ tbody tr:last-child td {
   background: var(--white);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
-  height: 44px;
-  width: 100%;
-  box-sizing: border-box;
+  min-height: 44px;
 }
 
 .input-wrap:focus-within {
@@ -1943,8 +1942,7 @@ tbody tr:last-child td {
   font-size: 13px;
   color: var(--text-dark);
   padding: 0 12px 0 0;
-  height: 100%;
-  min-width: 0;
+  height: 44px;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
