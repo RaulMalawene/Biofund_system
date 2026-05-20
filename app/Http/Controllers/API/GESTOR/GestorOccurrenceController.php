@@ -58,13 +58,20 @@ class GestorOccurrenceController extends Controller
         // Restrição por perfil
         match ($user->role) {
             RoleEnum::Funcionario => $query->where('submitted_by_user_id', $user->id),
-            RoleEnum::Gestor      => $query->where('province_id', $user->province_id),
-            RoleEnum::Admin       => null,
+
+            // Gestor vê todas as ocorrências das suas províncias (activas e históricas).
+            // Usa province_id (primário) + pivot user_provinces para cobrir todos os casos.
+            RoleEnum::Gestor => $query->where(fn($q) =>
+                $q->where('province_id', $user->province_id)
+                  ->orWhereIn('province_id',
+                      $user->provinces()->pluck('provinces.id')
+                  )
+            ),
+
+            RoleEnum::Admin => null,
         };
 
-        // Filtro de visibilidade de alertas para gestores:
-        // Se o gestor não tem permissão para ver um tipo de alerta,
-        // as ocorrências com esse alert_type são excluídas da listagem.
+        // Filtro de visibilidade de alertas para gestores
         if ($user->isGestor()) {
             if (!$user->receives_urgent_alerts) {
                 $query->where(fn($q) =>
@@ -80,15 +87,44 @@ class GestorOccurrenceController extends Controller
             }
         }
 
+        // Modo histórico: só ocorrências terminais (resolvidas, rejeitadas, encerradas).
+        // Para gestores, exclui também ocorrências submetidas pelo admin.
+        if ($request->boolean('history')) {
+            $query->whereIn('status', [
+                OccurrenceStatusEnum::Resolved->value,
+                OccurrenceStatusEnum::Rejected->value,
+                OccurrenceStatusEnum::Closed->value,
+            ]);
+            if ($user->isGestor()) {
+                $query->where(fn($q) =>
+                    $q->whereNull('submitted_by_user_id')
+                      ->orWhere('submitted_by_user_id', $user->id)
+                      ->orWhereHas('submittedBy', fn($q2) =>
+                          $q2->where('role', '!=', RoleEnum::Admin->value)
+                      )
+                );
+            }
+        }
+
         // Filtros opcionais
         $query->when($request->status, fn($q) => $q->where('status', $request->status));
         $query->when($request->alert_type, fn($q) => $q->where('alert_type', $request->alert_type));
         $query->when($request->project_id, fn($q) => $q->where('project_id', $request->project_id));
         $query->when($request->province_id, fn($q) => $q->where('province_id', $request->province_id));
         $query->when($request->category_id, fn($q) => $q->where('category_id', $request->category_id));
+        $query->when($request->submission_channel, fn($q) => $q->where('submission_channel', $request->submission_channel));
         $query->when($request->occurrence_type_id, fn($q) => $q->where('occurrence_type_id', $request->occurrence_type_id));
         $query->when($request->date_from, fn($q) => $q->whereDate('created_at', '>=', $request->date_from));
         $query->when($request->date_to, fn($q) => $q->whereDate('created_at', '<=', $request->date_to));
+
+        // Listas de IDs separadas por vírgula (usadas pelo frontend do gestor)
+        $query->when($request->project_ids, fn($q) =>
+            $q->whereIn('project_id', array_filter(explode(',', $request->project_ids)))
+        );
+        $query->when($request->province_ids, fn($q) =>
+            $q->whereIn('province_id', array_filter(explode(',', $request->province_ids)))
+        );
+
         $query->when($request->search, fn($q) =>
             $q->where(fn($q2) =>
                 $q2->where('subject', 'like', "%{$request->search}%")
@@ -96,8 +132,13 @@ class GestorOccurrenceController extends Controller
                    ->orWhere('complainant_name', 'like', "%{$request->search}%")
             )
         );
+
+        // Origem: externo, interno, ou only_mine (atribuídas ao utilizador)
+        $query->when($request->origin && $request->origin !== 'only_mine', fn($q) =>
+            $q->where('origin', $request->origin)
+        );
         if ($request->boolean('only_mine')) {
-            $query->where('assigned_to', $user->id);
+            $query->where('submitted_by_user_id', $user->id);
         }
 
         $query->orderBy('created_at', 'desc');
@@ -176,7 +217,7 @@ class GestorOccurrenceController extends Controller
         $user      = $request->user();
         $newStatus = OccurrenceStatusEnum::from($request->status);
 
-        if ($user->isGestor() && $user->province_id !== $occurrence->province_id) {
+        if ($user->isGestor() && !$this->gestorHasProvince($user, $occurrence->province_id)) {
             return response()->json(['message' => 'Não tem acesso a esta ocorrência.'], 403);
         }
 
@@ -216,7 +257,7 @@ class GestorOccurrenceController extends Controller
         $target = User::findOrFail($request->user_id);
 
         if ($user->isGestor()) {
-            if ($user->province_id !== $occurrence->province_id) {
+            if (!$this->gestorHasProvince($user, $occurrence->province_id)) {
                 return response()->json(['message' => 'Não tem acesso a esta ocorrência.'], 403);
             }
             // Gestor só pode atribuir a si próprio ou escalar para um admin
@@ -300,10 +341,17 @@ class GestorOccurrenceController extends Controller
     {
         return match ($user->role) {
             RoleEnum::Admin       => true,
-            RoleEnum::Gestor      => $user->province_id === $occurrence->province_id
+            RoleEnum::Gestor      => $this->gestorHasProvince($user, $occurrence->province_id)
                                      && $this->gestorCanSeeAlert($user, $occurrence),
             RoleEnum::Funcionario => $occurrence->submitted_by_user_id === $user->id,
         };
+    }
+
+    private function gestorHasProvince(User $user, ?int $provinceId): bool
+    {
+        if ($provinceId === null) return false;
+        return $user->province_id === $provinceId
+            || $user->provinces()->where('provinces.id', $provinceId)->exists();
     }
 
     /**

@@ -25,7 +25,9 @@
       "Bash(curl *)",
       "Bash(broadcast)",
       "Bash(queue\")",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(xargs grep -l \"login\\\\|sanctum\\\\|token\")",
+      "Bash(git checkout *)"
     ]
   }
 }

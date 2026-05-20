@@ -6,7 +6,7 @@
       <router-link to="/" class="sidebar-logo">
         <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="sidebar-logo-img"/>
         <div>
-          <div class="sidebar-logo-text">BioFund Admin</div>
+          <div class="sidebar-logo-text">BioFund Gestor</div>
         </div>
       </router-link>
 
@@ -18,38 +18,19 @@
           </svg>
           Dashboard
         </a>
-        <router-link class="nav-item" to="/admin/validacao">
+        <router-link class="nav-item" to="/gestor/validacao">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
           </svg>
           Validação
         </router-link>
-        <router-link class="nav-item" to="/admin/utilizadores">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
-          </svg>
-          Utilizadores
-        </router-link>
-        <router-link class="nav-item" to="/admin/historico">
+        <router-link class="nav-item" to="/gestor/historico">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="2" y="1" width="10" height="14" rx="1.5"/>
             <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
             <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Histórico de Ocorrências
-        </router-link>
-        <router-link class="nav-item" to="/admin/categorias">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
-            <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
-          </svg>
-          Categorias
-        </router-link>
-        <router-link class="nav-item" to="/admin/projectos">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
-            <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Projectos
+          Histórico
         </router-link>
       </nav>
 
@@ -72,7 +53,7 @@
           <svg width="15" height="15" fill="none" stroke="#8A9490" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="7" cy="7" r="5"/><path d="M12 12l3 3" stroke-linecap="round"/>
           </svg>
-          <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="searchQ"/>
+          <input type="text" placeholder="Pesquisar reclamações" v-model="searchQ"/>
         </div>
         <div class="topbar-spacer"></div>
         <AdminNotificationPanel />
@@ -82,27 +63,40 @@
       <!-- CONTENT -->
       <main class="content">
 
-        <!-- Título da página -->
+        <!-- Título -->
         <div class="page-title-row">
           <div>
-            <h1>Dashboard Geral</h1>
-            <p>Bem-vindo ao painel central de monitoria ambiental nacional.</p>
+            <h1>Dashboard do Gestor</h1>
+            <p>Visão geral das ocorrências nas suas províncias e projectos atribuídos.</p>
           </div>
           <div class="title-actions">
-            <button class="btn-outline-sm">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
-                <rect x="1" y="2" width="12" height="11" rx="1.5"/>
-                <path d="M4 1v2M10 1v2M1 6h12" stroke-linecap="round"/>
-              </svg>
-              Relatório Mensal
-            </button>
             <button class="btn-green-sm" @click="drawerOpen = true">
               <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 14 14">
                 <path d="M7 2C4.239 2 2 4.239 2 7c0 3.5 5 7 5 7s5-3.5 5-7c0-2.761-2.239-5-5-5z"/>
                 <circle cx="7" cy="7" r="1.8"/>
               </svg>
-              Ocorrência
+              Nova Ocorrência
             </button>
+          </div>
+        </div>
+
+        <!-- Âmbito do gestor -->
+        <div class="scope-banner" v-if="scopeProvinces.length || scopeProjects.length">
+          <div class="scope-section" v-if="scopeProvinces.length">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <path d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.75 4.5 9 4.5 9s4.5-5.25 4.5-9c0-2.485-2.015-4.5-4.5-4.5z"/>
+              <circle cx="8" cy="6" r="1.8"/>
+            </svg>
+            <span class="scope-label">Províncias:</span>
+            <span class="scope-tag" v-for="p in scopeProvinces" :key="p.id">{{ p.name }}</span>
+          </div>
+          <div class="scope-sep" v-if="scopeProvinces.length && scopeProjects.length"></div>
+          <div class="scope-section" v-if="scopeProjects.length">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="scope-label">Projectos:</span>
+            <span class="scope-tag proj" v-for="p in scopeProjects" :key="p.id">{{ p.name }}</span>
           </div>
         </div>
 
@@ -116,7 +110,6 @@
                   <circle cx="15" cy="3" r="2" fill="#52B788" stroke="none"/>
                 </svg>
               </div>
-              <span class="kpi-badge up">↑ 8.2%</span>
             </div>
             <div class="kpi-label dark">Total de Reclamações</div>
             <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.totals.all ?? 0) }}</div>
@@ -134,7 +127,7 @@
             </div>
             <div class="kpi-label light">Pendentes</div>
             <div class="kpi-value light">{{ statsLoading ? '—' : (stats.totals.pending ?? 0) }}</div>
-            <div class="kpi-sub light">Aguardando validação inicial</div>
+            <div class="kpi-sub light">Aguardando validação</div>
           </div>
 
           <div class="kpi-card">
@@ -184,7 +177,7 @@
         <div class="charts-row">
           <div class="chart-card">
             <div class="chart-title">Reclamações por Província</div>
-            <div class="chart-sub">Volume de submissões por região geográfica</div>
+            <div class="chart-sub">Volume de submissões por região atribuída</div>
             <div class="chart-wrap" style="height:200px">
               <canvas ref="barChartRef"></canvas>
             </div>
@@ -229,14 +222,14 @@
           <div class="chart-card">
             <div class="table-header">
               <div class="chart-title">Últimas Submissões</div>
-              <a class="ver-todas" @click="router.push('/admin/validacao')" style="cursor:pointer">
+              <a class="ver-todas" @click="router.push('/gestor/validacao')" style="cursor:pointer">
                 Ver Todas
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 13 13">
                   <path d="M2 6.5h9M7 3l3.5 3.5L7 10" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </a>
             </div>
-            <div class="table-sub">Últimas 10 ocorrências registadas</div>
+            <div class="table-sub">Últimas 10 ocorrências nas suas províncias</div>
             <table>
               <thead>
                 <tr>
@@ -273,6 +266,9 @@
                   </td>
                   <td class="td-tempo">{{ row.tempo }}</td>
                 </tr>
+                <tr v-if="!statsLoading && submissions.length === 0">
+                  <td colspan="5" class="empty-row">Sem ocorrências recentes.</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -280,18 +276,14 @@
 
       </main>
 
-      <!-- FOOTER -->
       <footer class="dash-footer">
-        <span>© 2026 EcoGestor Admin · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 BioFund Gestor · Sistema de Gestão Ambiental de Moçambique</span>
         <div>
           <a href="#">Suporte Técnico</a>
           <a href="#">Privacidade</a>
         </div>
       </footer>
-
     </div>
-
-   
 
     <!-- ── DRAWER OVERLAY ── -->
     <transition name="fade">
@@ -304,7 +296,7 @@
 
         <div class="drawer-header">
           <div>
-            <h2 class="drawer-title">Adicionar Ocorrência</h2>
+            <h2 class="drawer-title">Registar Ocorrência</h2>
             <p class="drawer-subtitle">Preencha os dados da nova ocorrência ambiental</p>
           </div>
           <button class="drawer-close" @click="closeDrawer">
@@ -316,7 +308,6 @@
 
         <div class="drawer-body">
 
-          <!-- Banner de erro -->
           <div class="error-banner" v-if="submitError">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
               <circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11h.01" stroke-linecap="round"/>
@@ -324,12 +315,10 @@
             {{ submitError }}
           </div>
 
-          <!-- Contacto do Reclamante -->
           <div class="f-row">
             <div class="f-group">
               <label>Nome do Reclamante (Opcional)</label>
-              <input type="text" v-model="form.complainant_name"
-                placeholder="Nome completo ou pseudónimo"/>
+              <input type="text" v-model="form.complainant_name" placeholder="Nome completo ou pseudónimo"/>
             </div>
             <div class="f-group">
               <label>Email do Reclamante</label>
@@ -340,11 +329,11 @@
               <span class="f-err-msg" v-if="errors.complainant_email">{{ errors.complainant_email }}</span>
             </div>
           </div>
+
           <div class="f-row" style="margin-bottom:6px">
             <div class="f-group">
               <label>Telefone do Reclamante</label>
-              <input type="tel" v-model="form.complainant_phone"
-                placeholder="ex: +258 84 000 0000"/>
+              <input type="tel" v-model="form.complainant_phone" placeholder="ex: +258 84 000 0000"/>
             </div>
             <div class="f-group contact-note">
               <svg width="14" height="14" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 16 16">
@@ -354,7 +343,6 @@
             </div>
           </div>
 
-          <!-- Assunto -->
           <div class="f-group">
             <label>Assunto <span class="f-req">*</span></label>
             <input type="text" v-model="form.subject" maxlength="255"
@@ -364,20 +352,18 @@
             <span class="f-err-msg" v-if="errors.subject">{{ errors.subject }}</span>
           </div>
 
-          <!-- Projecto + Categoria -->
           <div class="f-row">
             <div class="f-group">
               <label>Projecto <span class="f-req">*</span></label>
               <select v-model="form.project_id" :class="{ 'f-err': errors.project_id }" @change="errors.project_id = ''">
-                <option value="" disabled>{{ loadingRef ? 'A carregar…' : 'Seleccione o projecto' }}</option>
-                <option v-for="p in refProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+                <option value="" disabled>Seleccione o projecto</option>
+                <option v-for="p in scopeProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
               <span class="f-err-msg" v-if="errors.project_id">{{ errors.project_id }}</span>
             </div>
             <div class="f-group">
               <label>Categoria <span class="f-req">*</span></label>
-              <select v-model="form.category_id" :class="{ 'f-err': errors.category_id }"
-                @change="handleCategoryChange">
+              <select v-model="form.category_id" :class="{ 'f-err': errors.category_id }" @change="errors.category_id = ''">
                 <option value="" disabled>Seleccione a categoria</option>
                 <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
@@ -385,12 +371,10 @@
             </div>
           </div>
 
-          <!-- Tipo de Ocorrência + Nível de Alerta -->
           <div class="f-row">
             <div class="f-group">
               <label>Tipo de Ocorrência <span class="f-req">*</span></label>
-              <select v-model="form.occurrence_type_id" :class="{ 'f-err': errors.occurrence_type_id }"
-                @change="errors.occurrence_type_id = ''">
+              <select v-model="form.occurrence_type_id" :class="{ 'f-err': errors.occurrence_type_id }" @change="errors.occurrence_type_id = ''">
                 <option value="" disabled>Seleccione o tipo</option>
                 <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
               </select>
@@ -398,8 +382,7 @@
             </div>
             <div class="f-group">
               <label>Nível de Alerta <span class="f-req">*</span></label>
-              <select v-model="form.alert_type" :class="{ 'f-err': errors.alert_type }"
-                @change="errors.alert_type = ''">
+              <select v-model="form.alert_type" :class="{ 'f-err': errors.alert_type }" @change="errors.alert_type = ''">
                 <option value="" disabled>Seleccione o nível</option>
                 <option value="normal">Normal</option>
                 <option value="urgent">Urgente</option>
@@ -409,12 +392,10 @@
             </div>
           </div>
 
-          <!-- Canal de Submissão + Data -->
           <div class="f-row">
             <div class="f-group">
               <label>Canal de Submissão <span class="f-req">*</span></label>
-              <select v-model="form.submission_channel" :class="{ 'f-err': errors.submission_channel }"
-                @change="errors.submission_channel = ''">
+              <select v-model="form.submission_channel" :class="{ 'f-err': errors.submission_channel }" @change="errors.submission_channel = ''">
                 <option value="" disabled>Seleccione o canal</option>
                 <option value="green_line">Linha Verde</option>
                 <option value="email">Email</option>
@@ -429,14 +410,12 @@
             </div>
           </div>
 
-          <!-- Província + Distrito -->
           <div class="f-row">
             <div class="f-group">
               <label>Província <span class="f-req">*</span></label>
-              <select v-model="form.province_id" :class="{ 'f-err': errors.province_id }"
-                @change="handleProvinceChange">
+              <select v-model="form.province_id" :class="{ 'f-err': errors.province_id }" @change="handleProvinceChange">
                 <option value="" disabled>Seleccione a província</option>
-                <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+                <option v-for="p in scopeProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
               <span class="f-err-msg" v-if="errors.province_id">{{ errors.province_id }}</span>
             </div>
@@ -449,19 +428,16 @@
             </div>
           </div>
 
-          <!-- Localização + Coordenadas -->
           <div class="f-group">
             <label>Localização / Coordenadas (Opcional)</label>
-            <input type="text" v-model="form.location_detail"
-              placeholder="Ex: -25.9682, 32.5732 ou descrição do local"/>
+            <input type="text" v-model="form.location_detail" placeholder="Ex: -25.9682, 32.5732 ou descrição do local"/>
           </div>
 
-          <!-- Descrição -->
           <div class="f-group">
             <label>Descrição Detalhada <span class="f-req">*</span></label>
             <textarea v-model="form.description"
               :class="{ 'f-err': errors.description }"
-              placeholder="Descreva o que observou, pessoas envolvidas, gravidade e outros detalhes relevantes… (mínimo 20 caracteres)"
+              placeholder="Descreva o que observou, pessoas envolvidas, gravidade… (mínimo 20 caracteres)"
               @input="errors.description = ''"></textarea>
             <div class="char-hint" :class="form.description.length >= 20 ? 'char-ok' : 'char-warn'"
               v-if="form.description.length > 0">
@@ -470,7 +446,6 @@
             <span class="f-err-msg" v-if="errors.description">{{ errors.description }}</span>
           </div>
 
-          <!-- Upload -->
           <div class="upload-zone"
             :class="{ 'drag-over': isDragging }"
             @click="fileInput.click()"
@@ -489,7 +464,6 @@
           <input ref="fileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf"
             style="display:none" @change="handleFileSelect"/>
 
-          <!-- File list -->
           <div class="file-list" v-if="files.length">
             <div class="file-item" v-for="(f, i) in files" :key="i">
               <svg width="15" height="15" fill="none" stroke="#2D6A4F" stroke-width="1.5" viewBox="0 0 16 16">
@@ -507,7 +481,6 @@
             </div>
           </div>
 
-          <!-- Actions -->
           <div class="f-actions">
             <button class="btn-registar" @click="submitForm" :disabled="loading">
               <svg v-if="loading" class="spin" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 16 16">
@@ -562,328 +535,282 @@ const router = useRouter()
 const auth   = useAuthStore()
 
 async function handleLogout() {
-    await auth.logout()
-    router.push('/acessoRestrito')
+  await auth.logout()
+  router.push('/acessoRestrito')
 }
 
-const searchQ      = ref('')
-const barChartRef  = ref(null)
+// Âmbito do gestor (províncias e projectos atribuídos)
+const scopeProvinces = computed(() => auth.user?.provinces ?? [])
+const scopeProjects  = computed(() => auth.user?.projects  ?? [])
+
+const searchQ       = ref('')
+const barChartRef   = ref(null)
 const donutChartRef = ref(null)
-const lineChartRef = ref(null)
+const lineChartRef  = ref(null)
+const submissions   = ref([])
 
-const submissions = ref([])
-
-// ── Estatísticas do dashboard ─────────────────────────────────
+// ── Estatísticas ─────────────────────────────────────────────
 const statsLoading = ref(true)
 const stats = reactive({
-    totals:          { all: 0, pending: 0, in_review: 0, resolved: 0, rejected: 0, closed: 0 },
-    overdue:         0,
-    byAlertLevel:    { normal: 0, urgent: 0, gbv: 0 },
-    byProvince:      [],
-    byCategory:      [],
-    byMonth:         [],
-    byMonthResolved: [],
+  totals:          { all: 0, pending: 0, in_review: 0, resolved: 0, rejected: 0, closed: 0 },
+  overdue:         0,
+  byAlertLevel:    { normal: 0, urgent: 0, gbv: 0 },
+  byProvince:      [],
+  byCategory:      [],
+  byMonth:         [],
+  byMonthResolved: [],
 })
 
 const CHART_COLORS = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
 
-// Instâncias dos gráficos — guardadas para actualizar sem recriar
 let barChart   = null
 let donutChart = null
 let lineChart  = null
 
-// Eixo temporal: últimos 6 meses no formato 'YYYY-MM'
 function buildMonthAxis() {
-    const months = []
-    for (let i = 5; i >= 0; i--) {
-        const d = new Date(); d.setMonth(d.getMonth() - i)
-        months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
-    }
-    return months
-}
-
-// Actualiza os dados dos gráficos sem recriar as instâncias
-function updateCharts() {
-    if (barChart) {
-        barChart.data.labels           = stats.byProvince.length ? stats.byProvince.map(p => p.name)  : ['Sem dados']
-        barChart.data.datasets[0].data = stats.byProvince.length ? stats.byProvince.map(p => p.total) : [0]
-        barChart.update('none')
-    }
-    if (donutChart) {
-        donutChart.data.labels                      = stats.byCategory.length ? stats.byCategory.map(c => c.name)  : ['Sem dados']
-        donutChart.data.datasets[0].data            = stats.byCategory.length ? stats.byCategory.map(c => c.total) : [1]
-        donutChart.data.datasets[0].backgroundColor = stats.byCategory.length
-            ? stats.byCategory.map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
-            : ['#E2E8F0']
-        donutChart.update('none')
-    }
-    if (lineChart) {
-        const ax = buildMonthAxis()
-        lineChart.data.labels           = ax.map(formatMonthLabel)
-        lineChart.data.datasets[0].data = ax.map(m => stats.byMonth.find(r => r.label === m)?.total ?? 0)
-        lineChart.data.datasets[1].data = ax.map(m => stats.byMonthResolved.find(r => r.label === m)?.total ?? 0)
-        lineChart.update('none')
-    }
-}
-
-// Recarrega stats da API e actualiza tudo reactivamente
-async function refreshStats() {
-    try {
-        const data = await InternalService.getDashboardStats()
-        Object.assign(stats.totals,       data.totals         ?? {})
-        Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
-        stats.overdue         = data.overdue          ?? 0
-        stats.byProvince      = data.by_province      ?? []
-        stats.byCategory      = data.by_category      ?? []
-        stats.byMonth         = data.by_month         ?? []
-        stats.byMonthResolved = data.by_month_resolved ?? []
-        submissions.value     = mapRecent(data.recent)
-        updateCharts()
-    } catch (err) {
-        console.error('Erro ao actualizar estatísticas:', err)
-    }
-}
-
-const donutLegend = computed(() => {
-    if (!stats.byCategory.length) return []
-    const total = stats.byCategory.reduce((s, c) => s + c.total, 0)
-    return stats.byCategory.map((cat, i) => ({
-        label: cat.name,
-        color: CHART_COLORS[i % CHART_COLORS.length],
-        pct:   total ? Math.round(cat.total / total * 100) : 0,
-    }))
-})
-
-const STATUS_MAP = {
-    pending:   { label: 'Pendente',   cls: 'pendente'  },
-    in_review: { label: 'Em Análise', cls: 'analise'   },
-    resolved:  { label: 'Resolvida',  cls: 'resolvida' },
-    rejected:  { label: 'Rejeitada',  cls: 'rejeitada' },
-    closed:    { label: 'Encerrada',  cls: 'encerrada' },
-}
-
-function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime()
-    const m = Math.floor(diff / 60000)
-    const h = Math.floor(diff / 3600000)
-    const d = Math.floor(diff / 86400000)
-    if (d > 0) return `há ${d} dia${d > 1 ? 's' : ''}`
-    if (h > 0) return `há ${h} hora${h > 1 ? 's' : ''}`
-    if (m > 0) return `há ${m} minuto${m > 1 ? 's' : ''}`
-    return 'agora mesmo'
+  const months = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(); d.setMonth(d.getMonth() - i)
+    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  }
+  return months
 }
 
 function formatMonthLabel(label) {
-    const [, month] = label.split('-')
-    return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(month) - 1]
+  const [, month] = label.split('-')
+  return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(month) - 1]
+}
+
+function updateCharts() {
+  if (barChart) {
+    barChart.data.labels           = stats.byProvince.length ? stats.byProvince.map(p => p.name)  : ['Sem dados']
+    barChart.data.datasets[0].data = stats.byProvince.length ? stats.byProvince.map(p => p.total) : [0]
+    barChart.update('none')
+  }
+  if (donutChart) {
+    donutChart.data.labels                      = stats.byCategory.length ? stats.byCategory.map(c => c.name)  : ['Sem dados']
+    donutChart.data.datasets[0].data            = stats.byCategory.length ? stats.byCategory.map(c => c.total) : [1]
+    donutChart.data.datasets[0].backgroundColor = stats.byCategory.length
+      ? stats.byCategory.map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
+      : ['#E2E8F0']
+    donutChart.update('none')
+  }
+  if (lineChart) {
+    const ax = buildMonthAxis()
+    lineChart.data.labels           = ax.map(formatMonthLabel)
+    lineChart.data.datasets[0].data = ax.map(m => stats.byMonth.find(r => r.label === m)?.total ?? 0)
+    lineChart.data.datasets[1].data = ax.map(m => stats.byMonthResolved.find(r => r.label === m)?.total ?? 0)
+    lineChart.update('none')
+  }
+}
+
+async function refreshStats() {
+  try {
+    const data = await InternalService.getDashboardStats()
+    Object.assign(stats.totals,       data.totals         ?? {})
+    Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
+    stats.overdue         = data.overdue          ?? 0
+    stats.byProvince      = data.by_province      ?? []
+    stats.byCategory      = data.by_category      ?? []
+    stats.byMonth         = data.by_month         ?? []
+    stats.byMonthResolved = data.by_month_resolved ?? []
+    submissions.value     = mapRecent(data.recent)
+    updateCharts()
+  } catch (err) {
+    console.error('Erro ao actualizar estatísticas:', err)
+  }
+}
+
+const donutLegend = computed(() => {
+  if (!stats.byCategory.length) return []
+  const total = stats.byCategory.reduce((s, c) => s + c.total, 0)
+  return stats.byCategory.map((cat, i) => ({
+    label: cat.name,
+    color: CHART_COLORS[i % CHART_COLORS.length],
+    pct:   total ? Math.round(cat.total / total * 100) : 0,
+  }))
+})
+
+const STATUS_MAP = {
+  pending:   { label: 'Pendente',   cls: 'pendente'  },
+  in_review: { label: 'Em Análise', cls: 'analise'   },
+  resolved:  { label: 'Resolvida',  cls: 'resolvida' },
+  rejected:  { label: 'Rejeitada',  cls: 'rejeitada' },
+  closed:    { label: 'Encerrada',  cls: 'encerrada' },
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const m = Math.floor(diff / 60000)
+  const h = Math.floor(diff / 3600000)
+  const d = Math.floor(diff / 86400000)
+  if (d > 0) return `há ${d} dia${d > 1 ? 's' : ''}`
+  if (h > 0) return `há ${h} hora${h > 1 ? 's' : ''}`
+  if (m > 0) return `há ${m} minuto${m > 1 ? 's' : ''}`
+  return 'agora mesmo'
 }
 
 function mapRecent(items) {
-    return (items ?? []).map((o, idx) => {
-        const s    = STATUS_MAP[o.status] ?? { label: o.status, cls: 'pendente' }
-
-        // Cidadão: usa o nome do reclamante; se anónimo mostra "Anónimo"
-        const name = o.complainant_name?.trim() || 'Anónimo'
-
-        // Iniciais: a partir do nome do reclamante
-        const init = name === 'Anónimo'
-            ? 'AN'
-            : name.split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
-
-        return {
-            name,
-            code:        o.tracking_code,
-            initials:    init.slice(0, 2),
-            color:       CHART_COLORS[idx % CHART_COLORS.length],
-            // Categoria: vem da relação category (não occurrenceType)
-            categoria:   o.category?.name ?? '—',
-            catColor:    '#52B788',
-            provincia:   o.province?.name ?? '—',
-            status:      s.label,
-            statusClass: s.cls,
-            tempo:       timeAgo(o.created_at),
-        }
-    })
+  return (items ?? []).map((o, idx) => {
+    const s    = STATUS_MAP[o.status] ?? { label: o.status, cls: 'pendente' }
+    const name = o.complainant_name?.trim() || 'Anónimo'
+    const init = name === 'Anónimo'
+      ? 'AN'
+      : name.split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
+    return {
+      name,
+      code:        o.tracking_code,
+      initials:    init.slice(0, 2),
+      color:       CHART_COLORS[idx % CHART_COLORS.length],
+      categoria:   o.category?.name ?? '—',
+      catColor:    '#52B788',
+      provincia:   o.province?.name ?? '—',
+      status:      s.label,
+      statusClass: s.cls,
+      tempo:       timeAgo(o.created_at),
+    }
+  })
 }
 
-// ── DRAWER ──────────────────────────────────────────────────────────────
-// ── Referências de dados para os selects ──────────────────────
-const refProjects    = ref([])
+// ── DRAWER ───────────────────────────────────────────────────
 const refCategories  = ref([])
 const refTypes       = ref([])
-const refProvinces   = ref([])
 const refDistricts   = ref([])
 const loadingRef     = ref(false)
 const loadingDistricts = ref(false)
 const today = new Date().toISOString().split('T')[0]
 
-// Carrega os dados de referência ao abrir o drawer
 async function loadRefData() {
-    if (refProjects.value.length) return  // já carregados
-    loadingRef.value = true
-    try {
-        const data = await InternalService.getFormData()
-        refProjects.value   = data.projects        ?? []
-        refCategories.value = data.categories      ?? []
-        refTypes.value      = data.occurrence_types ?? []
-        refProvinces.value  = data.provinces       ?? []
-    } catch (err) {
-        console.error('Erro ao carregar dados do formulário:', err)
-    } finally {
-        loadingRef.value = false
-    }
+  if (refCategories.value.length) return
+  loadingRef.value = true
+  try {
+    const data = await InternalService.getFormData()
+    refCategories.value = data.categories      ?? []
+    refTypes.value      = data.occurrence_types ?? []
+  } catch (err) {
+    console.error('Erro ao carregar dados do formulário:', err)
+  } finally {
+    loadingRef.value = false
+  }
 }
 
 async function handleProvinceChange() {
-    form.district_id = ''
-    refDistricts.value = []
-    if (!form.province_id) return
-    loadingDistricts.value = true
-    try {
-        const data = await InternalService.getDistrictsByProvince(form.province_id)
-        refDistricts.value = data.districts ?? data
-    } catch (err) {
-        console.error('Erro ao carregar distritos:', err)
-    } finally {
-        loadingDistricts.value = false
-    }
+  form.district_id = ''
+  refDistricts.value = []
+  if (!form.province_id) return
+  loadingDistricts.value = true
+  try {
+    const data = await InternalService.getDistrictsByProvince(form.province_id)
+    refDistricts.value = data.districts ?? data
+  } catch (err) {
+    console.error('Erro ao carregar distritos:', err)
+  } finally {
+    loadingDistricts.value = false
+  }
 }
 
-function handleCategoryChange() {
-    errors.category_id = ''
-}
-
-// ── Estado do drawer ───────────────────────────────────────────
-const drawerOpen       = ref(false)
-const toast            = reactive({ show: false, msg: '' })
+const drawerOpen  = ref(false)
+const toast       = reactive({ show: false, msg: '' })
+const loading     = ref(false)
+const submitError = ref('')
+const isDragging  = ref(false)
+const files       = ref([])
+const fileInput   = ref(null)
 
 function showToast(msg) {
-    toast.msg = msg; toast.show = true
-    setTimeout(() => { toast.show = false }, 4000)
+  toast.msg = msg; toast.show = true
+  setTimeout(() => { toast.show = false }, 4000)
 }
 
-// Carrega os dados de referência quando o drawer abre pela primeira vez
-watch(drawerOpen, (isOpen) => {
-    if (isOpen) loadRefData()
-})
-const loading          = ref(false)
-const submitted        = ref(false)
-const submitError      = ref('')
-const lastTrackingCode = ref('')
-const isDragging       = ref(false)
-const files            = ref([])
-const fileInput        = ref(null)
+watch(drawerOpen, (isOpen) => { if (isOpen) loadRefData() })
 
 const form = reactive({
-    complainant_name:   '',
-    complainant_email:  '',
-    complainant_phone:  '',
-    subject:            '',
-    project_id:         '',
-    category_id:        '',
-    occurrence_type_id: '',
-    alert_type:         '',
-    submission_channel: '',
-    occurrence_date:    '',
-    province_id:        '',
-    district_id:        '',
-    location_detail:    '',
-    description:        '',
+  complainant_name: '', complainant_email: '', complainant_phone: '',
+  subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+  alert_type: '', submission_channel: '', occurrence_date: '',
+  province_id: '', district_id: '', location_detail: '', description: '',
 })
 
 const errors = reactive({
-    complainant_email:  '',
-    subject:            '',
-    project_id:         '',
-    category_id:        '',
-    occurrence_type_id: '',
-    alert_type:         '',
-    submission_channel: '',
-    province_id:        '',
-    description:        '',
+  complainant_email: '', subject: '', project_id: '', category_id: '',
+  occurrence_type_id: '', alert_type: '', submission_channel: '',
+  province_id: '', description: '',
 })
 
 function validate() {
-    let ok = true
-    if (!form.subject.trim())            { errors.subject            = 'O assunto é obrigatório.';               ok = false }
-    if (!form.project_id)                { errors.project_id         = 'Seleccione o projecto.';                 ok = false }
-    if (!form.category_id)               { errors.category_id        = 'Seleccione a categoria.';                ok = false }
-    if (!form.occurrence_type_id)        { errors.occurrence_type_id = 'Seleccione o tipo de ocorrência.';       ok = false }
-    if (!form.alert_type)                { errors.alert_type         = 'Seleccione o nível de alerta.';          ok = false }
-    if (!form.submission_channel)        { errors.submission_channel = 'Seleccione o canal de submissão.';       ok = false }
-    if (!form.province_id)               { errors.province_id        = 'Seleccione a província.';                ok = false }
-    if (!form.description.trim())        { errors.description        = 'A descrição é obrigatória.';             ok = false }
-    else if (form.description.trim().length < 20) {
-                                           errors.description        = 'A descrição deve ter pelo menos 20 caracteres.'; ok = false }
-    return ok
+  let ok = true
+  if (!form.subject.trim())             { errors.subject            = 'O assunto é obrigatório.';               ok = false }
+  if (!form.project_id)                 { errors.project_id         = 'Seleccione o projecto.';                 ok = false }
+  if (!form.category_id)                { errors.category_id        = 'Seleccione a categoria.';                ok = false }
+  if (!form.occurrence_type_id)         { errors.occurrence_type_id = 'Seleccione o tipo de ocorrência.';       ok = false }
+  if (!form.alert_type)                 { errors.alert_type         = 'Seleccione o nível de alerta.';          ok = false }
+  if (!form.submission_channel)         { errors.submission_channel = 'Seleccione o canal de submissão.';       ok = false }
+  if (!form.province_id)                { errors.province_id        = 'Seleccione a província.';                ok = false }
+  if (!form.description.trim())         { errors.description        = 'A descrição é obrigatória.';             ok = false }
+  else if (form.description.trim().length < 20) {
+                                          errors.description        = 'A descrição deve ter pelo menos 20 caracteres.'; ok = false }
+  return ok
 }
 
 async function submitForm() {
-    submitted.value  = false
-    submitError.value = ''
-    if (!validate()) return
+  submitError.value = ''
+  if (!validate()) return
 
-    const fd = new FormData()
-    if (form.complainant_name.trim())  fd.append('complainant_name',  form.complainant_name.trim())
-    if (form.complainant_email.trim()) fd.append('complainant_email', form.complainant_email.trim())
-    if (form.complainant_phone.trim()) fd.append('complainant_phone', form.complainant_phone.trim())
-    fd.append('subject',            form.subject.trim())
-    fd.append('project_id',         form.project_id)
-    fd.append('category_id',        form.category_id)
-    fd.append('occurrence_type_id', form.occurrence_type_id)
-    fd.append('alert_type',         form.alert_type)
-    fd.append('submission_channel', form.submission_channel)
-    fd.append('province_id',        form.province_id)
-    fd.append('description',        form.description.trim())
-    if (form.district_id)     fd.append('district_id',     form.district_id)
-    if (form.occurrence_date) fd.append('occurrence_date', form.occurrence_date)
-    if (form.location_detail.trim()) fd.append('location_detail', form.location_detail.trim())
-    files.value.forEach(f => fd.append('attachments[]', f))
+  const fd = new FormData()
+  if (form.complainant_name.trim())  fd.append('complainant_name',  form.complainant_name.trim())
+  if (form.complainant_email.trim()) fd.append('complainant_email', form.complainant_email.trim())
+  if (form.complainant_phone.trim()) fd.append('complainant_phone', form.complainant_phone.trim())
+  fd.append('subject',            form.subject.trim())
+  fd.append('project_id',         form.project_id)
+  fd.append('category_id',        form.category_id)
+  fd.append('occurrence_type_id', form.occurrence_type_id)
+  fd.append('alert_type',         form.alert_type)
+  fd.append('submission_channel', form.submission_channel)
+  fd.append('province_id',        form.province_id)
+  fd.append('description',        form.description.trim())
+  if (form.district_id)     fd.append('district_id',     form.district_id)
+  if (form.occurrence_date) fd.append('occurrence_date', form.occurrence_date)
+  if (form.location_detail.trim()) fd.append('location_detail', form.location_detail.trim())
+  files.value.forEach(f => fd.append('attachments[]', f))
 
-    loading.value = true
-    try {
-        const result = await InternalService.createOccurrence(fd)
-        const code = result.tracking_code ?? ''
-        closeDrawer()
-        showToast(`Ocorrência registada com sucesso!${code ? ' Código: ' + code : ''}`)
-        refreshStats()
-    } catch (err) {
-        if (err.response?.status === 422) {
-            const serverErrors = err.response.data.errors ?? {}
-            Object.entries(serverErrors).forEach(([field, msgs]) => {
-                if (field in errors) errors[field] = msgs[0]
-            })
-            submitError.value = 'Corrija os erros e tente novamente.'
-        } else {
-            submitError.value = err.response?.data?.message ?? 'Erro ao registar. Tente novamente.'
-        }
-    } finally {
-        loading.value = false
+  loading.value = true
+  try {
+    const result = await InternalService.createOccurrence(fd)
+    const code = result.tracking_code ?? ''
+    closeDrawer()
+    showToast(`Ocorrência registada!${code ? ' Código: ' + code : ''}`)
+    refreshStats()
+  } catch (err) {
+    if (err.response?.status === 422) {
+      const serverErrors = err.response.data.errors ?? {}
+      Object.entries(serverErrors).forEach(([field, msgs]) => {
+        if (field in errors) errors[field] = msgs[0]
+      })
+      submitError.value = 'Corrija os erros e tente novamente.'
+    } else {
+      submitError.value = err.response?.data?.message ?? 'Erro ao registar. Tente novamente.'
     }
-}
-
-function resetDrawerForm(clearSuccess = true) {
-    if (clearSuccess) { submitted.value = false; lastTrackingCode.value = '' }
-    submitError.value = ''
-    Object.assign(form, {
-        complainant_name: '', complainant_email: '', complainant_phone: '',
-        subject: '', project_id: '', category_id: '',
-        occurrence_type_id: '', alert_type: '', submission_channel: '',
-        occurrence_date: '', province_id: '', district_id: '',
-        location_detail: '', description: '',
-    })
-    Object.assign(errors, {
-        complainant_email: '', subject: '', project_id: '', category_id: '',
-        occurrence_type_id: '', alert_type: '', submission_channel: '',
-        province_id: '', description: '',
-    })
-    files.value = []
-    refDistricts.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
 function closeDrawer() {
   drawerOpen.value = false
-  resetDrawerForm()
+  submitError.value = ''
+  Object.assign(form, {
+    complainant_name: '', complainant_email: '', complainant_phone: '',
+    subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+    alert_type: '', submission_channel: '', occurrence_date: '',
+    province_id: '', district_id: '', location_detail: '', description: '',
+  })
+  Object.assign(errors, {
+    complainant_email: '', subject: '', project_id: '', category_id: '',
+    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    province_id: '', description: '',
+  })
+  files.value = []
+  refDistricts.value = []
 }
 
 function handleFileSelect(e) {
@@ -900,9 +827,12 @@ onMounted(async () => {
   Chart.defaults.font.family = "'Poppins', sans-serif"
   Chart.defaults.color       = '#8A9490'
 
+  // Garante que o auth store tem as províncias e projectos do gestor
+  try { await auth.fetchMe() } catch { /* ignora se falhar */ }
+
   try {
     const data = await InternalService.getDashboardStats()
-    Object.assign(stats.totals,      data.totals         ?? {})
+    Object.assign(stats.totals,       data.totals         ?? {})
     Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
     stats.overdue         = data.overdue          ?? 0
     stats.byProvince      = data.by_province      ?? []
@@ -916,7 +846,6 @@ onMounted(async () => {
     statsLoading.value = false
   }
 
-  // ── Bar chart: por província ────────────────────────────────
   barChart = new Chart(barChartRef.value, {
     type: 'bar',
     data: {
@@ -933,7 +862,6 @@ onMounted(async () => {
     }
   })
 
-  // ── Donut chart: por categoria ──────────────────────────────
   donutChart = new Chart(donutChartRef.value, {
     type: 'doughnut',
     data: {
@@ -950,7 +878,6 @@ onMounted(async () => {
     }
   })
 
-  // ── Line chart: submissões e resolvidas por mês ─────────────
   const allMonths    = buildMonthAxis()
   const lineSubmit   = allMonths.map(m => stats.byMonth.find(r => r.label === m)?.total ?? 0)
   const lineResolved = allMonths.map(m => stats.byMonthResolved.find(r => r.label === m)?.total ?? 0)
@@ -985,50 +912,51 @@ onMounted(async () => {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #F4F6F5;
+  background: #EDF2EF;
 }
 
-/* ── SIDEBAR ─────────────────────────────── */
+/* ── SIDEBAR ──────────────────────────────── */
 .sidebar {
-  width: 210px;
+  width: 220px;
   flex-shrink: 0;
-  background: var(--white);
-  border-right: 1px solid var(--border);
+  background: #fff;
   display: flex;
   flex-direction: column;
   height: 100vh;
   position: fixed;
   top: 0; left: 0;
   z-index: 50;
+  border-right: 1px solid var(--border);
+  box-shadow: 2px 0 16px rgba(0,0,0,0.06);
 }
 
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 18px 16px 16px;
+  gap: 10px;
+  padding: 20px 18px 18px;
   border-bottom: 1px solid var(--border);
   text-decoration: none;
 }
 
 .sidebar-logo-img {
-  width: 32px;
-  height: 32px;
+  width: 34px; height: 34px;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
   flex-shrink: 0;
 }
 
 .sidebar-logo-text {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--green-dark);
   line-height: 1.2;
+  letter-spacing: 0.2px;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 14px 10px;
+  padding: 16px 10px;
   overflow-y: auto;
 }
 
@@ -1038,18 +966,31 @@ onMounted(async () => {
   gap: 10px;
   padding: 10px 12px;
   border-radius: 9px;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-gray);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   text-decoration: none;
+  border-left: 3px solid transparent;
 }
 
-.nav-item:hover { background: var(--green-bg); color: var(--green-mid); }
-.nav-item.active { background: var(--green-bg); color: var(--green-mid); font-weight: 700; }
-.nav-item svg { flex-shrink: 0; opacity: 0.75; }
+.nav-item:hover {
+  background: var(--green-bg);
+  color: var(--green-mid);
+}
+
+.nav-item.active {
+  background: var(--green-bg);
+  color: var(--green-mid);
+  font-weight: 700;
+  border-left-color: #52B788;
+  padding-left: 9px;
+}
+
+.nav-item svg    { flex-shrink: 0; opacity: 0.7; }
+.nav-item:hover svg { opacity: 1; }
 .nav-item.active svg { opacity: 1; }
 
 .sidebar-footer {
@@ -1071,13 +1012,13 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 500;
   color: #E53E3E;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
-.btn-logout:hover { background: #FFF5F5; }
+.btn-logout:hover { background: #FFF5F5; color: #C53030; }
 
-/* ── MAIN AREA ───────────────────────────── */
+/* ── MAIN ────────────────────────────────── */
 .main {
-  margin-left: 210px;
+  margin-left: 220px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1091,9 +1032,10 @@ onMounted(async () => {
   align-items: center;
   gap: 14px;
   padding: 0 28px;
-  height: 58px;
+  height: 62px;
   background: var(--white);
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
   flex-shrink: 0;
 }
 
@@ -1110,151 +1052,177 @@ onMounted(async () => {
   transition: border-color 0.2s;
 }
 .search-wrap:focus-within { border-color: var(--green-light); }
-
 .search-wrap input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: 'Poppins', sans-serif;
-  font-size: 13px;
-  color: var(--text-dark);
-  width: 100%;
+  border: none; outline: none; background: transparent;
+  font-family: 'Poppins', sans-serif; font-size: 13px; color: var(--text-dark); width: 100%;
 }
 .search-wrap input::placeholder { color: var(--text-light); }
 
 .topbar-spacer { flex: 1; }
 
-.notif-btn {
-  position: relative;
-  width: 38px; height: 38px;
-  background: #F4F6F5;
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-.notif-btn:hover { border-color: var(--green-light); }
-
-.notif-dot {
-  position: absolute;
-  top: 7px; right: 8px;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #E53E3E;
-  border: 1.5px solid var(--white);
-}
-
-.admin-info { display: flex; align-items: center; gap: 10px; }
-.admin-text { text-align: right; }
-.admin-name { font-size: 13px; font-weight: 700; color: var(--text-dark); }
-.admin-role { font-size: 11px; color: var(--text-light); }
-
-.admin-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #52B788, #1B4332);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
-  color: #fff;
-  flex-shrink: 0;
-}
-
 /* ── CONTENT ─────────────────────────────── */
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 28px 32px;
+  padding: 26px 30px 36px;
 }
 .content::-webkit-scrollbar { width: 5px; }
 .content::-webkit-scrollbar-track { background: transparent; }
 .content::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 
-/* page title row */
+/* page title */
 .page-title-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
-.page-title-row h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-.page-title-row p  { font-size: 13px; color: var(--text-gray); }
-
-.title-actions { display: flex; gap: 10px; flex-shrink: 0; }
-
-.btn-outline-sm {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--white); color: var(--text-dark);
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 8px 16px;
-  font-family: 'Poppins', sans-serif; font-size: 12.5px; font-weight: 600;
-  cursor: pointer; transition: border-color 0.2s;
+.page-title-row h1 {
+  font-size: 23px;
+  font-weight: 800;
+  margin-bottom: 5px;
+  color: #162119;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.btn-outline-sm:hover { border-color: var(--green-mid); color: var(--green-mid); }
+.page-title-row h1::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(180deg, #52B788 0%, #2D6A4F 100%);
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+.page-title-row p  { font-size: 13px; color: var(--text-gray); line-height: 1.5; }
+
+.title-actions { display: flex; gap: 10px; flex-shrink: 0; margin-top: 2px; }
 
 .btn-green-sm {
   display: flex; align-items: center; gap: 7px;
-  background: var(--green-mid); color: #fff;
-  border: none; border-radius: 8px; padding: 8px 16px;
+  background: #40916C; color: #fff;
+  border: none; border-radius: 10px; padding: 10px 18px;
   font-family: 'Poppins', sans-serif; font-size: 12.5px; font-weight: 700;
-  cursor: pointer; transition: background 0.2s;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 10px rgba(64,145,108,0.35);
 }
-.btn-green-sm:hover { background: var(--green-dark); }
+.btn-green-sm:hover {
+  background: #2D6A4F;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(64,145,108,0.4);
+}
+
+/* ── SCOPE BANNER ────────────────────────── */
+.scope-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  background: linear-gradient(135deg, #EBF8F1 0%, #f0faf5 100%);
+  border: 1px solid #B7E4CA;
+  border-left: 4px solid #52B788;
+  border-radius: 10px;
+  padding: 11px 18px;
+  margin-bottom: 22px;
+  font-size: 12.5px;
+}
+
+.scope-section {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  color: var(--text-gray);
+}
+
+.scope-label {
+  font-weight: 700;
+  color: #2D6A4F;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.scope-tag {
+  background: #fff;
+  color: #2D6A4F;
+  border: 1px solid #B7E4CA;
+  border-radius: 99px;
+  padding: 2px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.scope-tag.proj {
+  background: #fff;
+  color: #1D4ED8;
+  border-color: #93C5FD;
+}
+
+.scope-sep {
+  width: 1px;
+  height: 18px;
+  background: #B7E4CA;
+}
 
 /* ── KPI CARDS ───────────────────────────── */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
 .kpi-card {
   background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 18px 16px;
-  transition: box-shadow 0.2s;
+  border: none;
+  border-radius: 14px;
+  padding: 20px 18px 17px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
 }
-.kpi-card:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07); }
-.kpi-card.highlight { background: var(--green-mid); border-color: var(--green-mid); }
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #52B788, #B7E4CA);
+  border-radius: 14px 14px 0 0;
+}
+.kpi-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+.kpi-card.highlight {
+  background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%);
+  box-shadow: 0 8px 28px rgba(45,106,79,0.35);
+}
+.kpi-card.highlight::after { display: none; }
 
-.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 
 .kpi-icon {
-  width: 36px; height: 36px;
-  border-radius: 9px;
+  width: 38px; height: 38px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
 }
-.kpi-icon.green { background: var(--green-pale); }
-.kpi-icon.white { background: rgba(255, 255, 255, 0.22); }
+.kpi-icon.green { background: #EBF8F1; }
+.kpi-icon.white { background: rgba(255,255,255,.22); }
 
-.kpi-badge {
-  font-size: 10.5px; font-weight: 700;
-  padding: 3px 8px; border-radius: 99px;
-  display: flex; align-items: center; gap: 3px;
-}
-.kpi-badge.up { background: #E6F7EE; color: var(--green-mid); }
-
-.kpi-label {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;
-}
+.kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
 .kpi-label.dark  { color: var(--text-light); }
-.kpi-label.light { color: rgba(255, 255, 255, 0.75); }
+.kpi-label.light { color: rgba(255,255,255,.75); }
 
-.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
-.kpi-value.dark  { color: var(--text-dark); }
+.kpi-value { font-size: 30px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+.kpi-value.dark  { color: #162119; }
 .kpi-value.light { color: #fff; }
 
 .kpi-sub { font-size: 11px; }
 .kpi-sub.dark  { color: var(--text-light); }
-.kpi-sub.light { color: rgba(255, 255, 255, 0.75); }
+.kpi-sub.light { color: rgba(255,255,255,.75); }
 
 /* ── CHARTS ROW ──────────────────────────── */
 .charts-row {
@@ -1266,16 +1234,16 @@ onMounted(async () => {
 
 .chart-card {
   background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 22px 22px 18px;
+  border: none;
+  border-radius: 14px;
+  padding: 24px 22px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
-.chart-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.chart-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; color: #162119; }
 .chart-sub   { font-size: 11.5px; color: var(--text-light); margin-bottom: 18px; }
 .chart-wrap  { position: relative; }
 
-/* donut legend */
 .donut-legend {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1288,7 +1256,6 @@ onMounted(async () => {
 .legend-label { color: var(--text-gray); flex: 1; }
 .legend-pct   { font-weight: 700; color: var(--text-dark); }
 
-/* line chart legend */
 .line-legend { display: flex; gap: 16px; margin-bottom: 12px; }
 .line-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
 
@@ -1319,17 +1286,18 @@ onMounted(async () => {
 table { width: 100%; border-collapse: collapse; }
 
 thead th {
-  font-size: 11px; font-weight: 700; color: var(--text-light);
-  text-align: left; padding: 8px 10px;
+  font-size: 10.5px; font-weight: 700; color: var(--text-light);
+  text-align: left; padding: 10px 10px;
+  background: #F7FAF8;
   border-bottom: 1px solid var(--border);
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-tbody tr { transition: background 0.15s; cursor: pointer; }
-tbody tr:hover { background: #F4F6F5; }
+tbody tr { transition: background 0.12s; cursor: pointer; }
+tbody tr:hover { background: #F3FAF6; }
 
 tbody td {
-  padding: 10px 10px; font-size: 12.5px;
+  padding: 10px; font-size: 12.5px;
   border-bottom: 1px solid #F0F4F2; vertical-align: middle;
 }
 
@@ -1356,13 +1324,17 @@ tbody td {
 .badge-status.pendente  { background: #FFF8E6; color: #B7791F; }
 .badge-status.analise   { background: #EBF4FF; color: #2B6CB0; }
 .badge-status.resolvida { background: var(--green-pale); color: var(--green-dark); }
+.badge-status.rejeitada { background: #FFF5F5; color: #C53030; }
+.badge-status.encerrada { background: #F0F4F2; color: var(--text-gray); }
+
+.empty-row { text-align: center; color: var(--text-light); padding: 28px; font-size: 13px; }
 
 /* ── FOOTER ──────────────────────────────── */
 .dash-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 28px;
+  padding: 13px 30px;
   background: var(--white);
   border-top: 1px solid var(--border);
   font-size: 11.5px;
@@ -1380,17 +1352,15 @@ tbody td {
 
 /* ── DRAWER ──────────────────────────────── */
 .drawer-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.35);
   z-index: 100;
   backdrop-filter: blur(2px);
 }
 
 .drawer-panel {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   width: 680px;
   max-height: 88vh;
@@ -1398,7 +1368,7 @@ tbody td {
   z-index: 101;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
   border-radius: 16px;
   overflow: hidden;
 }
@@ -1412,26 +1382,15 @@ tbody td {
   flex-shrink: 0;
 }
 
-.drawer-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text-dark);
-  margin-bottom: 3px;
-}
-
-.drawer-subtitle {
-  font-size: 12px;
-  color: var(--text-light);
-}
+.drawer-title    { font-size: 17px; font-weight: 800; color: var(--text-dark); margin-bottom: 3px; }
+.drawer-subtitle { font-size: 12px; color: var(--text-light); }
 
 .drawer-close {
-  width: 32px; height: 32px;
-  border-radius: 8px;
+  width: 32px; height: 32px; border-radius: 8px;
   border: 1.5px solid var(--border);
   background: transparent;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  color: var(--text-gray);
+  cursor: pointer; color: var(--text-gray);
   transition: background 0.15s, border-color 0.15s;
   flex-shrink: 0;
 }
@@ -1443,7 +1402,6 @@ tbody td {
   padding: 22px 26px 32px;
 }
 .drawer-body::-webkit-scrollbar { width: 4px; }
-.drawer-body::-webkit-scrollbar-track { background: transparent; }
 .drawer-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 
 /* drawer transitions */
@@ -1451,11 +1409,10 @@ tbody td {
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
 .modal-pop-enter-active, .modal-pop-leave-active {
-  transition: opacity 0.22s ease, transform 0.25s cubic-bezier(.4, 0, .2, 1);
+  transition: opacity 0.22s ease, transform 0.25s cubic-bezier(.4,0,.2,1);
 }
 .modal-pop-enter-from, .modal-pop-leave-to {
-  opacity: 0;
-  transform: translate(-50%, -46%) scale(0.96);
+  opacity: 0; transform: translate(-50%, -46%) scale(0.96);
 }
 
 /* ── FORM FIELDS ─────────────────────────── */
@@ -1475,11 +1432,7 @@ tbody td {
 
 .f-row .f-group { margin-bottom: 0; }
 
-.f-group label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-dark);
-}
+.f-group label { font-size: 12.5px; font-weight: 600; color: var(--text-dark); }
 
 .f-group input,
 .f-group select,
@@ -1495,6 +1448,7 @@ tbody td {
   width: 100%;
   appearance: none;
   -webkit-appearance: none;
+  box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -1505,7 +1459,7 @@ tbody td {
 .f-group select:focus,
 .f-group textarea:focus {
   border-color: var(--green-light);
-  box-shadow: 0 0 0 3px rgba(82, 183, 136, .15);
+  box-shadow: 0 0 0 3px rgba(82,183,136,.15);
 }
 
 .f-group select {
@@ -1516,22 +1470,13 @@ tbody td {
   background-position: right 13px center;
 }
 
-.f-group textarea {
-  resize: vertical;
-  min-height: 110px;
-}
+.f-group textarea { resize: vertical; min-height: 110px; }
 
-.f-err {
-  border-color: #FC8181 !important;
-  box-shadow: 0 0 0 3px rgba(252, 129, 129, .12) !important;
-}
+.f-err { border-color: #FC8181 !important; box-shadow: 0 0 0 3px rgba(252,129,129,.12) !important; }
+.f-err-msg { font-size: 11.5px; color: #E53E3E; }
+.f-req { color: #E53E3E; margin-left: 2px; }
 
-.f-err-msg {
-  font-size: 11.5px;
-  color: #E53E3E;
-}
-
-/* ── UPLOAD ──────────────────────────────── */
+/* upload */
 .upload-zone {
   border: 2px dashed var(--border);
   border-radius: 10px;
@@ -1543,19 +1488,14 @@ tbody td {
   margin-bottom: 16px;
 }
 .upload-zone:hover, .upload-zone.drag-over {
-  border-color: var(--green-light);
-  background: #EEF7F1;
+  border-color: var(--green-light); background: #EEF7F1;
 }
-
 .upload-icon-wrap {
-  width: 40px; height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--white);
+  width: 40px; height: 40px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--white);
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 10px;
 }
-
 .upload-zone h4 { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--text-dark); }
 .upload-zone p  { font-size: 11.5px; color: var(--text-light); }
 
@@ -1563,66 +1503,45 @@ tbody td {
 
 .file-item {
   display: flex; align-items: center; gap: 9px;
-  background: #EEF7F1;
-  border: 1px solid #C3E6CE;
-  border-radius: 8px;
-  padding: 8px 12px;
+  background: #EEF7F1; border: 1px solid #C3E6CE;
+  border-radius: 8px; padding: 8px 12px;
 }
-
 .file-item-name { font-size: 12.5px; font-weight: 500; color: #2D6A4F; flex: 1; }
 .file-item-size { font-size: 11px; color: var(--text-light); }
 
 .btn-rm {
   background: none; border: none; cursor: pointer;
-  color: var(--text-light); display: flex;
-  transition: color 0.2s; padding: 0;
+  color: var(--text-light); display: flex; transition: color 0.2s; padding: 0;
 }
 .btn-rm:hover { color: #E53E3E; }
 
-/* ── FORM ACTIONS ────────────────────────── */
-.f-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
+/* form actions */
+.f-actions { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
 
 .btn-registar {
   display: inline-flex; align-items: center; gap: 8px;
-  background: #2D6A4F; color: #fff; border: none;
-  border-radius: 9px; padding: 11px 24px;
+  background: #40916C; color: #fff; border: none;
+  border-radius: 10px; padding: 12px 26px;
   font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 700;
-  cursor: pointer; transition: background 0.2s, transform 0.15s;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 3px 12px rgba(64,145,108,0.35);
 }
-.btn-registar:hover { background: #1B4332; transform: translateY(-1px); }
-.btn-registar:disabled { background: #A0C4B0; cursor: not-allowed; transform: none; }
+.btn-registar:hover {
+  background: #2D6A4F;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(64,145,108,0.4);
+}
+.btn-registar:disabled { background: #A0C4B0; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .btn-cancelar {
   display: inline-flex; align-items: center; gap: 8px;
   background: transparent; color: #E53E3E;
-  border: 1.5px solid #FC8181; border-radius: 9px;
-  padding: 9px 20px;
+  border: 1.5px solid #FC8181; border-radius: 9px; padding: 9px 20px;
   font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 600;
   cursor: pointer; transition: background 0.2s, border-color 0.2s;
 }
 .btn-cancelar:hover { background: #FFF5F5; border-color: #E53E3E; }
-
-/* success banner */
-.success-banner {
-  background: #EEF7F1; border: 1px solid #C3E6CE;
-  border-radius: 10px; padding: 13px 16px;
-  display: flex; align-items: flex-start; gap: 10px;
-  font-size: 13px; font-weight: 600; color: #2D6A4F;
-  margin-bottom: 18px;
-  animation: fadeInBanner 0.3s ease;
-}
-
-.tracking-inline {
-  display: block; font-size: 12px; font-weight: 400;
-  color: #2D6A4F; margin-top: 3px; letter-spacing: 0.5px;
-}
-
-.tracking-inline strong { font-weight: 800; letter-spacing: 1px; }
 
 .error-banner {
   background: #FFF5F5; border: 1px solid #FEB2B2;
@@ -1632,52 +1551,17 @@ tbody td {
   margin-bottom: 18px;
 }
 
-.f-req { color: #E53E3E; margin-left: 2px; }
-
 .contact-note {
   display: flex; align-items: flex-start; gap: 7px;
   font-size: 11.5px; color: var(--text-gray);
   line-height: 1.55; padding-top: 6px;
-  justify-content: flex-start;
 }
 
 .char-hint { font-size: 11.5px; margin-top: 3px; }
 .char-warn { color: #C66E00; }
 .char-ok   { color: #2D6A4F; }
 
-.submit-overlay {
-  position: fixed; inset: 0;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(3px);
-  z-index: 200;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.submit-loader {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 16px;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 36px 48px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
-}
-
-.submit-loader p {
-  font-size: 14px; font-weight: 600; color: var(--green-dark);
-}
-
-@keyframes spin-lg { to { transform: rotate(360deg); } }
-.spin-lg { animation: spin-lg 0.9s linear infinite; }
-
-@keyframes fadeInBanner {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: none; }
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin { animation: spin 0.7s linear infinite; }
-/* ── DASHBOARD TOAST ────────────────────────────────────────── */
+/* ── TOAST ───────────────────────────────── */
 .dash-toast {
   position: fixed; bottom: 24px; right: 24px; z-index: 600;
   background: var(--green-dark); color: #fff;
@@ -1687,7 +1571,10 @@ tbody td {
   box-shadow: 0 8px 28px rgba(0,0,0,.18);
   max-width: 440px;
 }
+
 .toast-anim-enter-active, .toast-anim-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
 .toast-anim-enter-from, .toast-anim-leave-to { opacity: 0; transform: translateY(12px); }
 
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 0.7s linear infinite; }
 </style>

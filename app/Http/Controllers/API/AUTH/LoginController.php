@@ -83,19 +83,11 @@ class LoginController extends Controller
         // Regista o login na auditoria
         $this->auditService->logLogin($user);
 
+        $user->load('province', 'provinces', 'projects');
+
         return response()->json([
             'token'   => $token,
-            'user'    => [
-                'id'               => $user->id,
-                'name'             => $user->name,
-                'email'            => $user->email,
-                'role'             => $user->role->value,
-                'role_label'       => $user->role->label(),
-                'management_scope' => $user->management_scope,
-                'province_id'      => $user->province_id,
-                'province'         => $user->province?->name,
-                'can_validate'     => $user->canValidate(),
-            ],
+            'user'    => $this->userPayload($user),
             'message' => 'Login efectuado com sucesso.',
         ], 200);
     }
@@ -136,7 +128,7 @@ class LoginController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        $user = $request->user()->load('province', 'projects');
+        $user = $request->user()->load('province', 'provinces', 'projects');
 
         return response()->json([
             'user' => $this->userPayload($user),
@@ -162,7 +154,7 @@ class LoginController extends Controller
         }
 
         $user->update($validated);
-        $user->load('province', 'projects');
+        $user->load('province', 'provinces', 'projects');
 
         return response()->json([
             'message' => 'Perfil actualizado com sucesso.',
@@ -185,6 +177,10 @@ class LoginController extends Controller
             'management_scope'       => $user->management_scope,
             'province_id'            => $user->province_id,
             'province'               => $user->province?->name,
+            'provinces'              => $user->provinces->map(fn($p) => [
+                                          'id'   => $p->id,
+                                          'name' => $p->name,
+                                       ]),
             'projects'               => $user->projects->map(fn($p) => [
                 'id'   => $p->id,
                 'name' => $p->name,
