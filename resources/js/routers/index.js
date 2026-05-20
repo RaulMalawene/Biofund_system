@@ -9,6 +9,9 @@ import HistoricoOcorrencia     from '@/views/administrador/HistoricoOcorrencia.v
 import Validacao               from '@/views/administrador/Validacao.vue'
 import Projectos               from '@/views/administrador/projectos.vue'
 import Categoria               from '@/views/administrador/Categoria.vue'
+import DashboardGestor         from '@/views/gestor/DashboardGestor.vue'
+import ValidacaoGestor         from '@/views/gestor/ValidacaoGestor.vue'
+import HistoricoGestor         from '@/views/gestor/HistoricoGestor.vue'
 
 const routes = [
     // ── Públicas ─────────────────────────────────────────────
@@ -24,10 +27,12 @@ const routes = [
     },
 
     // ── Protegidas (requerem autenticação) ────────────────────
+
+    // Páginas exclusivas do administrador
     {
         path: '/admin/dashboard',
         component: DashboardAdmin,
-        meta: { requiresAuth: true, roles: ['admin', 'gestor', 'funcionario'] },
+        meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
         path: '/admin/utilizadores',
@@ -37,22 +42,37 @@ const routes = [
     {
         path: '/admin/historico',
         component: HistoricoOcorrencia,
-        meta: { requiresAuth: true, roles: ['admin', 'gestor'] },
+        meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
         path: '/admin/validacao',
         component: Validacao,
-        meta: { requiresAuth: true, roles: ['admin', 'gestor'] },
+        meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
         path: '/admin/projectos',
         component: Projectos,
-        meta: { requiresAuth: true, roles: ['admin', 'gestor'] },
+        meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
         path: '/admin/categorias',
         component: Categoria,
         meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+        path: '/gestor/dashboard',
+        component: DashboardGestor,
+        meta: { requiresAuth: true, roles: ['gestor'] },
+    },
+    {
+        path: '/gestor/validacao',
+        component: ValidacaoGestor,
+        meta: { requiresAuth: true, roles: ['gestor'] },
+    },
+    {
+        path: '/gestor/historico',
+        component: HistoricoGestor,
+        meta: { requiresAuth: true, roles: ['gestor'] },
     },
 
     // Rota catch-all: redireciona para a home
@@ -100,9 +120,12 @@ router.beforeEach((to, _from, next) => {
 
         // Verifica se o role tem permissão para esta rota
         if (to.meta.roles && !to.meta.roles.includes(user.role)) {
-            // Já está no dashboard → deixa passar para evitar loop infinito
-            if (to.path === '/admin/dashboard') return next()
-            return next('/admin/dashboard')
+            const home = user.role === 'gestor'
+                ? '/gestor/dashboard'
+                : '/admin/dashboard'
+            // Evitar loop infinito se já estiver na home
+            if (to.path === home) return next()
+            return next(home)
         }
 
         // Autenticado e com permissão → deixa passar
@@ -111,7 +134,8 @@ router.beforeEach((to, _from, next) => {
 
     // ── Rota só para não-autenticados (ex: login) ─────────────
     if (to.meta.guestOnly && isAuthenticated) {
-        return next('/admin/dashboard')
+        const home = user?.role === 'gestor' ? '/gestor/dashboard' : '/admin/dashboard'
+        return next(home)
     }
 
     // ── Rota pública → deixa passar ───────────────────────────

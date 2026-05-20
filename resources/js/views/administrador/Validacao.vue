@@ -80,12 +80,8 @@
           <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="topSearch" />
         </div>
         <div class="topbar-spacer"></div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -738,6 +734,8 @@ import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
 const auth = useAuthStore()

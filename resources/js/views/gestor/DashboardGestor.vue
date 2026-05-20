@@ -827,6 +827,9 @@ onMounted(async () => {
   Chart.defaults.font.family = "'Poppins', sans-serif"
   Chart.defaults.color       = '#8A9490'
 
+  // Garante que o auth store tem as províncias e projectos do gestor
+  try { await auth.fetchMe() } catch { /* ignora se falhar */ }
+
   try {
     const data = await InternalService.getDashboardStats()
     Object.assign(stats.totals,       data.totals         ?? {})
@@ -916,14 +919,15 @@ onMounted(async () => {
 .sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: #1A3028;
+  background: #fff;
   display: flex;
   flex-direction: column;
   height: 100vh;
   position: fixed;
   top: 0; left: 0;
   z-index: 50;
-  box-shadow: 4px 0 28px rgba(0,0,0,0.15);
+  border-right: 1px solid var(--border);
+  box-shadow: 2px 0 16px rgba(0,0,0,0.06);
 }
 
 .sidebar-logo {
@@ -931,7 +935,7 @@ onMounted(async () => {
   align-items: center;
   gap: 10px;
   padding: 20px 18px 18px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid var(--border);
   text-decoration: none;
 }
 
@@ -940,13 +944,12 @@ onMounted(async () => {
   object-fit: contain;
   border-radius: 8px;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
 .sidebar-logo-text {
   font-size: 13px;
   font-weight: 800;
-  color: #fff;
+  color: var(--green-dark);
   line-height: 1.2;
   letter-spacing: 0.2px;
 }
@@ -966,7 +969,7 @@ onMounted(async () => {
   margin-bottom: 3px;
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.5);
+  color: var(--text-gray);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   text-decoration: none;
@@ -974,25 +977,25 @@ onMounted(async () => {
 }
 
 .nav-item:hover {
-  background: rgba(255,255,255,0.07);
-  color: rgba(255,255,255,0.85);
+  background: var(--green-bg);
+  color: var(--green-mid);
 }
 
 .nav-item.active {
-  background: rgba(82,183,136,0.18);
-  color: #74C69D;
+  background: var(--green-bg);
+  color: var(--green-mid);
   font-weight: 700;
   border-left-color: #52B788;
   padding-left: 9px;
 }
 
-.nav-item svg    { flex-shrink: 0; opacity: 0.6; }
-.nav-item:hover svg { opacity: 0.85; }
+.nav-item svg    { flex-shrink: 0; opacity: 0.7; }
+.nav-item:hover svg { opacity: 1; }
 .nav-item.active svg { opacity: 1; }
 
 .sidebar-footer {
   padding: 14px 10px;
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid var(--border);
 }
 
 .btn-logout {
@@ -1008,10 +1011,10 @@ onMounted(async () => {
   font-family: 'Poppins', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.38);
+  color: #E53E3E;
   transition: background 0.15s, color 0.15s;
 }
-.btn-logout:hover { background: rgba(252,129,129,0.12); color: #FC8181; }
+.btn-logout:hover { background: #FFF5F5; color: #C53030; }
 
 /* ── MAIN ────────────────────────────────── */
 .main {

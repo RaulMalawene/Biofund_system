@@ -80,19 +80,8 @@
           <input type="text" placeholder="Pesquisar utilizadores…" v-model="tableSearch" @keyup.enter="loadUsers(1)" />
         </div>
         <div class="topbar-spacer"></div>
-        <div class="notif-btn">
-          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z" />
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round" />
-          </svg>
-          <span class="notif-dot"></span>
-        </div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -326,17 +315,15 @@
           </div>
 
           <div class="mf-body">
-            <div class="mf-grid">
+            <div class="mf-form">
 
-              <!-- LEFT -->
-              <div class="mf-col">
-
+              <!-- Linha 1: Nome + Telefone -->
+              <div class="mf-row">
                 <div class="mf-field">
                   <label>Nome <span class="req">*</span></label>
                   <div class="input-wrap" :class="{ err: mErrors.name }">
                     <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
                         <circle cx="8" cy="6" r="3" />
                         <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
                       </svg>
@@ -347,21 +334,47 @@
                 </div>
 
                 <div class="mf-field">
-                  <label>Palavra-passe <span v-if="!editingUser" class="req">*</span><span v-else
-                      class="field-hint">(deixe em branco para não alterar)</span></label>
+                  <label>Telefone</label>
+                  <div class="input-wrap">
+                    <div class="input-icon">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <rect x="3" y="1" width="10" height="14" rx="2" />
+                        <path d="M8 12h.01" stroke-linecap="round" stroke-width="2" />
+                      </svg>
+                    </div>
+                    <input type="tel" v-model="mForm.phone" placeholder="+258 84 000 0000" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Linha 2: Email + Senha -->
+              <div class="mf-row">
+                <div class="mf-field">
+                  <label>Email <span class="req">*</span></label>
+                  <div class="input-wrap" :class="{ err: mErrors.email }">
+                    <div class="input-icon">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <rect x="1" y="3" width="14" height="10" rx="1.5" />
+                        <path d="M1 5l7 5 7-5" stroke-linecap="round" />
+                      </svg>
+                    </div>
+                    <input type="email" v-model="mForm.email" placeholder="nome@biofund.org.mz" @input="mErrors.email = ''" />
+                  </div>
+                  <span class="err-msg" v-if="mErrors.email">{{ mErrors.email }}</span>
+                </div>
+
+                <div class="mf-field">
+                  <label>Palavra-passe <span v-if="!editingUser" class="req">*</span><span v-else class="field-hint">(deixe em branco para não alterar)</span></label>
                   <div class="input-wrap" :class="{ err: mErrors.password }">
                     <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
                         <rect x="3" y="7" width="10" height="8" rx="1.5" />
                         <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round" />
                       </svg>
                     </div>
-                    <input :type="showPass ? 'text' : 'password'" v-model="mForm.password" placeholder="••••••••"
-                      @input="mErrors.password = ''" />
+                    <input :type="showPass ? 'text' : 'password'" v-model="mForm.password" placeholder="••••••••" @input="mErrors.password = ''" />
                     <button class="btn-eye" type="button" @click="showPass = !showPass">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
                         <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
                         <circle cx="8" cy="8" r="2" />
                       </svg>
@@ -369,9 +382,11 @@
                   </div>
                   <span class="err-msg" v-if="mErrors.password">{{ mErrors.password }}</span>
                 </div>
+              </div>
 
-                <!-- Províncias — GESTOR: select com tags -->
-                <div class="mf-field" v-if="modalTipo === 'gestor'">
+              <!-- Linha 3: Províncias + Projectos (GESTOR) -->
+              <div class="mf-row" v-if="modalTipo === 'gestor'">
+                <div class="mf-field">
                   <label>Províncias <span class="req">*</span></label>
                   <div class="input-wrap" :class="{ err: mErrors.province_ids }">
                     <div class="input-icon">
@@ -398,28 +413,7 @@
                   <span class="err-msg" v-if="mErrors.province_ids">{{ mErrors.province_ids }}</span>
                 </div>
 
-                <!-- Província — FUNCIONÁRIO: single select -->
-                <div class="mf-field" v-if="modalTipo === 'funcionario'">
-                  <label>Província <span class="req">*</span></label>
-                  <div class="input-wrap" :class="{ err: mErrors.province_ids }">
-                    <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
-                        <path
-                          d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.75 4.5 9 4.5 9s4.5-5.25 4.5-9c0-2.485-2.015-4.5-4.5-4.5z" />
-                        <circle cx="8" cy="6" r="1.8" />
-                      </svg>
-                    </div>
-                    <select v-model="mForm.single_province_id" @change="mErrors.province_ids = ''">
-                      <option value="" disabled>Seleccione a província</option>
-                      <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
-                    </select>
-                  </div>
-                  <span class="err-msg" v-if="mErrors.province_ids">{{ mErrors.province_ids }}</span>
-                </div>
-
-                <!-- Projectos — GESTOR: select com tags -->
-                <div class="mf-field" v-if="modalTipo === 'gestor'">
+                <div class="mf-field">
                   <label>Projectos</label>
                   <div class="input-wrap">
                     <div class="input-icon">
@@ -443,13 +437,32 @@
                     </span>
                   </div>
                 </div>
+              </div>
 
-                <div class="mf-field" v-if="modalTipo === 'funcionario'">
+              <!-- Linha 3: Província + Projecto (FUNCIONÁRIO) -->
+              <div class="mf-row" v-if="modalTipo === 'funcionario'">
+                <div class="mf-field">
+                  <label>Província <span class="req">*</span></label>
+                  <div class="input-wrap" :class="{ err: mErrors.province_ids }">
+                    <div class="input-icon">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <path d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.75 4.5 9 4.5 9s4.5-5.25 4.5-9c0-2.485-2.015-4.5-4.5-4.5z" />
+                        <circle cx="8" cy="6" r="1.8" />
+                      </svg>
+                    </div>
+                    <select v-model="mForm.single_province_id" @change="mErrors.province_ids = ''">
+                      <option value="" disabled>Seleccione a província</option>
+                      <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+                    </select>
+                  </div>
+                  <span class="err-msg" v-if="mErrors.province_ids">{{ mErrors.province_ids }}</span>
+                </div>
+
+                <div class="mf-field">
                   <label>Projecto</label>
                   <div class="input-wrap">
                     <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
                         <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                     </div>
@@ -459,43 +472,10 @@
                     </select>
                   </div>
                 </div>
+              </div>
 
-              </div><!-- /left -->
-
-              <!-- RIGHT -->
-              <div class="mf-col">
-
-                <div class="mf-field">
-                  <label>Telefone</label>
-                  <div class="input-wrap">
-                    <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
-                        <rect x="3" y="1" width="10" height="14" rx="2" />
-                        <path d="M8 12h.01" stroke-linecap="round" stroke-width="2" />
-                      </svg>
-                    </div>
-                    <input type="tel" v-model="mForm.phone" placeholder="+258 84 000 0000" />
-                  </div>
-                </div>
-
-                <div class="mf-field">
-                  <label>Email <span class="req">*</span></label>
-                  <div class="input-wrap" :class="{ err: mErrors.email }">
-                    <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
-                        <rect x="1" y="3" width="14" height="10" rx="1.5" />
-                        <path d="M1 5l7 5 7-5" stroke-linecap="round" />
-                      </svg>
-                    </div>
-                    <input type="email" v-model="mForm.email" placeholder="nome@biofund.org.mz"
-                      @input="mErrors.email = ''" />
-                  </div>
-                  <span class="err-msg" v-if="mErrors.email">{{ mErrors.email }}</span>
-                </div>
-
-                <!-- Alertas — apenas Gestores -->
+              <!-- Linha 4: Notificações + Estado (largura total) -->
+              <div class="mf-row" v-if="modalTipo === 'gestor' || editingUser">
                 <div class="mf-field" v-if="modalTipo === 'gestor'">
                   <label>Notificações</label>
                   <div class="checks-row">
@@ -514,13 +494,11 @@
                   </div>
                 </div>
 
-                <!-- Estado (apenas em edição) -->
                 <div class="mf-field" v-if="editingUser">
                   <label>Estado da Conta</label>
                   <div class="input-wrap">
                     <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"
-                        viewBox="0 0 16 16">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6" />
                         <path d="M8 5v3l2 2" stroke-linecap="round" />
                       </svg>
@@ -531,8 +509,8 @@
                     </select>
                   </div>
                 </div>
+              </div>
 
-              </div><!-- /right -->
             </div>
           </div>
 
@@ -593,6 +571,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -1861,15 +1841,15 @@ tbody tr:last-child td {
   padding: 24px 28px 8px;
 }
 
-.mf-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 48px;
-}
-
-.mf-col {
+.mf-form {
   display: flex;
   flex-direction: column;
+}
+
+.mf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
 }
 
 .mf-field {
@@ -1906,13 +1886,14 @@ tbody tr:last-child td {
 
 .input-wrap {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   border: 1.5px solid var(--border);
   border-radius: 9px;
   background: var(--white);
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
   height: 44px;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -1932,23 +1913,23 @@ tbody tr:last-child td {
   align-items: center;
   color: var(--text-light);
   flex-shrink: 0;
-  height: 100%;
 }
 
 .input-wrap input,
 .input-wrap select {
   flex: 1;
+  min-width: 0;
   border: none;
   outline: none;
   font-family: 'Poppins', sans-serif;
   font-size: 13px;
   color: var(--text-dark);
-  padding: 0 12px 0 0;
-  height: 100%;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
+  padding: 0 12px 0 0;
+  height: 100%;
 }
 
 .input-wrap input::placeholder {

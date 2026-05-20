@@ -18,39 +18,39 @@
           </svg>
           Dashboard
         </a>
-        <a class="nav-item">
+        <router-link class="nav-item" to="/admin/validacao">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
           </svg>
           Validação
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/utilizadores">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
           </svg>
           Utilizadores
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/historico">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="2" y="1" width="10" height="14" rx="1.5"/>
             <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
             <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Histórico de Ocorrências
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/categorias">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
             <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
           </svg>
           Categorias
-        </a>
-        <a class="nav-item">
+        </router-link>
+        <router-link class="nav-item" to="/admin/projectos">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Projectos
-        </a>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -75,20 +75,8 @@
           <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="searchQ"/>
         </div>
         <div class="topbar-spacer"></div>
-        <div class="notif-btn">
-          <svg width="16" height="16" fill="none" stroke="#555B5A" stroke-width="1.7" viewBox="0 0 16 16">
-            <path d="M8 2a5 5 0 0 0-5 5v3l-1.5 2h13L13 10V7a5 5 0 0 0-5-5z"/>
-            <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0" stroke-linecap="round"/>
-          </svg>
-          <span class="notif-dot"></span>
-        </div>
-        <div class="admin-info">
-          <div class="admin-text">
-            <div class="admin-name">{{ auth.user?.name ?? 'Utilizador' }}</div>
-            <div class="admin-role">{{ auth.user?.role_label ?? '' }}</div>
-          </div>
-          <div class="admin-avatar">{{ auth.userInitials }}</div>
-        </div>
+        <AdminNotificationPanel />
+        <AdminProfilePanel />
       </header>
 
       <!-- CONTENT -->
@@ -565,6 +553,8 @@ import { useRouter } from 'vue-router'
 import { Chart, registerables } from 'chart.js'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
+import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 Chart.register(...registerables)
 
