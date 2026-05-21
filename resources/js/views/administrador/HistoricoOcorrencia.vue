@@ -181,7 +181,7 @@
               </label>
               <select v-model="filters.status">
                 <option value="">Resolvidas e Removidas</option>
-                <option value="resolved">Resolvidas</option>
+                <option value="resolvido">Resolvidas</option>
                 <option value="removed">Removidas</option>
               </select>
             </div>
@@ -223,7 +223,7 @@
             <span v-if="loading" class="stat-spin"></span>
             {{ loading ? 'A carregar…' : `${meta.total} resultado${meta.total !== 1 ? 's' : ''}` }}
           </span>
-          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolved') }}</span>
+          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolvido') }}</span>
           <span class="badge-status removido">Removidas · {{ countByStatus('removed') }}</span>
         </div>
 
@@ -570,8 +570,8 @@ async function loadOccurrences(page = 1) {
     // Filtro de estado: "removed" é um valor especial para só mostrar removidas
     if (filters.status === 'removed') {
       params.deleted_only = 1
-    } else if (filters.status === 'resolved') {
-      params.status = 'resolved'
+    } else if (filters.status) {
+      params.status = filters.status
     }
 
     // Origem

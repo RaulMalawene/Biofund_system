@@ -5,89 +5,65 @@ namespace App\Enums;
 /**
  * OccurrenceStatusEnum
  *
- * Define o ciclo de vida completo de uma ocorrência no sistema.
+ * Ciclo de vida de uma ocorrência:
  *
- * Fluxo normal:
- *   pending → in_review → resolved → closed
+ *   por_validar → por_resolver → resolvendo → resolvido
+ *              ↘ nao_validado
  *
- * Fluxo de rejeição:
- *   pending → in_review → rejected
- *
- * Regras de negócio:
- *   - 'resolved' e 'rejected' EXIGEM comentário obrigatório de quem muda o estado.
- *   - 'closed' é aplicado automaticamente após prazo definido ou confirmação.
- *   - Não é possível voltar atrás depois de 'closed'.
+ * Regras:
+ *   - 'nao_validado' e 'resolvido' EXIGEM comentário obrigatório.
+ *   - Comentários podem ser adicionados em qualquer estado (endpoint próprio).
+ *   - Edição de projecto/categoria só é possível no estado 'por_resolver'.
  */
 enum OccurrenceStatusEnum: string
 {
-    case Pending   = 'pending';
-    case InReview  = 'in_review';
-    case Resolved  = 'resolved';
-    case Rejected  = 'rejected';
-    case Closed    = 'closed';
+    case PorValidar  = 'por_validar';
+    case PorResolver = 'por_resolver';
+    case NaoValidado = 'nao_validado';
+    case Resolvendo  = 'resolvendo';
+    case Resolvido   = 'resolvido';
 
-    /**
-     * Retorna o label legível para o frontend e relatórios.
-     */
     public function label(): string
     {
         return match($this) {
-            OccurrenceStatusEnum::Pending   => 'Pendente',
-            OccurrenceStatusEnum::InReview  => 'Em Análise',
-            OccurrenceStatusEnum::Resolved  => 'Resolvida',
-            OccurrenceStatusEnum::Rejected  => 'Rejeitada',
-            OccurrenceStatusEnum::Closed    => 'Encerrada',
+            self::PorValidar  => 'Por Validar',
+            self::PorResolver => 'Por Resolver',
+            self::NaoValidado => 'Não Validado',
+            self::Resolvendo  => 'Resolvendo',
+            self::Resolvido   => 'Resolvido',
         };
     }
 
-    /**
-     * Retorna a cor associada ao estado (útil para badges no frontend).
-     */
     public function color(): string
     {
         return match($this) {
-            OccurrenceStatusEnum::Pending   => 'yellow',
-            OccurrenceStatusEnum::InReview  => 'blue',
-            OccurrenceStatusEnum::Resolved  => 'green',
-            OccurrenceStatusEnum::Rejected  => 'red',
-            OccurrenceStatusEnum::Closed    => 'gray',
+            self::PorValidar  => 'blue',
+            self::PorResolver => 'yellow',
+            self::NaoValidado => 'red',
+            self::Resolvendo  => 'orange',
+            self::Resolvido   => 'green',
         };
     }
 
-    /**
-     * Indica se este estado exige comentário obrigatório ao ser aplicado.
-     * Resolve e Rejeita obrigam o gestor/admin a explicar a decisão.
-     */
     public function requiresComment(): bool
     {
         return in_array($this, [
-            OccurrenceStatusEnum::Resolved,
-            OccurrenceStatusEnum::Rejected,
+            self::NaoValidado,
+            self::Resolvido,
         ]);
     }
 
-    /**
-     * Define as transições de estado válidas.
-     * Impede que o sistema aceite mudanças de estado inválidas.
-     *
-     * Exemplo: não é possível ir de 'closed' para 'pending'.
-     */
     public function allowedTransitions(): array
     {
         return match($this) {
-            OccurrenceStatusEnum::Pending   => [self::InReview],
-            OccurrenceStatusEnum::InReview  => [self::Resolved, self::Rejected],
-            OccurrenceStatusEnum::Resolved  => [self::Closed],
-            OccurrenceStatusEnum::Rejected  => [],   // estado terminal
-            OccurrenceStatusEnum::Closed    => [],   // estado terminal
+            self::PorValidar  => [self::PorResolver, self::NaoValidado],
+            self::PorResolver => [self::Resolvendo],
+            self::Resolvendo  => [self::Resolvido],
+            self::NaoValidado => [],
+            self::Resolvido   => [],
         };
     }
 
-    /**
-     * Verifica se a transição para um novo estado é válida.
-     *
-     * @param OccurrenceStatusEnum $new O novo estado pretendido
-     */
     public function canTransitionTo(OccurrenceStatusEnum $new): bool
     {
         return in_array($new, $this->allowedTransitions());

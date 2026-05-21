@@ -171,9 +171,8 @@
               </label>
               <select v-model="filters.status">
                 <option value="">Todas as Terminais</option>
-                <option value="resolved">Resolvidas</option>
-                <option value="rejected">Rejeitadas</option>
-                <option value="closed">Encerradas</option>
+                <option value="resolvido">Resolvidas</option>
+                <option value="nao_validado">Não Validadas</option>
               </select>
             </div>
             <div class="filter-group">
@@ -214,9 +213,8 @@
             <span v-if="loading" class="stat-spin"></span>
             {{ loading ? 'A carregar…' : `${meta.total} resultado${meta.total !== 1 ? 's' : ''}` }}
           </span>
-          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolved') }}</span>
-          <span class="badge-status rejected">Rejeitadas · {{ countByStatus('rejected') }}</span>
-          <span class="badge-status closed">Encerradas · {{ countByStatus('closed') }}</span>
+          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolvido') }}</span>
+          <span class="badge-status rejected">Não Validadas · {{ countByStatus('nao_validado') }}</span>
         </div>
 
         <!-- TABLE CARD -->
@@ -316,7 +314,7 @@
 
       <!-- FOOTER -->
       <footer class="dash-footer">
-        <span>© 2026 BioFund Admin · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 BioFund Gestor · Sistema de Gestão Ambiental de Moçambique</span>
         <div>
           <a href="#">Suporte Técnico</a>
           <a href="#">Privacidade</a>
@@ -552,20 +550,9 @@ async function loadOccurrences(page = 1) {
 
     if (topSearch.value.trim()) params.search = topSearch.value.trim()
 
-    // Âmbito do gestor: usa o filtro seleccionado ou envia todos os IDs do âmbito
-    if (filters.province_id) {
-      params.province_id = filters.province_id
-    } else if (scopeProvinces.value.length) {
-      params.province_ids = scopeProvinces.value.map(p => p.id).join(',')
-    }
-
-    if (filters.project_id) {
-      params.project_id = filters.project_id
-    } else if (scopeProjects.value.length) {
-      params.project_ids = scopeProjects.value.map(p => p.id).join(',')
-    }
-
-    if (filters.date_from) params.date_from = filters.date_from
+    if (filters.province_id) params.province_id = filters.province_id
+    if (filters.project_id)  params.project_id  = filters.project_id
+    if (filters.date_from)   params.date_from   = filters.date_from
     if (filters.category_id) params.category_id = filters.category_id
     if (filters.submission_channel) params.submission_channel = filters.submission_channel
 

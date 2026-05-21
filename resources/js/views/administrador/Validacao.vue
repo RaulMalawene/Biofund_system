@@ -94,8 +94,8 @@
             <p>Analise as denúncias ambientais pendentes submetidas pela população moçambicana.</p>
           </div>
           <div class="header-badges">
-            <span class="badge-em-analise">{{ countStatus('in_review') }} Em Análise</span>
-            <span class="badge-pendentes">{{ countStatus('pending') }} Pendentes</span>
+            <span class="badge-em-analise">{{ countStatus('por_resolver') }} Por Resolver</span>
+            <span class="badge-pendentes">{{ countStatus('por_validar') }} Por Validar</span>
           </div>
         </div>
 
@@ -124,10 +124,11 @@
               <label>Estado</label>
               <select v-model="f.status">
                 <option value="">Todos os Estados</option>
-                <option value="pending">Pendente</option>
-                <option value="in_review">Em Análise</option>
-                <option value="resolved">Resolvida</option>
-                <option value="rejected">Rejeitada</option>
+                <option value="por_validar">Por Validar</option>
+                <option value="por_resolver">Por Resolver</option>
+                <option value="nao_validado">Não Validado</option>
+                <option value="resolvendo">Resolvendo</option>
+                <option value="resolvido">Resolvido</option>
               </select>
             </div>
           </div>
@@ -318,49 +319,62 @@
               <div class="state-actions">
                 <div class="state-flow">
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'pending', 'flow-done': ['in_review', 'resolved'].includes(selected.status), 'flow-skip': selected.status === 'rejected' }">Pendente</span>
-                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 10 10">
+                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Validar</span>
+                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'in_review', 'flow-done': selected.status === 'resolved', 'flow-skip': selected.status === 'rejected' }">Em
-                    Análise</span>
-                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 10 10">
+                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Resolver</span>
+                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolved' }">Resolvido</span>
+                  <span class="flow-step"
+                    :class="{ 'flow-active': selected.status === 'resolvendo', 'flow-done': selected.status === 'resolvido' }">Resolvendo</span>
+                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
+                    <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolvido' }">Resolvido</span>
                 </div>
 
-                <template v-if="selected.status === 'pending'">
-                  <p class="action-hint">Valide para iniciar análise ou rejeite a ocorrência.</p>
+                <template v-if="selected.status === 'por_validar'">
+                  <p class="action-hint">Valide a ocorrência para que seja tratada, ou recuse caso não seja válida.</p>
                   <div class="dual-action-btns">
-                    <button class="btn-validar" @click="changeStatus('Em Analise')" :disabled="confirming">
-                      <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor"
-                        stroke-width="2.2" viewBox="0 0 16 16">
+                    <button class="btn-validar" @click="changeStatus('PorResolver')" :disabled="confirming">
+                      <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
                       </svg>
-                      <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"
-                        viewBox="0 0 16 16">
+                      <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6" />
                         <path d="M5.5 8l2 2 3.5-4" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                       {{ confirming ? 'A validar…' : 'Validar' }}
                     </button>
-                    <button class="btn-rejeitar-outline" @click="openCommentModal('Rejeitado')" :disabled="confirming">
-                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"
-                        viewBox="0 0 16 16">
+                    <button class="btn-rejeitar-outline" @click="openCommentModal('NaoValidado')" :disabled="confirming">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6" />
                         <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke-linecap="round" />
                       </svg>
-                      Rejeitar
+                      Não Validar
                     </button>
                   </div>
                 </template>
 
-                <template v-else-if="selected.status === 'in_review'">
-                  <p class="action-hint">Conclua a análise e marque a ocorrência como resolvida.</p>
+                <template v-else-if="selected.status === 'por_resolver'">
+                  <p class="action-hint">Ocorrência validada. Inicie a resolução quando estiver a ser tratada.</p>
+                  <button class="btn-confirmar" @click="changeStatus('Resolvendo')" :disabled="confirming">
+                    <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
+                      <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
+                    </svg>
+                    <svg v-else width="15" height="15" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 16 16">
+                      <circle cx="8" cy="8" r="6" />
+                      <path d="M8 5v3l2 2" stroke-linecap="round" />
+                    </svg>
+                    {{ confirming ? 'A processar…' : 'Iniciar Resolução' }}
+                  </button>
+                </template>
+
+                <template v-else-if="selected.status === 'resolvendo'">
+                  <p class="action-hint">A ocorrência está a ser resolvida. Marque como resolvida quando concluída.</p>
                   <button class="btn-confirmar" @click="openCommentModal('Resolvido')" :disabled="confirming">
                     <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 16 16">
                       <circle cx="8" cy="8" r="6" />
@@ -368,19 +382,11 @@
                     </svg>
                     Marcar como Resolvido
                   </button>
-                  <button class="btn-rejeitar-secondary" @click="openCommentModal('Rejeitado')" :disabled="confirming">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
-                      <circle cx="8" cy="8" r="6" />
-                      <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke-linecap="round" />
-                    </svg>
-                    Rejeitar Ocorrência
-                  </button>
                 </template>
 
-                <template v-else-if="selected.status === 'resolved'">
+                <template v-else-if="selected.status === 'resolvido'">
                   <div class="state-final sf-resolvido">
-                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor"
-                        stroke-width="2.2" viewBox="0 0 20 20">
+                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="8" />
                         <path d="M6.5 10l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round" />
                       </svg></div>
@@ -389,25 +395,31 @@
                       <div class="sf-sub">Esta ocorrência foi concluída com sucesso.</div>
                     </div>
                   </div>
-                  <div v-if="selected.comentario" class="sf-comment sf-comment-resolvido">{{ selected.comentario }}
-                  </div>
+                  <div v-if="selected.comentario" class="sf-comment sf-comment-resolvido">{{ selected.comentario }}</div>
                 </template>
 
-                <template v-else-if="selected.status === 'rejected'">
+                <template v-else-if="selected.status === 'nao_validado'">
                   <div class="state-final sf-rejeitado">
-                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor"
-                        stroke-width="2.2" viewBox="0 0 20 20">
+                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="8" />
                         <path d="M7 7l6 6M13 7l-6 6" stroke-linecap="round" />
                       </svg></div>
                     <div>
-                      <div class="sf-title">Ocorrência Rejeitada</div>
-                      <div class="sf-sub">Esta ocorrência foi encerrada por rejeição.</div>
+                      <div class="sf-title">Ocorrência Não Validada</div>
+                      <div class="sf-sub">Esta ocorrência foi recusada.</div>
                     </div>
                   </div>
-                  <div v-if="selected.comentario" class="sf-comment sf-comment-rejeitado">{{ selected.comentario }}
-                  </div>
+                  <div v-if="selected.comentario" class="sf-comment sf-comment-rejeitado">{{ selected.comentario }}</div>
                 </template>
+
+                <!-- Adicionar comentário — disponível em todos os estados -->
+                <button class="btn-add-comment" @click="openCommentModal('Comentario')" :disabled="confirming">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
+                    <path d="M12 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2l2 2 2-2h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
+                    <path d="M4 6h6M4 8.5h4" stroke-linecap="round" />
+                  </svg>
+                  Adicionar Comentário
+                </button>
               </div>
             </template>
           </div>
@@ -434,8 +446,8 @@
             </div>
             <div class="modal-hd-right">
               <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status_label }}</span>
-              <!-- Botão Editar Classificação -->
-              <button class="btn-edit-class" @click="toggleEditMode" :class="{ active: editMode }">
+              <!-- Edição de Projecto/Categoria apenas no estado 'Por Resolver' -->
+              <button v-if="selected.status === 'por_resolver'" class="btn-edit-class" @click="toggleEditMode" :class="{ active: editMode }">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
                   <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z" stroke-linejoin="round" />
                 </svg>
@@ -658,22 +670,24 @@
     <transition name="modal-fade">
       <div class="comment-overlay" v-if="commentModal.show" @click.self="cancelComment">
         <div class="comment-card">
-          <div class="comment-hd" :class="commentModal.action === 'Rejeitado' ? 'chd-rejeitar' : 'chd-resolver'">
+          <div class="comment-hd" :class="commentModal.action === 'NaoValidado' ? 'chd-rejeitar' : commentModal.action === 'Comentario' ? 'chd-comentario' : 'chd-resolver'">
             <div class="comment-hd-left">
               <div class="comment-hd-icon">
-                <svg v-if="commentModal.action === 'Rejeitado'" width="18" height="18" fill="none" stroke="currentColor"
-                  stroke-width="2.2" viewBox="0 0 20 20">
+                <svg v-if="commentModal.action === 'NaoValidado'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                   <path d="M7 7l6 6M13 7l-6 6" stroke-linecap="round" />
                 </svg>
-                <svg v-else width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"
-                  viewBox="0 0 20 20">
+                <svg v-else-if="commentModal.action === 'Comentario'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
+                  <path d="M18 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3l3 3 3-3h7a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
+                  <path d="M6 8h8M6 11h5" stroke-linecap="round" />
+                </svg>
+                <svg v-else width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                   <path d="M6.5 10l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </div>
               <div>
-                <div class="comment-hd-title">{{ commentModal.action === 'Rejeitado' ? 'Rejeitar Ocorrência' : 'Marcar como Resolvido' }}</div>
+                <div class="comment-hd-title">{{ commentModal.action === 'NaoValidado' ? 'Não Validar Ocorrência' : commentModal.action === 'Comentario' ? 'Adicionar Comentário' : 'Marcar como Resolvido' }}</div>
                 <div class="comment-hd-id">{{ selected?.id }} · {{ selected?.categoria }}</div>
               </div>
             </div>
@@ -685,13 +699,15 @@
           </div>
           <div class="comment-body">
             <div class="comment-field-label">
-              {{ commentModal.action === 'Rejeitado' ? 'Motivo da Rejeição' : 'Descrição da Resolução' }}
+              {{ commentModal.action === 'NaoValidado' ? 'Motivo da Não Validação' : commentModal.action === 'Comentario' ? 'Comentário' : 'Descrição da Resolução' }}
               <span class="comment-required">obrigatório</span>
             </div>
             <p class="comment-hint">
-              {{ commentModal.action === 'Rejeitado'
-                ? 'Explique o motivo pelo qual esta ocorrência está a ser rejeitada.'
-                : 'Descreva como a ocorrência foi resolvida e as medidas tomadas.' }}
+              {{ commentModal.action === 'NaoValidado'
+                ? 'Explique o motivo pelo qual esta ocorrência não foi validada.'
+                : commentModal.action === 'Comentario'
+                  ? 'Escreva um comentário sobre esta ocorrência.'
+                  : 'Descreva como a ocorrência foi resolvida e as medidas tomadas.' }}
             </p>
             <textarea ref="commentTextareaRef" class="comment-textarea" v-model="commentModal.text"
               @input="commentModal.error = ''" :maxlength="500" rows="5"></textarea>
@@ -702,13 +718,12 @@
           <div class="comment-footer">
             <button class="btn-cancel-comment" @click="cancelComment" :disabled="confirming">Cancelar</button>
             <button class="btn-confirm-comment"
-              :class="commentModal.action === 'Rejeitado' ? 'bcc-rejeitar' : 'bcc-resolver'" @click="confirmComment"
-              :disabled="confirming">
-              <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor"
-                stroke-width="2.2" viewBox="0 0 16 16">
+              :class="commentModal.action === 'NaoValidado' ? 'bcc-rejeitar' : commentModal.action === 'Comentario' ? 'bcc-comentario' : 'bcc-resolver'"
+              @click="confirmComment" :disabled="confirming">
+              <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                 <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
               </svg>
-              {{ confirming ? 'A processar…' : commentModal.action === 'Rejeitado' ? 'Confirmar Rejeição' : 'Confirmar Resolução' }}
+              {{ confirming ? 'A processar…' : commentModal.action === 'NaoValidado' ? 'Confirmar Não Validação' : commentModal.action === 'Comentario' ? 'Guardar Comentário' : 'Confirmar Resolução' }}
             </button>
           </div>
         </div>
@@ -767,21 +782,28 @@ const f = reactive({ provincia: '', projeto: '', data: '', status: '', categoria
 
 // ─── Status helpers ───────────────────────────────────────────
 const ACTION_TO_API = {
-  'Em Analise': 'in_review',
-  'Resolvido': 'resolved',
-  'Rejeitado': 'rejected',
+  'PorResolver': 'por_resolver',
+  'NaoValidado': 'nao_validado',
+  'Resolvendo':  'resolvendo',
+  'Resolvido':   'resolvido',
 }
 const STATUS_LABEL = {
-  pending: 'Pendente',
-  in_review: 'Em Análise',
-  resolved: 'Resolvida',
-  rejected: 'Rejeitada',
-  closed: 'Encerrada',
+  por_validar:  'Por Validar',
+  por_resolver: 'Por Resolver',
+  nao_validado: 'Não Validado',
+  resolvendo:   'Resolvendo',
+  resolvido:    'Resolvido',
 }
 
 function statusClass(s) {
-  const map = { pending: 'pendente', in_review: 'em-analise', resolved: 'resolvido', rejected: 'rejeitado', closed: 'fechado' }
-  return map[s] ?? 'pendente'
+  const map = {
+    por_validar:  'por-validar',
+    por_resolver: 'por-resolver',
+    nao_validado: 'nao-validado',
+    resolvendo:   'resolvendo',
+    resolvido:    'resolvido',
+  }
+  return map[s] ?? 'por-validar'
 }
 
 // ─── Map API → row ────────────────────────────────────────────
@@ -829,7 +851,7 @@ async function loadOccurrences() {
   loading.value = true
   try {
     const res = await InternalService.getOccurrences({ per_page: 100 })
-    const TERMINAL = ['resolved', 'rejected', 'closed']
+    const TERMINAL = ['nao_validado', 'resolvido']
     rows.value = (res.data ?? [])
       .filter(o => !TERMINAL.includes(o.status))
       .map(mapOccurrence)
@@ -984,7 +1006,11 @@ async function confirmComment() {
   commentModal.error = ''
   const action = commentModal.action; const comment = trimmed
   commentModal.show = false
-  await changeStatus(action, comment)
+  if (action === 'Comentario') {
+    await addStandaloneComment(comment)
+  } else {
+    await changeStatus(action, comment)
+  }
 }
 
 async function downloadAnexo(a) {
@@ -995,25 +1021,41 @@ async function downloadAnexo(a) {
   } catch { showToast('Erro ao descarregar o ficheiro.', true) }
 }
 
+async function addStandaloneComment(comment) {
+  if (!selected.value || confirming.value) return
+  confirming.value = true
+  try {
+    await InternalService.addComment(selected.value._id, { comment })
+    showToast('Comentário adicionado com sucesso.')
+  } catch (e) {
+    const errors = e?.response?.data?.errors
+    showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao adicionar comentário. Tente novamente.', true)
+  } finally { confirming.value = false }
+}
+
 async function changeStatus(newState, comment = '') {
   if (!selected.value || confirming.value) return
   confirming.value = true
   const apiStatus = ACTION_TO_API[newState]
   try {
-    await InternalService.updateStatus(selected.value._id, { status: apiStatus, comment })
+    const payload = { status: apiStatus }
+    if (comment && comment.trim()) payload.comment = comment.trim()
+    await InternalService.updateStatus(selected.value._id, payload)
     const trackingCode = selected.value.id
-    const isFinal = apiStatus === 'resolved' || apiStatus === 'rejected'
+    const isFinal = apiStatus === 'nao_validado' || apiStatus === 'resolvido'
     if (isFinal) {
       rows.value = rows.value.filter(r => r._id !== selected.value._id)
       selected.value = null
+      editMode.value = false
     } else {
       const idx = rows.value.findIndex(r => r._id === selected.value._id)
       if (idx !== -1) { rows.value[idx].status = apiStatus; rows.value[idx].status_label = STATUS_LABEL[apiStatus] }
       selected.value.status = apiStatus
       selected.value.status_label = STATUS_LABEL[apiStatus]
       selected.value.comentario = comment
+      if (editMode.value) editMode.value = false
     }
-    showToast(newState === 'Rejeitado' ? `${trackingCode} foi rejeitada.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'Rejeitado')
+    showToast(newState === 'NaoValidado' ? `${trackingCode} foi não validada.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'NaoValidado')
   } catch (e) {
     const errors = e?.response?.data?.errors
     showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao actualizar o estado. Tente novamente.', true)
@@ -1467,16 +1509,22 @@ tbody tr:last-child td {
   border: 1.5px solid;
 }
 
-.badge-status.pendente {
-  color: #744210;
-  border-color: #F6D860;
-  background: #FEFCBF;
+.badge-status.por-validar {
+  color: #1D4ED8;
+  border-color: #93C5FD;
+  background: #EFF6FF;
 }
 
-.badge-status.em-analise {
-  color: #C05621;
-  border-color: #F6AD55;
-  background: #FFFAF0;
+.badge-status.por-resolver {
+  color: #B45309;
+  border-color: #FCD34D;
+  background: #FFFBEB;
+}
+
+.badge-status.resolvendo {
+  color: #C2410C;
+  border-color: #FDBA74;
+  background: #FFF7ED;
 }
 
 .badge-status.resolvido {
@@ -1485,7 +1533,7 @@ tbody tr:last-child td {
   background: var(--green-pale);
 }
 
-.badge-status.rejeitado {
+.badge-status.nao-validado {
   color: #E53E3E;
   border-color: #FC8181;
   background: #FFF5F5;
@@ -1978,6 +2026,27 @@ tbody tr:last-child td {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.btn-add-comment {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--white);
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  padding: 9px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-gray);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-add-comment:hover:not(:disabled) { border-color: var(--green-light); color: var(--green-mid); }
+.btn-add-comment:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .state-final {
   display: flex;
@@ -2831,6 +2900,11 @@ tbody tr:last-child td {
   border-bottom: 1.5px solid #9AE6B4;
 }
 
+.chd-comentario {
+  background: #F0F9FF;
+  border-bottom: 1.5px solid #7DD3FC;
+}
+
 .comment-hd-left {
   display: flex;
   align-items: center;
@@ -2855,6 +2929,11 @@ tbody tr:last-child td {
 .chd-resolver .comment-hd-icon {
   background: #C6F6D5;
   color: var(--green-mid);
+}
+
+.chd-comentario .comment-hd-icon {
+  background: #BAE6FD;
+  color: #0369A1;
 }
 
 .comment-hd-title {
@@ -3038,6 +3117,15 @@ tbody tr:last-child td {
 
 .bcc-resolver:hover:not(:disabled) {
   background: var(--green-dark);
+}
+
+.bcc-comentario {
+  background: #0284C7;
+  color: #fff;
+}
+
+.bcc-comentario:hover:not(:disabled) {
+  background: #0369A1;
 }
 
 /* TOAST */
