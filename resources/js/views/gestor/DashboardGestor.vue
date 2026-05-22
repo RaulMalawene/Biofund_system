@@ -125,8 +125,8 @@
                 </svg>
               </div>
             </div>
-            <div class="kpi-label light">Pendentes</div>
-            <div class="kpi-value light">{{ statsLoading ? '—' : (stats.totals.pending ?? 0) }}</div>
+            <div class="kpi-label light">Por Validar</div>
+            <div class="kpi-value light">{{ statsLoading ? '—' : (stats.totals.por_validar ?? 0) }}</div>
             <div class="kpi-sub light">Aguardando validação</div>
           </div>
 
@@ -140,8 +140,8 @@
               </div>
             </div>
             <div class="kpi-label dark">Resolvidas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.totals.resolved ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ stats.totals.in_review ?? 0 }} em análise</div>
+            <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.totals.resolvido ?? 0) }}</div>
+            <div class="kpi-sub dark">{{ stats.totals.por_resolver ?? 0 }} por resolver</div>
           </div>
 
           <div class="kpi-card">
@@ -167,8 +167,8 @@
                 </svg>
               </div>
             </div>
-            <div class="kpi-label dark">Encerradas / Rejeitadas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : ((stats.totals.closed ?? 0) + (stats.totals.rejected ?? 0)) }}</div>
+            <div class="kpi-label dark">Não Validadas</div>
+            <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.totals.nao_validado ?? 0) }}</div>
             <div class="kpi-sub dark">Processos concluídos</div>
           </div>
         </div>
@@ -552,7 +552,7 @@ const submissions   = ref([])
 // ── Estatísticas ─────────────────────────────────────────────
 const statsLoading = ref(true)
 const stats = reactive({
-  totals:          { all: 0, pending: 0, in_review: 0, resolved: 0, rejected: 0, closed: 0 },
+  totals:          { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 },
   overdue:         0,
   byAlertLevel:    { normal: 0, urgent: 0, gbv: 0 },
   byProvince:      [],
@@ -632,11 +632,11 @@ const donutLegend = computed(() => {
 })
 
 const STATUS_MAP = {
-  pending:   { label: 'Pendente',   cls: 'pendente'  },
-  in_review: { label: 'Em Análise', cls: 'analise'   },
-  resolved:  { label: 'Resolvida',  cls: 'resolvida' },
-  rejected:  { label: 'Rejeitada',  cls: 'rejeitada' },
-  closed:    { label: 'Encerrada',  cls: 'encerrada' },
+  por_validar:  { label: 'Por Validar',   cls: 'pendente'   },
+  por_resolver: { label: 'Por Resolver',  cls: 'analise'    },
+  resolvendo:   { label: 'Resolvendo',    cls: 'resolvendo' },
+  resolvido:    { label: 'Resolvida',     cls: 'resolvida'  },
+  nao_validado: { label: 'Não Validado',  cls: 'rejeitada'  },
 }
 
 function timeAgo(dateStr) {
@@ -780,6 +780,7 @@ async function submitForm() {
     closeDrawer()
     showToast(`Ocorrência registada!${code ? ' Código: ' + code : ''}`)
     refreshStats()
+    setTimeout(() => router.push('/gestor/validacao'), 1800)
   } catch (err) {
     if (err.response?.status === 422) {
       const serverErrors = err.response.data.errors ?? {}

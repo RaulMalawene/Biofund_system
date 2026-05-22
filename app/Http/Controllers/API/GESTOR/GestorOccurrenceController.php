@@ -59,41 +59,47 @@ class GestorOccurrenceController extends Controller
         match ($user->role) {
             RoleEnum::Funcionario => $query->where('submitted_by_user_id', $user->id),
 
-            // Gestor vê todas as ocorrências das suas províncias (activas e históricas).
-            // Usa province_id (primário) + pivot user_provinces para cobrir todos os casos.
+            // Gestor vê ocorrências da sua província, dos seus projectos, ou que ele submeteu.
             RoleEnum::Gestor => $query->where(fn($q) =>
                 $q->where('province_id', $user->province_id)
                   ->orWhereIn('province_id',
                       $user->provinces()->pluck('provinces.id')
                   )
+                  ->orWhereIn('project_id',
+                      $user->projects()->pluck('projects.id')
+                  )
+                  ->orWhere('submitted_by_user_id', $user->id)
             ),
 
             RoleEnum::Admin => null,
         };
 
-        // Filtro de visibilidade de alertas para gestores
+        // Filtro de visibilidade de alertas para gestores.
+        // Ocorrências submetidas pelo próprio gestor são sempre visíveis,
+        // independentemente do nível de alerta e das suas permissões.
         if ($user->isGestor()) {
             if (!$user->receives_urgent_alerts) {
                 $query->where(fn($q) =>
                     $q->where('alert_type', '!=', AlertLevelEnum::Urgent->value)
                       ->orWhereNull('alert_type')
+                      ->orWhere('submitted_by_user_id', $user->id)
                 );
             }
             if (!$user->receives_gbv_alerts) {
                 $query->where(fn($q) =>
                     $q->where('alert_type', '!=', AlertLevelEnum::Gbv->value)
                       ->orWhereNull('alert_type')
+                      ->orWhere('submitted_by_user_id', $user->id)
                 );
             }
         }
 
-        // Modo histórico: só ocorrências terminais (resolvidas, rejeitadas, encerradas).
+        // Modo histórico: só ocorrências terminais (resolvidas ou não validadas).
         // Para gestores, exclui também ocorrências submetidas pelo admin.
         if ($request->boolean('history')) {
             $query->whereIn('status', [
-                OccurrenceStatusEnum::Resolved->value,
-                OccurrenceStatusEnum::Rejected->value,
-                OccurrenceStatusEnum::Closed->value,
+                OccurrenceStatusEnum::Resolvido->value,
+                OccurrenceStatusEnum::NaoValidado->value,
             ]);
             if ($user->isGestor()) {
                 $query->where(fn($q) =>
@@ -142,7 +148,7 @@ class GestorOccurrenceController extends Controller
         }
 
         $query->orderBy('created_at', 'desc');
-        $perPage = min($request->integer('per_page', 15), 100);
+        $perPage = min($request->integer('per_page', 15), 500);
 
         return OccurrenceResource::collection($query->paginate($perPage));
     }
@@ -235,6 +241,36 @@ class GestorOccurrenceController extends Controller
             'status_label' => $occurrence->status->label(),
             'status_color' => $occurrence->status->color(),
         ], 200);
+    }
+
+    /**
+     * Adiciona um comentário a uma ocorrência sem alterar o estado.
+     * Disponível em todos os estados do ciclo de vida.
+     *
+     * ROTA: POST /api/occurrences/{occurrence}/comment
+     * ACESSO: admin, gestor
+     */
+    public function addComment(Request $request, Occurrence $occurrence): JsonResponse
+    {
+        $request->validate([
+            'comment'       => ['required', 'string', 'min:2', 'max:2000'],
+            'internal_note' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $user = $request->user();
+
+        if ($user->isGestor() && !$this->gestorHasProvince($user, $occurrence->province_id)) {
+            return response()->json(['message' => 'Não tem acesso a esta ocorrência.'], 403);
+        }
+
+        $this->occurrenceService->addComment(
+            occurrence:   $occurrence,
+            addedBy:      $user,
+            comment:      $request->comment,
+            internalNote: $request->internal_note,
+        );
+
+        return response()->json(['message' => 'Comentário adicionado com sucesso.'], 200);
     }
 
     /**
@@ -341,8 +377,10 @@ class GestorOccurrenceController extends Controller
     {
         return match ($user->role) {
             RoleEnum::Admin       => true,
-            RoleEnum::Gestor      => $this->gestorHasProvince($user, $occurrence->province_id)
-                                     && $this->gestorCanSeeAlert($user, $occurrence),
+            // Gestor can always access occurrences they submitted themselves
+            RoleEnum::Gestor      => $occurrence->submitted_by_user_id === $user->id
+                                     || ($this->gestorHasProvince($user, $occurrence->province_id)
+                                         && $this->gestorCanSeeAlert($user, $occurrence)),
             RoleEnum::Funcionario => $occurrence->submitted_by_user_id === $user->id,
         };
     }
@@ -357,10 +395,12 @@ class GestorOccurrenceController extends Controller
     /**
      * Verifica se o gestor tem permissão para ver a ocorrência com base
      * no tipo de alerta e nas suas preferências de visibilidade.
-     * Ocorrências sem alert_type (externas ou anteriores) são sempre visíveis.
+     * Ocorrências sem alert_type e ocorrências submetidas pelo próprio gestor
+     * são sempre visíveis.
      */
     private function gestorCanSeeAlert(User $user, Occurrence $occurrence): bool
     {
+        if ($occurrence->submitted_by_user_id === $user->id) return true;
         if ($occurrence->alert_type === AlertLevelEnum::Urgent && !$user->receives_urgent_alerts) {
             return false;
         }

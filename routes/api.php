@@ -78,6 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('me');
         Route::post('logout', [LoginController::class, 'logout'])
             ->name('logout');
+        Route::post('profile', [LoginController::class, 'updateProfile'])
+            ->name('profile');
         Route::post('change-password', [PasswordResetController::class, 'changePassword'])
             ->name('change-password');
     });
@@ -109,9 +111,13 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('role:admin,gestor')
         ->group(function () {
 
-        // Mudar estado — justificação obrigatória ao resolver ou rejeitar
+        // Mudar estado — comentário obrigatório em nao_validado e resolvido
         Route::patch('{occurrence}/status', [GestorOccurrenceController::class, 'updateStatus'])
             ->name('update-status');
+
+        // Adicionar comentário sem alterar o estado (disponível em todos os estados)
+        Route::post('{occurrence}/comment', [GestorOccurrenceController::class, 'addComment'])
+            ->name('add-comment');
 
         // Atribuir a gestor ou escalar para admin
         Route::patch('{occurrence}/assign', [GestorOccurrenceController::class, 'assign'])

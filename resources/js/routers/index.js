@@ -120,10 +120,12 @@ router.beforeEach((to, _from, next) => {
 
         // Verifica se o role tem permissão para esta rota
         if (to.meta.roles && !to.meta.roles.includes(user.role)) {
-            const home = user.role === 'gestor'
-                ? '/gestor/dashboard'
-                : '/admin/dashboard'
-            // Evitar loop infinito se já estiver na home
+            const homeByRole = {
+                admin:       '/admin/dashboard',
+                gestor:      '/gestor/dashboard',
+                funcionario: '/acessoRestrito',
+            }
+            const home = homeByRole[user.role] ?? '/acessoRestrito'
             if (to.path === home) return next()
             return next(home)
         }
@@ -134,7 +136,8 @@ router.beforeEach((to, _from, next) => {
 
     // ── Rota só para não-autenticados (ex: login) ─────────────
     if (to.meta.guestOnly && isAuthenticated) {
-        const home = user?.role === 'gestor' ? '/gestor/dashboard' : '/admin/dashboard'
+        const homeByRole = { admin: '/admin/dashboard', gestor: '/gestor/dashboard' }
+        const home = homeByRole[user?.role] ?? '/acessoRestrito'
         return next(home)
     }
 

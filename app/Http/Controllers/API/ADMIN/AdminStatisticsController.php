@@ -107,7 +107,7 @@ class AdminStatisticsController extends Controller
                 DB::raw('MONTH(created_at) as month'),
                 DB::raw('count(*) as total')
             )
-            ->where('status', 'resolved')
+            ->where('status', 'resolvido')
             ->where('created_at', '>=', now()->subMonths(6))
             ->groupBy('year', 'month')
             ->orderBy('year')->orderBy('month')

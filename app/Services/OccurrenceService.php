@@ -59,7 +59,7 @@ class OccurrenceService
                 ...Arr::except($data, ['attachments']),
                 'tracking_code' => $this->trackingCodeService->generate(),
                 'origin'        => OriginEnum::External,
-                'status'        => OccurrenceStatusEnum::Pending,
+                'status'        => OccurrenceStatusEnum::PorValidar,
                 'due_date'      => $type?->calculateDueDate(),
             ]);
 
@@ -67,7 +67,7 @@ class OccurrenceService
             $this->recordStatusHistory(
                 occurrence: $occurrence,
                 from: null,
-                to: OccurrenceStatusEnum::Pending,
+                to: OccurrenceStatusEnum::PorValidar,
                 changedBy: null,
                 comment: 'Ocorrência registada via formulário público.'
             );
@@ -117,14 +117,14 @@ class OccurrenceService
                 'origin'               => OriginEnum::Internal,
                 'submitted_by_user_id' => $user->id,
                 'assigned_to'          => $user->id,
-                'status'               => OccurrenceStatusEnum::Pending,
+                'status'               => OccurrenceStatusEnum::PorValidar,
                 'due_date'             => $type?->calculateDueDate(),
             ]);
 
             $this->recordStatusHistory(
                 occurrence: $occurrence,
                 from: null,
-                to: OccurrenceStatusEnum::Pending,
+                to: OccurrenceStatusEnum::PorValidar,
                 changedBy: $user->id,
                 comment: "Ocorrência registada internamente por {$user->name}."
             );
@@ -176,13 +176,13 @@ class OccurrenceService
             ]);
         }
 
-        // 3. Verifica se o utilizador tem permissão para validar/rejeitar
+        // 3. Verifica se o utilizador tem permissão para as decisões finais
         if (
-            in_array($newStatus, [OccurrenceStatusEnum::Resolved, OccurrenceStatusEnum::Rejected])
+            in_array($newStatus, [OccurrenceStatusEnum::NaoValidado, OccurrenceStatusEnum::Resolvido])
             && !$changedBy->canValidate()
         ) {
             throw ValidationException::withMessages([
-                'status' => 'Não tem permissão para validar ou rejeitar ocorrências.',
+                'status' => 'Não tem permissão para validar ou resolver ocorrências.',
             ]);
         }
 
@@ -195,12 +195,12 @@ class OccurrenceService
             $occurrence->update([
                 'status'      => $newStatus,
                 'reviewed_by' => in_array($newStatus, [
-                    OccurrenceStatusEnum::Resolved,
-                    OccurrenceStatusEnum::Rejected,
+                    OccurrenceStatusEnum::NaoValidado,
+                    OccurrenceStatusEnum::Resolvido,
                 ]) ? $changedBy->id : $occurrence->reviewed_by,
                 'reviewed_at' => in_array($newStatus, [
-                    OccurrenceStatusEnum::Resolved,
-                    OccurrenceStatusEnum::Rejected,
+                    OccurrenceStatusEnum::NaoValidado,
+                    OccurrenceStatusEnum::Resolvido,
                 ]) ? now() : $occurrence->reviewed_at,
             ]);
 
@@ -264,18 +264,6 @@ class OccurrenceService
 
         $occurrence->update(['assigned_to' => $gestor->id]);
 
-        // Muda o estado para in_review se ainda estiver pending
-        if ($occurrence->status === OccurrenceStatusEnum::Pending) {
-            $this->recordStatusHistory(
-                occurrence: $occurrence,
-                from: OccurrenceStatusEnum::Pending,
-                to: OccurrenceStatusEnum::InReview,
-                changedBy: $assignedBy->id,
-                comment: "Ocorrência atribuída a {$gestor->name}."
-            );
-            $occurrence->update(['status' => OccurrenceStatusEnum::InReview]);
-        }
-
         $occurrence->load(['occurrenceType', 'project', 'province']);
         $this->notificationService->notifyAssigned($occurrence, $gestor);
         $this->auditService->logUpdated(
@@ -285,6 +273,29 @@ class OccurrenceService
         );
 
         return $occurrence->fresh(['assignedTo', 'province', 'project']);
+    }
+
+    /**
+     * Adiciona um comentário a uma ocorrência sem alterar o seu estado.
+     * Disponível em todos os estados do ciclo de vida.
+     */
+    public function addComment(
+        Occurrence $occurrence,
+        User $addedBy,
+        string $comment,
+        ?string $internalNote = null
+    ): void {
+        $this->recordStatusHistory(
+            occurrence: $occurrence,
+            from: $occurrence->status,
+            to: $occurrence->status,
+            changedBy: $addedBy->id,
+            comment: $comment,
+            internalNote: $internalNote,
+        );
+
+        $occurrence->load(['occurrenceType', 'project', 'province', 'submittedBy']);
+        $this->notificationService->notifyStatusChanged($occurrence, $comment);
     }
 
     // ─── Métodos privados ────────────────────────────────────────

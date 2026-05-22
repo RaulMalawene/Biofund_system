@@ -53,6 +53,14 @@ export const InternalService = {
     },
 
     /**
+     * Adiciona um comentário sem alterar o estado (disponível em todos os estados).
+     */
+    async addComment(id, payload) {
+        const { data } = await api.post(`/occurrences/${id}/comment`, payload)
+        return data
+    },
+
+    /**
      * Atribui uma ocorrência a um gestor.
      */
     async assign(id, userId) {

@@ -72,8 +72,8 @@
             <p>Analise as denúncias pendentes nas províncias e projectos sob a sua responsabilidade.</p>
           </div>
           <div class="header-badges">
-            <span class="badge-em-analise">{{ countStatus('in_review') }} Em Análise</span>
-            <span class="badge-pendentes">{{ countStatus('pending') }} Pendentes</span>
+            <span class="badge-em-analise">{{ countStatus('por_resolver') }} Por Resolver</span>
+            <span class="badge-pendentes">{{ countStatus('por_validar') }} Por Validar</span>
           </div>
         </div>
 
@@ -114,10 +114,11 @@
               <label>Estado</label>
               <select v-model="f.status">
                 <option value="">Todos os Estados</option>
-                <option value="pending">Pendente</option>
-                <option value="in_review">Em Análise</option>
-                <option value="resolved">Resolvida</option>
-                <option value="rejected">Rejeitada</option>
+                <option value="por_validar">Por Validar</option>
+                <option value="por_resolver">Por Resolver</option>
+                <option value="nao_validado">Não Validado</option>
+                <option value="resolvendo">Resolvendo</option>
+                <option value="resolvido">Resolvido</option>
               </select>
             </div>
           </div>
@@ -234,6 +235,7 @@
                 </button>
               </div>
 
+              <div class="panel-body">
               <div class="status-row">
                 <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status_label }}</span>
                 <div class="sub-date"><span>Submetido em</span>{{ selected.data }}</div>
@@ -308,49 +310,62 @@
               <div class="state-actions">
                 <div class="state-flow">
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'pending', 'flow-done': ['in_review', 'resolved'].includes(selected.status), 'flow-skip': selected.status === 'rejected' }">Pendente</span>
-                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 10 10">
+                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Validar</span>
+                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'in_review', 'flow-done': selected.status === 'resolved', 'flow-skip': selected.status === 'rejected' }">Em
-                    Análise</span>
-                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 10 10">
+                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Resolver</span>
+                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolved' }">Resolvido</span>
+                  <span class="flow-step"
+                    :class="{ 'flow-active': selected.status === 'resolvendo', 'flow-done': selected.status === 'resolvido' }">Resolvendo</span>
+                  <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
+                    <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolvido' }">Resolvido</span>
                 </div>
 
-                <template v-if="selected.status === 'pending'">
-                  <p class="action-hint">Valide para iniciar análise ou rejeite a ocorrência.</p>
+                <template v-if="selected.status === 'por_validar'">
+                  <p class="action-hint">Valide a ocorrência para que seja tratada, ou recuse caso não seja válida.</p>
                   <div class="dual-action-btns">
-                    <button class="btn-validar" @click="changeStatus('Em Analise')" :disabled="confirming">
-                      <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor"
-                        stroke-width="2.2" viewBox="0 0 16 16">
+                    <button class="btn-validar" @click="changeStatus('PorResolver')" :disabled="confirming">
+                      <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
                       </svg>
-                      <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"
-                        viewBox="0 0 16 16">
+                      <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6" />
                         <path d="M5.5 8l2 2 3.5-4" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                       {{ confirming ? 'A validar…' : 'Validar' }}
                     </button>
-                    <button class="btn-rejeitar-outline" @click="openCommentModal('Rejeitado')" :disabled="confirming">
-                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"
-                        viewBox="0 0 16 16">
+                    <button class="btn-rejeitar-outline" @click="openCommentModal('NaoValidado')" :disabled="confirming">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6" />
                         <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke-linecap="round" />
                       </svg>
-                      Rejeitar
+                      Não Validar
                     </button>
                   </div>
                 </template>
 
-                <template v-else-if="selected.status === 'in_review'">
-                  <p class="action-hint">Conclua a análise e marque a ocorrência como resolvida.</p>
+                <template v-else-if="selected.status === 'por_resolver'">
+                  <p class="action-hint">Ocorrência validada. Inicie a resolução quando estiver a ser tratada.</p>
+                  <button class="btn-confirmar" @click="changeStatus('Resolvendo')" :disabled="confirming">
+                    <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
+                      <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
+                    </svg>
+                    <svg v-else width="15" height="15" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 16 16">
+                      <circle cx="8" cy="8" r="6" />
+                      <path d="M8 5v3l2 2" stroke-linecap="round" />
+                    </svg>
+                    {{ confirming ? 'A processar…' : 'Iniciar Resolução' }}
+                  </button>
+                </template>
+
+                <template v-else-if="selected.status === 'resolvendo'">
+                  <p class="action-hint">A ocorrência está a ser resolvida. Marque como resolvida quando concluída.</p>
                   <button class="btn-confirmar" @click="openCommentModal('Resolvido')" :disabled="confirming">
                     <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 16 16">
                       <circle cx="8" cy="8" r="6" />
@@ -358,19 +373,11 @@
                     </svg>
                     Marcar como Resolvido
                   </button>
-                  <button class="btn-rejeitar-secondary" @click="openCommentModal('Rejeitado')" :disabled="confirming">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
-                      <circle cx="8" cy="8" r="6" />
-                      <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke-linecap="round" />
-                    </svg>
-                    Rejeitar Ocorrência
-                  </button>
                 </template>
 
-                <template v-else-if="selected.status === 'resolved'">
+                <template v-else-if="selected.status === 'resolvido'">
                   <div class="state-final sf-resolvido">
-                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor"
-                        stroke-width="2.2" viewBox="0 0 20 20">
+                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="8" />
                         <path d="M6.5 10l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round" />
                       </svg></div>
@@ -382,21 +389,30 @@
                   <div v-if="selected.comentario" class="sf-comment sf-comment-resolvido">{{ selected.comentario }}</div>
                 </template>
 
-                <template v-else-if="selected.status === 'rejected'">
+                <template v-else-if="selected.status === 'nao_validado'">
                   <div class="state-final sf-rejeitado">
-                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor"
-                        stroke-width="2.2" viewBox="0 0 20 20">
+                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="8" />
                         <path d="M7 7l6 6M13 7l-6 6" stroke-linecap="round" />
                       </svg></div>
                     <div>
-                      <div class="sf-title">Ocorrência Rejeitada</div>
-                      <div class="sf-sub">Esta ocorrência foi encerrada por rejeição.</div>
+                      <div class="sf-title">Ocorrência Não Validada</div>
+                      <div class="sf-sub">Esta ocorrência foi recusada.</div>
                     </div>
                   </div>
                   <div v-if="selected.comentario" class="sf-comment sf-comment-rejeitado">{{ selected.comentario }}</div>
                 </template>
+
+                <!-- Adicionar comentário — disponível em todos os estados -->
+                <button class="btn-add-comment" @click="openCommentModal('Comentario')" :disabled="confirming">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
+                    <path d="M12 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2l2 2 2-2h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
+                    <path d="M4 6h6M4 8.5h4" stroke-linecap="round" />
+                  </svg>
+                  Adicionar Comentário
+                </button>
               </div>
+              </div><!-- /panel-body -->
             </template>
           </div>
         </div>
@@ -421,6 +437,13 @@
             </div>
             <div class="modal-hd-right">
               <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status_label }}</span>
+              <!-- Edição de Projecto/Categoria apenas no estado 'Por Resolver' -->
+              <button v-if="selected.status === 'por_resolver'" class="btn-edit-class" @click="toggleEditMode" :class="{ active: editMode }">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
+                  <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z" stroke-linejoin="round" />
+                </svg>
+                {{ editMode ? 'Cancelar' : 'Editar Classificação' }}
+              </button>
               <button class="btn-close-modal" @click="closeFullModal">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 14 14">
                   <path d="M2 2l10 10M12 2L2 12" stroke-linecap="round" />
@@ -428,6 +451,45 @@
               </button>
             </div>
           </div>
+
+          <!-- ── EDIT CLASSIFICATION BAR (só quando editMode=true) ── -->
+          <transition name="edit-slide">
+            <div class="edit-class-bar" v-if="editMode">
+              <div class="edit-class-title">
+                <svg width="14" height="14" fill="none" stroke="var(--green-mid)" stroke-width="1.8"
+                  viewBox="0 0 16 16">
+                  <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z" stroke-linejoin="round" />
+                </svg>
+                Reclassificar Ocorrência
+              </div>
+              <div class="edit-class-fields">
+                <div class="edit-field">
+                  <label>Projecto</label>
+                  <select v-model="editForm.project_id" :disabled="editSaving">
+                    <option value="">Sem projecto</option>
+                    <option v-for="p in scopeProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+                  </select>
+                </div>
+                <div class="edit-field">
+                  <label>Categoria</label>
+                  <select v-model="editForm.category_id" :disabled="editSaving">
+                    <option value="">Sem categoria</option>
+                    <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
+                  </select>
+                </div>
+                <div class="edit-class-actions">
+                  <button class="btn-edit-cancel" @click="toggleEditMode" :disabled="editSaving">Cancelar</button>
+                  <button class="btn-edit-save" @click="saveClassification" :disabled="editSaving">
+                    <span v-if="editSaving" class="spin-sm"></span>
+                    <svg v-else width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 14 14">
+                      <path d="M2 7l4 4 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    {{ editSaving ? 'A guardar…' : 'Guardar' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </transition>
 
           <div class="modal-body">
 
@@ -454,11 +516,11 @@
               </div>
               <div class="modal-meta-item">
                 <span class="modal-meta-label">Projecto</span>
-                <span class="modal-meta-val">{{ selected.projeto }}</span>
+                <span class="modal-meta-val" :class="{ 'edited-field': editMode }">{{ selected.projeto }}</span>
               </div>
               <div class="modal-meta-item">
                 <span class="modal-meta-label">Categoria</span>
-                <span class="modal-meta-val">{{ selected.categoria }}</span>
+                <span class="modal-meta-val" :class="{ 'edited-field': editMode }">{{ selected.categoria }}</span>
               </div>
               <div class="modal-meta-item">
                 <span class="modal-meta-label">Localização</span>
@@ -592,22 +654,24 @@
     <transition name="modal-fade">
       <div class="comment-overlay" v-if="commentModal.show" @click.self="cancelComment">
         <div class="comment-card">
-          <div class="comment-hd" :class="commentModal.action === 'Rejeitado' ? 'chd-rejeitar' : 'chd-resolver'">
+          <div class="comment-hd" :class="commentModal.action === 'NaoValidado' ? 'chd-rejeitar' : commentModal.action === 'Comentario' ? 'chd-comentario' : 'chd-resolver'">
             <div class="comment-hd-left">
               <div class="comment-hd-icon">
-                <svg v-if="commentModal.action === 'Rejeitado'" width="18" height="18" fill="none" stroke="currentColor"
-                  stroke-width="2.2" viewBox="0 0 20 20">
+                <svg v-if="commentModal.action === 'NaoValidado'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                   <path d="M7 7l6 6M13 7l-6 6" stroke-linecap="round" />
                 </svg>
-                <svg v-else width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"
-                  viewBox="0 0 20 20">
+                <svg v-else-if="commentModal.action === 'Comentario'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
+                  <path d="M18 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3l3 3 3-3h7a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
+                  <path d="M6 8h8M6 11h5" stroke-linecap="round" />
+                </svg>
+                <svg v-else width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                   <path d="M6.5 10l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </div>
               <div>
-                <div class="comment-hd-title">{{ commentModal.action === 'Rejeitado' ? 'Rejeitar Ocorrência' : 'Marcar como Resolvido' }}</div>
+                <div class="comment-hd-title">{{ commentModal.action === 'NaoValidado' ? 'Não Validar Ocorrência' : commentModal.action === 'Comentario' ? 'Adicionar Comentário' : 'Marcar como Resolvido' }}</div>
                 <div class="comment-hd-id">{{ selected?.id }} · {{ selected?.categoria }}</div>
               </div>
             </div>
@@ -619,13 +683,15 @@
           </div>
           <div class="comment-body">
             <div class="comment-field-label">
-              {{ commentModal.action === 'Rejeitado' ? 'Motivo da Rejeição' : 'Descrição da Resolução' }}
+              {{ commentModal.action === 'NaoValidado' ? 'Motivo da Não Validação' : commentModal.action === 'Comentario' ? 'Comentário' : 'Descrição da Resolução' }}
               <span class="comment-required">obrigatório</span>
             </div>
             <p class="comment-hint">
-              {{ commentModal.action === 'Rejeitado'
-                ? 'Explique o motivo pelo qual esta ocorrência está a ser rejeitada.'
-                : 'Descreva como a ocorrência foi resolvida e as medidas tomadas.' }}
+              {{ commentModal.action === 'NaoValidado'
+                ? 'Explique o motivo pelo qual esta ocorrência não foi validada.'
+                : commentModal.action === 'Comentario'
+                  ? 'Escreva um comentário sobre esta ocorrência.'
+                  : 'Descreva como a ocorrência foi resolvida e as medidas tomadas.' }}
             </p>
             <textarea ref="commentTextareaRef" class="comment-textarea" v-model="commentModal.text"
               @input="commentModal.error = ''" :maxlength="500" rows="5"></textarea>
@@ -636,13 +702,12 @@
           <div class="comment-footer">
             <button class="btn-cancel-comment" @click="cancelComment" :disabled="confirming">Cancelar</button>
             <button class="btn-confirm-comment"
-              :class="commentModal.action === 'Rejeitado' ? 'bcc-rejeitar' : 'bcc-resolver'" @click="confirmComment"
-              :disabled="confirming">
-              <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor"
-                stroke-width="2.2" viewBox="0 0 16 16">
+              :class="commentModal.action === 'NaoValidado' ? 'bcc-rejeitar' : commentModal.action === 'Comentario' ? 'bcc-comentario' : 'bcc-resolver'"
+              @click="confirmComment" :disabled="confirming">
+              <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                 <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
               </svg>
-              {{ confirming ? 'A processar…' : commentModal.action === 'Rejeitado' ? 'Confirmar Rejeição' : 'Confirmar Resolução' }}
+              {{ confirming ? 'A processar…' : commentModal.action === 'NaoValidado' ? 'Confirmar Não Validação' : commentModal.action === 'Comentario' ? 'Guardar Comentário' : 'Confirmar Resolução' }}
             </button>
           </div>
         </div>
@@ -691,6 +756,11 @@ const commentModal = reactive({ show: false, action: '', text: '', error: '' })
 const toast = reactive({ show: false, msg: '', red: false })
 const loading = ref(false)
 
+// ─── Edit classification state ───────────────────────────────
+const editMode   = ref(false)
+const editSaving = ref(false)
+const editForm   = reactive({ project_id: '', category_id: '' })
+
 // ─── Reference data ───────────────────────────────────────────
 const refCategories = ref([])
 const rows = ref([])
@@ -698,21 +768,28 @@ const f = reactive({ provincia: '', projeto: '', data: '', status: '', categoria
 
 // ─── Status helpers ───────────────────────────────────────────
 const ACTION_TO_API = {
-  'Em Analise': 'in_review',
-  'Resolvido': 'resolved',
-  'Rejeitado': 'rejected',
+  'PorResolver': 'por_resolver',
+  'NaoValidado': 'nao_validado',
+  'Resolvendo':  'resolvendo',
+  'Resolvido':   'resolvido',
 }
 const STATUS_LABEL = {
-  pending: 'Pendente',
-  in_review: 'Em Análise',
-  resolved: 'Resolvida',
-  rejected: 'Rejeitada',
-  closed: 'Encerrada',
+  por_validar:  'Por Validar',
+  por_resolver: 'Por Resolver',
+  nao_validado: 'Não Validado',
+  resolvendo:   'Resolvendo',
+  resolvido:    'Resolvido',
 }
 
 function statusClass(s) {
-  const map = { pending: 'pendente', in_review: 'em-analise', resolved: 'resolvido', rejected: 'rejeitado', closed: 'fechado' }
-  return map[s] ?? 'pendente'
+  const map = {
+    por_validar:  'por-validar',
+    por_resolver: 'por-resolver',
+    nao_validado: 'nao-validado',
+    resolvendo:   'resolvendo',
+    resolvido:    'resolvido',
+  }
+  return map[s] ?? 'por-validar'
 }
 
 function mapOccurrence(o) {
@@ -737,6 +814,8 @@ function mapOccurrence(o) {
     foto: null,
     anexos: [],
     comentario: '',
+    _project_id: o.project?.id ?? '',
+    _category_id: o.category?.id ?? '',
   }
 }
 
@@ -757,17 +836,9 @@ async function loadOccurrences() {
   loading.value = true
   try {
     const res = await InternalService.getOccurrences({ per_page: 200 })
-    const TERMINAL = ['resolved', 'rejected', 'closed']
-    const scopeProvNames = scopeProvinces.value.map(p => p.name)
-    const scopeProjNames = scopeProjects.value.map(p => p.name)
-
+    const TERMINAL = ['nao_validado', 'resolvido']
     rows.value = (res.data ?? [])
       .filter(o => !TERMINAL.includes(o.status))
-      .filter(o => {
-        const provOk = scopeProvNames.length === 0 || scopeProvNames.includes(o.province?.name)
-        const projOk = scopeProjNames.length === 0 || !o.project?.name || scopeProjNames.includes(o.project.name)
-        return provOk && projOk
-      })
       .map(mapOccurrence)
   } catch (e) {
     console.error(e)
@@ -780,6 +851,7 @@ async function loadOccurrences() {
 async function selectRow(r) {
   selected.value = { ...r }
   showModal.value = false
+  editMode.value = false
   try {
     const res = await InternalService.getOccurrence(r._id)
     const full = res.data ?? res
@@ -809,8 +881,47 @@ async function selectRow(r) {
   } catch (e) { console.error('Erro ao carregar detalhes:', e) }
 }
 
-function openFullModal() { showModal.value = true }
-function closeFullModal() { showModal.value = false }
+function openFullModal() { editMode.value = false; showModal.value = true }
+function closeFullModal() { showModal.value = false; editMode.value = false }
+
+// ─── Edit classification ──────────────────────────────────────
+function toggleEditMode() {
+  editMode.value = !editMode.value
+  if (editMode.value && selected.value) {
+    editForm.project_id  = selected.value._project_id  ?? ''
+    editForm.category_id = selected.value._category_id ?? ''
+  }
+}
+
+async function saveClassification() {
+  if (!selected.value || editSaving.value) return
+  editSaving.value = true
+  try {
+    const payload = {}
+    if (editForm.project_id)  payload.project_id  = editForm.project_id
+    if (editForm.category_id) payload.category_id = editForm.category_id
+    const result = await InternalService.updateClassification(selected.value._id, payload)
+    if (result.project) {
+      selected.value.projeto     = result.project.name
+      selected.value._project_id = result.project.id
+    }
+    if (result.category) {
+      selected.value.categoria     = result.category.name
+      selected.value._category_id  = result.category.id
+    }
+    const idx = rows.value.findIndex(r => r._id === selected.value._id)
+    if (idx !== -1) {
+      if (result.project)  rows.value[idx].projeto   = result.project.name
+      if (result.category) rows.value[idx].categoria = result.category.name
+    }
+    editMode.value = false
+    showToast('Classificação actualizada com sucesso.')
+  } catch (e) {
+    showToast(e.response?.data?.message ?? 'Erro ao guardar. Tente novamente.', true)
+  } finally {
+    editSaving.value = false
+  }
+}
 
 // ─── Filters ──────────────────────────────────────────────────
 const imageAnexos = computed(() => selected.value?.anexos?.filter(a => a.tipo === 'imagem') ?? [])
@@ -863,7 +974,11 @@ async function confirmComment() {
   commentModal.error = ''
   const action = commentModal.action; const comment = trimmed
   commentModal.show = false
-  await changeStatus(action, comment)
+  if (action === 'Comentario') {
+    await addStandaloneComment(comment)
+  } else {
+    await changeStatus(action, comment)
+  }
 }
 
 async function downloadAnexo(a) {
@@ -874,25 +989,41 @@ async function downloadAnexo(a) {
   } catch { showToast('Erro ao descarregar o ficheiro.', true) }
 }
 
+async function addStandaloneComment(comment) {
+  if (!selected.value || confirming.value) return
+  confirming.value = true
+  try {
+    await InternalService.addComment(selected.value._id, { comment })
+    showToast('Comentário adicionado com sucesso.')
+  } catch (e) {
+    const errors = e?.response?.data?.errors
+    showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao adicionar comentário. Tente novamente.', true)
+  } finally { confirming.value = false }
+}
+
 async function changeStatus(newState, comment = '') {
   if (!selected.value || confirming.value) return
   confirming.value = true
   const apiStatus = ACTION_TO_API[newState]
   try {
-    await InternalService.updateStatus(selected.value._id, { status: apiStatus, comment })
+    const payload = { status: apiStatus }
+    if (comment && comment.trim()) payload.comment = comment.trim()
+    await InternalService.updateStatus(selected.value._id, payload)
     const trackingCode = selected.value.id
-    const isFinal = apiStatus === 'resolved' || apiStatus === 'rejected'
+    const isFinal = apiStatus === 'nao_validado' || apiStatus === 'resolvido'
     if (isFinal) {
       rows.value = rows.value.filter(r => r._id !== selected.value._id)
       selected.value = null
+      editMode.value = false
     } else {
       const idx = rows.value.findIndex(r => r._id === selected.value._id)
       if (idx !== -1) { rows.value[idx].status = apiStatus; rows.value[idx].status_label = STATUS_LABEL[apiStatus] }
       selected.value.status = apiStatus
       selected.value.status_label = STATUS_LABEL[apiStatus]
       selected.value.comentario = comment
+      if (editMode.value) editMode.value = false
     }
-    showToast(newState === 'Rejeitado' ? `${trackingCode} foi rejeitada.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'Rejeitado')
+    showToast(newState === 'NaoValidado' ? `${trackingCode} foi não validada.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'NaoValidado')
   } catch (e) {
     const errors = e?.response?.data?.errors
     showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao actualizar o estado. Tente novamente.', true)
@@ -1369,26 +1500,31 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   white-space: nowrap;
 }
 
-.badge-status.pendente { background: #EFF6FF; color: #1D4ED8; border: 1.5px solid #93C5FD; }
-.badge-status.em-analise { background: #FFFBEB; color: #B45309; border: 1.5px solid #FCD34D; }
-.badge-status.resolvido { background: var(--green-pale); color: var(--green-dark); border: 1.5px solid #68D391; }
-.badge-status.rejeitado { background: #FFF5F5; color: #C53030; border: 1.5px solid #FEB2B2; }
-.badge-status.fechado { background: #F4F6F5; color: var(--text-gray); border: 1.5px solid var(--border); }
+.badge-status.por-validar  { background: #EFF6FF; color: #1D4ED8; border: 1.5px solid #93C5FD; }
+.badge-status.por-resolver { background: #FFFBEB; color: #B45309; border: 1.5px solid #FCD34D; }
+.badge-status.nao-validado { background: #FFF5F5; color: #C53030; border: 1.5px solid #FEB2B2; }
+.badge-status.resolvendo   { background: #FFF7ED; color: #C2410C; border: 1.5px solid #FDBA74; }
+.badge-status.resolvido    { background: var(--green-pale); color: var(--green-dark); border: 1.5px solid #68D391; }
 
 /* DETAIL PANEL */
 .detail-panel {
   background: var(--white);
   border-radius: 14px;
   box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.06);
-  padding: 20px;
+  overflow: hidden;
   position: sticky;
   top: 0;
   max-height: calc(100vh - 180px);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
-.detail-panel::-webkit-scrollbar { width: 4px; }
-.detail-panel::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+}
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 
 .empty-detail {
   display: flex;
@@ -1396,17 +1532,20 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   align-items: center;
   justify-content: center;
   gap: 14px;
-  padding: 40px 20px;
+  padding: 48px 20px;
   text-align: center;
+  color: var(--text-light);
 }
 
-.empty-detail p { font-size: 13px; color: var(--text-gray); line-height: 1.6; }
+.empty-detail p { font-size: 12.5px; margin-top: 10px; line-height: 1.55; }
 
 .detail-panel-hd {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .detail-panel-title {
@@ -1428,62 +1567,53 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  color: var(--text-gray);
 }
 
-.btn-close-panel:hover { background: #FFF5F5; border-color: #FC8181; }
+.btn-close-panel:hover { background: #FFF5F5; border-color: #FC8181; color: #E53E3E; }
 
 .status-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
 }
 
 .sub-date {
-  font-size: 11.5px;
-  color: var(--text-gray);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: right;
 }
 
-.sub-date span { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-light); }
+.sub-date span { display: block; font-size: 10px; margin-bottom: 1px; }
 
-.rec-title { margin-bottom: 16px; }
-.rec-id { font-size: 15px; font-weight: 800; color: var(--text-dark); margin-bottom: 3px; }
-.rec-cat { font-size: 12px; color: var(--text-gray); }
+.rec-title { padding: 10px 16px 12px; border-bottom: 1px solid var(--border); }
+.rec-id { font-size: 16px; font-weight: 800; }
+.rec-cat { font-size: 12px; color: var(--text-gray); margin-top: 2px; }
 
 .section-title {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--text-gray);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  margin-top: 14px;
+  padding: 12px 16px 8px;
 }
 
-.evidence-wrap {
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #F4F6F5;
-  margin-bottom: 4px;
-}
+.evidence-wrap { position: relative; }
 
-.evidence-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.evidence-img { width: 100%; height: 120px; object-fit: cover; display: block; }
 
 .evidence-placeholder {
-  height: 100px;
+  width: 100%;
+  height: 72px;
+  background: #F4F6F5;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
   color: var(--text-light);
+  font-size: 12px;
 }
 
 .evidence-count-badge {
@@ -1492,47 +1622,60 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   right: 8px;
   background: rgba(0,0,0,.55);
   color: #fff;
-  font-size: 10.5px;
+  border-radius: 99px;
+  padding: 3px 9px;
+  font-size: 11px;
   font-weight: 600;
-  border-radius: 6px;
-  padding: 2px 8px;
+  backdrop-filter: blur(4px);
 }
 
 .desc-box {
+  margin: 0 16px;
   background: #F4F6F5;
-  border-radius: 9px;
-  padding: 12px 14px;
-  font-size: 12.5px;
-  color: var(--text-dark);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-gray);
   line-height: 1.65;
-  margin-bottom: 4px;
+  font-style: italic;
+  border-left: 3px solid var(--green-light);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* BTN VER COMPLETO */
 .btn-ver-completo {
-  width: 100%;
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin: 14px 0;
-  transition: border-color 0.2s, background 0.2s;
+  width: calc(100% - 32px);
+  margin: 10px 16px 0;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, var(--green-pale) 0%, #EAF4EE 100%);
+  border: 1.5px solid var(--green-light);
+  border-radius: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Poppins', sans-serif;
 }
 
-.btn-ver-completo:hover { border-color: var(--green-light); background: var(--green-bg); }
+.btn-ver-completo:hover {
+  background: var(--green-bg);
+  border-color: var(--green-mid);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(82, 183, 136, .18);
+}
 
 .bvc-left { display: flex; align-items: center; gap: 10px; }
 
 .bvc-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--green-bg);
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
+  background: var(--white);
+  border: 1.5px solid var(--green-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1540,64 +1683,69 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   flex-shrink: 0;
 }
 
-.bvc-title { font-size: 12.5px; font-weight: 700; color: var(--text-dark); text-align: left; }
-.bvc-sub { font-size: 11px; color: var(--text-gray); text-align: left; margin-top: 1px; }
-.bvc-right { display: flex; align-items: center; gap: 7px; color: var(--text-gray); flex-shrink: 0; }
+.bvc-title { font-size: 12.5px; font-weight: 700; color: var(--green-dark); line-height: 1.3; text-align: left; }
+.bvc-sub { font-size: 10.5px; color: var(--green-mid); opacity: 0.8; text-align: left; }
+.bvc-right { display: flex; align-items: center; gap: 6px; color: var(--green-mid); }
 
 .bvc-pill {
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--green-bg);
+  display: inline-flex;
+  align-items: center;
+  background: var(--white);
+  border: 1.5px solid var(--green-light);
   color: var(--green-mid);
   border-radius: 99px;
   padding: 2px 9px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 /* INFO GRID */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
 }
 
 .info-block {
-  background: #F4F6F5;
-  border-radius: 9px;
-  padding: 10px 12px;
+  padding: 10px 16px;
+  border-right: 1px solid var(--border);
 }
 
-.info-label { font-size: 10.5px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.info-val { font-size: 13px; font-weight: 700; color: var(--text-dark); }
-.info-sub { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
+.info-block:last-child { border-right: none; }
+
+.info-label { font-size: 10px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+.info-val { font-size: 12px; font-weight: 600; color: var(--text-dark); margin-bottom: 2px; }
+.info-sub { font-size: 10.5px; color: var(--text-gray); }
 
 /* STATE ACTIONS */
-.state-actions {
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
+.state-actions { padding: 10px 16px 16px; }
 
 .state-flow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #F9FBFA;
+  border-radius: 9px;
+  border: 1px solid var(--border);
 }
 
 .flow-step {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
   color: var(--text-light);
-  padding: 3px 8px;
+  padding: 2px 8px;
   border-radius: 99px;
-  background: #F4F6F5;
+  transition: all 0.2s;
 }
 
-.flow-step.flow-active { color: var(--green-dark); background: var(--green-pale); border: 1.5px solid #68D391; }
-.flow-step.flow-done { color: var(--green-mid); background: var(--green-bg); }
-.flow-step.flow-skip { color: #C53030; background: #FFF5F5; }
+.flow-step.flow-active { background: var(--green-pale); color: var(--green-mid); border: 1.5px solid var(--green-light); }
+.flow-step.flow-done { color: var(--green-mid); opacity: 0.6; text-decoration: line-through; }
+.flow-step.flow-skip { opacity: 0.35; text-decoration: line-through; }
 
-.flow-chevron { color: #C8D8CE; flex-shrink: 0; }
+.flow-chevron { color: var(--border); flex-shrink: 0; }
 
 .action-hint { font-size: 12px; color: var(--text-gray); margin-bottom: 10px; line-height: 1.5; }
 
@@ -1706,6 +1854,27 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
 }
 .btn-rejeitar-secondary:disabled { opacity: 0.55; cursor: not-allowed; }
 
+.btn-add-comment {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--white);
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  padding: 9px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-gray);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-add-comment:hover:not(:disabled) { border-color: var(--green-light); color: var(--green-mid); }
+.btn-add-comment:disabled { opacity: 0.45; cursor: not-allowed; }
+
 /* STATE FINAL */
 .state-final {
   display: flex;
@@ -1750,47 +1919,61 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
 .dash-footer a { color: var(--text-light); text-decoration: none; margin-left: 16px; }
 .dash-footer a:hover { color: var(--green-mid); }
 
-/* MODAL */
+/* ── MODAL ──────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  background: rgba(8, 24, 16, .6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
-  padding: 16px;
+  padding: 24px;
 }
 
 .modal-card {
   background: var(--white);
-  border-radius: 18px;
-  width: 720px;
-  max-width: 95vw;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 70px rgba(0,0,0,.22);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, .28);
   overflow: hidden;
 }
 
+/* Modal header */
 .modal-hd {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 22px 26px 16px;
+  padding: 18px 22px 16px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-.modal-hd-left {}
-.modal-hd-id { font-size: 16px; font-weight: 800; color: var(--text-dark); margin-bottom: 3px; }
-.modal-hd-cat { font-size: 12.5px; color: var(--text-gray); }
+.modal-hd-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modal-hd-id {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.modal-hd-cat {
+  font-size: 12px;
+  color: var(--text-gray);
+}
 
 .modal-hd-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -1799,257 +1982,389 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   height: 32px;
   background: #F4F6F5;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  color: var(--text-gray);
 }
 
-.btn-close-modal:hover { background: #FFF5F5; border-color: #FC8181; }
+.btn-close-modal:hover {
+  background: #FFF5F5;
+  border-color: #FC8181;
+  color: #E53E3E;
+}
 
+/* Modal body */
 .modal-body {
-  flex: 1;
   overflow-y: auto;
-  padding: 20px 26px;
+  flex: 1;
 }
 
-.modal-body::-webkit-scrollbar { width: 5px; }
-.modal-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+.modal-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #C8D8CE;
+  border-radius: 99px;
+}
 
 .modal-hero-wrap {
   position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 16px;
-  background: #F4F6F5;
 }
 
-.modal-hero { width: 100%; height: 220px; object-fit: cover; display: block; }
+.modal-hero {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  display: block;
+}
 
 .modal-hero-empty {
-  height: 160px;
+  width: 100%;
+  height: 100px;
+  background: #F4F6F5;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   color: var(--text-light);
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .modal-hero-meta {
   position: absolute;
-  bottom: 10px;
-  left: 12px;
-  right: 12px;
+  bottom: 12px;
+  left: 14px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
 }
 
 .modal-hero-date {
-  font-size: 11.5px;
+  background: rgba(0, 0, 0, .5);
   color: #fff;
-  background: rgba(0,0,0,.45);
-  border-radius: 6px;
-  padding: 3px 9px;
+  border-radius: 99px;
+  padding: 3px 11px;
+  font-size: 11px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
 }
 
 .modal-meta-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  background: #F4F6F5;
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
 }
 
-.modal-meta-item {}
-.modal-meta-label { font-size: 10px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
-.modal-meta-val { font-size: 12.5px; font-weight: 700; color: var(--text-dark); }
+.modal-meta-item {
+  padding: 12px 16px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
 
-.modal-section { margin-bottom: 20px; }
+.modal-meta-item:last-child {
+  border-right: none;
+}
+
+.modal-meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.modal-meta-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  transition: color 0.2s;
+}
+
+.modal-section {
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-section:last-child {
+  border-bottom: none;
+}
 
 .modal-section-hd {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
-  color: var(--text-gray);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
+  color: var(--text-dark);
+  margin-bottom: 12px;
 }
 
 .section-count {
+  margin-left: 4px;
+  background: var(--green-pale);
+  color: var(--green-mid);
+  border: 1.5px solid var(--green-light);
+  border-radius: 99px;
+  padding: 1px 8px;
   font-size: 11px;
   font-weight: 700;
-  background: var(--green-bg);
-  color: var(--green-mid);
-  border-radius: 99px;
-  padding: 1px 7px;
-  margin-left: 4px;
 }
 
 .modal-desc {
   background: #F4F6F5;
   border-radius: 10px;
   padding: 14px 16px;
-  font-size: 13px;
-  color: var(--text-dark);
-  line-height: 1.7;
+  font-size: 13.5px;
+  color: var(--text-gray);
+  line-height: 1.8;
   font-style: italic;
+  border-left: 3px solid var(--green-light);
 }
 
 .modal-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 0;
 }
 
 .modal-info-block {
-  background: #F4F6F5;
-  border-radius: 10px;
-  padding: 12px 14px;
+  padding: 0 16px 0 0;
 }
 
-.modal-info-label { font-size: 10px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.modal-info-val { font-size: 13px; font-weight: 700; color: var(--text-dark); }
-.modal-info-sub { font-size: 11.5px; color: var(--text-gray); margin-top: 3px; }
+.modal-info-block+.modal-info-block {
+  padding: 0 0 0 16px;
+  border-left: 1px solid var(--border);
+}
+
+.modal-info-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 5px;
+}
+
+.modal-info-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.modal-info-sub {
+  font-size: 11px;
+  color: var(--text-gray);
+}
 
 .no-attachments {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px;
-  background: #F4F6F5;
+  padding: 14px 16px;
+  background: #F9FBFA;
+  border: 1.5px dashed var(--border);
   border-radius: 10px;
+  color: var(--text-light);
   font-size: 12.5px;
-  color: var(--text-gray);
 }
 
 .attachment-gallery {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .attachment-thumb {
   position: relative;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  transition: transform 0.18s, box-shadow 0.18s;
 }
 
-.attachment-thumb img { width: 100%; height: 90px; object-fit: cover; display: block; }
+.attachment-thumb:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .14);
+}
+
+.attachment-thumb img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  display: block;
+}
 
 .attachment-thumb-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.35);
+  background: rgba(0, 0, 0, .38);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.18s;
 }
 
-.attachment-thumb:hover .attachment-thumb-overlay { opacity: 1; }
+.attachment-thumb:hover .attachment-thumb-overlay {
+  opacity: 1;
+}
+
+.attachment-thumb-name {
+  padding: 5px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #F4F6F5;
+}
 
 .btn-img-dl {
   position: absolute;
-  top: 6px;
+  bottom: 26px;
   right: 6px;
   width: 24px;
   height: 24px;
-  background: rgba(0,0,0,.5);
+  background: rgba(0, 0, 0, .55);
   border: none;
   border-radius: 5px;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.18s;
+  z-index: 2;
 }
 
-.attachment-thumb:hover .btn-img-dl { opacity: 1; }
+.attachment-thumb:hover .btn-img-dl {
+  opacity: 1;
+}
 
-.attachment-thumb-name {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0,0,0,.55);
-  color: #fff;
-  font-size: 10px;
-  padding: 3px 6px;
+.attachment-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachment-doc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #F9FBFA;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.2s;
+}
+
+.attachment-doc-row:hover {
+  border-color: var(--green-light);
+}
+
+.doc-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: #FAF5FF;
+  border: 1.5px solid #B794F4;
+  color: #6B46C1;
+}
+
+.doc-icon-box.doc-pdf {
+  background: #FFF5F5;
+  border: 1.5px solid #FC8181;
+  color: #E53E3E;
+}
+
+.doc-icon-box.doc-doc {
+  background: #EBF8FF;
+  border: 1.5px solid #63B3ED;
+  color: #2B6CB0;
+}
+
+.doc-icon-box.doc-xlsx {
+  background: #F0FFF4;
+  border: 1.5px solid #68D391;
+  color: var(--green-mid);
+}
+
+.doc-ext {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.doc-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.attachment-doc-list { display: flex; flex-direction: column; gap: 6px; }
-
-.attachment-doc-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #F4F6F5;
-  border-radius: 8px;
-  padding: 10px 12px;
+.doc-size {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
 }
-
-.doc-icon-box {
-  width: 36px;
-  height: 36px;
-  border-radius: 7px;
-  background: var(--green-bg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: var(--green-mid);
-}
-
-.doc-ext { font-size: 8px; font-weight: 800; color: var(--green-mid); letter-spacing: 0.3px; }
-.doc-meta { flex: 1; min-width: 0; }
-.doc-name { font-size: 12.5px; font-weight: 600; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.doc-size { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
 
 .btn-doc-open {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  flex-shrink: 0;
   background: var(--white);
+  color: var(--text-gray);
   border: 1.5px solid var(--border);
   border-radius: 7px;
-  padding: 5px 10px;
   font-family: 'Poppins', sans-serif;
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--text-gray);
   cursor: pointer;
-  flex-shrink: 0;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, color 0.2s;
 }
 
-.btn-doc-open:hover { border-color: var(--green-light); color: var(--green-mid); }
+.btn-doc-open:hover {
+  border-color: var(--green-mid);
+  color: var(--green-mid);
+}
 
 .modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 26px;
-  border-top: 1px solid var(--border);
   flex-shrink: 0;
+  background: #FAFBFA;
 }
 
 .modal-footer-info {
@@ -2057,23 +2372,26 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--text-gray);
+  color: var(--text-light);
 }
 
 .btn-modal-close {
+  height: 38px;
+  padding: 0 24px;
   background: var(--white);
+  color: var(--text-gray);
   border: 1.5px solid var(--border);
   border-radius: 9px;
-  padding: 9px 22px;
   font-family: 'Poppins', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-gray);
   cursor: pointer;
-  transition: border-color 0.2s;
 }
 
-.btn-modal-close:hover { border-color: var(--text-gray); }
+.btn-modal-close:hover {
+  border-color: var(--text-gray);
+  color: var(--text-dark);
+}
 
 /* LIGHTBOX */
 .lightbox-overlay {
@@ -2137,8 +2455,9 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   padding: 18px 22px 16px;
 }
 
-.chd-rejeitar { background: #FFF5F5; border-bottom: 1.5px solid #FEB2B2; }
-.chd-resolver { background: var(--green-pale); border-bottom: 1.5px solid #68D391; }
+.chd-rejeitar  { background: #FFF5F5; border-bottom: 1.5px solid #FEB2B2; }
+.chd-resolver  { background: var(--green-pale); border-bottom: 1.5px solid #68D391; }
+.chd-comentario { background: #F0F9FF; border-bottom: 1.5px solid #7DD3FC; }
 
 .comment-hd-left { display: flex; align-items: center; gap: 12px; }
 
@@ -2152,8 +2471,9 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   flex-shrink: 0;
 }
 
-.chd-rejeitar .comment-hd-icon { background: #FEB2B2; color: #C53030; }
-.chd-resolver .comment-hd-icon { background: #68D391; color: var(--green-dark); }
+.chd-rejeitar .comment-hd-icon  { background: #FEB2B2; color: #C53030; }
+.chd-resolver .comment-hd-icon  { background: #68D391; color: var(--green-dark); }
+.chd-comentario .comment-hd-icon { background: #7DD3FC; color: #0369A1; }
 
 .comment-hd-title { font-size: 14px; font-weight: 800; color: var(--text-dark); }
 .comment-hd-id { font-size: 11.5px; color: var(--text-gray); margin-top: 2px; }
@@ -2257,8 +2577,9 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
 }
 
 .btn-confirm-comment:disabled { opacity: 0.6; cursor: not-allowed; }
-.bcc-rejeitar { background: #C53030; }
-.bcc-resolver { background: var(--green-mid); }
+.bcc-rejeitar   { background: #C53030; }
+.bcc-resolver   { background: var(--green-mid); }
+.bcc-comentario { background: #0284C7; }
 
 /* SPIN */
 .spin {
@@ -2298,4 +2619,184 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
 
 .toast-anim-enter-active, .toast-anim-leave-active { transition: opacity 0.3s, transform 0.3s; }
 .toast-anim-enter-from, .toast-anim-leave-to { opacity: 0; transform: translateY(16px); }
+
+/* ── EDIT CLASSIFICATION BUTTON ─────────── */
+.btn-edit-class {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  background: var(--white);
+  color: var(--text-gray);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-edit-class:hover {
+  border-color: var(--green-mid);
+  color: var(--green-mid);
+}
+
+.btn-edit-class.active {
+  background: var(--green-bg);
+  border-color: var(--green-mid);
+  color: var(--green-mid);
+}
+
+/* ── EDIT CLASSIFICATION BAR ────────────── */
+.edit-class-bar {
+  background: var(--green-bg);
+  border-bottom: 2px solid var(--green-light);
+  padding: 14px 22px;
+  flex-shrink: 0;
+}
+
+.edit-class-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 12px;
+}
+
+.edit-class-fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.edit-field label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+.edit-field select {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  background: var(--white);
+  border: 1.5px solid var(--green-light);
+  border-radius: 8px;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.edit-field select:focus {
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px rgba(82, 183, 136, .18);
+}
+
+.edit-field select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edit-class-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-edit-cancel {
+  height: 40px;
+  padding: 0 16px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-gray);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn-edit-cancel:hover:not(:disabled) {
+  border-color: var(--text-gray);
+}
+
+.btn-edit-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-edit-save {
+  height: 40px;
+  padding: 0 20px;
+  background: var(--green-mid);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.2s;
+}
+
+.btn-edit-save:hover:not(:disabled) {
+  background: var(--green-dark);
+}
+
+.btn-edit-save:disabled {
+  background: #A0C4B0;
+  cursor: not-allowed;
+}
+
+.edited-field {
+  color: var(--green-mid);
+  font-weight: 700;
+}
+
+/* Edit bar transition */
+.edit-slide-enter-active,
+.edit-slide-leave-active {
+  transition: all 0.25s ease;
+}
+
+.edit-slide-enter-from,
+.edit-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+  max-height: 0;
+}
+
+.edit-slide-enter-to,
+.edit-slide-leave-from {
+  opacity: 1;
+  transform: none;
+  max-height: 120px;
+}
+
+/* Spin small */
+.spin-sm {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, .35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
 </style>
