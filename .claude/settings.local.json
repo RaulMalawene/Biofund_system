@@ -29,7 +29,8 @@
       "Bash(xargs grep -l \"login\\\\|sanctum\\\\|token\")",
       "Bash(git checkout *)",
       "Bash(Select-Object -First 20)",
-      "Bash(Get-Content *)"
+      "Bash(Get-Content *)",
+      "Bash(xargs grep -l \"perfil\\\\|profile\")"
     ]
   }
 }

@@ -78,6 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('me');
         Route::post('logout', [LoginController::class, 'logout'])
             ->name('logout');
+        Route::post('profile', [LoginController::class, 'updateProfile'])
+            ->name('profile');
         Route::post('change-password', [PasswordResetController::class, 'changePassword'])
             ->name('change-password');
     });
