@@ -34,7 +34,7 @@ export const useAuthStore = defineStore("auth", () => {
     const dashboardRoute = computed(() => {
         if (user.value?.role === "admin") return "/admin/dashboard";
         if (user.value?.role === "gestor") return "/gestor/dashboard";
-        if (user.value?.role === "funcionario") return "/funcionario/dashboard";
+        if (user.value?.role === "funcionario") return "/funcionario/reclamacao";
         return "/";
     });
 

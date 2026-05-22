@@ -12,6 +12,7 @@ import Categoria               from '@/views/administrador/Categoria.vue'
 import DashboardGestor         from '@/views/gestor/DashboardGestor.vue'
 import ValidacaoGestor         from '@/views/gestor/ValidacaoGestor.vue'
 import HistoricoGestor         from '@/views/gestor/HistoricoGestor.vue'
+import ReclamacaoFuncionario   from '@/views/funcionario interno/reclamacao.vue'
 
 const routes = [
     // ── Públicas ─────────────────────────────────────────────
@@ -74,6 +75,11 @@ const routes = [
         component: HistoricoGestor,
         meta: { requiresAuth: true, roles: ['gestor'] },
     },
+    {
+        path: '/funcionario/reclamacao',
+        component: ReclamacaoFuncionario,
+        meta: { requiresAuth: true, roles: ['funcionario'] },
+    },
 
     // Rota catch-all: redireciona para a home
     { path: '/:pathMatch(.*)*', redirect: '/' },
@@ -123,7 +129,7 @@ router.beforeEach((to, _from, next) => {
             const homeByRole = {
                 admin:       '/admin/dashboard',
                 gestor:      '/gestor/dashboard',
-                funcionario: '/acessoRestrito',
+                funcionario: '/funcionario/reclamacao',
             }
             const home = homeByRole[user.role] ?? '/acessoRestrito'
             if (to.path === home) return next()
@@ -136,7 +142,11 @@ router.beforeEach((to, _from, next) => {
 
     // ── Rota só para não-autenticados (ex: login) ─────────────
     if (to.meta.guestOnly && isAuthenticated) {
-        const homeByRole = { admin: '/admin/dashboard', gestor: '/gestor/dashboard' }
+        const homeByRole = {
+            admin:       '/admin/dashboard',
+            gestor:      '/gestor/dashboard',
+            funcionario: '/funcionario/reclamacao',
+        }
         const home = homeByRole[user?.role] ?? '/acessoRestrito'
         return next(home)
     }
