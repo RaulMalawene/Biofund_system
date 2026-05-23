@@ -77,7 +77,7 @@
           <div class="pp-field">
             <label>Senha Actual <span class="pp-label-hint">(preencha para alterar a senha)</span></label>
             <div class="pp-pw-wrap">
-              <input v-model="pw.current" :type="showPw.current ? 'text' : 'password'" placeholder="••••••••" autocomplete="current-password" />
+              <input v-model="pw.current" :type="showPw.current ? 'text' : 'password'" placeholder="••••••••" autocomplete="off" />
               <button class="pp-pw-eye" @click="showPw.current = !showPw.current" type="button">
                 <svg v-if="!showPw.current" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="6" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg>
                 <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><path d="M2 2l12 12M6.5 6.7A3 3 0 0 0 9.3 9.5" stroke-linecap="round"/><path d="M4.2 4.8C2.8 5.8 2 7 2 8c0 1 1.5 3.5 6 3.5a8 8 0 0 0 2.8-.5M7 4.6A8 8 0 0 1 8 4.5c4.5 0 6 2.5 6 3.5 0 .6-.4 1.4-1.2 2.1" stroke-linecap="round"/></svg>
@@ -90,7 +90,7 @@
             <div class="pp-field">
               <label>Nova Senha</label>
               <div class="pp-pw-wrap">
-                <input v-model="pw.password" :type="showPw.password ? 'text' : 'password'" placeholder="Mín. 8 caracteres" autocomplete="new-password" />
+                <input v-model="pw.password" :type="showPw.password ? 'text' : 'password'" placeholder="Mín. 8 caracteres" autocomplete="off" />
                 <button class="pp-pw-eye" @click="showPw.password = !showPw.password" type="button">
                   <svg v-if="!showPw.password" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="6" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg>
                   <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><path d="M2 2l12 12M6.5 6.7A3 3 0 0 0 9.3 9.5" stroke-linecap="round"/><path d="M4.2 4.8C2.8 5.8 2 7 2 8c0 1 1.5 3.5 6 3.5a8 8 0 0 0 2.8-.5M7 4.6A8 8 0 0 1 8 4.5c4.5 0 6 2.5 6 3.5 0 .6-.4 1.4-1.2 2.1" stroke-linecap="round"/></svg>
@@ -104,7 +104,7 @@
             <div class="pp-field">
               <label>Confirmar Nova Senha</label>
               <div class="pp-pw-wrap">
-                <input v-model="pw.confirmation" :type="showPw.confirmation ? 'text' : 'password'" placeholder="Repita a nova senha" autocomplete="new-password" />
+                <input v-model="pw.confirmation" :type="showPw.confirmation ? 'text' : 'password'" placeholder="Repita a nova senha" autocomplete="off" />
                 <button class="pp-pw-eye" @click="showPw.confirmation = !showPw.confirmation" type="button">
                   <svg v-if="!showPw.confirmation" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="6" ry="4"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg>
                   <svg v-else width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><path d="M2 2l12 12M6.5 6.7A3 3 0 0 0 9.3 9.5" stroke-linecap="round"/><path d="M4.2 4.8C2.8 5.8 2 7 2 8c0 1 1.5 3.5 6 3.5a8 8 0 0 0 2.8-.5M7 4.6A8 8 0 0 1 8 4.5c4.5 0 6 2.5 6 3.5 0 .6-.4 1.4-1.2 2.1" stroke-linecap="round"/></svg>
@@ -260,7 +260,8 @@ async function saveProfile() {
 
 // ── Alterar senha ─────────────────────────────────────────────
 async function changePassword() {
-  if (!pw.current.trim()) return true  // sem senha actual = skip
+  // Só muda a senha se ambos os campos estiverem preenchidos
+  if (!pw.current.trim() || !pw.password.trim()) return true
   pwError.value = ''; pwSuccess.value = false
   if (pw.password.length < 8) { pwError.value = 'A nova senha deve ter pelo menos 8 caracteres.'; return false }
   if (pw.password !== pw.confirmation) { pwError.value = 'As senhas não coincidem.'; return false }
@@ -311,8 +312,8 @@ async function saveAll() {
   }
   pfSaving.value = false
 
-  // 2. Alterar senha (só se senha actual preenchida)
-  if (pw.current.trim()) {
+  // 2. Alterar senha (só se senha actual E nova senha preenchidas)
+  if (pw.current.trim() && pw.password.trim()) {
     const ok = await changePassword()
     if (!ok) return
   }

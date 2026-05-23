@@ -37,12 +37,25 @@ class AdminStatisticsController extends Controller
      */
     public function dashboard(Request $request): JsonResponse
     {
-        $user  = $request->user();
+        $user = $request->user();
 
-        // Base query com restrição por área se for gestor provincial
+        // Pré-computa âmbito do gestor (províncias + projectos via many-to-many)
+        $gestorProvinceIds = [];
+        $gestorProjectIds  = [];
+        if ($user->isGestor()) {
+            $gestorProvinceIds = collect($user->province_id ? [$user->province_id] : [])
+                ->merge($user->provinces()->pluck('provinces.id'))
+                ->unique()->values()->all();
+            $gestorProjectIds = $user->projects()->pluck('projects.id')->all();
+        }
+
+        // Base query restrita à área do gestor; admin vê tudo
         $baseQuery = fn() => Occurrence::when(
-            $user->management_scope === 'provincial',
-            fn($q) => $q->where('province_id', $user->province_id)
+            $user->isGestor(),
+            fn($q) => $q->where(fn($inner) =>
+                $inner->whereIn('province_id', $gestorProvinceIds)
+                      ->orWhereIn('project_id', $gestorProjectIds)
+            )
         );
 
         // Totais por estado
@@ -180,9 +193,16 @@ class AdminStatisticsController extends Controller
             'assignedTo:id,name',
         ]);
 
-        // Restrição de área para gestores provinciais
-        if ($user->management_scope === 'provincial') {
-            $query->where('province_id', $user->province_id);
+        // Restrição de área para gestores (províncias + projectos)
+        if ($user->isGestor()) {
+            $provinceIds = collect($user->province_id ? [$user->province_id] : [])
+                ->merge($user->provinces()->pluck('provinces.id'))
+                ->unique()->values()->all();
+            $projectIds = $user->projects()->pluck('projects.id')->all();
+            $query->where(fn($q) =>
+                $q->whereIn('province_id', $provinceIds)
+                  ->orWhereIn('project_id', $projectIds)
+            );
         }
 
         // Aplicar filtros

@@ -13,6 +13,7 @@ import DashboardGestor         from '@/views/gestor/DashboardGestor.vue'
 import ValidacaoGestor         from '@/views/gestor/ValidacaoGestor.vue'
 import HistoricoGestor         from '@/views/gestor/HistoricoGestor.vue'
 import ReclamacaoFuncionario   from '@/views/funcionario interno/reclamacao.vue'
+import HistoricoFuncionario    from '@/views/funcionario interno/HistoricoFuncionario.vue'
 
 const routes = [
     // ── Públicas ─────────────────────────────────────────────
@@ -78,6 +79,11 @@ const routes = [
     {
         path: '/funcionario/reclamacao',
         component: ReclamacaoFuncionario,
+        meta: { requiresAuth: true, roles: ['funcionario'] },
+    },
+    {
+        path: '/funcionario/historico',
+        component: HistoricoFuncionario,
         meta: { requiresAuth: true, roles: ['funcionario'] },
     },
 

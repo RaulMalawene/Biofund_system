@@ -364,23 +364,57 @@
                 </div>
 
                 <div class="mf-field">
-                  <label>Palavra-passe <span v-if="!editingUser" class="req">*</span><span v-else class="field-hint">(deixe em branco para não alterar)</span></label>
-                  <div class="input-wrap" :class="{ err: mErrors.password }">
-                    <div class="input-icon">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                  <!-- Criação: campo sempre visível e obrigatório -->
+                  <template v-if="!editingUser">
+                    <label>Palavra-passe <span class="req">*</span></label>
+                    <div class="input-wrap" :class="{ err: mErrors.password }">
+                      <div class="input-icon">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                          <rect x="3" y="7" width="10" height="8" rx="1.5" />
+                          <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round" />
+                        </svg>
+                      </div>
+                      <input :type="showPass ? 'text' : 'password'" v-model="mForm.password" placeholder="••••••••" @input="mErrors.password = ''" />
+                      <button class="btn-eye" type="button" @click="showPass = !showPass">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                          <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+                          <circle cx="8" cy="8" r="2" />
+                        </svg>
+                      </button>
+                    </div>
+                    <span class="err-msg" v-if="mErrors.password">{{ mErrors.password }}</span>
+                  </template>
+
+                  <!-- Edição: campo escondido por defeito -->
+                  <template v-else>
+                    <label>Palavra-passe</label>
+                    <button v-if="!showPasswordChange" type="button" class="btn-change-pw" @click="showPasswordChange = true">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
                         <rect x="3" y="7" width="10" height="8" rx="1.5" />
                         <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round" />
                       </svg>
-                    </div>
-                    <input :type="showPass ? 'text' : 'password'" v-model="mForm.password" placeholder="••••••••" @input="mErrors.password = ''" />
-                    <button class="btn-eye" type="button" @click="showPass = !showPass">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                        <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
-                        <circle cx="8" cy="8" r="2" />
-                      </svg>
+                      Alterar senha
                     </button>
-                  </div>
-                  <span class="err-msg" v-if="mErrors.password">{{ mErrors.password }}</span>
+                    <template v-else>
+                      <div class="input-wrap" :class="{ err: mErrors.password }">
+                        <div class="input-icon">
+                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                            <rect x="3" y="7" width="10" height="8" rx="1.5" />
+                            <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round" />
+                          </svg>
+                        </div>
+                        <input :type="showPass ? 'text' : 'password'" v-model="mForm.password" placeholder="Nova senha (mín. 8 caracteres)" @input="mErrors.password = ''" />
+                        <button class="btn-eye" type="button" @click="showPass = !showPass">
+                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                            <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+                            <circle cx="8" cy="8" r="2" />
+                          </svg>
+                        </button>
+                      </div>
+                      <span class="err-msg" v-if="mErrors.password">{{ mErrors.password }}</span>
+                      <button type="button" class="btn-cancel-pw" @click="showPasswordChange = false; mForm.password = ''; mErrors.password = ''">Cancelar alteração</button>
+                    </template>
+                  </template>
                 </div>
               </div>
 
@@ -593,6 +627,7 @@ const deleteTarget = ref(null)
 const modalSaved = ref(false)
 const formError = ref('')
 const showPass = ref(false)
+const showPasswordChange = ref(false)
 const tableSearch = ref('')
 const tab = ref('todos')
 
@@ -748,6 +783,7 @@ function resetMForm() {
   formError.value = ''
   modalSaved.value = false
   showPass.value = false
+  showPasswordChange.value = false
 }
 
 function openModal(tipo) {
@@ -1955,6 +1991,37 @@ tbody tr:last-child td {
   height: 100%;
   flex-shrink: 0;
 }
+
+.btn-change-pw {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1.5px dashed #C8D8CE;
+  background: #F7FAF8;
+  color: #2D6A4F;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-change-pw:hover { background: #EDF4EF; border-color: #52B788; }
+
+.btn-cancel-pw {
+  margin-top: 5px;
+  background: none;
+  border: none;
+  color: #8A9490;
+  font-size: 11.5px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.btn-cancel-pw:hover { color: #E53E3E; }
 
 .err-msg {
   font-size: 11.5px;

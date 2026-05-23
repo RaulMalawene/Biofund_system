@@ -18,6 +18,14 @@
           </svg>
           Reclamações
         </router-link>
+        <router-link class="nav-item" to="/funcionario/historico">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
+            <rect x="2" y="1" width="10" height="14" rx="1.5" />
+            <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
+            <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Histórico
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -56,7 +64,7 @@
         <div class="page-title-row">
           <div>
             <h1>Gestão de Reclamações</h1>
-            <p>Visualize e gira os incidentes ambientais que registou.</p>
+            <p>Reclamações activas — por validar e em análise.</p>
           </div>
           <button class="btn-registar" @click="openRegistoModal">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
@@ -77,12 +85,10 @@
                 Estado
               </label>
               <select v-model="filters.status">
-                <option value="">Todos os Estados</option>
+                <option value="">Todos os Activos</option>
                 <option value="por_validar">Por Validar</option>
-                <option value="pendente">Pendente</option>
-                <option value="em_analise">Em Análise</option>
-                <option value="resolvido">Resolvido</option>
-                <option value="nao_validado">Não Validado</option>
+                <option value="por_resolver">Por Resolver</option>
+                <option value="resolvendo">Resolvendo</option>
               </select>
             </div>
             <div class="filter-group">
@@ -107,7 +113,7 @@
               </label>
               <select v-model="filters.province_id">
                 <option value="">Todas as Províncias</option>
-                <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+                <option v-for="p in myProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
               </select>
             </div>
             <div class="filter-actions">
@@ -133,8 +139,6 @@
             <span v-if="loading" class="stat-spin"></span>
             {{ loading ? 'A carregar…' : `${meta.total} resultado${meta.total !== 1 ? 's' : ''}` }}
           </span>
-          <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolvido') }}</span>
-          <span class="badge-status rejected">Não Validadas · {{ countByStatus('nao_validado') }}</span>
         </div>
 
         <!-- TABLE CARD -->
@@ -365,78 +369,235 @@
 
     <!-- ── REGISTO MODAL ── -->
     <transition name="fade">
-      <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-        <div class="modal">
-          <div class="modal-hd">
-            <div>
-              <h3>Registar Nova Reclamação</h3>
-              <p>Preencha os dados do incidente ambiental observado.</p>
+      <div v-if="showModal" class="modal-overlay" @click.self="closeModal"></div>
+    </transition>
+    <transition name="modal-pop">
+      <div v-if="showModal" class="drawer-panel">
+        <div class="drawer-header">
+          <div>
+            <div class="drawer-title">Registar Nova Reclamação</div>
+            <div class="drawer-subtitle">Preencha os dados do incidente ambiental observado.</div>
+          </div>
+          <button class="drawer-close" @click="closeModal">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
+              <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="f-body">
+
+          <!-- Erro global -->
+          <div class="error-banner" v-if="submitError">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11h.01" stroke-linecap="round"/>
+            </svg>
+            {{ submitError }}
+          </div>
+
+          <!-- Informação do Reclamante -->
+          <div class="f-section-title">Informação do Reclamante</div>
+          <div class="f-row">
+            <div class="f-group">
+              <label>Nome <span class="f-opt">(Opcional)</span></label>
+              <input type="text" v-model="nf.complainant_name" placeholder="Nome completo ou pseudónimo" />
             </div>
-            <button class="btn-close" @click="showModal = false">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
-                <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round" />
+            <div class="f-group">
+              <label>Email <span class="req-hint">*pelo menos um</span></label>
+              <input type="email" v-model="nf.complainant_email"
+                :class="{ 'f-err': mErrors.contact }"
+                placeholder="email@exemplo.com"
+                @input="mErrors.contact = ''" />
+            </div>
+          </div>
+          <div class="f-row" style="margin-top:-8px">
+            <div class="f-group">
+              <label>Telefone <span class="req-hint">*pelo menos um</span></label>
+              <input type="tel" v-model="nf.complainant_phone"
+                :class="{ 'f-err': mErrors.contact }"
+                placeholder="+258 84 000 0000"
+                @input="mErrors.contact = ''" />
+            </div>
+            <div class="f-group contact-note" v-if="mErrors.contact" style="justify-content:flex-start; padding-top:22px">
+              <svg width="13" height="13" fill="none" stroke="#C53030" stroke-width="1.7" viewBox="0 0 14 14">
+                <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
               </svg>
-            </button>
-          </div>
-
-          <div class="modal-body">
-            <div class="mf">
-              <label>Assunto</label>
-              <input type="text" v-model="nf.subject" placeholder="Breve título da reclamação" />
+              {{ mErrors.contact }}
             </div>
-            <div class="mrow">
-              <div class="mf">
-                <label>Categoria <span class="req">*</span></label>
-                <select v-model="nf.category_id">
-                  <option value="" disabled>Seleccione</option>
-                  <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                </select>
-              </div>
-              <div class="mf">
-                <label>Canal <span class="req">*</span></label>
-                <select v-model="nf.submission_channel">
-                  <option value="" disabled>Seleccione</option>
-                  <option value="phone">Telefone</option>
-                  <option value="email">Email</option>
-                  <option value="green_line">Linha Verde</option>
-                  <option value="community_meeting">Reunião Comunitária</option>
-                  <option value="presential">Presencial</option>
-                </select>
-              </div>
-            </div>
-            <div class="mrow">
-              <div class="mf">
-                <label>Província <span class="req">*</span></label>
-                <select v-model="nf.province_id" @change="onProvinceChange">
-                  <option value="" disabled>Seleccione</option>
-                  <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
-                </select>
-              </div>
-              <div class="mf">
-                <label>Distrito</label>
-                <select v-model="nf.district_id" :disabled="!nf.province_id || refDistricts.length === 0">
-                  <option value="">{{ nf.province_id ? 'Seleccione' : 'Escolha uma província' }}</option>
-                  <option v-for="d in refDistricts" :key="d.id" :value="d.id">{{ d.name }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="mf">
-              <label>Descrição <span class="req">*</span></label>
-              <textarea v-model="nf.description" placeholder="Descreva o incidente observado com o máximo de detalhe possível…" rows="4"></textarea>
-            </div>
-            <div class="mf">
-              <label>Anexo (opcional)</label>
-              <input type="file" @change="onFileChange" accept="image/*,.pdf,.doc,.docx" />
+            <div class="f-group contact-note" v-else style="justify-content:flex-start; padding-top:22px">
+              <svg width="13" height="13" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 14 14">
+                <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
+              </svg>
+              Preencha pelo menos email ou telefone.
             </div>
           </div>
 
-          <div class="modal-actions">
-            <button class="btn-mc" @click="showModal = false" :disabled="saving">Cancelar</button>
-            <button class="btn-ms" @click="saveRegisto" :disabled="saving">
+          <!-- Dados da Ocorrência -->
+          <div class="f-section-title">Dados da Ocorrência</div>
+          <div class="f-group">
+            <label>Assunto <span class="f-req">*</span></label>
+            <input type="text" v-model="nf.subject" maxlength="255"
+              :class="{ 'f-err': mErrors.subject }"
+              placeholder="Ex: Poluição do rio Incomáti"
+              @input="mErrors.subject = ''" />
+            <span class="f-err-msg" v-if="mErrors.subject">{{ mErrors.subject }}</span>
+          </div>
+
+          <div class="f-row">
+            <div class="f-group">
+              <label>Projecto <span class="f-req">*</span></label>
+              <select v-model="nf.project_id"
+                :class="{ 'f-err': mErrors.project_id }"
+                @change="mErrors.project_id = ''">
+                <option value="" disabled>Seleccione o projecto</option>
+                <option v-for="p in scopeProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="mErrors.project_id">{{ mErrors.project_id }}</span>
+            </div>
+            <div class="f-group">
+              <label>Categoria <span class="f-req">*</span></label>
+              <select v-model="nf.category_id"
+                :class="{ 'f-err': mErrors.category_id }"
+                @change="mErrors.category_id = ''">
+                <option value="" disabled>Seleccione a categoria</option>
+                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="mErrors.category_id">{{ mErrors.category_id }}</span>
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="f-group">
+              <label>Tipo de Ocorrência <span class="f-req">*</span></label>
+              <select v-model="nf.occurrence_type_id"
+                :class="{ 'f-err': mErrors.occurrence_type_id }"
+                @change="mErrors.occurrence_type_id = ''">
+                <option value="" disabled>Seleccione o tipo</option>
+                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="mErrors.occurrence_type_id">{{ mErrors.occurrence_type_id }}</span>
+            </div>
+            <div class="f-group">
+              <label>Nível de Alerta <span class="f-req">*</span></label>
+              <select v-model="nf.alert_type"
+                :class="{ 'f-err': mErrors.alert_type }"
+                @change="mErrors.alert_type = ''">
+                <option value="" disabled>Seleccione o nível</option>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgente</option>
+                <option value="gbv">GBV — Violência de Género</option>
+              </select>
+              <span class="f-err-msg" v-if="mErrors.alert_type">{{ mErrors.alert_type }}</span>
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="f-group">
+              <label>Canal de Submissão <span class="f-req">*</span></label>
+              <select v-model="nf.submission_channel"
+                :class="{ 'f-err': mErrors.submission_channel }"
+                @change="mErrors.submission_channel = ''">
+                <option value="" disabled>Seleccione</option>
+                <option value="green_line">Linha Verde</option>
+                <option value="email">Email</option>
+                <option value="phone">Telefone</option>
+                <option value="community_meeting">Reunião Comunitária</option>
+              </select>
+              <span class="f-err-msg" v-if="mErrors.submission_channel">{{ mErrors.submission_channel }}</span>
+            </div>
+            <div class="f-group">
+              <label>Data da Ocorrência</label>
+              <input type="date" v-model="nf.occurrence_date" :max="today" />
+            </div>
+          </div>
+
+          <!-- Localização -->
+          <div class="f-section-title">Localização</div>
+          <div class="f-row">
+            <div class="f-group">
+              <label>Província <span class="f-req">*</span></label>
+              <select v-model="nf.province_id"
+                :class="{ 'f-err': mErrors.province_id }"
+                :disabled="myProvinces.length === 1"
+                @change="onProvinceChange">
+                <option value="" disabled>Seleccione</option>
+                <option v-for="p in myProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="mErrors.province_id">{{ mErrors.province_id }}</span>
+            </div>
+            <div class="f-group">
+              <label>Distrito</label>
+              <select v-model="nf.district_id"
+                :disabled="!nf.province_id || loadingDistricts">
+                <option value="">{{ loadingDistricts ? 'A carregar…' : (nf.province_id ? 'Seleccione (opcional)' : 'Escolha uma província') }}</option>
+                <option v-for="d in refDistricts" :key="d.id" :value="d.id">{{ d.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="f-group">
+            <label>Localização / Coordenadas <span class="f-opt">(Opcional)</span></label>
+            <input type="text" v-model="nf.location_detail" placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
+          </div>
+
+          <!-- Descrição -->
+          <div class="f-group">
+            <label>Descrição Detalhada <span class="f-req">*</span></label>
+            <textarea v-model="nf.description"
+              :class="{ 'f-err': mErrors.description }"
+              placeholder="Descreva o incidente observado com o máximo de detalhe possível… (mínimo 20 caracteres)"
+              rows="4"
+              @input="mErrors.description = ''"></textarea>
+            <div class="char-hint" :class="nf.description.length >= 20 ? 'char-ok' : 'char-warn'"
+              v-if="nf.description.length > 0">
+              {{ nf.description.length >= 20 ? '✓ ' + nf.description.length + ' caracteres' : 'Faltam ' + (20 - nf.description.length) + ' caracteres' }}
+            </div>
+            <span class="f-err-msg" v-if="mErrors.description">{{ mErrors.description }}</span>
+          </div>
+
+          <!-- Upload -->
+          <div class="upload-zone"
+            :class="{ 'drag-over': isDragging }"
+            @click="modalFileInput.click()"
+            @dragover.prevent="isDragging = true"
+            @dragleave="isDragging = false"
+            @drop.prevent="handleDrop">
+            <div class="upload-icon-wrap">
+              <svg width="22" height="22" fill="none" stroke="#2D6A4F" stroke-width="1.7" viewBox="0 0 20 20">
+                <path d="M3 15v1.5A1.5 1.5 0 0 0 4.5 18h11A1.5 1.5 0 0 0 17 16.5V15" stroke-linecap="round"/>
+                <path d="M10 2v10M6.5 5.5 10 2l3.5 3.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h4>Anexar ficheiros</h4>
+            <p>PNG, JPG, PDF, MP4, MP3 — máx. 10 MB por ficheiro (até 5)</p>
+          </div>
+          <input ref="modalFileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.mp4,.mp3"
+            style="display:none" @change="handleFileSelect" />
+
+          <div class="file-list" v-if="modalFiles.length">
+            <div class="file-item" v-for="(f, i) in modalFiles" :key="i">
+              <svg width="14" height="14" fill="none" stroke="#2D6A4F" stroke-width="1.5" viewBox="0 0 16 16">
+                <rect x="2" y="1" width="10" height="14" rx="1.5"/>
+                <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
+                <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="file-item-name">{{ f.name }}</span>
+              <span class="file-item-size">{{ (f.size / 1024).toFixed(0) }} KB</span>
+              <button class="btn-rm" @click.stop="modalFiles.splice(i, 1)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 12 12">
+                  <path d="M2 2l8 8M10 2L2 10" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="f-actions">
+            <button class="btn-cancelar" @click="closeModal" :disabled="saving">Cancelar</button>
+            <button class="btn-submit" @click="saveRegisto" :disabled="saving">
               <span v-if="saving" class="stat-spin" style="border-color:#fff3; border-top-color:#fff"></span>
-              {{ saving ? 'A registar…' : 'Registar' }}
+              {{ saving ? 'A registar…' : 'Registar Ocorrência' }}
             </button>
           </div>
+
         </div>
       </div>
     </transition>
@@ -475,6 +636,10 @@ async function handleLogout() {
   router.push('/acessoRestrito')
 }
 
+// ── Projectos e províncias do funcionário (âmbito) ───────────
+const scopeProjects  = computed(() => auth.user?.projects  ?? [])
+const myProvinces    = computed(() => auth.user?.provinces ?? [])
+
 // ── Estado ────────────────────────────────────────────────────
 const loading = ref(false)
 const detailLoading = ref(false)
@@ -495,8 +660,11 @@ const toast = reactive({ show: false, msg: '', type: 'success' })
 
 // ── Dados de referência ───────────────────────────────────────
 const refCategories = ref([])
-const refProvinces = ref([])
-const refDistricts = ref([])
+const refTypes      = ref([])
+const refProvinces  = ref([])
+const refDistricts  = ref([])
+const loadingDistricts = ref(false)
+const today = new Date().toISOString().split('T')[0]
 
 // ── Filtros ───────────────────────────────────────────────────
 const filters = reactive({
@@ -507,29 +675,54 @@ const filters = reactive({
 
 // ── Formulário de registo ─────────────────────────────────────
 const nf = reactive({
+  complainant_name: '',
+  complainant_email: '',
+  complainant_phone: '',
   subject: '',
+  project_id: '',
   category_id: '',
+  occurrence_type_id: '',
+  alert_type: '',
   submission_channel: '',
+  occurrence_date: '',
   province_id: '',
   district_id: '',
+  location_detail: '',
   description: '',
 })
-let nfFile = null
+
+const mErrors = reactive({
+  contact: '',
+  subject: '',
+  project_id: '',
+  category_id: '',
+  occurrence_type_id: '',
+  alert_type: '',
+  submission_channel: '',
+  province_id: '',
+  description: '',
+})
+
+const submitError  = ref('')
+const isDragging   = ref(false)
+const modalFiles   = ref([])
+const modalFileInput = ref(null)
 
 // ── Init ──────────────────────────────────────────────────────
 onMounted(async () => {
   try { await auth.fetchMe() } catch { /* ignora */ }
   try {
     const data = await InternalService.getFormData()
-    refCategories.value = data.categories ?? []
-    refProvinces.value = data.provinces ?? []
+    refCategories.value = data.categories      ?? []
+    refTypes.value      = data.occurrence_types ?? []
+    refProvinces.value  = data.provinces        ?? []
   } catch (err) {
     console.error('Erro ao carregar dados de referência:', err)
   }
   await loadOccurrences()
 })
 
-// ── Carregar ocorrências ──────────────────────────────────────
+// ── Carregar ocorrências (só as do funcionário) ───────────────
 async function loadOccurrences(page = 1) {
   loading.value = true
   try {
@@ -537,12 +730,13 @@ async function loadOccurrences(page = 1) {
       per_page: meta.per_page,
       page,
       only_mine: true,
+      active_only: 1,
     }
 
-    if (topSearch.value.trim()) params.search = topSearch.value.trim()
-    if (filters.status)      params.status      = filters.status
-    if (filters.category_id) params.category_id = filters.category_id
-    if (filters.province_id) params.province_id = filters.province_id
+    if (topSearch.value.trim()) params.search      = topSearch.value.trim()
+    if (filters.status)         params.status      = filters.status
+    if (filters.category_id)    params.category_id = filters.category_id
+    if (filters.province_id)    params.province_id = filters.province_id
 
     const response = await InternalService.getOccurrences(params)
 
@@ -623,53 +817,127 @@ async function downloadAttachment(a) {
 
 // ── Modal de registo ──────────────────────────────────────────
 function openRegistoModal() {
+  // Pré-selecciona a província se o funcionário só tiver uma
+  const singleProvince = myProvinces.value.length === 1 ? myProvinces.value[0].id : ''
   Object.assign(nf, {
-    subject: '', category_id: '', submission_channel: '',
-    province_id: '', district_id: '', description: '',
+    complainant_name: '', complainant_email: '', complainant_phone: '',
+    subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+    alert_type: '', submission_channel: '', occurrence_date: '',
+    province_id: singleProvince, district_id: '', location_detail: '', description: '',
   })
-  nfFile = null
+  Object.assign(mErrors, {
+    contact: '', subject: '', project_id: '', category_id: '',
+    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    province_id: '', description: '',
+  })
+  submitError.value = ''
+  modalFiles.value  = []
   refDistricts.value = []
+  // Se já foi pré-seleccionada uma província, carrega os distritos
+  if (singleProvince) onProvinceChange()
   showModal.value = true
+}
+
+function closeModal() {
+  showModal.value = false
 }
 
 async function onProvinceChange() {
   nf.district_id = ''
   refDistricts.value = []
+  mErrors.province_id = ''
   if (!nf.province_id) return
+  loadingDistricts.value = true
   try {
     const data = await InternalService.getDistrictsByProvince(nf.province_id)
-    refDistricts.value = data.districts ?? []
+    refDistricts.value = data.districts ?? data
   } catch {}
+  finally { loadingDistricts.value = false }
 }
 
-function onFileChange(e) {
-  nfFile = e.target.files?.[0] ?? null
+// ── Upload ────────────────────────────────────────────────────
+function handleFileSelect(e) {
+  addFiles(Array.from(e.target.files))
+  e.target.value = ''
+}
+function handleDrop(e) {
+  isDragging.value = false
+  addFiles(Array.from(e.dataTransfer.files))
+}
+function addFiles(list) {
+  list.forEach(f => {
+    if (modalFiles.value.length >= 5) return
+    if (f.size <= 10 * 1024 * 1024) modalFiles.value.push(f)
+  })
 }
 
+// ── Validação ─────────────────────────────────────────────────
+function validate() {
+  let ok = true
+  if (!nf.complainant_email.trim() && !nf.complainant_phone.trim()) {
+    mErrors.contact = 'Preencha pelo menos email ou número de telefone.'
+    ok = false
+  }
+  if (!nf.subject.trim())           { mErrors.subject            = 'O assunto é obrigatório.';               ok = false }
+  if (!nf.project_id)               { mErrors.project_id         = 'Seleccione o projecto.';                 ok = false }
+  if (!nf.category_id)              { mErrors.category_id        = 'Seleccione a categoria.';                ok = false }
+  if (!nf.occurrence_type_id)       { mErrors.occurrence_type_id = 'Seleccione o tipo de ocorrência.';       ok = false }
+  if (!nf.alert_type)               { mErrors.alert_type         = 'Seleccione o nível de alerta.';          ok = false }
+  if (!nf.submission_channel)       { mErrors.submission_channel = 'Seleccione o canal de submissão.';       ok = false }
+  if (!nf.province_id)              { mErrors.province_id        = 'Seleccione a província.';                ok = false }
+  if (!nf.description.trim())       { mErrors.description        = 'A descrição é obrigatória.';             ok = false }
+  else if (nf.description.trim().length < 20) {
+                                      mErrors.description        = 'A descrição deve ter pelo menos 20 caracteres.'; ok = false }
+  return ok
+}
+
+// ── Submissão ─────────────────────────────────────────────────
 async function saveRegisto() {
-  if (!nf.category_id || !nf.province_id || !nf.description.trim() || !nf.submission_channel) {
-    showToast('Por favor preencha os campos obrigatórios.', 'error')
+  submitError.value = ''
+  Object.assign(mErrors, {
+    contact: '', subject: '', project_id: '', category_id: '',
+    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    province_id: '', description: '',
+  })
+
+  if (!validate()) {
+    submitError.value = 'Corrija os erros assinalados e tente novamente.'
     return
   }
 
   saving.value = true
   try {
     const fd = new FormData()
-    fd.append('category_id', nf.category_id)
-    fd.append('province_id', nf.province_id)
+    if (nf.complainant_name.trim())  fd.append('complainant_name',  nf.complainant_name.trim())
+    if (nf.complainant_email.trim()) fd.append('complainant_email', nf.complainant_email.trim())
+    if (nf.complainant_phone.trim()) fd.append('complainant_phone', nf.complainant_phone.trim())
+    fd.append('subject',            nf.subject.trim())
+    fd.append('project_id',         nf.project_id)
+    fd.append('category_id',        nf.category_id)
+    fd.append('occurrence_type_id', nf.occurrence_type_id)
+    fd.append('alert_type',         nf.alert_type)
     fd.append('submission_channel', nf.submission_channel)
-    fd.append('description', nf.description)
-    if (nf.subject.trim())  fd.append('subject', nf.subject)
-    if (nf.district_id)     fd.append('district_id', nf.district_id)
-    if (nfFile)             fd.append('attachments[]', nfFile)
+    fd.append('province_id',        nf.province_id)
+    fd.append('description',        nf.description.trim())
+    if (nf.district_id)              fd.append('district_id',     nf.district_id)
+    if (nf.occurrence_date)          fd.append('occurrence_date', nf.occurrence_date)
+    if (nf.location_detail.trim())   fd.append('location_detail', nf.location_detail.trim())
+    modalFiles.value.forEach(f => fd.append('attachments[]', f))
 
     const res = await InternalService.createOccurrence(fd)
-    showModal.value = false
+    closeModal()
     showToast(`Reclamação ${res.tracking_code ?? ''} registada com sucesso!`, 'success')
     await loadOccurrences(1)
   } catch (err) {
-    const msg = err.response?.data?.message ?? 'Erro ao registar. Tente novamente.'
-    showToast(msg, 'error')
+    if (err.response?.status === 422) {
+      const serverErrors = err.response.data.errors ?? {}
+      Object.entries(serverErrors).forEach(([field, msgs]) => {
+        if (field in mErrors) mErrors[field] = msgs[0]
+      })
+      submitError.value = 'Corrija os erros assinalados e tente novamente.'
+    } else {
+      submitError.value = err.response?.data?.message ?? 'Erro ao registar. Tente novamente.'
+    }
   } finally {
     saving.value = false
   }
@@ -1450,53 +1718,79 @@ tbody tr:last-child td { border-bottom: none; }
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(8,24,16,.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 300;
+  background: rgba(15,28,22,.4);
+  z-index: 200;
 }
 
-.modal {
-  background: var(--white);
-  border-radius: 20px;
-  width: 520px;
-  max-width: 95vw;
+.drawer-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 680px;
+  max-width: 96vw;
   max-height: 90vh;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.18);
+  z-index: 301;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0,0,0,.18);
 }
 
-.modal-hd {
+.drawer-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 24px 26px 18px;
+  padding: 22px 26px 18px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-.modal-hd h3 { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
-.modal-hd p  { font-size: 12px; color: var(--text-gray); }
+.drawer-title    { font-size: 17px; font-weight: 800; color: var(--text-dark); margin-bottom: 3px; }
+.drawer-subtitle { font-size: 12px; color: var(--text-gray); }
 
-.modal-body {
+.drawer-close {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  color: var(--text-gray);
+  transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.drawer-close:hover { border-color: #E53E3E; color: #E53E3E; }
+
+.f-body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 26px;
+  padding: 22px 26px 32px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+}
+.f-body::-webkit-scrollbar { width: 4px; }
+.f-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+
+.f-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-light);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+  margin-top: 6px;
 }
 
-.modal-body::-webkit-scrollbar { width: 4px; }
-.modal-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+.f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 
-.mrow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.f-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.f-row .f-group { margin-bottom: 0; }
 
-.mf { display: flex; flex-direction: column; gap: 5px; }
-
-.mf label {
+.f-group label {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--text-dark);
@@ -1505,68 +1799,147 @@ tbody tr:last-child td { border-bottom: none; }
   gap: 4px;
 }
 
-.req { color: #E53E3E; }
+.f-req { color: #E53E3E; }
+.f-opt { font-size: 11px; font-weight: 500; color: var(--text-light); }
 
-.mf input,
-.mf select,
-.mf textarea {
+.req-hint {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #C66E00;
+  margin-left: 4px;
+}
+
+.f-group input,
+.f-group select,
+.f-group textarea {
   font-family: 'Poppins', sans-serif;
   font-size: 13px;
   color: var(--text-dark);
   border: 1.5px solid var(--border);
   border-radius: 8px;
   padding: 10px 13px;
+  height: 42px;
   outline: none;
   width: 100%;
   appearance: none;
   -webkit-appearance: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--white);
 }
 
-.mf select {
+.f-group select {
   background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238A9490' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;
 }
 
-.mf input:focus,
-.mf select:focus,
-.mf textarea:focus {
+.f-group input:focus,
+.f-group select:focus,
+.f-group textarea:focus {
   border-color: var(--green-mid);
   box-shadow: 0 0 0 3px rgba(82,183,136,.12);
 }
 
-.mf select:disabled { opacity: 0.55; cursor: not-allowed; }
-.mf textarea { resize: vertical; min-height: 90px; background-image: none; }
-.mf input[type="file"] { padding: 8px 13px; cursor: pointer; }
+.f-group select:disabled,
+.f-group input:disabled { opacity: 0.55; cursor: not-allowed; }
+.f-group textarea { resize: vertical; min-height: 90px; height: auto; background-image: none; }
 
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  padding: 18px 26px 22px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-}
+.f-err { border-color: #FC8181 !important; box-shadow: 0 0 0 3px rgba(252,129,129,.1) !important; }
+.f-err-msg { font-size: 11.5px; color: #E53E3E; }
 
-.btn-mc {
-  flex: 1;
-  background: var(--white);
-  color: var(--text-gray);
-  border: 1.5px solid var(--border);
+.error-banner {
+  background: #FFF5F5;
+  border: 1px solid #FEB2B2;
   border-radius: 9px;
-  padding: 11px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.2s;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #C53030;
+  margin-bottom: 16px;
 }
 
-.btn-mc:hover:not(:disabled) { border-color: var(--text-gray); }
-.btn-mc:disabled { opacity: 0.5; cursor: not-allowed; }
+.contact-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-gray);
+  line-height: 1.5;
+}
 
-.btn-ms {
+.char-hint { font-size: 11.5px; margin-top: 3px; }
+.char-warn { color: #C66E00; }
+.char-ok   { color: #2D6A4F; }
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  background: #F7F9F8;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--green-light);
+  background: #EEF7F1;
+}
+.upload-icon-wrap {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  background: #DCF0E6;
+  border-radius: 10px;
+}
+.upload-zone h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin: 0; }
+.upload-zone p  { font-size: 12px; color: var(--text-gray); margin: 0; }
+
+.file-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #EEF7F1;
+  border: 1px solid #C3E6CE;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.file-item-name { font-size: 12.5px; font-weight: 500; color: #2D6A4F; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item-size { font-size: 11px; color: var(--text-light); flex-shrink: 0; }
+
+.btn-rm {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  display: flex;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  padding: 0;
+}
+.btn-rm:hover { color: #E53E3E; }
+
+.f-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-submit {
   flex: 1;
   display: flex;
   align-items: center;
@@ -1575,17 +1948,38 @@ tbody tr:last-child td { border-bottom: none; }
   background: #40916C;
   color: #fff;
   border: none;
-  border-radius: 9px;
-  padding: 11px;
+  border-radius: 10px;
+  padding: 12px;
   font-family: 'Poppins', sans-serif;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(64,145,108,.3);
   transition: background 0.2s;
 }
+.btn-submit:hover:not(:disabled) { background: #2D6A4F; }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.btn-ms:hover:not(:disabled) { background: #2D6A4F; }
-.btn-ms:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-cancelar {
+  flex: 1;
+  background: transparent;
+  color: #E53E3E;
+  border: 1.5px solid #FC8181;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn-cancelar:hover:not(:disabled) { background: #FFF5F5; border-color: #E53E3E; }
+.btn-cancelar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.modal-pop-enter-active { transition: opacity 0.22s ease, transform 0.22s cubic-bezier(.16,1,.3,1); }
+.modal-pop-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.modal-pop-enter-from  { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
+.modal-pop-leave-to    { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
 
 /* ── TOAST ──────────────────────────────── */
 .toast {

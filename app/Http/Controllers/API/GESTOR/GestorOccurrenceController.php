@@ -55,20 +55,40 @@ class GestorOccurrenceController extends Controller
             'submittedBy:id,name',
         ])->withCount('attachments');
 
+        // Pré-computa IDs de província/projecto do gestor para reutilizar nas queries.
+        $gestorProvinceIds = [];
+        $gestorProjectIds  = [];
+        if ($user->isGestor()) {
+            $gestorProvinceIds = collect($user->province_id ? [$user->province_id] : [])
+                ->merge($user->provinces()->pluck('provinces.id'))
+                ->unique()->values()->all();
+            $gestorProjectIds = $user->projects()->pluck('projects.id')->all();
+        }
+
         // Restrição por perfil
         match ($user->role) {
             RoleEnum::Funcionario => $query->where('submitted_by_user_id', $user->id),
 
-            // Gestor vê ocorrências da sua província, dos seus projectos, ou que ele submeteu.
+            // Gestor vê:
+            //   - ocorrências da sua província / projecto
+            //   - ocorrências que ele próprio submeteu
+            //   - ocorrências submetidas por funcionários da mesma província ou projecto
             RoleEnum::Gestor => $query->where(fn($q) =>
-                $q->where('province_id', $user->province_id)
-                  ->orWhereIn('province_id',
-                      $user->provinces()->pluck('provinces.id')
-                  )
-                  ->orWhereIn('project_id',
-                      $user->projects()->pluck('projects.id')
-                  )
+                $q->whereIn('province_id', $gestorProvinceIds)
+                  ->orWhereIn('project_id', $gestorProjectIds)
                   ->orWhere('submitted_by_user_id', $user->id)
+                  ->orWhereHas('submittedBy', fn($q2) =>
+                      $q2->where('role', RoleEnum::Funcionario->value)
+                         ->where(fn($q3) =>
+                             $q3->whereIn('province_id', $gestorProvinceIds)
+                                ->orWhereHas('provinces', fn($q4) =>
+                                    $q4->whereIn('provinces.id', $gestorProvinceIds)
+                                )
+                                ->orWhereHas('projects', fn($q4) =>
+                                    $q4->whereIn('projects.id', $gestorProjectIds)
+                                )
+                         )
+                  )
             ),
 
             RoleEnum::Admin => null,
@@ -110,6 +130,14 @@ class GestorOccurrenceController extends Controller
                       )
                 );
             }
+        }
+
+        // Modo activo: só ocorrências não terminais (por validar, por resolver, resolvendo).
+        if ($request->boolean('active_only')) {
+            $query->whereNotIn('status', [
+                OccurrenceStatusEnum::Resolvido->value,
+                OccurrenceStatusEnum::NaoValidado->value,
+            ]);
         }
 
         // Filtros opcionais
@@ -377,10 +405,10 @@ class GestorOccurrenceController extends Controller
     {
         return match ($user->role) {
             RoleEnum::Admin       => true,
-            // Gestor can always access occurrences they submitted themselves
             RoleEnum::Gestor      => $occurrence->submitted_by_user_id === $user->id
                                      || ($this->gestorHasProvince($user, $occurrence->province_id)
-                                         && $this->gestorCanSeeAlert($user, $occurrence)),
+                                         && $this->gestorCanSeeAlert($user, $occurrence))
+                                     || $this->gestorCanAccessViaSubmitter($user, $occurrence),
             RoleEnum::Funcionario => $occurrence->submitted_by_user_id === $user->id,
         };
     }
@@ -390,6 +418,34 @@ class GestorOccurrenceController extends Controller
         if ($provinceId === null) return false;
         return $user->province_id === $provinceId
             || $user->provinces()->where('provinces.id', $provinceId)->exists();
+    }
+
+    /**
+     * Verifica se o gestor pode aceder a uma ocorrência com base no perfil
+     * do seu autor: funcionários da mesma província ou projecto são visíveis.
+     */
+    private function gestorCanAccessViaSubmitter(User $user, Occurrence $occurrence): bool
+    {
+        if (!$occurrence->submitted_by_user_id) return false;
+
+        $submitter = $occurrence->submittedBy ?? $occurrence->load('submittedBy')->submittedBy;
+        if (!$submitter || $submitter->role !== RoleEnum::Funcionario) return false;
+
+        // Partilha de província (directa ou many-to-many)
+        if ($submitter->province_id && $this->gestorHasProvince($user, $submitter->province_id)) {
+            return true;
+        }
+        foreach ($submitter->provinces as $p) {
+            if ($this->gestorHasProvince($user, $p->id)) return true;
+        }
+
+        // Partilha de projecto
+        $gestorProjectIds = $user->projects()->pluck('projects.id');
+        foreach ($submitter->projects as $p) {
+            if ($gestorProjectIds->contains($p->id)) return true;
+        }
+
+        return false;
     }
 
     /**
