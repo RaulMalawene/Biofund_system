@@ -633,7 +633,7 @@ const auth = useAuthStore()
 
 async function handleLogout() {
   await auth.logout()
-  router.push('/acessoRestrito')
+  window.location.href = '/'
 }
 
 // ── Projectos e províncias do funcionário (âmbito) ───────────

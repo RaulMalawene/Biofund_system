@@ -177,10 +177,11 @@ class LoginController extends Controller
             'management_scope'       => $user->management_scope,
             'province_id'            => $user->province_id,
             'province'               => $user->province?->name,
-            'provinces'              => $user->provinces->map(fn($p) => [
-                                          'id'   => $p->id,
-                                          'name' => $p->name,
-                                       ]),
+            'provinces'              => collect($user->province ? [$user->province] : [])
+                                          ->merge($user->provinces)
+                                          ->unique('id')
+                                          ->values()
+                                          ->map(fn($p) => ['id' => $p->id, 'name' => $p->name]),
             'projects'               => $user->projects->map(fn($p) => [
                 'id'   => $p->id,
                 'name' => $p->name,

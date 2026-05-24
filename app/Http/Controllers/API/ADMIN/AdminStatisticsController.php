@@ -79,13 +79,17 @@ class AdminStatisticsController extends Controller
             ->pluck('total', 'alert_level')
             ->toArray();
 
-        // Top 5 províncias com mais ocorrências
-        $byProvince = $baseQuery()
-            ->join('provinces', 'occurrences.province_id', '=', 'provinces.id')
+        // Províncias com mais ocorrências
+        // Admin: todas as províncias sem limite
+        // Gestor: apenas as províncias atribuídas (sem projectos de outras províncias), top 5
+        $byProvince = Occurrence::join('provinces', 'occurrences.province_id', '=', 'provinces.id')
             ->select('provinces.name', DB::raw('count(*) as total'))
+            ->when(
+                $user->isGestor(),
+                fn($q) => $q->whereIn('occurrences.province_id', $gestorProvinceIds)->limit(5)
+            )
             ->groupBy('provinces.name')
             ->orderByDesc('total')
-            ->limit(5)
             ->get();
 
         // Top categorias com mais ocorrências
@@ -230,11 +234,11 @@ class AdminStatisticsController extends Controller
                 'tracking_code' => $o->tracking_code,
                 'subject'       => $o->subject,
                 'status'        => $o->status->label(),
-                'project'       => $o->project->name,
-                'province'      => $o->province->name,
-                'category'      => $o->category->name,
-                'type'          => $o->occurrenceType->name,
-                'alert_level'   => $o->occurrenceType->alert_level->label(),
+                'project'       => $o->project?->name ?? '—',
+                'province'      => $o->province?->name ?? '—',
+                'category'      => $o->category?->name ?? '—',
+                'type'          => $o->occurrenceType?->name ?? '—',
+                'alert_level'   => $o->occurrenceType?->alert_level?->label() ?? '—',
                 'assigned_to'   => $o->assignedTo?->name ?? '—',
                 'submitted_at'  => $o->created_at->format('d/m/Y'),
                 'due_date'      => $o->due_date?->format('d/m/Y') ?? '—',

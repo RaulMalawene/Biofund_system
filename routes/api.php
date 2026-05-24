@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsController;
 use App\Http\Controllers\Api\Admin\ParametrizationController;
 use App\Http\Controllers\Api\AttachmentController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -141,7 +142,16 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('destroy');
     });
 
-    // ── 3.5 ADMIN — UTILIZADORES (apenas admin) ─────────────────
+    // ── 3.5 NOTIFICAÇÕES (qualquer utilizador autenticado) ──────
+
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/',              [NotificationController::class, 'index'])    ->name('index');
+        Route::get('count',         [NotificationController::class, 'count'])    ->name('count');
+        Route::patch('{notification}/read', [NotificationController::class, 'markRead']) ->name('mark-read');
+        Route::post('read-all',     [NotificationController::class, 'markAllRead']) ->name('mark-all-read');
+    });
+
+    // ── 3.6 ADMIN — UTILIZADORES (apenas admin) ─────────────────
 
     Route::prefix('admin')->name('admin.')
         ->middleware('role:admin')
@@ -159,6 +169,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('users.update');
         Route::patch('users/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])
             ->name('users.toggle-status');
+        Route::delete('users/{user}', [AdminUserController::class, 'destroy'])
+            ->name('users.destroy');
     });
 
     // Gestores também podem listar para atribuição
@@ -166,7 +178,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('role:admin,gestor')
         ->name('admin.users.gestores.gestor');
 
-    // ── 3.6 ESTATÍSTICAS (admin + gestor) ───────────────────────
+    // ── 3.7 ESTATÍSTICAS (admin + gestor) ───────────────────────
 
     Route::prefix('admin')->name('admin.')
         ->middleware('role:admin,gestor')
@@ -178,7 +190,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('statistics.report');
     });
 
-    // ── 3.7 PARAMETRIZAÇÃO — leitura (admin + gestor) ───────────
+    // ── 3.8 PARAMETRIZAÇÃO — leitura (admin + gestor) ───────────
 
     Route::prefix('admin')->name('admin.')
         ->middleware('role:admin,gestor')
@@ -194,7 +206,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('occurrence-types.index');
     });
 
-    // ── 3.8 PARAMETRIZAÇÃO — escrita (apenas admin) ─────────────
+    // ── 3.9 PARAMETRIZAÇÃO — escrita (apenas admin) ─────────────
 
     Route::prefix('admin')->name('admin.')
         ->middleware('role:admin')

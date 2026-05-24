@@ -104,7 +104,7 @@ router.beforeEach((to, _from, next) => {
         try { return JSON.parse(localStorage.getItem('mdr_user') ?? 'null') }
         catch { return null }
     })()
-    const isAuthenticated = !!token
+    const isAuthenticated = !!token && !!user
 
     // [Debug] Remove em produção
     console.log('[Router]', {
@@ -118,15 +118,13 @@ router.beforeEach((to, _from, next) => {
     // ── Rota protegida ────────────────────────────────────────
     if (to.meta.requiresAuth) {
 
-        // Não autenticado → redireciona para login
+        // Não autenticado (ou token sem dados de utilizador) → redireciona para login
         if (!isAuthenticated) {
-            return next({ path: '/acessoRestrito', query: { redirect: to.fullPath } })
-        }
-
-        // Token existe mas dados do utilizador estão em falta ou corrompidos
-        if (!user) {
-            localStorage.removeItem('mdr_token')
-            localStorage.removeItem('mdr_user')
+            // Limpa eventual token órfão (token sem user data)
+            if (token && !user) {
+                localStorage.removeItem('mdr_token')
+                localStorage.removeItem('mdr_user')
+            }
             return next({ path: '/acessoRestrito', query: { redirect: to.fullPath } })
         }
 

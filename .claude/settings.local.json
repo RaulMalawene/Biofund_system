@@ -30,7 +30,8 @@
       "Bash(git checkout *)",
       "Bash(Select-Object -First 20)",
       "Bash(Get-Content *)",
-      "Bash(xargs grep -l \"perfil\\\\|profile\")"
+      "Bash(xargs grep -l \"perfil\\\\|profile\")",
+      "Bash(Select-Object -First 50)"
     ]
   }
 }

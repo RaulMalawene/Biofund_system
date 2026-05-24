@@ -935,7 +935,11 @@ const filteredRows = computed(() => {
   }
   if (f.provincia) list = list.filter(r => r.provincia === f.provincia)
   if (f.projeto) list = list.filter(r => r.projeto === f.projeto)
-  if (f.data) list = list.filter(r => r.data === f.data)
+  if (f.data) {
+    const [y, m, d] = f.data.split('-')
+    const prefix = `${d}/${m}/${y}`
+    list = list.filter(r => r.data.startsWith(prefix))
+  }
   if (f.status) list = list.filter(r => r.status === f.status)
   if (f.categoria) list = list.filter(r => r.categoria === f.categoria)
   if (f.origem) list = list.filter(r => r.origem === f.origem)

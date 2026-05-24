@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", () => {
     );
 
     // ── Getters ───────────────────────────────────────────────
-    const isAuthenticated = computed(() => !!token.value);
+    const isAuthenticated = computed(() => !!token.value && !!user.value);
     const isAdmin = computed(() => user.value?.role === "admin");
     const isGestor = computed(() => user.value?.role === "gestor");
     const isFuncionario = computed(() => user.value?.role === "funcionario");

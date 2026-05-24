@@ -251,7 +251,7 @@ class GestorOccurrenceController extends Controller
         $user      = $request->user();
         $newStatus = OccurrenceStatusEnum::from($request->status);
 
-        if ($user->isGestor() && !$this->gestorHasProvince($user, $occurrence->province_id)) {
+        if (!$this->canAccess($user, $occurrence)) {
             return response()->json(['message' => 'Não tem acesso a esta ocorrência.'], 403);
         }
 
@@ -287,7 +287,7 @@ class GestorOccurrenceController extends Controller
 
         $user = $request->user();
 
-        if ($user->isGestor() && !$this->gestorHasProvince($user, $occurrence->province_id)) {
+        if (!$this->canAccess($user, $occurrence)) {
             return response()->json(['message' => 'Não tem acesso a esta ocorrência.'], 403);
         }
 
@@ -321,7 +321,7 @@ class GestorOccurrenceController extends Controller
         $target = User::findOrFail($request->user_id);
 
         if ($user->isGestor()) {
-            if (!$this->gestorHasProvince($user, $occurrence->province_id)) {
+            if (!$this->canAccess($user, $occurrence)) {
                 return response()->json(['message' => 'Não tem acesso a esta ocorrência.'], 403);
             }
             // Gestor só pode atribuir a si próprio ou escalar para um admin
