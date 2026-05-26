@@ -33,7 +33,8 @@
       "Bash(xargs grep -l \"perfil\\\\|profile\")",
       "Bash(Select-Object -First 50)",
       "Bash(Select-String \"APP_URL|DB_HOST|DB_PORT|PHP_CLI\")",
-      "Bash(xargs head -50)"
+      "Bash(xargs head -50)",
+      "Bash(Select-Object -First 20 FullName)"
     ]
   }
 }

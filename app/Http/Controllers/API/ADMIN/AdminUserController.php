@@ -131,11 +131,14 @@ class AdminUserController extends Controller
             $user->projects()->sync($request->project_ids);
         }
 
-        $this->auditService->logUpdated($user, $oldValues, $user->fresh()->toArray());
+        // refresh() recarrega os atributos em-lugar (1 query); depois carregamos relações
+        $user->refresh();
+        $this->auditService->logUpdated($user, $oldValues, $user->toArray());
+        $user->load(['province', 'provinces', 'projects']);
 
         return response()->json([
             'message' => 'Utilizador actualizado com sucesso.',
-            'user'    => new UserResource($user->fresh(['province', 'provinces', 'projects'])),
+            'user'    => new UserResource($user),
         ], 200);
     }
 

@@ -78,18 +78,24 @@ class NotificationService
 
         $users = User::active()->whereIn('role', ['admin', 'gestor'])->get();
 
-        foreach ($users as $user) {
-            NotificationLog::create([
-                'occurrence_id'   => $occurrence->id,
-                'user_id'         => $user->id,
-                'recipient_email' => $user->email,
-                'channel'         => 'system',
-                'event_type'      => 'occurrence_created',
-                'message'         => $message,
-                'status'          => 'sent',
-                'sent_at'         => now(),
-            ]);
-        }
+        if ($users->isEmpty()) return;
+
+        $now  = now();
+        $rows = $users->map(fn($user) => [
+            'occurrence_id'   => $occurrence->id,
+            'user_id'         => $user->id,
+            'recipient_email' => $user->email,
+            'channel'         => 'system',
+            'event_type'      => 'occurrence_created',
+            'message'         => $message,
+            'status'          => 'sent',
+            'sent_at'         => $now,
+            'created_at'      => $now,
+            'updated_at'      => $now,
+        ])->all();
+
+        // Um único INSERT em vez de N INSERTs individuais
+        NotificationLog::insert($rows);
     }
 
     private function notifyByAlertLevel(Occurrence $occurrence, AlertLevelEnum $level): void

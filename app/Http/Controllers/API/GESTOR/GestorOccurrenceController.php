@@ -44,25 +44,26 @@ class GestorOccurrenceController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $user  = $request->user();
+        // district, subcategory, occurrenceType e attachments_count não são usados
+        // na listagem (mapOccurrence no frontend não os consome) — carregados só no show().
         $query = Occurrence::with([
             'project:id,name,code',
             'province:id,name',
-            'district:id,name',
             'category:id,name',
-            'subcategory:id,name',
-            'occurrenceType:id,name,alert_level',
             'assignedTo:id,name',
             'submittedBy:id,name',
-        ])->withCount('attachments');
+        ]);
 
         // Pré-computa IDs de província/projecto do gestor para reutilizar nas queries.
+        // loadMissing garante uma única query por relação — em-memória nas chamadas seguintes.
         $gestorProvinceIds = [];
         $gestorProjectIds  = [];
         if ($user->isGestor()) {
+            $user->loadMissing(['provinces', 'projects']);
             $gestorProvinceIds = collect($user->province_id ? [$user->province_id] : [])
-                ->merge($user->provinces()->pluck('provinces.id'))
+                ->merge($user->provinces->pluck('id'))
                 ->unique()->values()->all();
-            $gestorProjectIds = $user->projects()->pluck('projects.id')->all();
+            $gestorProjectIds = $user->projects->pluck('id')->all();
         }
 
         // Restrição por perfil
@@ -416,8 +417,10 @@ class GestorOccurrenceController extends Controller
     private function gestorHasProvince(User $user, ?int $provinceId): bool
     {
         if ($provinceId === null) return false;
-        return $user->province_id === $provinceId
-            || $user->provinces()->where('provinces.id', $provinceId)->exists();
+        if ($user->province_id === $provinceId) return true;
+        // loadMissing é idempotente: só faz query se a relação ainda não estiver carregada.
+        $user->loadMissing('provinces');
+        return $user->provinces->contains('id', $provinceId);
     }
 
     /**
@@ -428,8 +431,13 @@ class GestorOccurrenceController extends Controller
     {
         if (!$occurrence->submitted_by_user_id) return false;
 
-        $submitter = $occurrence->submittedBy ?? $occurrence->load('submittedBy')->submittedBy;
+        // loadMissing é no-op se submittedBy já foi eager-loaded no index()
+        $occurrence->loadMissing('submittedBy');
+        $submitter = $occurrence->submittedBy;
         if (!$submitter || $submitter->role !== RoleEnum::Funcionario) return false;
+
+        // Carrega províncias e projectos do submitter de uma só vez
+        $submitter->loadMissing(['provinces', 'projects']);
 
         // Partilha de província (directa ou many-to-many)
         if ($submitter->province_id && $this->gestorHasProvince($user, $submitter->province_id)) {
@@ -439,10 +447,10 @@ class GestorOccurrenceController extends Controller
             if ($this->gestorHasProvince($user, $p->id)) return true;
         }
 
-        // Partilha de projecto
-        $gestorProjectIds = $user->projects()->pluck('projects.id');
+        // Partilha de projecto — usa relação em-memória do gestor
+        $user->loadMissing('projects');
         foreach ($submitter->projects as $p) {
-            if ($gestorProjectIds->contains($p->id)) return true;
+            if ($user->projects->contains('id', $p->id)) return true;
         }
 
         return false;

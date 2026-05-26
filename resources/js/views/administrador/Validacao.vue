@@ -77,7 +77,7 @@
             <circle cx="7" cy="7" r="5" />
             <path d="M12 12l3 3" stroke-linecap="round" />
           </svg>
-          <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="topSearch" />
+          <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="topSearchRaw" />
         </div>
         <div class="topbar-spacer"></div>
         <AdminNotificationPanel />
@@ -745,7 +745,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick, onMounted } from 'vue'
+import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
@@ -756,7 +756,13 @@ const router = useRouter()
 const auth = useAuthStore()
 
 // ─── UI state ────────────────────────────────────────────────
-const topSearch = ref('')
+const topSearchRaw = ref('')
+const topSearch    = ref('')
+let _stDebounce    = null
+watch(topSearchRaw, v => {
+  clearTimeout(_stDebounce)
+  _stDebounce = setTimeout(() => { topSearch.value = v }, 250)
+})
 const page = ref(1)
 const perPage = 10
 const selected = ref(null)

@@ -10,6 +10,7 @@ use App\Models\Subcategory;
 use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ParametrizationController extends Controller
 {
@@ -27,8 +28,10 @@ class ParametrizationController extends Controller
      */
     public function categoriesIndex(): JsonResponse
     {
+        // O grid só mostra occurrences_count da categoria.
+        // As contagens de subcategorias só são precisas no modal, servido pelo subcategoriesIndex().
         $categories = Category::withCount('occurrences')
-            ->with(['subcategories' => fn($q) => $q->withCount('occurrences')->orderBy('name')])
+            ->with(['subcategories' => fn($q) => $q->select('id', 'category_id', 'name', 'is_active')->orderBy('name')])
             ->orderBy('name')
             ->get();
 
@@ -64,6 +67,7 @@ class ParametrizationController extends Controller
 
         $category = Category::create([...$data, 'is_active' => true]);
         $this->auditService->logCreated($category);
+        Cache::forget('ref.form_data');
 
         return response()->json([
             'message'  => 'Categoria criada com sucesso.',
@@ -93,6 +97,7 @@ class ParametrizationController extends Controller
         $old = $category->toArray();
         $category->update($data);
         $this->auditService->logUpdated($category, $old, $category->toArray());
+        Cache::forget('ref.form_data');
 
         return response()->json([
             'message'  => 'Categoria actualizada.',
@@ -161,8 +166,8 @@ class ParametrizationController extends Controller
 
     public function projectsIndex(): JsonResponse
     {
+        // O frontend (projectos.vue) não usa p.users — over-fetch removido.
         $projects = Project::withCount('occurrences')
-            ->with(['users:id,name,role'])
             ->orderBy('name')
             ->get();
 
@@ -182,6 +187,7 @@ class ParametrizationController extends Controller
 
         $project = Project::create([...$data, 'is_active' => true]);
         $this->auditService->logCreated($project);
+        Cache::forget('ref.form_data');
 
         return response()->json([
             'message' => 'Projecto criado com sucesso.',
@@ -204,6 +210,7 @@ class ParametrizationController extends Controller
         $old = $project->toArray();
         $project->update($data);
         $this->auditService->logUpdated($project, $old, $project->toArray());
+        Cache::forget('ref.form_data');
 
         return response()->json([
             'message' => 'Projecto actualizado.',
@@ -237,6 +244,7 @@ class ParametrizationController extends Controller
 
         $type = OccurrenceType::create([...$data, 'is_active' => true]);
         $this->auditService->logCreated($type);
+        Cache::forget('ref.form_data');
 
         return response()->json([
             'message'         => 'Tipo de ocorrência criado com sucesso.',
@@ -259,6 +267,7 @@ class ParametrizationController extends Controller
         $old = $occurrenceType->toArray();
         $occurrenceType->update($data);
         $this->auditService->logUpdated($occurrenceType, $old, $occurrenceType->toArray());
+        Cache::forget('ref.form_data');
 
         return response()->json([
             'message'         => 'Tipo de ocorrência actualizado.',

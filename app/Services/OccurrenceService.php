@@ -226,7 +226,8 @@ class OccurrenceService
                 $comment
             );
 
-            return $occurrence->fresh();
+            // update() já actualizou os atributos em memória — fresh() seria um SELECT redundante
+            return $occurrence;
         });
     }
 
@@ -272,7 +273,9 @@ class OccurrenceService
             ['assigned_to' => $gestor->id]
         );
 
-        return $occurrence->fresh(['assignedTo', 'province', 'project']);
+        // load() já carregou as relações necessárias — fresh() criaria queries redundantes
+        $occurrence->load('assignedTo');
+        return $occurrence;
     }
 
     /**

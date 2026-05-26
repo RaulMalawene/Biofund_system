@@ -14,6 +14,7 @@ use App\Models\Province;
 use App\Services\OccurrenceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class PublicOccurrenceController extends Controller
@@ -138,47 +139,59 @@ class PublicOccurrenceController extends Controller
     /**
      * Dados de referência para o formulário público.
      * ROTA: GET /api/public/form-data
+     *
+     * Cache de 1 hora (ficheiro). Invalidado automaticamente pelo
+     * ParametrizationController quando categorias, projectos ou tipos são alterados.
      */
     public function formData(): JsonResponse
     {
-        return response()->json([
+        $data = Cache::remember('ref.form_data', 3600, fn() => [
             'projects' => Project::active()
                 ->select('id', 'name', 'code')
                 ->orderBy('name')
-                ->get(),
+                ->get()
+                ->toArray(),
 
             'categories' => Category::active()
                 ->select('id', 'name', 'code')
                 ->orderBy('name')
-                ->get(),
+                ->get()
+                ->toArray(),
 
             'occurrence_types' => OccurrenceType::active()
                 ->select('id', 'name', 'code', 'alert_level', 'sla_days')
                 ->orderBy('name')
-                ->get(),
+                ->get()
+                ->toArray(),
 
             'provinces' => Province::active()
                 ->select('id', 'name', 'code')
                 ->orderBy('name')
-                ->get(),
-        ], 200);
+                ->get()
+                ->toArray(),
+        ]);
+
+        return response()->json($data, 200);
     }
 
     /**
      * Distritos de uma província.
      * ROTA: GET /api/public/provinces/{province}/districts
+     *
+     * Cache de 6 horas por província — distritos são dados geográficos estáticos.
      */
     public function districtsByProvince(Province $province): JsonResponse
     {
-        $districts = District::where('province_id', $province->id)
-            ->where('is_active', true)
-            ->select('id', 'name')
-            ->orderBy('name')
-            ->get();
+        $districts = Cache::remember("ref.districts.{$province->id}", 21600, fn() =>
+            District::where('province_id', $province->id)
+                ->where('is_active', true)
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get()
+                ->toArray()
+        );
 
-        return response()->json([
-            'districts' => $districts,
-        ], 200);
+        return response()->json(['districts' => $districts], 200);
     }
 
     /**
