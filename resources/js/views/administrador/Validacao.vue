@@ -836,15 +836,15 @@ function mapOccurrence(o) {
 }
 
 // ─── Load data ────────────────────────────────────────────────
-onMounted(async () => {
-  // Dados de referência para os selects de edição
-  try {
-    const data = await InternalService.getFormData()
-    refProjects.value = data.projects ?? []
-    refCategories.value = data.categories ?? []
-  } catch (e) { console.error('Erro ao carregar form data:', e) }
+onMounted(() => {
+  InternalService.getFormData()
+    .then(data => {
+      refProjects.value   = data.projects   ?? []
+      refCategories.value = data.categories ?? []
+    })
+    .catch(e => console.error('Erro ao carregar form data:', e))
 
-  await loadOccurrences()
+  loadOccurrences()
 })
 
 async function loadOccurrences() {

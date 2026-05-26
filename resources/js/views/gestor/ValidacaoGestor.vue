@@ -821,15 +821,11 @@ function mapOccurrence(o) {
 
 // ─── Load data ────────────────────────────────────────────────
 onMounted(async () => {
-  // Garante que o auth store tem as províncias e projectos do gestor
-  try { await auth.fetchMe() } catch { /* ignora se falhar */ }
+  InternalService.getFormData()
+    .then(data => { refCategories.value = data.categories ?? [] })
+    .catch(e => console.error('Erro ao carregar form data:', e))
 
-  try {
-    const data = await InternalService.getFormData()
-    refCategories.value = data.categories ?? []
-  } catch (e) { console.error('Erro ao carregar form data:', e) }
-
-  await loadOccurrences()
+  loadOccurrences()
 })
 
 async function loadOccurrences() {

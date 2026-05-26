@@ -707,15 +707,15 @@ const paginationInfo = computed(() => {
 })
 
 // ── Init ──────────────────────────────────────────────────────
-onMounted(async () => {
-  try {
-    const data = await InternalService.getFormData()
-    refProvinces.value = data.provinces ?? []
-    refProjects.value = data.projects ?? []
-  } catch (err) {
-    console.error('Erro ao carregar dados de referência:', err)
-  }
-  await loadUsers(1)
+onMounted(() => {
+  InternalService.getFormData()
+    .then(data => {
+      refProvinces.value = data.provinces ?? []
+      refProjects.value  = data.projects  ?? []
+    })
+    .catch(err => console.error('Erro ao carregar dados de referência:', err))
+
+  loadUsers(1)
 })
 
 // ── Carregar utilizadores ─────────────────────────────────────

@@ -828,9 +828,6 @@ onMounted(async () => {
   Chart.defaults.font.family = "'Poppins', sans-serif"
   Chart.defaults.color       = '#8A9490'
 
-  // Garante que o auth store tem as províncias e projectos do gestor
-  try { await auth.fetchMe() } catch { /* ignora se falhar */ }
-
   try {
     const data = await InternalService.getDashboardStats()
     Object.assign(stats.totals,       data.totals         ?? {})

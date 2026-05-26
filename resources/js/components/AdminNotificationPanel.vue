@@ -197,9 +197,18 @@ function timeAgo(iso) {
 }
 
 // ── Polling + lifecycle ────────────────────────────────────────
+let lastFetchAt = 0
+
+async function throttledFetchCount() {
+  const now = Date.now()
+  if (now - lastFetchAt < 30_000) return
+  lastFetchAt = now
+  await fetchCount()
+}
+
 function startPolling() {
-  fetchCount()
-  pollTimer = setInterval(fetchCount, 30_000)
+  throttledFetchCount()
+  pollTimer = setInterval(throttledFetchCount, 60_000)
 }
 
 function stopPolling() {
@@ -207,7 +216,7 @@ function stopPolling() {
 }
 
 function handleVisibilityChange() {
-  if (document.visibilityState === 'visible') fetchCount()
+  if (document.visibilityState === 'visible') throttledFetchCount()
 }
 
 onMounted(() => {

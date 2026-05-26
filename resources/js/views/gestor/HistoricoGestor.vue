@@ -527,16 +527,11 @@ const filters = reactive({
 
 // ── Init ──────────────────────────────────────────────────────
 onMounted(async () => {
-  // Garante que o auth store tem as províncias e projectos do gestor
-  try { await auth.fetchMe() } catch { /* ignora se falhar */ }
+  InternalService.getFormData()
+    .then(data => { refCategories.value = data.categories ?? [] })
+    .catch(err => console.error('Erro ao carregar filtros:', err))
 
-  try {
-    const data = await InternalService.getFormData()
-    refCategories.value = data.categories ?? []
-  } catch (err) {
-    console.error('Erro ao carregar filtros:', err)
-  }
-  await loadOccurrences()
+  loadOccurrences()
 })
 
 // ── Carregar ocorrências ──────────────────────────────────────

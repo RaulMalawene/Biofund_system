@@ -633,7 +633,7 @@ const auth = useAuthStore()
 
 async function handleLogout() {
   await auth.logout()
-  window.location.href = '/'
+  router.push('/')
 }
 
 // ── Projectos e províncias do funcionário (âmbito) ───────────
@@ -709,17 +709,16 @@ const modalFiles   = ref([])
 const modalFileInput = ref(null)
 
 // ── Init ──────────────────────────────────────────────────────
-onMounted(async () => {
-  try { await auth.fetchMe() } catch { /* ignora */ }
-  try {
-    const data = await InternalService.getFormData()
-    refCategories.value = data.categories      ?? []
-    refTypes.value      = data.occurrence_types ?? []
-    refProvinces.value  = data.provinces        ?? []
-  } catch (err) {
-    console.error('Erro ao carregar dados de referência:', err)
-  }
-  await loadOccurrences()
+onMounted(() => {
+  InternalService.getFormData()
+    .then(data => {
+      refCategories.value = data.categories      ?? []
+      refTypes.value      = data.occurrence_types ?? []
+      refProvinces.value  = data.provinces        ?? []
+    })
+    .catch(err => console.error('Erro ao carregar dados de referência:', err))
+
+  loadOccurrences()
 })
 
 // ── Carregar ocorrências (só as do funcionário) ───────────────

@@ -1,5 +1,11 @@
 import api from '../client'
 
+// Form data (categories, provinces, types) doesn't change during a session.
+// Cache it in memory so every page navigation doesn't hit the server again.
+let _formDataCache = null
+let _formDataCachedAt = 0
+const FORM_DATA_TTL = 60 * 60 * 1000  // 1 hour
+
 export const InternalService = {
 
     /**
@@ -179,10 +185,16 @@ export const InternalService = {
 
     /**
      * Dados de referência para o formulário interno.
-     * Usa o mesmo endpoint público (não requer auth).
+     * Cached in memory for 1 hour — categories/provinces change rarely.
      */
     async getFormData() {
+        const now = Date.now()
+        if (_formDataCache && (now - _formDataCachedAt) < FORM_DATA_TTL) {
+            return _formDataCache
+        }
         const { data } = await api.get('/public/form-data')
+        _formDataCache = data
+        _formDataCachedAt = now
         return data
     },
 

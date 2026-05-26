@@ -206,9 +206,8 @@ class Occurrence extends Model
         return $this->due_date
             && now()->isAfter($this->due_date)
             && !in_array($this->status, [
-                OccurrenceStatusEnum::Resolved,
-                OccurrenceStatusEnum::Rejected,
-                OccurrenceStatusEnum::Closed,
+                OccurrenceStatusEnum::Resolvido,
+                OccurrenceStatusEnum::NaoValidado,
             ]);
     }
 
@@ -263,7 +262,7 @@ class Occurrence extends Model
     {
         return $query->whereNotNull('due_date')
                      ->where('due_date', '<', now())
-                     ->whereNotIn('status', ['resolved', 'rejected', 'closed']);
+                     ->whereNotIn('status', ['resolvido', 'nao_validado']);
     }
 
     /**

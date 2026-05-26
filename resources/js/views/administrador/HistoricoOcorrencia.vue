@@ -533,18 +533,16 @@ const filters = reactive({
 })
 
 // ── Init ──────────────────────────────────────────────────────
-onMounted(async () => {
-  // Carrega dados de referência para os selects dos filtros
-  try {
-    const data = await InternalService.getFormData()
-    refProvinces.value = data.provinces ?? []
-    refProjects.value = data.projects ?? []
-    refCategories.value = data.categories ?? []
-  } catch (err) {
-    console.error('Erro ao carregar filtros:', err)
-  }
-  // Carrega a primeira página
-  await loadOccurrences()
+onMounted(() => {
+  InternalService.getFormData()
+    .then(data => {
+      refProvinces.value  = data.provinces  ?? []
+      refProjects.value   = data.projects   ?? []
+      refCategories.value = data.categories ?? []
+    })
+    .catch(err => console.error('Erro ao carregar filtros:', err))
+
+  loadOccurrences()
 })
 
 // ── Carregar ocorrências ──────────────────────────────────────

@@ -18,20 +18,22 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 defineProps({
   variant: { type: String, default: 'sticky' }
 })
 
+const router = useRouter()
 const auth = useAuthStore()
 
 function handleAccess() {
   if (auth.isAuthenticated && auth.dashboardRoute !== '/') {
-    window.location.href = auth.dashboardRoute
+    router.push(auth.dashboardRoute)
   } else {
     auth.clearSession()
-    window.location.href = '/acessoRestrito'
+    router.push('/acessoRestrito')
   }
 }
 </script>

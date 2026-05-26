@@ -2,8 +2,9 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { AuthService } from "../api/services/auth.service";
 
-const TOKEN_KEY = "mdr_token";
-const USER_KEY = "mdr_user";
+const TOKEN_KEY     = "mdr_token";
+const USER_KEY      = "mdr_user";
+const VALIDATED_KEY = "mdr_validated_at";
 
 export const useAuthStore = defineStore("auth", () => {
     // ── Estado ────────────────────────────────────────────────
@@ -51,6 +52,7 @@ export const useAuthStore = defineStore("auth", () => {
 
         localStorage.setItem(TOKEN_KEY, result.token);
         localStorage.setItem(USER_KEY, JSON.stringify(result.user));
+        localStorage.setItem(VALIDATED_KEY, String(Date.now()));
 
         return result;
     }
@@ -86,6 +88,7 @@ export const useAuthStore = defineStore("auth", () => {
         user.value = null;
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
+        localStorage.removeItem(VALIDATED_KEY);
     }
 
     function updateUser(patch) {

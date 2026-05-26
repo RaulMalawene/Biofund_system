@@ -10,10 +10,18 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 
-// Validate any token from a previous session; clear it if the server rejects it
+// Validate token against server at most once per 5 minutes.
+// User data already loaded from localStorage — fetchMe is only needed
+// to confirm the token is still accepted server-side.
 const auth = useAuthStore();
 if (auth.token) {
-    auth.fetchMe().catch(() => auth.clearSession());
+    const FIVE_MIN = 5 * 60 * 1000;
+    const lastValidated = parseInt(localStorage.getItem('mdr_validated_at') ?? '0', 10);
+    if (Date.now() - lastValidated > FIVE_MIN) {
+        auth.fetchMe()
+            .then(() => localStorage.setItem('mdr_validated_at', String(Date.now())))
+            .catch(() => auth.clearSession());
+    }
 }
 
 app.mount('#app');

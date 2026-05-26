@@ -354,7 +354,7 @@ const auth   = useAuthStore()
 
 async function handleLogout() {
   await auth.logout()
-  window.location.href = '/'
+  router.push('/')
 }
 
 // ── Estado ────────────────────────────────────────────────────
@@ -377,15 +377,12 @@ const filters = reactive({
 })
 
 // ── Init ──────────────────────────────────────────────────────
-onMounted(async () => {
-  try { await auth.fetchMe() } catch { /* ignora */ }
-  try {
-    const data = await InternalService.getFormData()
-    refCategories.value = data.categories ?? []
-  } catch (err) {
-    console.error('Erro ao carregar filtros:', err)
-  }
-  await loadOccurrences()
+onMounted(() => {
+  InternalService.getFormData()
+    .then(data => { refCategories.value = data.categories ?? [] })
+    .catch(err => console.error('Erro ao carregar filtros:', err))
+
+  loadOccurrences()
 })
 
 // ── Carregar histórico (terminal) do funcionário ──────────────
