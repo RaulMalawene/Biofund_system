@@ -956,7 +956,7 @@ function showToast(msg, type = 'success') {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #EDF2EF;
+  background: #fff;
 }
 
 /* ── SIDEBAR ─────────────────────────────── */
@@ -1126,7 +1126,7 @@ function showToast(msg, type = 'success') {
   flex: 1;
   overflow-y: auto;
   padding: 26px 30px 36px;
-  background: #EDF2EF;
+  background: #fff;
 }
 
 .content::-webkit-scrollbar { width: 5px; }
