@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\NotificationLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class NotificationController extends Controller
 {
@@ -39,13 +40,18 @@ class NotificationController extends Controller
 
     /**
      * Conta notificações de sistema não lidas.
+     * Cache de 30s por utilizador — reduz queries repetidas do polling do frontend.
      */
     public function count(Request $request): JsonResponse
     {
-        $unread = NotificationLog::where('user_id', $request->user()->id)
-            ->system()
-            ->unread()
-            ->count();
+        $userId = $request->user()->id;
+
+        $unread = Cache::remember("notif_count.{$userId}", 30, function () use ($userId) {
+            return NotificationLog::where('user_id', $userId)
+                ->system()
+                ->unread()
+                ->count();
+        });
 
         return response()->json(['unread' => $unread]);
     }
@@ -58,6 +64,7 @@ class NotificationController extends Controller
         abort_if($notification->user_id !== $request->user()->id, 403);
 
         $notification->update(['read_at' => now()]);
+        Cache::forget("notif_count.{$request->user()->id}");
 
         return response()->json(['message' => 'Notificação marcada como lida.']);
     }
@@ -71,6 +78,8 @@ class NotificationController extends Controller
             ->system()
             ->unread()
             ->update(['read_at' => now()]);
+
+        Cache::forget("notif_count.{$request->user()->id}");
 
         return response()->json(['message' => 'Todas as notificações marcadas como lidas.']);
     }

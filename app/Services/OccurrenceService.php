@@ -10,6 +10,7 @@ use App\Models\OccurrenceStatusHistory;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -86,6 +87,8 @@ class OccurrenceService
             // Regista na auditoria
             $this->auditService->logCreated($occurrence);
 
+            Cache::forget('dashboard.admin');
+
             return $occurrence;
         });
     }
@@ -136,6 +139,8 @@ class OccurrenceService
             $occurrence->load(['occurrenceType', 'project', 'province', 'attachments']);
             $this->notificationService->notifyOccurrenceCreated($occurrence);
             $this->auditService->logCreated($occurrence);
+
+            Cache::forget('dashboard.admin');
 
             return $occurrence;
         });
@@ -225,6 +230,8 @@ class OccurrenceService
                 $newStatus->value,
                 $comment
             );
+
+            Cache::forget('dashboard.admin');
 
             // update() já actualizou os atributos em memória — fresh() seria um SELECT redundante
             return $occurrence;

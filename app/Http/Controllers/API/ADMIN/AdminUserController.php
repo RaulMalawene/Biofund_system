@@ -11,6 +11,7 @@ use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -134,6 +135,7 @@ class AdminUserController extends Controller
         // refresh() recarrega os atributos em-lugar (1 query); depois carregamos relações
         $user->refresh();
         $this->auditService->logUpdated($user, $oldValues, $user->toArray());
+        Cache::forget("gestor_funcionarios.{$user->id}");
         $user->load(['province', 'provinces', 'projects']);
 
         return response()->json([

@@ -16,6 +16,7 @@ use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * GestorOccurrenceController
@@ -74,23 +75,29 @@ class GestorOccurrenceController extends Controller
             //   - ocorrências da sua província / projecto
             //   - ocorrências que ele próprio submeteu
             //   - ocorrências submetidas por funcionários da mesma província ou projecto
-            RoleEnum::Gestor => $query->where(fn($q) =>
-                $q->whereIn('province_id', $gestorProvinceIds)
-                  ->orWhereIn('project_id', $gestorProjectIds)
-                  ->orWhere('submitted_by_user_id', $user->id)
-                  ->orWhereHas('submittedBy', fn($q2) =>
-                      $q2->where('role', RoleEnum::Funcionario->value)
-                         ->where(fn($q3) =>
-                             $q3->whereIn('province_id', $gestorProvinceIds)
-                                ->orWhereHas('provinces', fn($q4) =>
-                                    $q4->whereIn('provinces.id', $gestorProvinceIds)
-                                )
-                                ->orWhereHas('projects', fn($q4) =>
-                                    $q4->whereIn('projects.id', $gestorProjectIds)
-                                )
-                         )
-                  )
-            ),
+            // Pré-resolve os IDs de funcionários elegíveis (60s cache) para evitar
+            // um EXISTS correlacionado por cada linha de ocorrências na BD.
+            RoleEnum::Gestor => (function () use ($query, $user, $gestorProvinceIds, $gestorProjectIds) {
+                $funcionarioIds = Cache::remember(
+                    "gestor_funcionarios.{$user->id}",
+                    60,
+                    fn() => User::where('role', RoleEnum::Funcionario->value)
+                        ->where(fn($q) =>
+                            $q->whereIn('province_id', $gestorProvinceIds)
+                              ->orWhereHas('provinces', fn($q2) => $q2->whereIn('provinces.id', $gestorProvinceIds))
+                              ->orWhereHas('projects', fn($q2) => $q2->whereIn('projects.id', $gestorProjectIds))
+                        )
+                        ->pluck('id')
+                        ->toArray()
+                );
+
+                $query->where(fn($q) =>
+                    $q->whereIn('province_id', $gestorProvinceIds)
+                      ->orWhereIn('project_id', $gestorProjectIds)
+                      ->orWhere('submitted_by_user_id', $user->id)
+                      ->orWhereIn('submitted_by_user_id', $funcionarioIds)
+                );
+            })(),
 
             RoleEnum::Admin => null,
         };

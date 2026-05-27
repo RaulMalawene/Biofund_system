@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\OccurrenceStatusEnum;
 use App\Enums\RoleEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,28 +20,49 @@ class OccurrenceResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $user              = $request->user();
-        $isManagerOrAbove  = $user && in_array($user->role, [RoleEnum::Admin, RoleEnum::Gestor]);
+        $user             = $request->user();
+        $isManagerOrAbove = $user && in_array($user->role, [RoleEnum::Admin, RoleEnum::Gestor]);
+
+        // Aceder getAttributes() uma única vez evita a cadeia dupla de __get
+        // (JsonResource::__get → Model::__get → attributes[]) por cada campo.
+        $a = $this->resource->getAttributes();
+
+        // Pré-computar atributos com cast — cada acesso via $this->xxx
+        // executa o sistema de casting completo; fazê-lo uma vez é ~10× mais rápido.
+        $status            = $this->status;
+        $origin            = $this->origin;
+        $dueDate           = $this->due_date;
+        $occurrenceDate    = $this->occurrence_date;
+        $reviewedAt        = $this->reviewed_at;
+        $createdAt         = $this->created_at;
+        $deletedAt         = $this->deleted_at;
+        $submissionChannel = $this->submission_channel;
+        $alertType         = $this->alert_type;
+
+        $isOverdue = $dueDate !== null
+            && $dueDate->timestamp < time()
+            && $status !== OccurrenceStatusEnum::Resolvido
+            && $status !== OccurrenceStatusEnum::NaoValidado;
 
         return [
-            'id'             => $this->id,
-            'tracking_code'  => $this->tracking_code,
-            'origin'         => $this->origin->value,
-            'origin_label'   => $this->origin->label(),
-            'subject'        => $this->subject,
-            'description'    => $this->description,
+            'id'             => $a['id'],
+            'tracking_code'  => $a['tracking_code'],
+            'origin'         => $origin->value,
+            'origin_label'   => $origin->label(),
+            'subject'        => $a['subject'],
+            'description'    => $a['description'],
 
             // Estado
-            'status'         => $this->status->value,
-            'status_label'   => $this->status->label(),
-            'status_color'   => $this->status->color(),
-            'is_overdue'     => $this->isOverdue(),
+            'status'         => $status->value,
+            'status_label'   => $status->label(),
+            'status_color'   => $status->color(),
+            'is_overdue'     => $isOverdue,
 
             // Reclamante/Pessoa Afectada — dados sensíveis apenas para gestor/admin
             'complainant' => $this->when($isManagerOrAbove, fn() => [
-                'name'  => $this->complainant_name,
-                'email' => $this->complainant_email,
-                'phone' => $this->complainant_phone,
+                'name'  => $a['complainant_name'],
+                'email' => $a['complainant_email'],
+                'phone' => $a['complainant_phone'],
             ]),
 
             // Classificação
@@ -71,15 +93,15 @@ class OccurrenceResource extends JsonResource
             'district'        => $this->whenLoaded('district', fn() =>
                 $this->district ? ['id' => $this->district->id, 'name' => $this->district->name] : null
             ),
-            'location_detail' => $this->location_detail,
+            'location_detail' => $a['location_detail'],
 
             // Datas
-            'occurrence_date' => $this->occurrence_date?->format('d/m/Y'),
-            'submitted_at'    => $this->created_at->format('d/m/Y H:i'),
-            'due_date'        => $this->due_date?->format('d/m/Y'),
-            'reviewed_at'     => $this->reviewed_at?->format('d/m/Y H:i'),
-            'deleted_at'      => $this->deleted_at?->format('d/m/Y H:i'),
-            'is_removed'      => $this->deleted_at !== null,
+            'occurrence_date' => $occurrenceDate?->format('d/m/Y'),
+            'submitted_at'    => $createdAt->format('d/m/Y H:i'),
+            'due_date'        => $dueDate?->format('d/m/Y'),
+            'reviewed_at'     => $reviewedAt?->format('d/m/Y H:i'),
+            'deleted_at'      => $deletedAt?->format('d/m/Y H:i'),
+            'is_removed'      => $deletedAt !== null,
 
             // Responsáveis (apenas para gestor/admin)
             'assigned_to'  => $this->when($isManagerOrAbove, fn() =>
@@ -97,24 +119,24 @@ class OccurrenceResource extends JsonResource
             ),
 
             // Campos internos (preenchidos apenas em registos internos)
-            'submission_channel' => $this->submission_channel?->value,
-            'submission_channel_label' => $this->submission_channel?->label(),
-            'alert_type'         => $this->alert_type?->value,
-            'alert_type_label'   => $this->alert_type?->label(),
-            'alert_type_color'   => $this->alert_type?->color(),
+            'submission_channel'       => $submissionChannel?->value,
+            'submission_channel_label' => $submissionChannel?->label(),
+            'alert_type'               => $alertType?->value,
+            'alert_type_label'         => $alertType?->label(),
+            'alert_type_color'         => $alertType?->color(),
 
             // Contadores
-            'attachments_count' => $this->whenNotNull($this->attachments_count ?? null),
+            'attachments_count' => $this->whenNotNull($a['attachments_count'] ?? null),
 
             // Detalhe completo (carregado apenas no show)
             'attachments'  => $this->whenLoaded('attachments', fn() =>
-                $this->attachments->map(fn($a) => [
-                    'id'       => $a->id,
-                    'name'     => $a->original_name,
-                    'size'     => $a->getFormattedSize(),
-                    'mime'     => $a->mime_type,
-                    'is_image' => $a->isImage(),
-                    'url'      => $a->getUrl(),
+                $this->attachments->map(fn($att) => [
+                    'id'       => $att->id,
+                    'name'     => $att->original_name,
+                    'size'     => $att->getFormattedSize(),
+                    'mime'     => $att->mime_type,
+                    'is_image' => $att->isImage(),
+                    'url'      => $att->getUrl(),
                 ])
             ),
 
@@ -133,7 +155,7 @@ class OccurrenceResource extends JsonResource
             ),
 
             // Transições possíveis a partir do estado actual
-            'can_transition_to' => collect($this->status->allowedTransitions())
+            'can_transition_to' => collect($status->allowedTransitions())
                 ->map(fn($s) => ['value' => $s->value, 'label' => $s->label()])
                 ->values(),
         ];

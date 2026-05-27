@@ -72,7 +72,10 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "owen-it/laravel-auditing",
+                "spatie/laravel-query-builder"
+            ]
         }
     },
     "config": {

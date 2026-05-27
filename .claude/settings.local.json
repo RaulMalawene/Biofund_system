@@ -35,7 +35,10 @@
       "Bash(Select-String \"APP_URL|DB_HOST|DB_PORT|PHP_CLI\")",
       "Bash(xargs head -50)",
       "Bash(Select-Object -First 20 FullName)",
-      "Bash(Select-Object Name, PSIsContainer)"
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('\\\\n'.join\\(list\\(d.get\\('require',{}\\).keys\\(\\)\\)+list\\(d.get\\('require-dev',{}\\).keys\\(\\)\\)\\)\\)\")",
+      "Bash(dir /s /b app\\\\Http\\\\Controllers\\\\*.php)",
+      "Bash(findstr -i auth)"
     ]
   }
 }

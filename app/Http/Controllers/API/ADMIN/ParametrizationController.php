@@ -28,12 +28,12 @@ class ParametrizationController extends Controller
      */
     public function categoriesIndex(): JsonResponse
     {
-        // O grid só mostra occurrences_count da categoria.
-        // As contagens de subcategorias só são precisas no modal, servido pelo subcategoriesIndex().
-        $categories = Category::withCount('occurrences')
-            ->with(['subcategories' => fn($q) => $q->select('id', 'category_id', 'name', 'is_active')->orderBy('name')])
-            ->orderBy('name')
-            ->get();
+        $categories = Cache::remember('admin.categories', 600, function () {
+            return Category::withCount('occurrences')
+                ->with(['subcategories' => fn($q) => $q->select('id', 'category_id', 'name', 'is_active')->orderBy('name')])
+                ->orderBy('name')
+                ->get();
+        });
 
         return response()->json(['categories' => $categories], 200);
     }
@@ -68,6 +68,7 @@ class ParametrizationController extends Controller
         $category = Category::create([...$data, 'is_active' => true]);
         $this->auditService->logCreated($category);
         Cache::forget('ref.form_data');
+        Cache::forget('admin.categories');
 
         return response()->json([
             'message'  => 'Categoria criada com sucesso.',
@@ -98,6 +99,7 @@ class ParametrizationController extends Controller
         $category->update($data);
         $this->auditService->logUpdated($category, $old, $category->toArray());
         Cache::forget('ref.form_data');
+        Cache::forget('admin.categories');
 
         return response()->json([
             'message'  => 'Categoria actualizada.',
@@ -166,10 +168,11 @@ class ParametrizationController extends Controller
 
     public function projectsIndex(): JsonResponse
     {
-        // O frontend (projectos.vue) não usa p.users — over-fetch removido.
-        $projects = Project::withCount('occurrences')
-            ->orderBy('name')
-            ->get();
+        $projects = Cache::remember('admin.projects', 600, function () {
+            return Project::withCount('occurrences')
+                ->orderBy('name')
+                ->get();
+        });
 
         return response()->json(['projects' => $projects], 200);
     }
@@ -188,6 +191,7 @@ class ParametrizationController extends Controller
         $project = Project::create([...$data, 'is_active' => true]);
         $this->auditService->logCreated($project);
         Cache::forget('ref.form_data');
+        Cache::forget('admin.projects');
 
         return response()->json([
             'message' => 'Projecto criado com sucesso.',
@@ -211,6 +215,7 @@ class ParametrizationController extends Controller
         $project->update($data);
         $this->auditService->logUpdated($project, $old, $project->toArray());
         Cache::forget('ref.form_data');
+        Cache::forget('admin.projects');
 
         return response()->json([
             'message' => 'Projecto actualizado.',
@@ -224,9 +229,11 @@ class ParametrizationController extends Controller
 
     public function occurrenceTypesIndex(): JsonResponse
     {
-        $types = OccurrenceType::withCount('occurrences')
-            ->orderBy('name')
-            ->get();
+        $types = Cache::remember('admin.occurrence_types', 600, function () {
+            return OccurrenceType::withCount('occurrences')
+                ->orderBy('name')
+                ->get();
+        });
 
         return response()->json(['occurrence_types' => $types], 200);
     }
@@ -245,6 +252,7 @@ class ParametrizationController extends Controller
         $type = OccurrenceType::create([...$data, 'is_active' => true]);
         $this->auditService->logCreated($type);
         Cache::forget('ref.form_data');
+        Cache::forget('admin.occurrence_types');
 
         return response()->json([
             'message'         => 'Tipo de ocorrência criado com sucesso.',
@@ -268,6 +276,7 @@ class ParametrizationController extends Controller
         $occurrenceType->update($data);
         $this->auditService->logUpdated($occurrenceType, $old, $occurrenceType->toArray());
         Cache::forget('ref.form_data');
+        Cache::forget('admin.occurrence_types');
 
         return response()->json([
             'message'         => 'Tipo de ocorrência actualizado.',
