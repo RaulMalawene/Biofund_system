@@ -9,6 +9,7 @@ const VALIDATED_KEY = "mdr_validated_at";
 export const useAuthStore = defineStore("auth", () => {
     // ── Estado ────────────────────────────────────────────────
     const token = ref(localStorage.getItem(TOKEN_KEY) ?? null);
+    const sessionId = ref(Date.now());
     const user = ref(
         (() => {
             try {
@@ -86,6 +87,7 @@ export const useAuthStore = defineStore("auth", () => {
     function clearSession() {
         token.value = null;
         user.value = null;
+        sessionId.value = Date.now();
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
         localStorage.removeItem(VALIDATED_KEY);
@@ -99,6 +101,7 @@ export const useAuthStore = defineStore("auth", () => {
     return {
         token,
         user,
+        sessionId,
         isAuthenticated,
         isAdmin,
         isGestor,

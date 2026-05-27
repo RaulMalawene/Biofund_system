@@ -34,57 +34,57 @@ const routes = [
     {
         path: '/admin/dashboard',
         component: DashboardAdmin,
-        meta: { requiresAuth: true, roles: ['admin'] },
+        meta: { requiresAuth: true, roles: ['admin'], keepAlive: true },
     },
     {
         path: '/admin/utilizadores',
         component: GestaoUtilizadores,
-        meta: { requiresAuth: true, roles: ['admin'] },
+        meta: { requiresAuth: true, roles: ['admin'], keepAlive: true },
     },
     {
         path: '/admin/historico',
         component: HistoricoOcorrencia,
-        meta: { requiresAuth: true, roles: ['admin'] },
+        meta: { requiresAuth: true, roles: ['admin'], keepAlive: true },
     },
     {
         path: '/admin/validacao',
         component: Validacao,
-        meta: { requiresAuth: true, roles: ['admin'] },
+        meta: { requiresAuth: true, roles: ['admin'], keepAlive: true },
     },
     {
         path: '/admin/projectos',
         component: Projectos,
-        meta: { requiresAuth: true, roles: ['admin'] },
+        meta: { requiresAuth: true, roles: ['admin'], keepAlive: true },
     },
     {
         path: '/admin/categorias',
         component: Categoria,
-        meta: { requiresAuth: true, roles: ['admin'] },
+        meta: { requiresAuth: true, roles: ['admin'], keepAlive: true },
     },
     {
         path: '/gestor/dashboard',
         component: DashboardGestor,
-        meta: { requiresAuth: true, roles: ['gestor'] },
+        meta: { requiresAuth: true, roles: ['gestor'], keepAlive: true },
     },
     {
         path: '/gestor/validacao',
         component: ValidacaoGestor,
-        meta: { requiresAuth: true, roles: ['gestor'] },
+        meta: { requiresAuth: true, roles: ['gestor'], keepAlive: true },
     },
     {
         path: '/gestor/historico',
         component: HistoricoGestor,
-        meta: { requiresAuth: true, roles: ['gestor'] },
+        meta: { requiresAuth: true, roles: ['gestor'], keepAlive: true },
     },
     {
         path: '/funcionario/reclamacao',
         component: ReclamacaoFuncionario,
-        meta: { requiresAuth: true, roles: ['funcionario'] },
+        meta: { requiresAuth: true, roles: ['funcionario'], keepAlive: true },
     },
     {
         path: '/funcionario/historico',
         component: HistoricoFuncionario,
-        meta: { requiresAuth: true, roles: ['funcionario'] },
+        meta: { requiresAuth: true, roles: ['funcionario'], keepAlive: true },
     },
 
     // Rota catch-all: redireciona para a home
