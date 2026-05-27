@@ -157,6 +157,11 @@ import { onMounted } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
+import imgNiassa    from '../../Imagem/reserva do Niassa.jpg'
+import imgDugongo   from '../../Imagem/dugongo.jpg'
+import imgGorongosa from '../../Imagem/parque de gorongosa.jpg'
+import imgLimpopo   from '../../Imagem/parque de limpopo.jpg'
+
 const benefits = [
   { title: 'Transparência', desc: 'Processos claros e rastreáveis desde a submissão até à resolução final.' },
   { title: 'Impacto Real',  desc: 'Dados que geram ações imediatas no terreno por equipas especializadas.' },
@@ -165,10 +170,10 @@ const benefits = [
 ]
 
 const species = [
-  { name: 'Elefante Africano', location: 'Reserva do Niassa',     img: 'https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=600&q=80' },
-  { name: 'Dugongo',           location: 'Bazaruto',              img: 'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=600&q=80' },
-  { name: 'Leão',              location: 'Parque da Gorongosa',   img: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=600&q=80' },
-  { name: 'Hipopótamo',        location: 'Parque do Limpopo',     img: 'https://images.unsplash.com/photo-1551316679-9c6ae9dec224?w=600&q=80' },
+  { name: 'Elefante Africano', location: 'Reserva do Niassa',   img: imgNiassa    },
+  { name: 'Dugongo',           location: 'Bazaruto',            img: imgDugongo   },
+  { name: 'Leão',              location: 'Parque da Gorongosa', img: imgGorongosa },
+  { name: 'Hipopótamo',        location: 'Parque do Limpopo',   img: imgLimpopo   },
 ]
 
 onMounted(() => {
