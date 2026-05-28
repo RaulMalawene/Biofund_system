@@ -38,111 +38,126 @@ class AdminStatisticsController extends Controller
      */
     public function dashboard(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user            = $request->user();
+        $filterStatus    = $request->input('status');
+        $filterAlertType = $request->input('alert_type');
 
-        // Cache por utilizador: gestores têm âmbito restrito, admin vê tudo
-        $cacheKey = $user->isGestor() ? "dashboard.gestor.{$user->id}" : 'dashboard.admin';
-
-        $data = Cache::remember($cacheKey, 120, function () use ($user) {
-            // Pré-computa âmbito do gestor (províncias + projectos via many-to-many)
-            $gestorProvinceIds = [];
-            $gestorProjectIds  = [];
-            if ($user->isGestor()) {
-                $user->loadMissing(['provinces', 'projects']);
-                $gestorProvinceIds = collect($user->province_id ? [$user->province_id] : [])
-                    ->merge($user->provinces->pluck('id'))
-                    ->unique()->values()->all();
-                $gestorProjectIds = $user->projects->pluck('id')->all();
-            }
-
-            $baseQuery = fn() => Occurrence::when(
-                $user->isGestor(),
-                fn($q) => $q->where(fn($inner) =>
-                    $inner->whereIn('province_id', $gestorProvinceIds)
-                          ->orWhereIn('project_id', $gestorProjectIds)
-                )
+        // Filtered requests bypass cache (params vary)
+        if ($filterStatus || $filterAlertType) {
+            return response()->json(
+                $this->buildDashboardData($user, $filterStatus, $filterAlertType),
+                200
             );
+        }
 
-            $totals   = $baseQuery()
-                ->select('status', DB::raw('count(*) as total'))
-                ->groupBy('status')
-                ->pluck('total', 'status')
-                ->toArray();
-            $totalAll = array_sum($totals);
+        $cacheKey = $user->isGestor() ? "dashboard.gestor.{$user->id}" : 'dashboard.admin';
+        return response()->json(
+            Cache::remember($cacheKey, 120, fn() => $this->buildDashboardData($user)),
+            200
+        );
+    }
 
-            $overdue = $baseQuery()->overdue()->count();
+    private function buildDashboardData(User $user, ?string $filterStatus = null, ?string $filterAlertType = null): array
+    {
+        $gestorProvinceIds = [];
+        $gestorProjectIds  = [];
+        if ($user->isGestor()) {
+            $user->loadMissing(['provinces', 'projects']);
+            $gestorProvinceIds = collect($user->province_id ? [$user->province_id] : [])
+                ->merge($user->provinces->pluck('id'))
+                ->unique()->values()->all();
+            $gestorProjectIds = $user->projects->pluck('id')->all();
+        }
 
-            $byAlertLevel = $baseQuery()
-                ->join('occurrence_types', 'occurrences.occurrence_type_id', '=', 'occurrence_types.id')
-                ->select('occurrence_types.alert_level', DB::raw('count(*) as total'))
-                ->groupBy('occurrence_types.alert_level')
-                ->pluck('total', 'alert_level')
-                ->toArray();
+        $baseQuery = fn() => Occurrence::when(
+            $user->isGestor(),
+            fn($q) => $q->where(fn($inner) =>
+                $inner->whereIn('province_id', $gestorProvinceIds)
+                      ->orWhereIn('project_id', $gestorProjectIds)
+            )
+        )
+        ->when($filterStatus,    fn($q) => $q->where('status',     $filterStatus))
+        ->when($filterAlertType, fn($q) => $q->where('alert_type', $filterAlertType));
 
-            $byProvince = Occurrence::join('provinces', 'occurrences.province_id', '=', 'provinces.id')
-                ->select('provinces.name', DB::raw('count(*) as total'))
-                ->when(
-                    $user->isGestor(),
-                    fn($q) => $q->whereIn('occurrences.province_id', $gestorProvinceIds)->limit(5)
-                )
-                ->groupBy('provinces.name')
-                ->orderByDesc('total')
-                ->get();
+        $totals   = $baseQuery()
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+        $totalAll = array_sum($totals);
 
-            $byCategory = $baseQuery()
-                ->join('categories', 'occurrences.category_id', '=', 'categories.id')
-                ->select('categories.name', DB::raw('count(*) as total'))
-                ->groupBy('categories.name')
-                ->orderByDesc('total')
-                ->limit(6)
-                ->get();
+        $overdue = $baseQuery()->overdue()->count();
 
-            $byMonthRaw = $baseQuery()
-                ->select(
-                    DB::raw('YEAR(created_at) as year'),
-                    DB::raw('MONTH(created_at) as month'),
-                    DB::raw('count(*) as total'),
-                    DB::raw("sum(case when status = 'resolvido' then 1 else 0 end) as resolved")
-                )
-                ->where('created_at', '>=', now()->subMonths(6))
-                ->groupBy('year', 'month')
-                ->orderBy('year')->orderBy('month')
-                ->get();
+        $byAlertLevel = $baseQuery()
+            ->join('occurrence_types', 'occurrences.occurrence_type_id', '=', 'occurrence_types.id')
+            ->select('occurrence_types.alert_level', DB::raw('count(*) as total'))
+            ->groupBy('occurrence_types.alert_level')
+            ->pluck('total', 'alert_level')
+            ->toArray();
 
-            $recent = $baseQuery()
-                ->with([
-                    'project:id,name',
-                    'province:id,name',
-                    'category:id,name',
-                    'occurrenceType:id,name,alert_level',
-                ])
-                ->orderBy('created_at', 'desc')
-                ->limit(10)
-                ->get([
-                    'id', 'tracking_code', 'complainant_name', 'subject',
-                    'status', 'created_at',
-                    'project_id', 'province_id', 'category_id', 'occurrence_type_id',
-                ]);
+        $byProvince = Occurrence::join('provinces', 'occurrences.province_id', '=', 'provinces.id')
+            ->select('provinces.name', DB::raw('count(*) as total'))
+            ->when(
+                $user->isGestor(),
+                fn($q) => $q->whereIn('occurrences.province_id', $gestorProvinceIds)->limit(5)
+            )
+            ->when($filterStatus,    fn($q) => $q->where('occurrences.status',     $filterStatus))
+            ->when($filterAlertType, fn($q) => $q->where('occurrences.alert_type', $filterAlertType))
+            ->groupBy('provinces.name')
+            ->orderByDesc('total')
+            ->get();
 
-            return [
-                'totals'            => array_merge(['all' => $totalAll], $totals),
-                'overdue'           => $overdue,
-                'by_alert_level'    => $byAlertLevel,
-                'by_category'       => $byCategory,
-                'by_province'       => $byProvince,
-                'by_month'          => $byMonthRaw->map(fn($r) => [
-                    'label' => sprintf('%04d-%02d', $r->year, $r->month),
-                    'total' => $r->total,
-                ]),
-                'by_month_resolved' => $byMonthRaw->map(fn($r) => [
-                    'label' => sprintf('%04d-%02d', $r->year, $r->month),
-                    'total' => (int) $r->resolved,
-                ]),
-                'recent'            => $recent,
-            ];
-        });
+        $byCategory = $baseQuery()
+            ->join('categories', 'occurrences.category_id', '=', 'categories.id')
+            ->select('categories.name', DB::raw('count(*) as total'))
+            ->groupBy('categories.name')
+            ->orderByDesc('total')
+            ->limit(6)
+            ->get();
 
-        return response()->json($data, 200);
+        $byMonthRaw = $baseQuery()
+            ->select(
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('count(*) as total'),
+                DB::raw("sum(case when status = 'resolvido' then 1 else 0 end) as resolved")
+            )
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('year', 'month')
+            ->orderBy('year')->orderBy('month')
+            ->get();
+
+        $recent = $baseQuery()
+            ->with([
+                'project:id,name',
+                'province:id,name',
+                'category:id,name',
+                'occurrenceType:id,name,alert_level',
+            ])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get([
+                'id', 'tracking_code', 'complainant_name', 'subject',
+                'status', 'created_at',
+                'project_id', 'province_id', 'category_id', 'occurrence_type_id',
+            ]);
+
+        return [
+            'totals'            => array_merge(['all' => $totalAll], $totals),
+            'overdue'           => $overdue,
+            'by_alert_level'    => $byAlertLevel,
+            'by_category'       => $byCategory,
+            'by_province'       => $byProvince,
+            'by_month'          => $byMonthRaw->map(fn($r) => [
+                'label' => sprintf('%04d-%02d', $r->year, $r->month),
+                'total' => $r->total,
+            ]),
+            'by_month_resolved' => $byMonthRaw->map(fn($r) => [
+                'label' => sprintf('%04d-%02d', $r->year, $r->month),
+                'total' => (int) $r->resolved,
+            ]),
+            'recent'            => $recent,
+        ];
     }
 
     /**

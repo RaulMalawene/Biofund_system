@@ -108,7 +108,7 @@
 
         <!-- KPI CARDS -->
         <div class="kpi-grid" :class="{ 'kpi-loading': statsLoading }">
-          <div class="kpi-card">
+          <div class="kpi-card" @click="selectCard(null)" :class="{ 'card-active': activeFilter === null && !statsLoading }" :title="activeFilter ? 'Clique para remover o filtro' : 'Ver todos os dados'">
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
@@ -119,11 +119,11 @@
               <span class="kpi-badge up">↑ 8.2%</span>
             </div>
             <div class="kpi-label dark">Total de Reclamações</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.totals.all ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ stats.overdue }} fora do prazo</div>
+            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawTotals.all ?? 0) }}</div>
+            <div class="kpi-sub dark">{{ rawOverdue }} fora do prazo</div>
           </div>
 
-          <div class="kpi-card highlight">
+          <div class="kpi-card highlight" @click="selectCard('por_validar')" :class="{ 'card-active': activeFilter === 'por_validar' }" title="Filtrar por: Por Validar">
             <div class="kpi-top">
               <div class="kpi-icon white">
                 <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
@@ -131,13 +131,14 @@
                   <path d="M9 5v4l3 3" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
+              <span v-if="activeFilter === 'por_validar'" class="kpi-active-dot"></span>
             </div>
             <div class="kpi-label light">Por Validar</div>
-            <div class="kpi-value light">{{ statsLoading ? '—' : (stats.totals.por_validar ?? 0) }}</div>
+            <div class="kpi-value light">{{ statsLoading ? '—' : (rawTotals.por_validar ?? 0) }}</div>
             <div class="kpi-sub light">Aguardando validação inicial</div>
           </div>
 
-          <div class="kpi-card">
+          <div class="kpi-card" @click="selectCard('resolvido')" :class="{ 'card-active': activeFilter === 'resolvido' }" title="Filtrar por: Resolvidas">
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
@@ -145,13 +146,14 @@
                   <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
+              <span v-if="activeFilter === 'resolvido'" class="kpi-active-dot green-dot"></span>
             </div>
             <div class="kpi-label dark">Resolvidas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.totals.resolvido ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ stats.totals.por_resolver ?? 0 }} por resolver</div>
+            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawTotals.resolvido ?? 0) }}</div>
+            <div class="kpi-sub dark">{{ rawTotals.por_resolver ?? 0 }} por resolver</div>
           </div>
 
-          <div class="kpi-card">
+          <div class="kpi-card" @click="selectCard('urgente')" :class="{ 'card-active': activeFilter === 'urgente' }" title="Filtrar por: Urgentes">
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
@@ -159,13 +161,14 @@
                   <circle cx="9" cy="7" r="3"/>
                 </svg>
               </div>
+              <span v-if="activeFilter === 'urgente'" class="kpi-active-dot green-dot"></span>
             </div>
             <div class="kpi-label dark">Urgentes</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.byAlertLevel.urgent ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ stats.byAlertLevel.gbv ?? 0 }} casos GBV</div>
+            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawAlertLevel.urgent ?? 0) }}</div>
+            <div class="kpi-sub dark">{{ rawAlertLevel.gbv ?? 0 }} casos GBV</div>
           </div>
 
-          <div class="kpi-card">
+          <div class="kpi-card" @click="selectCard('nao_validado')" :class="{ 'card-active': activeFilter === 'nao_validado' }" title="Filtrar por: Não Validadas">
             <div class="kpi-top">
               <div class="kpi-icon green">
                 <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
@@ -173,15 +176,34 @@
                   <path d="M1 15c0-2.209 2.239-4 5-4M9 15c0-2.209 1.343-4 4-4 2.761 0 5 1.791 5 4" stroke-linecap="round"/>
                 </svg>
               </div>
+              <span v-if="activeFilter === 'nao_validado'" class="kpi-active-dot green-dot"></span>
             </div>
             <div class="kpi-label dark">Não Validadas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (stats.totals.nao_validado ?? 0) }}</div>
+            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawTotals.nao_validado ?? 0) }}</div>
             <div class="kpi-sub dark">Processos concluídos</div>
           </div>
         </div>
 
+        <!-- FILTER BAR -->
+        <transition name="fade">
+          <div class="filter-active-bar" v-if="activeFilter">
+            <span class="filter-active-label">
+              <svg width="14" height="14" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 16 16">
+                <path d="M2 4h12M4 8h8M6 12h4" stroke-linecap="round"/>
+              </svg>
+              A mostrar dados filtrados por: <strong>{{ FILTER_LABELS[activeFilter] }}</strong>
+            </span>
+            <button class="filter-clear-btn" @click="selectCard(null)" :disabled="filterLoading">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 12 12">
+                <path d="M2 2l8 8M10 2L2 10" stroke-linecap="round"/>
+              </svg>
+              Limpar filtro
+            </button>
+          </div>
+        </transition>
+
         <!-- CHARTS ROW -->
-        <div class="charts-row">
+        <div class="charts-row" :class="{ 'section-dimmed': filterLoading }">
           <div class="chart-card">
             <div class="chart-title">Reclamações por Província</div>
             <div class="chart-sub">Volume de submissões por região geográfica</div>
@@ -207,7 +229,7 @@
         </div>
 
         <!-- BOTTOM ROW -->
-        <div class="bottom-row">
+        <div class="bottom-row" :class="{ 'section-dimmed': filterLoading }">
           <div class="chart-card">
             <div class="chart-title">Tendência de Submissões</div>
             <div class="chart-sub">Evolução mensal comparada com taxa de resolução</div>
@@ -573,6 +595,24 @@ const lineChartRef = ref(null)
 
 const submissions = ref([])
 
+// ── Filtro de KPI cards ────────────────────────────────────────
+const activeFilter  = ref(null)
+const filterLoading = ref(false)
+
+const FILTER_MAP = {
+    por_validar:  { status: 'por_validar' },
+    resolvido:    { status: 'resolvido'   },
+    urgente:      { alert_type: 'urgent'  },
+    nao_validado: { status: 'nao_validado'},
+}
+
+const FILTER_LABELS = {
+    por_validar:  'Por Validar',
+    resolvido:    'Resolvidas',
+    urgente:      'Urgentes',
+    nao_validado: 'Não Validadas',
+}
+
 // ── Estatísticas do dashboard ─────────────────────────────────
 const statsLoading = ref(true)
 const stats = reactive({
@@ -584,6 +624,11 @@ const stats = reactive({
     byMonth:         [],
     byMonthResolved: [],
 })
+
+// Valores KPI fixos — nunca se alteram quando um filtro está activo
+const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 })
+const rawAlertLevel = reactive({ normal: 0, urgent: 0, gbv: 0 })
+const rawOverdue    = ref(0)
 
 const CHART_COLORS = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
 
@@ -626,7 +671,7 @@ function updateCharts() {
     }
 }
 
-// Recarrega stats da API e actualiza tudo reactivamente
+// Recarrega stats completas (sem filtro) e actualiza tudo
 async function refreshStats() {
     try {
         const data = await InternalService.getDashboardStats()
@@ -638,9 +683,46 @@ async function refreshStats() {
         stats.byMonth         = data.by_month         ?? []
         stats.byMonthResolved = data.by_month_resolved ?? []
         submissions.value     = mapRecent(data.recent)
+        // Actualiza snapshot KPI
+        Object.assign(rawTotals,     data.totals         ?? {})
+        Object.assign(rawAlertLevel, data.by_alert_level ?? {})
+        rawOverdue.value = data.overdue ?? 0
         updateCharts()
     } catch (err) {
         console.error('Erro ao actualizar estatísticas:', err)
+    }
+}
+
+// Selecciona/desselecciona um card de filtro
+async function selectCard(key) {
+    // Card "Total" — limpa filtro (se houver) e mostra dados completos
+    if (key === null) {
+        if (activeFilter.value === null) return
+        activeFilter.value = null
+        await refreshStats()
+        return
+    }
+    // Toggle: clicar no mesmo card filtro remove o filtro
+    if (key === activeFilter.value) {
+        activeFilter.value = null
+        await refreshStats()
+        return
+    }
+    activeFilter.value  = key
+    filterLoading.value = true
+    try {
+        const data = await InternalService.getDashboardStats(FILTER_MAP[key])
+        // Actualiza apenas gráficos e tabela — KPI cards ficam inalterados
+        stats.byProvince      = data.by_province      ?? []
+        stats.byCategory      = data.by_category      ?? []
+        stats.byMonth         = data.by_month         ?? []
+        stats.byMonthResolved = data.by_month_resolved ?? []
+        submissions.value     = mapRecent(data.recent)
+        updateCharts()
+    } catch (err) {
+        console.error('Erro ao filtrar:', err)
+    } finally {
+        filterLoading.value = false
     }
 }
 
@@ -902,7 +984,7 @@ onMounted(async () => {
 
   try {
     const data = await InternalService.getDashboardStats()
-    Object.assign(stats.totals,      data.totals         ?? {})
+    Object.assign(stats.totals,       data.totals         ?? {})
     Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
     stats.overdue         = data.overdue          ?? 0
     stats.byProvince      = data.by_province      ?? []
@@ -910,6 +992,10 @@ onMounted(async () => {
     stats.byMonth         = data.by_month         ?? []
     stats.byMonthResolved = data.by_month_resolved ?? []
     submissions.value     = mapRecent(data.recent)
+    // Snapshot KPI — fica fixo mesmo quando um filtro é aplicado
+    Object.assign(rawTotals,     data.totals         ?? {})
+    Object.assign(rawAlertLevel, data.by_alert_level ?? {})
+    rawOverdue.value = data.overdue ?? 0
   } catch (err) {
     console.error('Erro ao carregar estatísticas:', err)
   } finally {
@@ -1219,10 +1305,80 @@ onMounted(async () => {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 18px 18px 16px;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.15s, outline 0.15s;
+  cursor: pointer;
+  user-select: none;
 }
-.kpi-card:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07); }
+.kpi-card:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07); transform: translateY(-1px); }
 .kpi-card.highlight { background: var(--green-mid); border-color: var(--green-mid); }
+
+.kpi-card.card-active {
+  outline: 2px solid #52B788;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(82, 183, 136, 0.15), 0 4px 20px rgba(0,0,0,0.07);
+}
+.kpi-card.highlight.card-active {
+  outline: 2.5px solid rgba(255,255,255,0.9);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.2);
+}
+
+.kpi-active-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+.kpi-active-dot.green-dot { background: #52B788; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.75); }
+}
+
+/* Filter bar */
+.filter-active-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #EBF8F1;
+  border: 1px solid #B7E4CA;
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.filter-active-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2D6A4F;
+}
+
+.filter-active-label strong { font-weight: 700; }
+
+.filter-clear-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: #fff;
+  border: 1.5px solid #B7E4CA;
+  border-radius: 7px;
+  padding: 5px 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: #2D6A4F;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.filter-clear-btn:hover:not(:disabled) { background: #D8F3E3; border-color: #52B788; }
+.filter-clear-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Charts loading dim */
+.section-dimmed {
+  opacity: 0.45;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
 
 .kpi-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 

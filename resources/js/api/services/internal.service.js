@@ -78,8 +78,8 @@ export const InternalService = {
      * Estatísticas do dashboard para KPIs, gráficos e tabela recente.
      * @returns {{ totals, overdue, by_province, by_category, by_month, by_month_resolved, recent }}
      */
-    async getDashboardStats() {
-        const { data } = await api.get('/admin/statistics/dashboard')
+    async getDashboardStats(params = {}) {
+        const { data } = await api.get('/admin/statistics/dashboard', { params })
         return data
     },
 
