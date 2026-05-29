@@ -1427,20 +1427,20 @@ tbody tr:last-child td { border-bottom: none; }
   border-style: solid;
 }
 
-.badge-status.rejected, .badge-status.nao_validado {
-  color: #E53E3E; border-color: #FC8181; background: #FFF5F5;
+.badge-status.por_validar, .badge-status.pendente, .badge-status.pending {
+  color: #fff; border-color: #EA580C; background: #FB923C;
+}
+.badge-status.por_resolver, .badge-status.em_analise, .badge-status.in_review {
+  color: #713F12; border-color: #CA8A04; background: #FACC15;
+}
+.badge-status.resolvendo {
+  color: #fff; border-color: #EA580C; background: #FB923C;
 }
 .badge-status.resolvido, .badge-status.resolved {
-  color: var(--green-mid); border-color: #68D391; background: var(--green-pale);
+  color: #fff; border-color: #16A34A; background: #22C55E;
 }
-.badge-status.pendente, .badge-status.pending {
-  color: #744210; border-color: #F6D860; background: #FEFCBF;
-}
-.badge-status.em_analise, .badge-status.in_review {
-  color: #2B6CB0; border-color: #90CDF4; background: #EBF8FF;
-}
-.badge-status.por_validar {
-  color: var(--text-gray); border-color: var(--border); background: var(--white);
+.badge-status.rejected, .badge-status.nao_validado {
+  color: #fff; border-color: #DC2626; background: #EF4444;
 }
 
 .badge-origem {

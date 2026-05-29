@@ -41,11 +41,14 @@ class AdminStatisticsController extends Controller
         $user            = $request->user();
         $filterStatus    = $request->input('status');
         $filterAlertType = $request->input('alert_type');
+        $filterYear      = $request->input('year')        ? (int) $request->input('year')        : null;
+        $filterProvince  = $request->input('province_id') ? (int) $request->input('province_id') : null;
+        $filterProject   = $request->input('project_id')  ? (int) $request->input('project_id')  : null;
 
         // Filtered requests bypass cache (params vary)
-        if ($filterStatus || $filterAlertType) {
+        if ($filterStatus || $filterAlertType || $filterYear || $filterProvince || $filterProject) {
             return response()->json(
-                $this->buildDashboardData($user, $filterStatus, $filterAlertType),
+                $this->buildDashboardData($user, $filterStatus, $filterAlertType, $filterYear, $filterProvince, $filterProject),
                 200
             );
         }
@@ -57,8 +60,14 @@ class AdminStatisticsController extends Controller
         );
     }
 
-    private function buildDashboardData(User $user, ?string $filterStatus = null, ?string $filterAlertType = null): array
-    {
+    private function buildDashboardData(
+        User    $user,
+        ?string $filterStatus    = null,
+        ?string $filterAlertType = null,
+        ?int    $filterYear      = null,
+        ?int    $filterProvince  = null,
+        ?int    $filterProject   = null,
+    ): array {
         $gestorProvinceIds = [];
         $gestorProjectIds  = [];
         if ($user->isGestor()) {
@@ -76,8 +85,11 @@ class AdminStatisticsController extends Controller
                       ->orWhereIn('project_id', $gestorProjectIds)
             )
         )
-        ->when($filterStatus,    fn($q) => $q->where('status',     $filterStatus))
-        ->when($filterAlertType, fn($q) => $q->where('alert_type', $filterAlertType));
+        ->when($filterStatus,    fn($q) => $q->where('status',      $filterStatus))
+        ->when($filterAlertType, fn($q) => $q->where('alert_type',  $filterAlertType))
+        ->when($filterYear,      fn($q) => $q->whereYear('created_at', $filterYear))
+        ->when($filterProvince,  fn($q) => $q->where('province_id', $filterProvince))
+        ->when($filterProject,   fn($q) => $q->where('project_id',  $filterProject));
 
         $totals   = $baseQuery()
             ->select('status', DB::raw('count(*) as total'))
@@ -101,8 +113,11 @@ class AdminStatisticsController extends Controller
                 $user->isGestor(),
                 fn($q) => $q->whereIn('occurrences.province_id', $gestorProvinceIds)->limit(5)
             )
-            ->when($filterStatus,    fn($q) => $q->where('occurrences.status',     $filterStatus))
-            ->when($filterAlertType, fn($q) => $q->where('occurrences.alert_type', $filterAlertType))
+            ->when($filterStatus,    fn($q) => $q->where('occurrences.status',      $filterStatus))
+            ->when($filterAlertType, fn($q) => $q->where('occurrences.alert_type',  $filterAlertType))
+            ->when($filterYear,      fn($q) => $q->whereYear('occurrences.created_at', $filterYear))
+            ->when($filterProvince,  fn($q) => $q->where('occurrences.province_id', $filterProvince))
+            ->when($filterProject,   fn($q) => $q->where('occurrences.project_id',  $filterProject))
             ->groupBy('provinces.name')
             ->orderByDesc('total')
             ->get();

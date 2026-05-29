@@ -106,6 +106,64 @@
           </div>
         </div>
 
+        <!-- DASH FILTER BAR -->
+        <div class="dash-filter-bar">
+          <span class="dash-filter-title">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
+              <path d="M2 4h12M4 8h8M6 12h4" stroke-linecap="round"/>
+            </svg>
+            Filtros
+          </span>
+          <div class="dash-filter-sep"></div>
+
+          <div class="dash-filter-chip" :class="{ 'chip-active': dashFilter.year }">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <rect x="1" y="3" width="14" height="12" rx="1.5"/>
+              <path d="M1 7h14M5 1v3M11 1v3" stroke-linecap="round"/>
+            </svg>
+            <select class="dash-filter-select" v-model="dashFilter.year" @change="applyDashFilter">
+              <option value="">Todos os Anos</option>
+              <option v-for="y in filterYears" :key="y" :value="y">{{ y }}</option>
+            </select>
+          </div>
+
+          <div class="dash-filter-chip" :class="{ 'chip-active': dashFilter.province_id }">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <path d="M8 1C5.791 1 4 2.791 4 5c0 3.5 4 10 4 10s4-6.5 4-10c0-2.209-1.791-4-4-4z"/>
+              <circle cx="8" cy="5" r="1.5"/>
+            </svg>
+            <select class="dash-filter-select" v-model="dashFilter.province_id" @change="applyDashFilter">
+              <option value="">Todas as Províncias</option>
+              <option v-for="p in refProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+            </select>
+          </div>
+
+          <div class="dash-filter-chip" :class="{ 'chip-active': dashFilter.project_id }">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <select class="dash-filter-select" v-model="dashFilter.project_id" @change="applyDashFilter">
+              <option value="">Todos os Projectos</option>
+              <option v-for="p in refProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+            </select>
+          </div>
+
+          <transition name="fade">
+            <button v-if="hasActiveDashFilter" class="dash-filter-clear-btn" @click="clearDashFilter" :disabled="filterLoading">
+              <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 12 12">
+                <path d="M2 2l8 8M10 2L2 10" stroke-linecap="round"/>
+              </svg>
+              Limpar
+            </button>
+          </transition>
+
+          <div class="dash-filter-spin" v-if="filterLoading">
+            <svg class="spin" width="14" height="14" fill="none" stroke="#52B788" stroke-width="2.2" viewBox="0 0 16 16">
+              <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
         <!-- KPI CARDS -->
         <div class="kpi-grid" :class="{ 'kpi-loading': statsLoading }">
           <div class="kpi-card" @click="selectCard(null)" :class="{ 'card-active': activeFilter === null && !statsLoading }" :title="activeFilter ? 'Clique para remover o filtro' : 'Ver todos os dados'">
@@ -259,6 +317,7 @@
               </a>
             </div>
             <div class="table-sub">Últimas 10 ocorrências registadas</div>
+            <div class="table-scroll">
             <table>
               <thead>
                 <tr>
@@ -297,6 +356,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
@@ -630,6 +690,52 @@ const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, nao_va
 const rawAlertLevel = reactive({ normal: 0, urgent: 0, gbv: 0 })
 const rawOverdue    = ref(0)
 
+// ── Filtros de dashboard (ano / província / projecto) ──────────
+const dashFilter = reactive({ year: '', province_id: '', project_id: '' })
+const filterYears = computed(() => {
+    const y = new Date().getFullYear()
+    return Array.from({ length: y - 2019 }, (_, i) => y - i)
+})
+const hasActiveDashFilter = computed(() =>
+    !!(dashFilter.year || dashFilter.province_id || dashFilter.project_id)
+)
+function buildDashFilter() {
+    const p = {}
+    if (dashFilter.year)        p.year        = dashFilter.year
+    if (dashFilter.province_id) p.province_id = dashFilter.province_id
+    if (dashFilter.project_id)  p.project_id  = dashFilter.project_id
+    return p
+}
+async function applyDashFilter() {
+    activeFilter.value  = null
+    filterLoading.value = true
+    try {
+        const data = await InternalService.getDashboardStats(buildDashFilter())
+        Object.assign(stats.totals,       data.totals         ?? {})
+        Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
+        stats.overdue         = data.overdue          ?? 0
+        stats.byProvince      = data.by_province      ?? []
+        stats.byCategory      = data.by_category      ?? []
+        stats.byMonth         = data.by_month         ?? []
+        stats.byMonthResolved = data.by_month_resolved ?? []
+        submissions.value     = mapRecent(data.recent)
+        Object.assign(rawTotals,     data.totals         ?? {})
+        Object.assign(rawAlertLevel, data.by_alert_level ?? {})
+        rawOverdue.value = data.overdue ?? 0
+        updateCharts()
+    } catch (err) {
+        console.error('Erro ao aplicar filtros:', err)
+    } finally {
+        filterLoading.value = false
+    }
+}
+function clearDashFilter() {
+    dashFilter.year = ''
+    dashFilter.province_id = ''
+    dashFilter.project_id  = ''
+    applyDashFilter()
+}
+
 const CHART_COLORS = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
 
 // Instâncias dos gráficos — guardadas para actualizar sem recriar
@@ -671,10 +777,10 @@ function updateCharts() {
     }
 }
 
-// Recarrega stats completas (sem filtro) e actualiza tudo
+// Recarrega stats completas (aplica dashFilter se activo) e actualiza tudo
 async function refreshStats() {
     try {
-        const data = await InternalService.getDashboardStats()
+        const data = await InternalService.getDashboardStats(buildDashFilter())
         Object.assign(stats.totals,       data.totals         ?? {})
         Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
         stats.overdue         = data.overdue          ?? 0
@@ -711,7 +817,7 @@ async function selectCard(key) {
     activeFilter.value  = key
     filterLoading.value = true
     try {
-        const data = await InternalService.getDashboardStats(FILTER_MAP[key])
+        const data = await InternalService.getDashboardStats({ ...FILTER_MAP[key], ...buildDashFilter() })
         // Actualiza apenas gráficos e tabela — KPI cards ficam inalterados
         stats.byProvince      = data.by_province      ?? []
         stats.byCategory      = data.by_category      ?? []
@@ -981,6 +1087,8 @@ function addFiles(list) {
 onMounted(async () => {
   Chart.defaults.font.family = "'Poppins', sans-serif"
   Chart.defaults.color       = '#8A9490'
+
+  loadRefData()  // carrega províncias/projectos para os filtros do dashboard
 
   try {
     const data = await InternalService.getDashboardStats()
@@ -1292,6 +1400,94 @@ onMounted(async () => {
 }
 .btn-green-sm:hover { background: var(--green-dark); }
 
+/* ── DASH FILTER BAR ─────────────────────── */
+.dash-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.dash-filter-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  flex-shrink: 0;
+}
+
+.dash-filter-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+.dash-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 6px 11px;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.dash-filter-chip:focus-within { border-color: var(--green-light); background: #EEF7F1; }
+.dash-filter-chip.chip-active  { border-color: #52B788; background: #EEF7F1; }
+.dash-filter-chip svg { color: #8A9490; flex-shrink: 0; transition: color 0.2s; }
+.dash-filter-chip:focus-within svg, .dash-filter-chip.chip-active svg { color: #2D6A4F; }
+
+.dash-filter-select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-dark);
+  cursor: pointer;
+  min-width: 130px;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238A9490' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+}
+
+.dash-filter-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1.5px solid #FC8181;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #E53E3E;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-left: 2px;
+}
+.dash-filter-clear-btn:hover:not(:disabled) { background: #FFF5F5; }
+.dash-filter-clear-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.dash-filter-spin { display: flex; align-items: center; margin-left: 4px; }
+
 /* ── KPI CARDS ───────────────────────────── */
 .kpi-grid {
   display: grid;
@@ -1472,13 +1668,17 @@ onMounted(async () => {
 
 .table-sub { font-size: 11.5px; color: var(--text-light); margin-bottom: 14px; }
 
+.table-scroll { overflow-y: auto; max-height: 320px; }
+
 table { width: 100%; border-collapse: collapse; }
 
 thead th {
   font-size: 11px; font-weight: 700; color: var(--text-light);
   text-align: left; padding: 8px 10px;
+  background: #fff;
   border-bottom: 1px solid var(--border);
   text-transform: uppercase; letter-spacing: 0.5px;
+  position: sticky; top: 0; z-index: 1;
 }
 
 tbody tr { transition: background 0.15s; cursor: pointer; }
@@ -1509,9 +1709,14 @@ tbody td {
   display: inline-block; font-size: 11px; font-weight: 700;
   padding: 3px 9px; border-radius: 99px;
 }
-.badge-status.pendente  { background: #FFF8E6; color: #B7791F; }
-.badge-status.analise   { background: #EBF4FF; color: #2B6CB0; }
-.badge-status.resolvida { background: var(--green-pale); color: var(--green-dark); }
+.badge-status.por-validar,
+.badge-status.pendente    { background: #FB923C; color: #fff;    }
+.badge-status.por-resolver,
+.badge-status.analise     { background: #FACC15; color: #713F12; }
+.badge-status.resolvendo  { background: #FB923C; color: #fff;    }
+.badge-status.resolvido,
+.badge-status.resolvida   { background: #22C55E; color: #fff;    }
+.badge-status.nao-validado { background: #EF4444; color: #fff;   }
 
 /* ── FOOTER ──────────────────────────────── */
 .dash-footer {

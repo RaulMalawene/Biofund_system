@@ -1308,9 +1308,9 @@ async function handleLogout() {
 }
 
 .badge-em-analise {
-  border: 1.5px solid #F6AD55;
-  color: #C05621;
-  background: #FFFAF0;
+  border: 1.5px solid #CA8A04;
+  color: #713F12;
+  background: #FACC15;
   border-radius: 9px;
   font-size: 12px;
   font-weight: 700;
@@ -1318,9 +1318,9 @@ async function handleLogout() {
 }
 
 .badge-pendentes {
-  border: 1.5px solid #68D391;
-  color: var(--green-mid);
-  background: var(--green-pale);
+  border: 1.5px solid #EA580C;
+  color: #fff;
+  background: #FB923C;
   border-radius: 9px;
   font-size: 12px;
   font-weight: 700;
@@ -1513,33 +1513,33 @@ tbody tr:last-child td {
 }
 
 .badge-status.por-validar {
-  color: #1D4ED8;
-  border-color: #93C5FD;
-  background: #EFF6FF;
+  color: #fff;
+  border-color: #EA580C;
+  background: #FB923C;
 }
 
 .badge-status.por-resolver {
-  color: #B45309;
-  border-color: #FCD34D;
-  background: #FFFBEB;
+  color: #713F12;
+  border-color: #CA8A04;
+  background: #FACC15;
 }
 
 .badge-status.resolvendo {
-  color: #C2410C;
-  border-color: #FDBA74;
-  background: #FFF7ED;
+  color: #fff;
+  border-color: #EA580C;
+  background: #FB923C;
 }
 
 .badge-status.resolvido {
-  color: var(--green-mid);
-  border-color: #68D391;
-  background: var(--green-pale);
+  color: #fff;
+  border-color: #16A34A;
+  background: #22C55E;
 }
 
 .badge-status.nao-validado {
-  color: #E53E3E;
-  border-color: #FC8181;
-  background: #FFF5F5;
+  color: #fff;
+  border-color: #DC2626;
+  background: #EF4444;
 }
 
 .pagination-bar {

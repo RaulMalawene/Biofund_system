@@ -662,9 +662,12 @@ tbody tr:last-child td { border-bottom: none; }
   display: inline-block; padding: 3px 10px; border-radius: 99px;
   font-size: 11.5px; font-weight: 700; border-width: 1.5px; border-style: solid;
 }
-.badge-status.nao_validado, .badge-status.rejected { color: #E53E3E; border-color: #FC8181; background: #FFF5F5; }
-.badge-status.resolvido, .badge-status.resolved { color: var(--green-mid); border-color: #68D391; background: var(--green-pale); }
-.badge-status.encerrado, .badge-status.closed { color: #C05621; border-color: #F6AD55; background: #FFFAF0; }
+.badge-status.por_validar, .badge-status.pending      { color: #fff;    border-color: #EA580C; background: #FB923C; }
+.badge-status.por_resolver, .badge-status.in_review   { color: #713F12; border-color: #CA8A04; background: #FACC15; }
+.badge-status.resolvendo                              { color: #fff;    border-color: #EA580C; background: #FB923C; }
+.badge-status.resolvido, .badge-status.resolved       { color: #fff;    border-color: #16A34A; background: #22C55E; }
+.badge-status.nao_validado, .badge-status.rejected    { color: #fff;    border-color: #DC2626; background: #EF4444; }
+.badge-status.encerrado, .badge-status.closed         { color: #fff;    border-color: #4B5563; background: #6B7280; }
 
 .btn-detail {
   display: inline-flex; align-items: center; gap: 5px;
