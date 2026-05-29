@@ -44,11 +44,12 @@ class AdminStatisticsController extends Controller
         $filterYear      = $request->input('year')        ? (int) $request->input('year')        : null;
         $filterProvince  = $request->input('province_id') ? (int) $request->input('province_id') : null;
         $filterProject   = $request->input('project_id')  ? (int) $request->input('project_id')  : null;
+        $filterCategory  = $request->input('category_id') ? (int) $request->input('category_id') : null;
 
         // Filtered requests bypass cache (params vary)
-        if ($filterStatus || $filterAlertType || $filterYear || $filterProvince || $filterProject) {
+        if ($filterStatus || $filterAlertType || $filterYear || $filterProvince || $filterProject || $filterCategory) {
             return response()->json(
-                $this->buildDashboardData($user, $filterStatus, $filterAlertType, $filterYear, $filterProvince, $filterProject),
+                $this->buildDashboardData($user, $filterStatus, $filterAlertType, $filterYear, $filterProvince, $filterProject, $filterCategory),
                 200
             );
         }
@@ -67,6 +68,7 @@ class AdminStatisticsController extends Controller
         ?int    $filterYear      = null,
         ?int    $filterProvince  = null,
         ?int    $filterProject   = null,
+        ?int    $filterCategory  = null,
     ): array {
         $gestorProvinceIds = [];
         $gestorProjectIds  = [];
@@ -89,7 +91,8 @@ class AdminStatisticsController extends Controller
         ->when($filterAlertType, fn($q) => $q->where('alert_type',  $filterAlertType))
         ->when($filterYear,      fn($q) => $q->whereYear('created_at', $filterYear))
         ->when($filterProvince,  fn($q) => $q->where('province_id', $filterProvince))
-        ->when($filterProject,   fn($q) => $q->where('project_id',  $filterProject));
+        ->when($filterProject,   fn($q) => $q->where('project_id',  $filterProject))
+        ->when($filterCategory,  fn($q) => $q->where('category_id', $filterCategory));
 
         $totals   = $baseQuery()
             ->select('status', DB::raw('count(*) as total'))
@@ -118,6 +121,7 @@ class AdminStatisticsController extends Controller
             ->when($filterYear,      fn($q) => $q->whereYear('occurrences.created_at', $filterYear))
             ->when($filterProvince,  fn($q) => $q->where('occurrences.province_id', $filterProvince))
             ->when($filterProject,   fn($q) => $q->where('occurrences.project_id',  $filterProject))
+            ->when($filterCategory,  fn($q) => $q->where('occurrences.category_id', $filterCategory))
             ->groupBy('provinces.name')
             ->orderByDesc('total')
             ->get();

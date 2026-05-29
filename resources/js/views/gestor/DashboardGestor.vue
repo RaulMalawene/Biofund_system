@@ -115,7 +115,7 @@
               <rect x="1" y="3" width="14" height="12" rx="1.5"/>
               <path d="M1 7h14M5 1v3M11 1v3" stroke-linecap="round"/>
             </svg>
-            <select class="dash-filter-select" v-model="dashFilter.year" @change="applyDashFilter">
+            <select class="dash-filter-select" v-model="dashFilter.year">
               <option value="">Todos os Anos</option>
               <option v-for="y in filterYears" :key="y" :value="y">{{ y }}</option>
             </select>
@@ -126,7 +126,7 @@
               <path d="M8 1C5.791 1 4 2.791 4 5c0 3.5 4 10 4 10s4-6.5 4-10c0-2.209-1.791-4-4-4z"/>
               <circle cx="8" cy="5" r="1.5"/>
             </svg>
-            <select class="dash-filter-select" v-model="dashFilter.province_id" @change="applyDashFilter">
+            <select class="dash-filter-select" v-model="dashFilter.province_id">
               <option value="">Todas as Províncias</option>
               <option v-for="p in scopeProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
             </select>
@@ -136,11 +136,29 @@
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
               <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <select class="dash-filter-select" v-model="dashFilter.project_id" @change="applyDashFilter">
+            <select class="dash-filter-select" v-model="dashFilter.project_id">
               <option value="">Todos os Projectos</option>
               <option v-for="p in scopeProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
             </select>
           </div>
+
+          <div class="dash-filter-chip" :class="{ 'chip-active': dashFilter.category_id }">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <circle cx="5" cy="5" r="2"/><circle cx="11" cy="5" r="2"/>
+              <circle cx="5" cy="11" r="2"/><circle cx="11" cy="11" r="2"/>
+            </svg>
+            <select class="dash-filter-select" v-model="dashFilter.category_id">
+              <option value="">Todas as Categorias</option>
+              <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <button class="dash-filter-apply-btn" @click="applyDashFilter" :disabled="filterLoading">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
+              <path d="M2 4h12M4 8h8M6 12h4" stroke-linecap="round"/>
+            </svg>
+            Filtrar
+          </button>
 
           <transition name="fade">
             <button v-if="hasActiveDashFilter" class="dash-filter-clear-btn" @click="clearDashFilter" :disabled="filterLoading">
@@ -159,7 +177,7 @@
         </div>
 
         <!-- KPI CARDS -->
-        <div class="kpi-grid" :class="{ 'kpi-loading': statsLoading }">
+        <div class="kpi-grid" :class="{ 'kpi-loading': statsLoading || filterLoading }">
           <div class="kpi-card" @click="selectCard(null)" :class="{ 'card-active': activeFilter === null && !statsLoading }" :title="activeFilter ? 'Clique para remover o filtro' : 'Ver todos os dados'">
             <div class="kpi-top">
               <div class="kpi-icon green">
@@ -667,19 +685,20 @@ const rawAlertLevel = reactive({ normal: 0, urgent: 0, gbv: 0 })
 const rawOverdue    = ref(0)
 
 // ── Filtros de dashboard (ano / província / projecto) ──────────
-const dashFilter = reactive({ year: '', province_id: '', project_id: '' })
+const dashFilter = reactive({ year: '', province_id: '', project_id: '', category_id: '' })
 const filterYears = computed(() => {
   const y = new Date().getFullYear()
   return Array.from({ length: y - 2019 }, (_, i) => y - i)
 })
 const hasActiveDashFilter = computed(() =>
-  !!(dashFilter.year || dashFilter.province_id || dashFilter.project_id)
+  !!(dashFilter.year || dashFilter.province_id || dashFilter.project_id || dashFilter.category_id)
 )
 function buildDashFilter() {
   const p = {}
   if (dashFilter.year)        p.year        = dashFilter.year
   if (dashFilter.province_id) p.province_id = dashFilter.province_id
   if (dashFilter.project_id)  p.project_id  = dashFilter.project_id
+  if (dashFilter.category_id) p.category_id = dashFilter.category_id
   return p
 }
 async function applyDashFilter() {
@@ -687,16 +706,18 @@ async function applyDashFilter() {
   filterLoading.value = true
   try {
     const data = await InternalService.getDashboardStats(buildDashFilter())
-    Object.assign(stats.totals,       data.totals         ?? {})
-    Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
+    const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 }
+    const zeroAlertLevel = { normal: 0, urgent: 0, gbv: 0 }
+    Object.assign(stats.totals,       zeroTotals,     data.totals         ?? {})
+    Object.assign(stats.byAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
     stats.overdue         = data.overdue          ?? 0
     stats.byProvince      = data.by_province      ?? []
     stats.byCategory      = data.by_category      ?? []
     stats.byMonth         = data.by_month         ?? []
     stats.byMonthResolved = data.by_month_resolved ?? []
     submissions.value     = mapRecent(data.recent)
-    Object.assign(rawTotals,     data.totals         ?? {})
-    Object.assign(rawAlertLevel, data.by_alert_level ?? {})
+    Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
+    Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
     rawOverdue.value = data.overdue ?? 0
     updateCharts()
   } catch (err) {
@@ -709,6 +730,7 @@ function clearDashFilter() {
   dashFilter.year = ''
   dashFilter.province_id = ''
   dashFilter.project_id  = ''
+  dashFilter.category_id = ''
   applyDashFilter()
 }
 
@@ -736,7 +758,7 @@ function updateCharts() {
   if (barChart) {
     barChart.data.labels           = stats.byProvince.length ? stats.byProvince.map(p => p.name)  : ['Sem dados']
     barChart.data.datasets[0].data = stats.byProvince.length ? stats.byProvince.map(p => p.total) : [0]
-    barChart.update('none')
+    barChart.update()
   }
   if (donutChart) {
     donutChart.data.labels                      = stats.byCategory.length ? stats.byCategory.map(c => c.name)  : ['Sem dados']
@@ -744,30 +766,32 @@ function updateCharts() {
     donutChart.data.datasets[0].backgroundColor = stats.byCategory.length
       ? stats.byCategory.map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
       : ['#E2E8F0']
-    donutChart.update('none')
+    donutChart.update()
   }
   if (lineChart) {
     const ax = buildMonthAxis()
     lineChart.data.labels           = ax.map(formatMonthLabel)
     lineChart.data.datasets[0].data = ax.map(m => stats.byMonth.find(r => r.label === m)?.total ?? 0)
     lineChart.data.datasets[1].data = ax.map(m => stats.byMonthResolved.find(r => r.label === m)?.total ?? 0)
-    lineChart.update('none')
+    lineChart.update()
   }
 }
 
 async function refreshStats() {
   try {
     const data = await InternalService.getDashboardStats(buildDashFilter())
-    Object.assign(stats.totals,       data.totals         ?? {})
-    Object.assign(stats.byAlertLevel, data.by_alert_level ?? {})
+    const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 }
+    const zeroAlertLevel = { normal: 0, urgent: 0, gbv: 0 }
+    Object.assign(stats.totals,       zeroTotals,     data.totals         ?? {})
+    Object.assign(stats.byAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
     stats.overdue         = data.overdue          ?? 0
     stats.byProvince      = data.by_province      ?? []
     stats.byCategory      = data.by_category      ?? []
     stats.byMonth         = data.by_month         ?? []
     stats.byMonthResolved = data.by_month_resolved ?? []
     submissions.value     = mapRecent(data.recent)
-    Object.assign(rawTotals,     data.totals         ?? {})
-    Object.assign(rawAlertLevel, data.by_alert_level ?? {})
+    Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
+    Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
     rawOverdue.value = data.overdue ?? 0
     updateCharts()
   } catch (err) {
@@ -908,6 +932,9 @@ function showToast(msg) {
 }
 
 watch(drawerOpen, (isOpen) => { if (isOpen) loadRefData() })
+
+// load categories (and other refs) eagerly so the category filter chip is populated on mount
+onMounted(() => { loadRefData() })
 
 const form = reactive({
   complainant_name: '', complainant_email: '', complainant_phone: '',
@@ -1395,6 +1422,7 @@ onMounted(async () => {
   border: 1.5px solid var(--border);
   border-radius: 10px;
   padding: 7px 12px;
+  width: 175px;
   transition: border-color 0.2s, background 0.2s;
   cursor: pointer;
 }
@@ -1412,7 +1440,7 @@ onMounted(async () => {
   font-weight: 500;
   color: var(--text-dark);
   cursor: pointer;
-  min-width: 130px;
+  width: 100%;
   appearance: none;
   -webkit-appearance: none;
   padding-right: 18px;
@@ -1420,6 +1448,26 @@ onMounted(async () => {
   background-repeat: no-repeat;
   background-position: right 2px center;
 }
+
+.dash-filter-apply-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #52B788;
+  border: none;
+  border-radius: 9px;
+  padding: 7px 16px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+.dash-filter-apply-btn:hover:not(:disabled) { background: #40a070; }
+.dash-filter-apply-btn:active:not(:disabled) { transform: scale(0.97); }
+.dash-filter-apply-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .dash-filter-clear-btn {
   display: flex;
@@ -1448,6 +1496,11 @@ onMounted(async () => {
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;
   margin-bottom: 22px;
+  transition: opacity 0.2s;
+}
+.kpi-grid.kpi-loading {
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .kpi-card {
