@@ -82,10 +82,8 @@ class AdminStatisticsController extends Controller
 
         $baseQuery = fn() => Occurrence::when(
             $user->isGestor(),
-            fn($q) => $q->where(fn($inner) =>
-                $inner->whereIn('province_id', $gestorProvinceIds)
-                      ->orWhereIn('project_id', $gestorProjectIds)
-            )
+            fn($q) => $q->whereIn('province_id', $gestorProvinceIds)
+                        ->whereIn('project_id', $gestorProjectIds)
         )
         ->when($filterStatus,    fn($q) => $q->where('status',      $filterStatus))
         ->when($filterAlertType, fn($q) => $q->where('alert_type',  $filterAlertType))

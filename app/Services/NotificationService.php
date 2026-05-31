@@ -87,16 +87,22 @@ class NotificationService
                   ->orWhere(function ($gq) use ($occurrence) {
                       $gq->where('role', 'gestor')
                          ->where(function ($scope) use ($occurrence) {
+                             // Âmbito nacional: recebe sempre
                              $scope->where('management_scope', 'national')
-                                   ->orWhere('province_id', $occurrence->province_id)
-                                   ->orWhereHas('provinces', fn($pq) =>
-                                       $pq->where('provinces.id', $occurrence->province_id)
-                                   );
-                             if ($occurrence->project_id) {
-                                 $scope->orWhereHas('projects', fn($pq) =>
-                                     $pq->where('projects.id', $occurrence->project_id)
-                                 );
-                             }
+                                   // Ou pertence à província E ao projecto da ocorrência (AND)
+                                   ->orWhere(function ($and) use ($occurrence) {
+                                       $and->where(fn($pq) =>
+                                               $pq->where('province_id', $occurrence->province_id)
+                                                  ->orWhereHas('provinces', fn($q2) =>
+                                                      $q2->where('provinces.id', $occurrence->province_id)
+                                                  )
+                                           );
+                                       if ($occurrence->project_id) {
+                                           $and->whereHas('projects', fn($q2) =>
+                                               $q2->where('projects.id', $occurrence->project_id)
+                                           );
+                                       }
+                                   });
                          });
                   });
             })
