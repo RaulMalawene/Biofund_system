@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use App\Mail\UserCredentialsMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -213,18 +214,7 @@ class AdminUserController extends Controller
     private function sendCredentialsEmail(User $user, string $temporaryPassword): void
     {
         try {
-            Mail::raw(
-                "Prezado(a) {$user->name},\n\n"
-                . "A sua conta no sistema MDR foi criada com sucesso.\n\n"
-                . "Credenciais de acesso:\n"
-                . "  Email: {$user->email}\n"
-                . "  Senha: {$temporaryPassword}\n\n"
-                . "Acesse o sistema em: " . config('app.url') . "\n\n"
-                . "Por motivos de segurança, altere a sua senha após o primeiro login.\n\n"
-                . "Com os melhores cumprimentos,\n"
-                . "Equipa MDR - BIOFUND/FNDS",
-                fn($mail) => $mail->to($user->email)->subject('MDR - Credenciais de Acesso')
-            );
+            Mail::to($user->email)->send(new UserCredentialsMail($user, $temporaryPassword));
         } catch (\Throwable $e) {
             Log::error("Falha ao enviar credenciais para {$user->email}: " . $e->getMessage());
         }
