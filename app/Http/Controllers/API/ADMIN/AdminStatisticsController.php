@@ -159,21 +159,25 @@ class AdminStatisticsController extends Controller
                 'project_id', 'province_id', 'category_id', 'occurrence_type_id',
             ]);
 
+        // Converte Collections para plain arrays antes de guardar em cache.
+        // Eloquent Collections serializadas via PHP serialize/unserialize podem
+        // produzir JSON objects ({}) em vez de arrays ([]) ao ser json_encode'd,
+        // quebrando o frontend que espera sempre um array.
         return [
             'totals'            => array_merge(['all' => $totalAll], $totals),
             'overdue'           => $overdue,
             'by_alert_level'    => $byAlertLevel,
-            'by_category'       => $byCategory,
-            'by_province'       => $byProvince,
+            'by_category'       => $byCategory->values()->toArray(),
+            'by_province'       => $byProvince->values()->toArray(),
             'by_month'          => $byMonthRaw->map(fn($r) => [
                 'label' => sprintf('%04d-%02d', $r->year, $r->month),
-                'total' => $r->total,
-            ]),
+                'total' => (int) $r->total,
+            ])->values()->all(),
             'by_month_resolved' => $byMonthRaw->map(fn($r) => [
                 'label' => sprintf('%04d-%02d', $r->year, $r->month),
                 'total' => (int) $r->resolved,
-            ]),
-            'recent'            => $recent,
+            ])->values()->all(),
+            'recent'            => $recent->values()->toArray(),
         ];
     }
 

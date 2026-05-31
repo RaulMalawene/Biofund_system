@@ -870,7 +870,8 @@ function timeAgo(dateStr) {
 }
 
 function mapRecent(items) {
-  return (items ?? []).map((o, idx) => {
+  const list = Array.isArray(items) ? items : Object.values(items ?? {})
+  return list.map((o, idx) => {
     const s    = STATUS_MAP[o.status] ?? { label: o.status, cls: 'por-validar' }
     const name = o.complainant_name?.trim() || 'Anónimo'
     const init = name === 'Anónimo'

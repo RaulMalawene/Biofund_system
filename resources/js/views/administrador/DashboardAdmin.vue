@@ -901,7 +901,8 @@ function formatMonthLabel(label) {
 }
 
 function mapRecent(items) {
-    return (items ?? []).map((o, idx) => {
+    const list = Array.isArray(items) ? items : Object.values(items ?? {})
+    return list.map((o, idx) => {
         const s    = STATUS_MAP[o.status] ?? { label: o.status, cls: 'pendente' }
 
         // Cidadão: usa o nome do reclamante; se anónimo mostra "Anónimo"
