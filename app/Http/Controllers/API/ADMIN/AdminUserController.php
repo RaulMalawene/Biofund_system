@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AdminUserController extends Controller
 {
@@ -70,7 +71,7 @@ class AdminUserController extends Controller
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
-        $temporaryPassword = '12345678';
+        $temporaryPassword = Str::random(10) . rand(10, 99);
         $provinceIds       = $request->province_ids ?? [];
 
         $user = User::create([

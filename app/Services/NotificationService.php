@@ -31,10 +31,10 @@ class NotificationService
             );
         }
 
-        // occurrenceType é opcional no formulário público - só notifica
-        // por nível de alerta quando o tipo está definido
-        if ($occurrence->occurrenceType) {
-            $alertLevel = $occurrence->occurrenceType->alert_level;
+        // Determina o nível de alerta: preferência para o tipo da ocorrência;
+        // em ocorrências internas sem tipo definido usa o alert_type manual.
+        $alertLevel = $occurrence->occurrenceType?->alert_level ?? $occurrence->alert_type;
+        if ($alertLevel) {
             $this->notifyByAlertLevel($occurrence, $alertLevel);
         }
 
@@ -137,10 +137,15 @@ class NotificationService
                 ->where('role', 'gestor')
                 ->where(function ($q) use ($occurrence) {
                     $q->where('management_scope', 'national')
-                      ->orWhere('province_id', $occurrence->province_id);
+                      ->orWhere('province_id', $occurrence->province_id)
+                      ->orWhereHas('provinces', fn($q2) =>
+                          $q2->where('provinces.id', $occurrence->province_id)
+                      );
                 })
-                ->whereHas('projects', fn($q) =>
-                    $q->where('project_id', $occurrence->project_id)
+                ->when($occurrence->project_id, fn($q) =>
+                    $q->whereHas('projects', fn($q2) =>
+                        $q2->where('projects.id', $occurrence->project_id)
+                    )
                 )
                 ->get();
         } else {

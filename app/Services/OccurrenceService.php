@@ -141,6 +141,7 @@ class OccurrenceService
             $this->auditService->logCreated($occurrence);
 
             Cache::forget('dashboard.admin');
+            Cache::forget("dashboard.gestor.{$user->id}");
 
             return $occurrence;
         });
@@ -240,6 +241,7 @@ class OccurrenceService
             );
 
             Cache::forget('dashboard.admin');
+            Cache::forget("dashboard.gestor.{$changedBy->id}");
 
             // update() já actualizou os atributos em memória - fresh() seria um SELECT redundante
             return $occurrence;
