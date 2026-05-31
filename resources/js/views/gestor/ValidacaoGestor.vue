@@ -729,15 +729,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, watch, nextTick, onMounted, onActivated } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
 const router = useRouter()
-const auth = useAuthStore()
+const route  = useRoute()
+const auth   = useAuthStore()
 
 // Províncias e projectos atribuídos ao gestor
 const scopeProvinces = computed(() => auth.user?.provinces ?? [])
@@ -825,13 +826,28 @@ function mapOccurrence(o) {
   }
 }
 
+// ─── Auto-select vindo do dashboard ───────────────────────────
+async function tryAutoSelect() {
+  const id = parseInt(route.query.select)
+  if (!id) return
+  router.replace({ query: {} })
+  const row = rows.value.find(r => r._id === id)
+  if (row) await selectRow(row)
+}
+
 // ─── Load data ────────────────────────────────────────────────
 onMounted(async () => {
   InternalService.getFormData()
     .then(data => { refCategories.value = data.categories ?? [] })
     .catch(e => console.error('Erro ao carregar form data:', e))
 
-  loadOccurrences()
+  await loadOccurrences()
+  tryAutoSelect()
+})
+
+// Quando o componente é reactivado via KeepAlive (ex: vindo do dashboard)
+onActivated(() => {
+  tryAutoSelect()
 })
 
 async function loadOccurrences() {

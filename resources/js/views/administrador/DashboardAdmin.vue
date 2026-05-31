@@ -347,7 +347,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in submissions" :key="row.code">
+                <tr v-for="row in submissions" :key="row.code"
+                    class="row-clickable"
+                    @click="row._id && router.push({ path: '/admin/validacao', query: { select: row._id } })"
+                    title="Clique para ver detalhes">
                   <td>
                     <div class="citizen-cell">
                       <div class="citizen-avatar" :style="{ background: row.color }">{{ row.initials }}</div>
@@ -914,11 +917,11 @@ function mapRecent(items) {
             : name.split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
 
         return {
+            _id:         o.id,
             name,
             code:        o.tracking_code,
             initials:    init.slice(0, 2),
             color:       CHART_COLORS[idx % CHART_COLORS.length],
-            // Categoria: vem da relação category (não occurrenceType)
             categoria:   o.category?.name ?? '-',
             catColor:    '#52B788',
             provincia:   o.province?.name ?? '-',
@@ -1759,8 +1762,10 @@ thead th {
   position: sticky; top: 0; z-index: 1;
 }
 
-tbody tr { transition: background 0.15s; cursor: pointer; }
-tbody tr:hover { background: #F4F6F5; }
+tbody tr { transition: background 0.15s; }
+tbody tr.row-clickable { cursor: pointer; }
+tbody tr.row-clickable:hover { background: #F4F6F5; }
+tbody tr.row-clickable:hover .citizen-name { color: var(--green-mid); }
 
 tbody td {
   padding: 10px 10px; font-size: 12.5px;
