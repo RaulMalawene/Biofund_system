@@ -364,25 +364,16 @@
                 </div>
 
                 <div class="mf-field">
-                  <!-- Criação: campo sempre visível e obrigatório -->
+                  <!-- Criação: senha gerada automaticamente -->
                   <template v-if="!editingUser">
-                    <label>Palavra-passe <span class="req">*</span></label>
-                    <div class="input-wrap" :class="{ err: mErrors.password }">
-                      <div class="input-icon">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                          <rect x="3" y="7" width="10" height="8" rx="1.5" />
-                          <path d="M5 7V5a3 3 0 0 1 6 0v2" stroke-linecap="round" />
-                        </svg>
-                      </div>
-                      <input :type="showPass ? 'text' : 'password'" v-model="mForm.password" placeholder="••••••••" @input="mErrors.password = ''" />
-                      <button class="btn-eye" type="button" @click="showPass = !showPass">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-                          <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
-                          <circle cx="8" cy="8" r="2" />
-                        </svg>
-                      </button>
+                    <label>Palavra-passe</label>
+                    <div class="pw-auto-notice">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <circle cx="8" cy="8" r="6" />
+                        <path d="M8 7v4M8 5h.01" stroke-linecap="round" />
+                      </svg>
+                      Gerada automaticamente e enviada por email
                     </div>
-                    <span class="err-msg" v-if="mErrors.password">{{ mErrors.password }}</span>
                   </template>
 
                   <!-- Edição: campo escondido por defeito -->
@@ -828,10 +819,6 @@ async function saveUser() {
   let ok = true
   if (!mForm.name.trim()) { mErrors.name = 'O nome é obrigatório.'; ok = false }
   if (!mForm.email.trim()) { mErrors.email = 'O email é obrigatório.'; ok = false }
-
-  if (!editingUser.value && !mForm.password) {
-    mErrors.password = 'A palavra-passe é obrigatória.'; ok = false
-  }
 
   // Províncias
   const provinceIds = modalTipo.value === 'gestor'
@@ -2022,6 +2009,20 @@ tbody tr:last-child td {
   text-decoration: underline;
 }
 .btn-cancel-pw:hover { color: #E53E3E; }
+
+.pw-auto-notice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 13px;
+  background: #EDF4EF;
+  border: 1.5px dashed #8ECDA8;
+  border-radius: 9px;
+  font-size: 12.5px;
+  color: #2D6A4F;
+  font-weight: 500;
+}
 
 .err-msg {
   font-size: 11.5px;

@@ -21,7 +21,7 @@ class UserCredentialsMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'MDR — As suas credenciais de acesso',
+            subject: 'MDR - As suas credenciais de acesso',
         );
     }
 

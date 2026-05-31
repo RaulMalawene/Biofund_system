@@ -15,7 +15,7 @@ class NotificationService
     {
         // Tanto para ocorrências externas como internas, o email de confirmação
         // vai sempre para o reclamante (complainant_email).
-        // Para internas: o admin/gestor registou em nome de alguém — essa pessoa
+        // Para internas: o admin/gestor registou em nome de alguém - essa pessoa
         // deve ser notificada, não quem registou.
         // Se não foi fornecido email do reclamante, não é enviado nenhum email.
         $recipientEmail = $occurrence->complainant_email;
