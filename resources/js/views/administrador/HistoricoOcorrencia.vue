@@ -261,12 +261,12 @@
                 <tr v-for="r in rows" :key="r.id" @click="openDetail(r)">
                   <td>
                     <span class="id-link">{{ r.tracking_code }}</span>
-                    <div class="id-sub">{{ r.subject ?? '—' }}</div>
+                    <div class="id-sub">{{ r.subject ?? '-' }}</div>
                   </td>
                   <td class="td-muted">{{ r.submitted_at }}</td>
-                  <td>{{ r.province?.name ?? '—' }}</td>
-                  <td class="td-small">{{ r.category?.name ?? '—' }}</td>
-                  <td class="td-small">{{ r.submission_channel_label ?? '—' }}</td>
+                  <td>{{ r.province?.name ?? '-' }}</td>
+                  <td class="td-small">{{ r.category?.name ?? '-' }}</td>
+                  <td class="td-small">{{ r.submission_channel_label ?? '-' }}</td>
                   <td>
                     <span class="badge-origem" :class="r.origin">{{ r.origin_label }}</span>
                   </td>
@@ -277,7 +277,7 @@
                     </div>
                     <span v-else class="resp-none">Sem responsável</span>
                   </td>
-                  <td class="td-muted td-small">{{ r.project?.name ?? '—' }}</td>
+                  <td class="td-muted td-small">{{ r.project?.name ?? '-' }}</td>
                   <td>
                     <span v-if="r.is_removed" class="badge-status removed">Removida</span>
                     <span v-else class="badge-status" :class="r.status">{{ r.status_label }}</span>
@@ -393,7 +393,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-key">Província</span>
-            <span class="detail-val">{{ selected.province?.name ?? '—' }}</span>
+            <span class="detail-val">{{ selected.province?.name ?? '-' }}</span>
           </div>
           <div class="detail-row" v-if="selected.district?.name">
             <span class="detail-key">Distrito</span>
@@ -405,7 +405,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-key">Categoria</span>
-            <span class="detail-val">{{ selected.category?.name ?? '—' }}</span>
+            <span class="detail-val">{{ selected.category?.name ?? '-' }}</span>
           </div>
           <div class="detail-row" v-if="selected.type?.name">
             <span class="detail-key">Tipo de Ocorrência</span>
@@ -431,7 +431,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-key">Projecto</span>
-            <span class="detail-val">{{ selected.project?.name ?? '—' }}</span>
+            <span class="detail-val">{{ selected.project?.name ?? '-' }}</span>
           </div>
           <div class="detail-row" v-if="selected.due_date">
             <span class="detail-key">Prazo</span>
@@ -629,7 +629,7 @@ const paginationInfo = computed(() => {
   if (!meta.total) return '0'
   const start = (meta.current_page - 1) * meta.per_page + 1
   const end = Math.min(meta.current_page * meta.per_page, meta.total)
-  return `${start}–${end}`
+  return `${start}-${end}`
 })
 
 // ── Contadores por estado (página actual) ─────────────────────

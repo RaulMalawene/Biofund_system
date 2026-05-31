@@ -10,7 +10,7 @@ return new class extends Migration
      * Tabela central do sistema.
      *
      * Origens possíveis:
-     *  - 'external' : utilizador externo (sem login) — submissão pública
+     *  - 'external' : utilizador externo (sem login) - submissão pública
      *  - 'internal' : funcionário ou admin autenticado
      *
      * Estados do ciclo de vida:

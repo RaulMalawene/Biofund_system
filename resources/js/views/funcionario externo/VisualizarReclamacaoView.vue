@@ -278,9 +278,9 @@ function mapApiResponse(data) {
     dataSubmissao: data.submitted_at,
     prazo: data.due_date ?? 'A definir',
     titulo: data.type?.name ?? data.subject ?? 'Sem assunto',
-    categoria: data.category ?? '—',
-    projeto: data.project?.name ?? '—',
-    localizacao: locationParts.join(', ') || '—',
+    categoria: data.category ?? '-',
+    projeto: data.project?.name ?? '-',
+    localizacao: locationParts.join(', ') || '-',
     descricao: data.description,
     contacto: {
       nome: data.submitted_by ?? 'Anónimo',

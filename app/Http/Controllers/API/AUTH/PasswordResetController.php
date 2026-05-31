@@ -37,7 +37,7 @@ class PasswordResetController extends Controller
      * Body:
      *   { "email": "gestor@mdr.biofund.org.mz" }
      *
-     * Resposta (200) — sempre a mesma para não expor se o email existe:
+     * Resposta (200) - sempre a mesma para não expor se o email existe:
      *   { "message": "Se o email existir, receberá instruções em breve." }
      */
     public function forgotPassword(Request $request): JsonResponse

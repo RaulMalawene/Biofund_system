@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string      $code
  * @property string      $name
  * @property string|null $description
- * @property string|null $icon        — chave do ícone (fauna, flora, agua, fogo, pesca, lixo, ar, caca)
- * @property string|null $color       — cor hexadecimal (#52B788)
- * @property array|null  $tags        — array de strings para filtragem
+ * @property string|null $icon        - chave do ícone (fauna, flora, agua, fogo, pesca, lixo, ar, caca)
+ * @property string|null $color       - cor hexadecimal (#52B788)
+ * @property array|null  $tags        - array de strings para filtragem
  * @property bool        $is_active
  */
 class Category extends Model

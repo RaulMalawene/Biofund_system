@@ -136,7 +136,7 @@
               </div>
             </div>
             <div class="proj-name">{{ p.name }}</div>
-            <div class="proj-desc">{{ p.description ?? '—' }}</div>
+            <div class="proj-desc">{{ p.description ?? '-' }}</div>
             <div class="card-footer">
               <div>
                 <div class="occ-label">Ocorrências</div>

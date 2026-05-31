@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', \App\Http\Middleware\EnsureUserIsActive::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // API requests never redirect — always return 401 JSON so the frontend interceptor handles it
+        // API requests never redirect - always return 401 JSON so the frontend interceptor handles it
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
             return response()->json(['message' => 'Não autenticado.'], 401);
         });

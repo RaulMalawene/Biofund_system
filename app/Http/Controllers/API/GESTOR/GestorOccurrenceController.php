@@ -46,7 +46,7 @@ class GestorOccurrenceController extends Controller
     {
         $user  = $request->user();
         // district, subcategory, occurrenceType e attachments_count não são usados
-        // na listagem (mapOccurrence no frontend não os consome) — carregados só no show().
+        // na listagem (mapOccurrence no frontend não os consome) - carregados só no show().
         $query = Occurrence::with([
             'project:id,name,code',
             'province:id,name',
@@ -56,7 +56,7 @@ class GestorOccurrenceController extends Controller
         ]);
 
         // Pré-computa IDs de província/projecto do gestor para reutilizar nas queries.
-        // loadMissing garante uma única query por relação — em-memória nas chamadas seguintes.
+        // loadMissing garante uma única query por relação - em-memória nas chamadas seguintes.
         $gestorProvinceIds = [];
         $gestorProjectIds  = [];
         if ($user->isGestor()) {
@@ -250,7 +250,7 @@ class GestorOccurrenceController extends Controller
      * Comentário/justificação é OBRIGATÓRIO ao resolver ou rejeitar.
      *
      * ROTA: PATCH /api/occurrences/{occurrence}/status
-     * ACESSO: admin, gestor (protegido na rota — funcionario não acede)
+     * ACESSO: admin, gestor (protegido na rota - funcionario não acede)
      */
     public function updateStatus(
         UpdateOccurrenceStatusRequest $request,
@@ -276,6 +276,9 @@ class GestorOccurrenceController extends Controller
             'status'       => $occurrence->status->value,
             'status_label' => $occurrence->status->label(),
             'status_color' => $occurrence->status->color(),
+            'assigned_to'  => $occurrence->assignedTo
+                ? ['id' => $occurrence->assignedTo->id, 'name' => $occurrence->assignedTo->name]
+                : null,
         ], 200);
     }
 
@@ -454,7 +457,7 @@ class GestorOccurrenceController extends Controller
             if ($this->gestorHasProvince($user, $p->id)) return true;
         }
 
-        // Partilha de projecto — usa relação em-memória do gestor
+        // Partilha de projecto - usa relação em-memória do gestor
         $user->loadMissing('projects');
         foreach ($submitter->projects as $p) {
             if ($user->projects->contains('id', $p->id)) return true;

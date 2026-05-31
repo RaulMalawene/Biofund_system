@@ -47,7 +47,7 @@ class CategorySeeder extends Seeder
             ],
             [
                 'code' => 'GBV',
-                'name' => 'GBV — Violência Baseada no Género',
+                'name' => 'GBV - Violência Baseada no Género',
                 'subcategories' => [
                     'Violência Doméstica', 'Assédio Sexual',
                     'Exploração Sexual', 'Casamento Prematuro',

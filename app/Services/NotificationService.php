@@ -13,9 +13,12 @@ class NotificationService
 {
     public function notifyOccurrenceCreated(Occurrence $occurrence): void
     {
-        $recipientEmail = $occurrence->isExternal()
-            ? $occurrence->complainant_email
-            : $occurrence->submittedBy?->email;
+        // Tanto para ocorrências externas como internas, o email de confirmação
+        // vai sempre para o reclamante (complainant_email).
+        // Para internas: o admin/gestor registou em nome de alguém — essa pessoa
+        // deve ser notificada, não quem registou.
+        // Se não foi fornecido email do reclamante, não é enviado nenhum email.
+        $recipientEmail = $occurrence->complainant_email;
 
         if ($recipientEmail) {
             $this->sendEmail(
@@ -23,12 +26,12 @@ class NotificationService
                 recipientEmail: $recipientEmail,
                 userId: null,
                 eventType: 'occurrence_created',
-                subject: "MDR — Reclamação registada | {$occurrence->tracking_code}",
+                subject: "MDR - Reclamação registada | {$occurrence->tracking_code}",
                 body: $this->buildCreatedMessage($occurrence)
             );
         }
 
-        // occurrenceType é opcional no formulário público — só notifica
+        // occurrenceType é opcional no formulário público - só notifica
         // por nível de alerta quando o tipo está definido
         if ($occurrence->occurrenceType) {
             $alertLevel = $occurrence->occurrenceType->alert_level;
@@ -54,7 +57,7 @@ class NotificationService
             recipientEmail: $recipientEmail,
             userId: null,
             eventType: 'status_changed',
-            subject: "MDR — Actualização da ocorrência {$occurrence->tracking_code}",
+            subject: "MDR - Actualização da ocorrência {$occurrence->tracking_code}",
             body: $this->buildStatusChangedMessage($occurrence, $comment)
         );
     }
@@ -66,7 +69,7 @@ class NotificationService
             recipientEmail: $gestor->email,
             userId: $gestor->id,
             eventType: 'occurrence_assigned',
-            subject: "MDR — Nova ocorrência atribuída | {$occurrence->tracking_code}",
+            subject: "MDR - Nova ocorrência atribuída | {$occurrence->tracking_code}",
             body: $this->buildAssignedMessage($occurrence, $gestor)
         );
     }
@@ -76,7 +79,28 @@ class NotificationService
         $subject = $occurrence->subject ?? $occurrence->tracking_code;
         $message = "Nova ocorrência registada: {$subject} [{$occurrence->tracking_code}]";
 
-        $users = User::active()->whereIn('role', ['admin', 'gestor'])->get();
+        $users = User::active()
+            ->where(function ($q) use ($occurrence) {
+                // Admins recebem sempre (âmbito global)
+                $q->where('role', 'admin')
+                  // Gestores recebem apenas se a ocorrência estiver no seu âmbito
+                  ->orWhere(function ($gq) use ($occurrence) {
+                      $gq->where('role', 'gestor')
+                         ->where(function ($scope) use ($occurrence) {
+                             $scope->where('management_scope', 'national')
+                                   ->orWhere('province_id', $occurrence->province_id)
+                                   ->orWhereHas('provinces', fn($pq) =>
+                                       $pq->where('provinces.id', $occurrence->province_id)
+                                   );
+                             if ($occurrence->project_id) {
+                                 $scope->orWhereHas('projects', fn($pq) =>
+                                     $pq->where('projects.id', $occurrence->project_id)
+                                 );
+                             }
+                         });
+                  });
+            })
+            ->get();
 
         if ($users->isEmpty()) return;
 
@@ -123,7 +147,7 @@ class NotificationService
                 recipientEmail: $gestor->email,
                 userId: $gestor->id,
                 eventType: $level === AlertLevelEnum::Gbv ? 'alert_gbv' : 'alert_urgent',
-                subject: "[{$level->label()}] MDR — Nova ocorrência | {$occurrence->tracking_code}",
+                subject: "[{$level->label()}] MDR - Nova ocorrência | {$occurrence->tracking_code}",
                 body: $this->buildAlertMessage($occurrence, $level)
             );
         }
@@ -167,7 +191,7 @@ class NotificationService
 
     private function buildCreatedMessage(Occurrence $occurrence): string
     {
-        // Variáveis locais — o heredoc não suporta operadores (??) dentro de {}
+        // Variáveis locais - o heredoc não suporta operadores (??) dentro de {}
         $name       = $occurrence->complainant_name ?? 'Reclamante';
         $subject    = $occurrence->subject          ?? 'Não especificado';
         $dueDate    = $occurrence->due_date
@@ -181,7 +205,7 @@ class NotificationService
         return <<<TEXT
 Prezado(a) $name,
 
-A sua ocorrência foi registada com sucesso no sistema MDR — Mecanismo de Diálogo e Reclamações.
+A sua ocorrência foi registada com sucesso no sistema MDR - Mecanismo de Diálogo e Reclamações.
 
 Código de seguimento: $code
 
@@ -194,7 +218,7 @@ Data de registo: $registedAt
 Prazo de resolução: $dueDate
 
 Com os melhores cumprimentos,
-Equipa MDR — BIOFUND/FNDS
+Equipa MDR - BIOFUND/FNDS
 TEXT;
     }
 
@@ -219,7 +243,7 @@ Acompanhe a sua ocorrência em:
 $url
 
 Com os melhores cumprimentos,
-Equipa MDR — BIOFUND/FNDS
+Equipa MDR - BIOFUND/FNDS
 TEXT;
     }
 
@@ -250,7 +274,7 @@ Prazo: $dueDate
 Aceda ao painel MDR para tratar esta ocorrência.
 
 Com os melhores cumprimentos,
-Sistema MDR — BIOFUND/FNDS
+Sistema MDR - BIOFUND/FNDS
 TEXT;
     }
 
@@ -278,7 +302,7 @@ Prazo: $dueDate
 
 Aceda ao painel MDR para tratar esta ocorrência com urgência.
 
-Sistema MDR — BIOFUND/FNDS
+Sistema MDR - BIOFUND/FNDS
 TEXT;
     }
 }

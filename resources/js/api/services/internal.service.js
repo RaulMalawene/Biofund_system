@@ -185,7 +185,7 @@ export const InternalService = {
 
     /**
      * Dados de referência para o formulário interno.
-     * Cached in memory for 1 hour — categories/provinces change rarely.
+     * Cached in memory for 1 hour - categories/provinces change rarely.
      */
     async getFormData() {
         const now = Date.now()

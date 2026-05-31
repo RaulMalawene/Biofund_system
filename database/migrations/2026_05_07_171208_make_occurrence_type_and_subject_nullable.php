@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Torna occurrence_type_id e subject nullable na tabela occurrences.
  *
- * Motivo: o formulário público não exige estes campos — o reclamante
+ * Motivo: o formulário público não exige estes campos - o reclamante
  * externo pode não saber qual o tipo exacto de ocorrência, e o assunto
  * é opcional. O gestor preenche / corrige estes valores após triagem.
  */

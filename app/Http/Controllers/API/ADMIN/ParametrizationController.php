@@ -46,9 +46,9 @@ class ParametrizationController extends Controller
      *   "code":        "FAU",               (obrigatório, único, max 20)
      *   "name":        "Fauna",             (obrigatório, max 100)
      *   "description": "Ocorrências…",      (opcional)
-     *   "icon":        "fauna",             (opcional — fauna|flora|agua|fogo|pesca|lixo|ar|caca)
-     *   "color":       "#52B788",           (opcional — hex)
-     *   "tags":        ["animais","ilegal"] (opcional — array de strings)
+     *   "icon":        "fauna",             (opcional - fauna|flora|agua|fogo|pesca|lixo|ar|caca)
+     *   "color":       "#52B788",           (opcional - hex)
+     *   "tags":        ["animais","ilegal"] (opcional - array de strings)
      * }
      */
     public function categoriesStore(Request $request): JsonResponse

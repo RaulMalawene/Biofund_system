@@ -12,7 +12,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * Valida os dados do formulário público de submissão de ocorrências.
  * Não requer autenticação (authorize retorna true sempre).
  *
- * O reclamante pode submeter anonimamente — nome, email e telefone
+ * O reclamante pode submeter anonimamente - nome, email e telefone
  * são todos opcionais, mas pelo menos um contacto é recomendado
  * para receber o tracking_code e actualizações de estado.
  */
@@ -23,7 +23,7 @@ class StoreExternalOccurrenceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Dados do reclamante — todos opcionais (submissão anónima permitida)
+            // Dados do reclamante - todos opcionais (submissão anónima permitida)
             'complainant_name'   => ['nullable', 'string', 'max:150'],
             'complainant_email'  => ['nullable', 'email', 'max:150'],
             'complainant_phone'  => ['nullable', 'string', 'max:30'],

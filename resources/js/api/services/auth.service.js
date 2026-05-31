@@ -11,7 +11,7 @@ export const AuthService = {
     },
 
     /**
-     * Termina a sessão — revoga o token no servidor
+     * Termina a sessão - revoga o token no servidor
      */
     async logout() {
         const { data } = await api.post(ENDPOINTS.LOGOUT);

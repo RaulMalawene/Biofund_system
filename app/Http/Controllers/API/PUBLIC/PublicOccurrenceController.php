@@ -88,7 +88,7 @@ class PublicOccurrenceController extends Controller
             'category'    => $occurrence->category->name,
             'subcategory' => $occurrence->subcategory?->name,
 
-            // occurrence_type é nullable — só inclui se existir
+            // occurrence_type é nullable - só inclui se existir
             'type' => $occurrence->occurrenceType ? [
                 'name'        => $occurrence->occurrenceType->name,
                 'alert_level' => $occurrence->occurrenceType->alert_level->value,
@@ -116,7 +116,7 @@ class PublicOccurrenceController extends Controller
             'submitted_at' => $occurrence->created_at->format('d/m/Y H:i'),
             'due_date'     => $occurrence->due_date?->format('d/m/Y'),
 
-            // Anexos — inclui id para download público
+            // Anexos - inclui id para download público
             'attachments' => $occurrence->attachments->map(fn($a) => [
                 'id'       => $a->id,
                 'name'     => $a->original_name,
@@ -178,7 +178,7 @@ class PublicOccurrenceController extends Controller
      * Distritos de uma província.
      * ROTA: GET /api/public/provinces/{province}/districts
      *
-     * Cache de 6 horas por província — distritos são dados geográficos estáticos.
+     * Cache de 6 horas por província - distritos são dados geográficos estáticos.
      */
     public function districtsByProvince(Province $province): JsonResponse
     {
@@ -213,7 +213,7 @@ class PublicOccurrenceController extends Controller
             return response()->json(['message' => 'Anexo não encontrado.'], 404);
         }
 
-        // Usa o disco guardado no registo do anexo — respeita a configuração do Laravel
+        // Usa o disco guardado no registo do anexo - respeita a configuração do Laravel
         $disk = $attachment->disk ?? 'local';
 
         if (!Storage::disk($disk)->exists($attachment->path)) {

@@ -25,7 +25,7 @@ api.interceptors.request.use(config => {
 })
 
 // ── Interceptor de RESPONSE ───────────────────────────────────
-// Se o servidor devolver 401, a sessão expirou — limpa e redireciona
+// Se o servidor devolver 401, a sessão expirou - limpa e redireciona
 api.interceptors.response.use(
     response => response,
     error => {

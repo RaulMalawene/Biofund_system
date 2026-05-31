@@ -11,7 +11,7 @@ app.use(pinia);
 app.use(router);
 
 // Validate token against server at most once per 5 minutes.
-// User data already loaded from localStorage — fetchMe is only needed
+// User data already loaded from localStorage - fetchMe is only needed
 // to confirm the token is still accepted server-side.
 const auth = useAuthStore();
 if (auth.token) {

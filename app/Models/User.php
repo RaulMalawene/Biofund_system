@@ -45,7 +45,7 @@ class User extends Authenticatable
 
     // ─── Relationships ──────────────────────────────────────────
 
-    /** Província principal (retrocompatibilidade — primeira da lista) */
+    /** Província principal (retrocompatibilidade - primeira da lista) */
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);

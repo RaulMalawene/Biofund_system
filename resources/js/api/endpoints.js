@@ -1,6 +1,6 @@
 export const ENDPOINTS = {
 
-    // ── Public — sem autenticação ────────────────────────────
+    // ── Public - sem autenticação ────────────────────────────
     FORM_DATA:                '/public/form-data',
     DISTRICTS_BY_PROVINCE:    (provinceId) => `/public/provinces/${provinceId}/districts`,
     CREATE_OCCURRENCE:        '/public/occurrences',

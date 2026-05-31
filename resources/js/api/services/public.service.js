@@ -17,7 +17,7 @@ export const PublicService = {
 
     /**
      * Submete uma nova ocorrência pública.
-     * @param {FormData} formData – multipart/form-data com campos + attachments[]
+     * @param {FormData} formData - multipart/form-data com campos + attachments[]
      * @returns {{ message, tracking_code, due_date, attachments_count, info }}
      */
     async createOccurrence(formData) {

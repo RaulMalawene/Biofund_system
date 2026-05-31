@@ -59,7 +59,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     /**
-     * Faz logout — revoga token no servidor e limpa estado local
+     * Faz logout - revoga token no servidor e limpa estado local
      */
     async function logout() {
         try {

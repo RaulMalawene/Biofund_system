@@ -9,7 +9,7 @@
     <span v-else class="notif-dot"></span>
   </button>
 
-  <!-- Dropdown panel — teleported to body so z-index is safe -->
+  <!-- Dropdown panel - teleported to body so z-index is safe -->
   <Teleport to="body">
     <!-- Backdrop -->
     <div v-if="panelOpen" class="np-backdrop" @click="closePanel"></div>

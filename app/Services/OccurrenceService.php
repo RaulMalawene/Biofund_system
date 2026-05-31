@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
  * OccurrenceService
  *
  * Contém toda a lógica de negócio relacionada com ocorrências.
- * Os controllers chamam este serviço — não executam lógica directamente.
+ * Os controllers chamam este serviço - não executam lógica directamente.
  *
  * Responsabilidades:
  *   - Criar ocorrências (externas e internas)
@@ -49,7 +49,7 @@ class OccurrenceService
     public function createExternal(array $data, array $files = []): Occurrence
     {
         return DB::transaction(function () use ($data, $files) {
-            // occurrence_type_id é opcional no formulário público —
+            // occurrence_type_id é opcional no formulário público -
             // quando não é fornecido o due_date fica null e é calculado
             // manualmente pelo gestor após atribuição.
             $type = isset($data['occurrence_type_id'])
@@ -196,9 +196,17 @@ class OccurrenceService
         ) {
             $oldStatus = $occurrence->status;
 
+            // Quando uma ocorrência pública (sem responsável) é validada pela
+            // primeira vez (por_validar → por_resolver), o utilizador que valida
+            // passa a ser o responsável automaticamente.
+            $autoAssign = $oldStatus === OccurrenceStatusEnum::PorValidar
+                && $newStatus === OccurrenceStatusEnum::PorResolver
+                && is_null($occurrence->assigned_to);
+
             // Actualiza a ocorrência
             $occurrence->update([
                 'status'      => $newStatus,
+                'assigned_to' => $autoAssign ? $changedBy->id : $occurrence->assigned_to,
                 'reviewed_by' => in_array($newStatus, [
                     OccurrenceStatusEnum::NaoValidado,
                     OccurrenceStatusEnum::Resolvido,
@@ -220,7 +228,7 @@ class OccurrenceService
             );
 
             // Notifica o reclamante
-            $occurrence->load(['occurrenceType', 'project', 'province', 'submittedBy']);
+            $occurrence->load(['occurrenceType', 'project', 'province', 'submittedBy', 'assignedTo']);
             $this->notificationService->notifyStatusChanged($occurrence, $comment);
 
             // Regista na auditoria
@@ -233,7 +241,7 @@ class OccurrenceService
 
             Cache::forget('dashboard.admin');
 
-            // update() já actualizou os atributos em memória — fresh() seria um SELECT redundante
+            // update() já actualizou os atributos em memória - fresh() seria um SELECT redundante
             return $occurrence;
         });
     }
@@ -280,7 +288,7 @@ class OccurrenceService
             ['assigned_to' => $gestor->id]
         );
 
-        // load() já carregou as relações necessárias — fresh() criaria queries redundantes
+        // load() já carregou as relações necessárias - fresh() criaria queries redundantes
         $occurrence->load('assignedTo');
         return $occurrence;
     }

@@ -56,7 +56,7 @@
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
               <circle cx="8" cy="6" r="3"/><path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round"/>
             </svg>
-            {{ auth.user?.role_label ?? auth.user?.role ?? '—' }}
+            {{ auth.user?.role_label ?? auth.user?.role ?? '-' }}
           </div>
 
           <!-- Dados pessoais -->

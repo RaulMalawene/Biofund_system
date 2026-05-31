@@ -74,7 +74,7 @@
               :class="{ 'field-error': form.descricao.length > 0 && form.descricao.length < 20 }"></textarea>
             <div class="char-counter" :class="form.descricao.length >= 20 ? 'char-ok' : 'char-warn'">
               <span v-if="form.descricao.length < 20 && form.descricao.length > 0">
-                Mínimo 20 caracteres — faltam {{ 20 - form.descricao.length }}
+                Mínimo 20 caracteres - faltam {{ 20 - form.descricao.length }}
               </span>
               <span v-else-if="form.descricao.length === 0" class="char-hint">Mínimo 20 caracteres</span>
               <span v-else>✓ {{ form.descricao.length }} caracteres</span>
@@ -351,7 +351,7 @@ const tiposOcorrencia = ref([])
 const provincias      = ref([])
 const distritos       = ref([])
 
-// Nome do tipo seleccionado — usado como subject ao submeter
+// Nome do tipo seleccionado - usado como subject ao submeter
 const selectedTipoName = computed(() => {
   const t = tiposOcorrencia.value.find(t => t.id === form.tipoOcorrencia)
   return t?.name ?? ''
@@ -437,7 +437,7 @@ async function submitForm() {
   // Monta FormData com os nomes que o backend espera
   const fd = new FormData()
 
-  // Nome — opcional, submissão anónima permitida
+  // Nome - opcional, submissão anónima permitida
   if (form.nome.trim())  fd.append('complainant_name',  form.nome.trim())
   if (form.email.trim()) fd.append('complainant_email', form.email.trim())
   if (form.phone.trim()) fd.append('complainant_phone', form.phone.trim())
@@ -455,7 +455,7 @@ async function submitForm() {
   const locationParts = []
   if (form.comunidade.trim())  locationParts.push(form.comunidade.trim())
   if (form.coordenadas.trim()) locationParts.push(form.coordenadas.trim())
-  if (locationParts.length) fd.append('location_detail', locationParts.join(' — '))
+  if (locationParts.length) fd.append('location_detail', locationParts.join(' - '))
 
   // Anexos
   files.value.forEach(f => fd.append('attachments[]', f))

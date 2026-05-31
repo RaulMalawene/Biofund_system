@@ -40,7 +40,7 @@ class NotificationController extends Controller
 
     /**
      * Conta notificações de sistema não lidas.
-     * Cache de 30s por utilizador — reduz queries repetidas do polling do frontend.
+     * Cache de 30s por utilizador - reduz queries repetidas do polling do frontend.
      */
     public function count(Request $request): JsonResponse
     {

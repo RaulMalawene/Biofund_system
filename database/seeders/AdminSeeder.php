@@ -12,7 +12,7 @@ use Illuminate\Database\Seeder;
  *
  * ⚠️  IMPORTANTE: Altera a senha padrão após o primeiro login!
  *
- * Este seeder usa updateOrCreate para ser idempotente —
+ * Este seeder usa updateOrCreate para ser idempotente -
  * pode correr várias vezes sem criar duplicados.
  *
  * Credenciais padrão (alterar em produção):

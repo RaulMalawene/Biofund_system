@@ -122,7 +122,7 @@
               </div>
             </div>
             <div class="kpi-label dark">Total de Utilizadores</div>
-            <div class="kpi-value dark">{{ meta.total ?? '—' }}</div>
+            <div class="kpi-value dark">{{ meta.total ?? '-' }}</div>
             <div class="kpi-sub dark">Gestores e funcionários</div>
           </div>
           <div class="kpi-card highlight">
@@ -215,14 +215,14 @@
                   <div class="provinces-cell" v-if="u.provinces?.length">
                     <span class="prov-badge" v-for="p in u.provinces" :key="p.id">{{ p.name }}</span>
                   </div>
-                  <span v-else class="td-muted">—</span>
+                  <span v-else class="td-muted">-</span>
                 </td>
                 <td>
                   <div class="projects-cell" v-if="u.projects?.length">
                     <span class="proj-tag" v-for="p in u.projects.slice(0, 2)" :key="p.id">{{ p.code }}</span>
                     <span class="proj-more" v-if="u.projects.length > 2">+{{ u.projects.length - 2 }}</span>
                   </div>
-                  <span v-else class="td-muted">—</span>
+                  <span v-else class="td-muted">-</span>
                 </td>
                 <td>
                   <div class="toggle-cell">
@@ -650,7 +650,7 @@ function initials(name) {
   return name.split(' ').slice(0, 2).map(n => n[0]?.toUpperCase() ?? '').join('')
 }
 
-// ── Províncias e Projectos — select com tags ──────────────────
+// ── Províncias e Projectos - select com tags ──────────────────
 const availableProvinces = computed(() =>
   refProvinces.value.filter(p => !mForm.province_ids.includes(p.id))
 )
@@ -703,7 +703,7 @@ const paginationInfo = computed(() => {
   if (!meta.total) return '0 utilizadores'
   const start = (meta.current_page - 1) * meta.per_page + 1
   const end = Math.min(meta.current_page * meta.per_page, meta.total)
-  return `${start}–${end} de ${meta.total} utilizadores`
+  return `${start}-${end} de ${meta.total} utilizadores`
 })
 
 // ── Init ──────────────────────────────────────────────────────

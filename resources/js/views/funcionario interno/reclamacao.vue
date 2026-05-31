@@ -64,7 +64,7 @@
         <div class="page-title-row">
           <div>
             <h1>Gestão de Reclamações</h1>
-            <p>Reclamações activas — por validar e em análise.</p>
+            <p>Reclamações activas - por validar e em análise.</p>
           </div>
           <button class="btn-registar" @click="openRegistoModal">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
@@ -175,12 +175,12 @@
                   <tr v-for="r in rows" :key="r.id" @click="openDetail(r)">
                     <td>
                       <span class="id-link">{{ r.tracking_code }}</span>
-                      <div class="id-sub">{{ r.subject ?? '—' }}</div>
+                      <div class="id-sub">{{ r.subject ?? '-' }}</div>
                     </td>
                     <td class="td-muted">{{ r.submitted_at }}</td>
-                    <td>{{ r.province?.name ?? '—' }}</td>
-                    <td class="td-small">{{ r.category?.name ?? '—' }}</td>
-                    <td class="td-small">{{ r.submission_channel_label ?? '—' }}</td>
+                    <td>{{ r.province?.name ?? '-' }}</td>
+                    <td class="td-small">{{ r.category?.name ?? '-' }}</td>
+                    <td class="td-small">{{ r.submission_channel_label ?? '-' }}</td>
                     <td>
                       <span class="badge-origem" :class="r.origin">{{ r.origin_label }}</span>
                     </td>
@@ -191,7 +191,7 @@
                       </div>
                       <span v-else class="resp-none">Sem responsável</span>
                     </td>
-                    <td class="td-muted td-small">{{ r.project?.name ?? '—' }}</td>
+                    <td class="td-muted td-small">{{ r.project?.name ?? '-' }}</td>
                     <td>
                       <span class="badge-status" :class="r.status">{{ r.status_label }}</span>
                     </td>
@@ -296,7 +296,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-key">Província</span>
-            <span class="detail-val">{{ selected.province?.name ?? '—' }}</span>
+            <span class="detail-val">{{ selected.province?.name ?? '-' }}</span>
           </div>
           <div class="detail-row" v-if="selected.district?.name">
             <span class="detail-key">Distrito</span>
@@ -308,7 +308,7 @@
           </div>
           <div class="detail-row">
             <span class="detail-key">Categoria</span>
-            <span class="detail-val">{{ selected.category?.name ?? '—' }}</span>
+            <span class="detail-val">{{ selected.category?.name ?? '-' }}</span>
           </div>
           <div class="detail-row" v-if="selected.submission_channel_label">
             <span class="detail-key">Canal de Entrada</span>
@@ -320,12 +320,12 @@
           </div>
           <div class="detail-row">
             <span class="detail-key">Projecto</span>
-            <span class="detail-val">{{ selected.project?.name ?? '—' }}</span>
+            <span class="detail-val">{{ selected.project?.name ?? '-' }}</span>
           </div>
 
           <div class="drawer-section">
             <div class="drawer-section-label">Descrição</div>
-            <div class="drawer-desc">{{ selected.description ?? '—' }}</div>
+            <div class="drawer-desc">{{ selected.description ?? '-' }}</div>
           </div>
 
           <div class="drawer-section" v-if="selected.attachments?.length">
@@ -485,7 +485,7 @@
                 <option value="" disabled>Seleccione o nível</option>
                 <option value="normal">Normal</option>
                 <option value="urgent">Urgente</option>
-                <option value="gbv">GBV — Violência de Género</option>
+                <option value="gbv">GBV - Violência de Género</option>
               </select>
               <span class="f-err-msg" v-if="mErrors.alert_type">{{ mErrors.alert_type }}</span>
             </div>
@@ -568,7 +568,7 @@
               </svg>
             </div>
             <h4>Anexar ficheiros</h4>
-            <p>PNG, JPG, PDF, MP4, MP3 — máx. 10 MB por ficheiro (até 5)</p>
+            <p>PNG, JPG, PDF, MP4, MP3 - máx. 10 MB por ficheiro (até 5)</p>
           </div>
           <input ref="modalFileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.mp4,.mp3"
             style="display:none" @change="handleFileSelect" />
@@ -781,7 +781,7 @@ const paginationInfo = computed(() => {
   if (!meta.total) return '0'
   const start = (meta.current_page - 1) * meta.per_page + 1
   const end = Math.min(meta.current_page * meta.per_page, meta.total)
-  return `${start}–${end}`
+  return `${start}-${end}`
 })
 
 function countByStatus(s) {

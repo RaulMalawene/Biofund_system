@@ -221,8 +221,8 @@ class AdminUserController extends Controller
                 . "Acesse o sistema em: " . config('app.url') . "\n\n"
                 . "Por motivos de segurança, altere a sua senha após o primeiro login.\n\n"
                 . "Com os melhores cumprimentos,\n"
-                . "Equipa MDR — BIOFUND/FNDS",
-                fn($mail) => $mail->to($user->email)->subject('MDR — Credenciais de Acesso')
+                . "Equipa MDR - BIOFUND/FNDS",
+                fn($mail) => $mail->to($user->email)->subject('MDR - Credenciais de Acesso')
             );
         } catch (\Throwable $e) {
             Log::error("Falha ao enviar credenciais para {$user->email}: " . $e->getMessage());

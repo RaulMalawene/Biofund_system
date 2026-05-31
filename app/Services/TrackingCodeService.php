@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
  *
  * Exemplo: MDR-K7P2QA-2024
  *
- * O código é público — entregue ao reclamante para acompanhar
+ * O código é público - entregue ao reclamante para acompanhar
  * a sua ocorrência sem necessidade de login.
  *
  * Garantia de unicidade: o serviço verifica na base de dados se o

@@ -13,7 +13,7 @@ use Illuminate\Validation\Rules\Enum;
  * Valida o formulário de submissão interna de ocorrências.
  * Requer autenticação.
  *
- * Os campos complainant_* são opcionais — o funcionário pode registar
+ * Os campos complainant_* são opcionais - o funcionário pode registar
  * uma ocorrência em nome de um cidadão terceiro, fornecendo os dados
  * de contacto desse cidadão para efeitos de acompanhamento.
  */
@@ -24,7 +24,7 @@ class StoreInternalOccurrenceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Dados do reclamante (opcional — registo pode ser anónimo)
+            // Dados do reclamante (opcional - registo pode ser anónimo)
             'complainant_name'   => ['nullable', 'string', 'max:150'],
             'complainant_email'  => ['nullable', 'email', 'max:150'],
             'complainant_phone'  => ['nullable', 'string', 'max:30'],

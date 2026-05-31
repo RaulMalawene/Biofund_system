@@ -26,7 +26,7 @@ class StoreUserRequest extends FormRequest
             'email'                  => ['required', 'email', 'unique:users,email'],
             'phone'                  => ['nullable', 'string', 'max:30'],
             'role'                   => ['required', Rule::in(['admin', 'gestor', 'funcionario'])],
-            // Províncias — array (uma para funcionários, uma ou mais para gestores)
+            // Províncias - array (uma para funcionários, uma ou mais para gestores)
             'province_ids'           => ['required', 'array', 'min:1'],
             'province_ids.*'         => ['integer', 'exists:provinces,id'],
             // Projectos

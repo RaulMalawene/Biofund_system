@@ -32,7 +32,7 @@ enum AlertLevelEnum: string
         return match($this) {
             AlertLevelEnum::Normal => 'Normal',
             AlertLevelEnum::Urgent => 'Urgente',
-            AlertLevelEnum::Gbv    => 'GBV — Violência Baseada no Género',
+            AlertLevelEnum::Gbv    => 'GBV - Violência Baseada no Género',
         };
     }
 

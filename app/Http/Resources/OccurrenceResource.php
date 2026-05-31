@@ -27,7 +27,7 @@ class OccurrenceResource extends JsonResource
         // (JsonResource::__get → Model::__get → attributes[]) por cada campo.
         $a = $this->resource->getAttributes();
 
-        // Pré-computar atributos com cast — cada acesso via $this->xxx
+        // Pré-computar atributos com cast - cada acesso via $this->xxx
         // executa o sistema de casting completo; fazê-lo uma vez é ~10× mais rápido.
         $status            = $this->status;
         $origin            = $this->origin;
@@ -58,7 +58,7 @@ class OccurrenceResource extends JsonResource
             'status_color'   => $status->color(),
             'is_overdue'     => $isOverdue,
 
-            // Reclamante/Pessoa Afectada — dados sensíveis apenas para gestor/admin
+            // Reclamante/Pessoa Afectada - dados sensíveis apenas para gestor/admin
             'complainant' => $this->when($isManagerOrAbove, fn() => [
                 'name'  => $a['complainant_name'],
                 'email' => $a['complainant_email'],

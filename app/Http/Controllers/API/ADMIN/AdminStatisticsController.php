@@ -232,7 +232,7 @@ class AdminStatisticsController extends Controller
         $query->when($request->category_id,        fn($q) => $q->where('category_id', $request->category_id));
         $query->when($request->occurrence_type_id, fn($q) => $q->where('occurrence_type_id', $request->occurrence_type_id));
 
-        // Resumo via SQL — evita carregar todos os registos só para agregar
+        // Resumo via SQL - evita carregar todos os registos só para agregar
         $summary = [
             'total'      => (clone $query)->count(),
             'by_status'  => (clone $query)
@@ -259,14 +259,14 @@ class AdminStatisticsController extends Controller
                 'tracking_code' => $o->tracking_code,
                 'subject'       => $o->subject,
                 'status'        => $o->status->label(),
-                'project'       => $o->project?->name ?? '—',
-                'province'      => $o->province?->name ?? '—',
-                'category'      => $o->category?->name ?? '—',
-                'type'          => $o->occurrenceType?->name ?? '—',
-                'alert_level'   => $o->occurrenceType?->alert_level?->label() ?? '—',
-                'assigned_to'   => $o->assignedTo?->name ?? '—',
+                'project'       => $o->project?->name ?? '-',
+                'province'      => $o->province?->name ?? '-',
+                'category'      => $o->category?->name ?? '-',
+                'type'          => $o->occurrenceType?->name ?? '-',
+                'alert_level'   => $o->occurrenceType?->alert_level?->label() ?? '-',
+                'assigned_to'   => $o->assignedTo?->name ?? '-',
                 'submitted_at'  => $o->created_at->format('d/m/Y'),
-                'due_date'      => $o->due_date?->format('d/m/Y') ?? '—',
+                'due_date'      => $o->due_date?->format('d/m/Y') ?? '-',
             ]),
         ], 200);
     }

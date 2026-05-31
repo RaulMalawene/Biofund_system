@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| MDR — API Routes
+| MDR - API Routes
 |--------------------------------------------------------------------------
 |
 | Organização:
@@ -85,7 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('change-password');
     });
 
-    // ── 3.2 OCORRÊNCIAS — leitura e registo (admin + gestor + funcionario) ──
+    // ── 3.2 OCORRÊNCIAS - leitura e registo (admin + gestor + funcionario) ──
 
     Route::prefix('occurrences')->name('occurrences.')->group(function () {
 
@@ -101,18 +101,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [GestorOccurrenceController::class, 'store'])
             ->name('store');
 
-        // Download de anexo — acesso controlado por role
+        // Download de anexo - acesso controlado por role
         Route::get('{occurrence}/attachments/{attachment}', [AttachmentController::class, 'download'])
             ->name('attachments.download');
     });
 
-    // ── 3.3 OCORRÊNCIAS — acções (admin + gestor apenas) ────────
+    // ── 3.3 OCORRÊNCIAS - acções (admin + gestor apenas) ────────
 
     Route::prefix('occurrences')->name('occurrences.')
         ->middleware('role:admin,gestor')
         ->group(function () {
 
-        // Mudar estado — comentário obrigatório em nao_validado e resolvido
+        // Mudar estado - comentário obrigatório em nao_validado e resolvido
         Route::patch('{occurrence}/status', [GestorOccurrenceController::class, 'updateStatus'])
             ->name('update-status');
 
@@ -129,7 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('update-classification');
     });
 
-    // ── 3.4 OCORRÊNCIAS — acções exclusivas do admin ─────────────
+    // ── 3.4 OCORRÊNCIAS - acções exclusivas do admin ─────────────
 
     Route::prefix('occurrences')->name('occurrences.')
         ->middleware('role:admin')
@@ -151,7 +151,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('read-all',     [NotificationController::class, 'markAllRead']) ->name('mark-all-read');
     });
 
-    // ── 3.6 ADMIN — UTILIZADORES (apenas admin) ─────────────────
+    // ── 3.6 ADMIN - UTILIZADORES (apenas admin) ─────────────────
 
     Route::prefix('admin')->name('admin.')
         ->middleware('role:admin')
@@ -190,7 +190,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('statistics.report');
     });
 
-    // ── 3.8 PARAMETRIZAÇÃO — leitura (admin + gestor) ───────────
+    // ── 3.8 PARAMETRIZAÇÃO - leitura (admin + gestor) ───────────
 
     Route::prefix('admin')->name('admin.')
         ->middleware('role:admin,gestor')
@@ -206,7 +206,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('occurrence-types.index');
     });
 
-    // ── 3.9 PARAMETRIZAÇÃO — escrita (apenas admin) ─────────────
+    // ── 3.9 PARAMETRIZAÇÃO - escrita (apenas admin) ─────────────
 
     Route::prefix('admin')->name('admin.')
         ->middleware('role:admin')

@@ -193,7 +193,7 @@
                       <td class="td-small">{{ r.canal }}</td>
                       <td>
                         <span v-if="r.responsavel" class="td-small">{{ r.responsavel }}</span>
-                        <span v-else class="resp-none">—</span>
+                        <span v-else class="resp-none">-</span>
                       </td>
                       <td class="td-muted td-small">{{ r.projeto }}</td>
                       <td>
@@ -412,7 +412,7 @@
                   <div v-if="selected.comentario" class="sf-comment sf-comment-rejeitado">{{ selected.comentario }}</div>
                 </template>
 
-                <!-- Adicionar comentário — disponível em todos os estados -->
+                <!-- Adicionar comentário - disponível em todos os estados -->
                 <button class="btn-add-comment" @click="openCommentModal('Comentario')" :disabled="confirming">
                   <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
                     <path d="M12 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2l2 2 2-2h4a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
@@ -818,11 +818,11 @@ function mapOccurrence(o) {
     _id: o.id,
     id: o.tracking_code,
     data: o.submitted_at,
-    provincia: o.province?.name ?? '—',
-    categoria: o.category?.name ?? '—',
-    canal: o.submission_channel_label ?? '—',
+    provincia: o.province?.name ?? '-',
+    categoria: o.category?.name ?? '-',
+    canal: o.submission_channel_label ?? '-',
     responsavel: o.assigned_to?.name ?? null,
-    projeto: o.project?.name ?? '—',
+    projeto: o.project?.name ?? '-',
     status: o.status,
     status_label: o.status_label,
     origem: o.origin,
@@ -956,7 +956,7 @@ async function saveClassification() {
 
 // ─── Filters ──────────────────────────────────────────────────
 const provincias = computed(() =>
-  [...new Set(rows.value.map(r => r.provincia).filter(p => p !== '—'))].sort()
+  [...new Set(rows.value.map(r => r.provincia).filter(p => p !== '-'))].sort()
 )
 
 const imageAnexos = computed(() => selected.value?.anexos?.filter(a => a.tipo === 'imagem') ?? [])
@@ -1043,7 +1043,7 @@ async function changeStatus(newState, comment = '') {
   try {
     const payload = { status: apiStatus }
     if (comment && comment.trim()) payload.comment = comment.trim()
-    await InternalService.updateStatus(selected.value._id, payload)
+    const result = await InternalService.updateStatus(selected.value._id, payload)
     const trackingCode = selected.value.id
     const isFinal = apiStatus === 'nao_validado' || apiStatus === 'resolvido'
     if (isFinal) {
@@ -1052,10 +1052,15 @@ async function changeStatus(newState, comment = '') {
       editMode.value = false
     } else {
       const idx = rows.value.findIndex(r => r._id === selected.value._id)
-      if (idx !== -1) { rows.value[idx].status = apiStatus; rows.value[idx].status_label = STATUS_LABEL[apiStatus] }
-      selected.value.status = apiStatus
+      if (idx !== -1) {
+        rows.value[idx].status        = apiStatus
+        rows.value[idx].status_label  = STATUS_LABEL[apiStatus]
+        if (result.assigned_to) rows.value[idx].responsavel = result.assigned_to.name
+      }
+      selected.value.status       = apiStatus
       selected.value.status_label = STATUS_LABEL[apiStatus]
-      selected.value.comentario = comment
+      selected.value.comentario   = comment
+      if (result.assigned_to) selected.value.responsavel = result.assigned_to.name
       if (editMode.value) editMode.value = false
     }
     showToast(newState === 'NaoValidado' ? `${trackingCode} foi não validada.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'NaoValidado')
@@ -2408,6 +2413,7 @@ tbody tr:last-child td {
 .modal-body {
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
 }
 
 .modal-body::-webkit-scrollbar {

@@ -23,7 +23,7 @@ class ProjectSeeder extends Seeder
             ],
             [
                 'code' => 'BIOFUND-001',
-                'name' => 'BIOFUND — Fundação para a Conservação da Biodiversidade',
+                'name' => 'BIOFUND - Fundação para a Conservação da Biodiversidade',
                 'description' => 'Gestão e conservação da biodiversidade em Moçambique.',
             ],
             [

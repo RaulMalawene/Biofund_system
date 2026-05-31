@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string      $code
  * @property string      $name
  * @property string|null $description
- * @property string|null $icon        — chave do ícone (nature|tree|water|fire|drop|person|leaf|fish)
+ * @property string|null $icon        - chave do ícone (nature|tree|water|fire|drop|person|leaf|fish)
  * @property bool        $is_active
  */
 class Project extends Model

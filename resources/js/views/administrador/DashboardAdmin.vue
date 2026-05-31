@@ -195,7 +195,7 @@
               <span class="kpi-badge up">↑ 8.2%</span>
             </div>
             <div class="kpi-label dark">Total de Reclamações</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawTotals.all ?? 0) }}</div>
+            <div class="kpi-value dark">{{ statsLoading ? '-' : (rawTotals.all ?? 0) }}</div>
             <div class="kpi-sub dark">{{ rawOverdue }} fora do prazo</div>
           </div>
 
@@ -210,7 +210,7 @@
               <span v-if="activeFilter === 'por_validar'" class="kpi-active-dot"></span>
             </div>
             <div class="kpi-label light">Por Validar</div>
-            <div class="kpi-value light">{{ statsLoading ? '—' : (rawTotals.por_validar ?? 0) }}</div>
+            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.por_validar ?? 0) }}</div>
             <div class="kpi-sub light">Aguardando validação inicial</div>
           </div>
 
@@ -225,7 +225,7 @@
               <span v-if="activeFilter === 'resolvido'" class="kpi-active-dot green-dot"></span>
             </div>
             <div class="kpi-label dark">Resolvidas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawTotals.resolvido ?? 0) }}</div>
+            <div class="kpi-value dark">{{ statsLoading ? '-' : (rawTotals.resolvido ?? 0) }}</div>
             <div class="kpi-sub dark">{{ rawTotals.por_resolver ?? 0 }} por resolver</div>
           </div>
 
@@ -240,7 +240,7 @@
               <span v-if="activeFilter === 'urgente'" class="kpi-active-dot green-dot"></span>
             </div>
             <div class="kpi-label dark">Urgentes</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawAlertLevel.urgent ?? 0) }}</div>
+            <div class="kpi-value dark">{{ statsLoading ? '-' : (rawAlertLevel.urgent ?? 0) }}</div>
             <div class="kpi-sub dark">{{ rawAlertLevel.gbv ?? 0 }} casos GBV</div>
           </div>
 
@@ -255,7 +255,7 @@
               <span v-if="activeFilter === 'nao_validado'" class="kpi-active-dot green-dot"></span>
             </div>
             <div class="kpi-label dark">Não Validadas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '—' : (rawTotals.nao_validado ?? 0) }}</div>
+            <div class="kpi-value dark">{{ statsLoading ? '-' : (rawTotals.nao_validado ?? 0) }}</div>
             <div class="kpi-sub dark">Processos concluídos</div>
           </div>
         </div>
@@ -503,7 +503,7 @@
                 <option value="" disabled>Seleccione o nível</option>
                 <option value="normal">Normal</option>
                 <option value="urgent">Urgente</option>
-                <option value="gbv">GBV — Violência de Género</option>
+                <option value="gbv">GBV - Violência de Género</option>
               </select>
               <span class="f-err-msg" v-if="errors.alert_type">{{ errors.alert_type }}</span>
             </div>
@@ -648,7 +648,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onActivated, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Chart, registerables } from 'chart.js'
 import { useAuthStore } from '@/stores/auth'
@@ -703,7 +703,7 @@ const stats = reactive({
     byMonthResolved: [],
 })
 
-// Valores KPI fixos — nunca se alteram quando um filtro está activo
+// Valores KPI fixos - nunca se alteram quando um filtro está activo
 const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 })
 const rawAlertLevel = reactive({ normal: 0, urgent: 0, gbv: 0 })
 const rawOverdue    = ref(0)
@@ -761,7 +761,7 @@ function clearDashFilter() {
 
 const CHART_COLORS = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
 
-// Instâncias dos gráficos — guardadas para actualizar sem recriar
+// Instâncias dos gráficos - guardadas para actualizar sem recriar
 let barChart   = null
 let donutChart = null
 let lineChart  = null
@@ -825,24 +825,34 @@ async function refreshStats() {
 
 // Selecciona/desselecciona um card de filtro
 async function selectCard(key) {
-    // Card "Total" — limpa filtro (se houver) e mostra dados completos
+    // Card "Total" - limpa filtro (se houver) e mostra dados completos
     if (key === null) {
         if (activeFilter.value === null) return
-        activeFilter.value = null
-        await refreshStats()
+        activeFilter.value  = null
+        filterLoading.value = true
+        try {
+            await refreshStats()
+        } finally {
+            filterLoading.value = false
+        }
         return
     }
     // Toggle: clicar no mesmo card filtro remove o filtro
     if (key === activeFilter.value) {
-        activeFilter.value = null
-        await refreshStats()
+        activeFilter.value  = null
+        filterLoading.value = true
+        try {
+            await refreshStats()
+        } finally {
+            filterLoading.value = false
+        }
         return
     }
     activeFilter.value  = key
     filterLoading.value = true
     try {
         const data = await InternalService.getDashboardStats({ ...FILTER_MAP[key], ...buildDashFilter() })
-        // Actualiza apenas gráficos e tabela — KPI cards ficam inalterados
+        // Actualiza apenas gráficos e tabela - KPI cards ficam inalterados
         stats.byProvince      = data.by_province      ?? []
         stats.byCategory      = data.by_category      ?? []
         stats.byMonth         = data.by_month         ?? []
@@ -908,9 +918,9 @@ function mapRecent(items) {
             initials:    init.slice(0, 2),
             color:       CHART_COLORS[idx % CHART_COLORS.length],
             // Categoria: vem da relação category (não occurrenceType)
-            categoria:   o.category?.name ?? '—',
+            categoria:   o.category?.name ?? '-',
             catColor:    '#52B788',
-            provincia:   o.province?.name ?? '—',
+            provincia:   o.province?.name ?? '-',
             status:      s.label,
             statusClass: s.cls,
             tempo:       timeAgo(o.created_at),
@@ -1108,6 +1118,23 @@ function addFiles(list) {
   list.forEach(f => { if (f.size <= 10 * 1024 * 1024) files.value.push(f) })
 }
 
+// Quando o componente é re-activado via KeepAlive, limpa filtros e refresca dados
+onActivated(async () => {
+  activeFilter.value  = null
+  filterLoading.value = true
+  try {
+    await refreshStats()
+  } finally {
+    filterLoading.value = false
+  }
+})
+
+onUnmounted(() => {
+  barChart?.destroy()
+  donutChart?.destroy()
+  lineChart?.destroy()
+})
+
 onMounted(async () => {
   Chart.defaults.font.family = "'Poppins', sans-serif"
   Chart.defaults.color       = '#8A9490'
@@ -1124,7 +1151,7 @@ onMounted(async () => {
     stats.byMonth         = data.by_month         ?? []
     stats.byMonthResolved = data.by_month_resolved ?? []
     submissions.value     = mapRecent(data.recent)
-    // Snapshot KPI — fica fixo mesmo quando um filtro é aplicado
+    // Snapshot KPI - fica fixo mesmo quando um filtro é aplicado
     Object.assign(rawTotals,     data.totals         ?? {})
     Object.assign(rawAlertLevel, data.by_alert_level ?? {})
     rawOverdue.value = data.overdue ?? 0

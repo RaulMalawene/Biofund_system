@@ -19,7 +19,7 @@ class UpdateUserRequest extends FormRequest
             'phone'                  => ['nullable', 'string', 'max:30'],
             'role'                   => ['required', Rule::in(['admin', 'gestor', 'funcionario'])],
             'management_scope'       => ['required', Rule::in(['national', 'provincial'])],
-            // Províncias — array com 1 ou mais elementos
+            // Províncias - array com 1 ou mais elementos
             'province_ids'           => ['required', 'array', 'min:1'],
             'province_ids.*'         => ['integer', 'exists:provinces,id'],
             // Projectos
