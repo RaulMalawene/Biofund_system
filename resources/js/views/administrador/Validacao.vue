@@ -245,6 +245,8 @@
                 </button>
               </div>
 
+              <div class="panel-body">
+
               <div class="status-row">
                 <span class="badge-status" :class="statusClass(selected.status)">{{ selected.status_label }}</span>
                 <div class="sub-date"><span>Submetido em</span>{{ selected.data }}</div>
@@ -421,6 +423,8 @@
                   Adicionar Comentário
                 </button>
               </div>
+
+              </div><!-- /panel-body -->
             </template>
           </div>
         </div>
@@ -1460,6 +1464,9 @@ async function handleLogout() {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+.table-overflow::-webkit-scrollbar { height: 4px; }
+.table-overflow::-webkit-scrollbar-track { background: transparent; }
+.table-overflow::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 
 table {
   width: 100%;
@@ -1624,7 +1631,20 @@ tbody tr:last-child td {
   box-shadow: 0 1px 3px rgba(0, 0, 0, .05), 0 6px 20px rgba(0, 0, 0, .07);
   position: sticky;
   top: 0;
+  max-height: calc(100vh - 180px);
+  display: flex;
+  flex-direction: column;
 }
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+.panel-body::-webkit-scrollbar { width: 3px; }
+.panel-body::-webkit-scrollbar-track { background: transparent; }
+.panel-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 
 .empty-detail {
   display: flex;
@@ -1648,6 +1668,7 @@ tbody tr:last-child td {
   justify-content: space-between;
   padding: 14px 16px 12px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .detail-panel-title {
