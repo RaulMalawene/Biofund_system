@@ -199,7 +199,7 @@
             <div class="kpi-sub dark">{{ rawOverdue }} fora do prazo</div>
           </div>
 
-          <div class="kpi-card highlight" @click="selectCard('por_validar')" :class="{ 'card-active': activeFilter === 'por_validar' }" title="Filtrar por: Por Validar">
+          <div class="kpi-card kpi-blue" @click="selectCard('por_validar')" :class="{ 'card-active': activeFilter === 'por_validar' }" title="Filtrar por: Por Validar">
             <div class="kpi-top">
               <div class="kpi-icon white">
                 <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
@@ -214,49 +214,49 @@
             <div class="kpi-sub light">Aguardando validação inicial</div>
           </div>
 
-          <div class="kpi-card" @click="selectCard('resolvido')" :class="{ 'card-active': activeFilter === 'resolvido' }" title="Filtrar por: Resolvidas">
+          <div class="kpi-card kpi-green" @click="selectCard('resolvido')" :class="{ 'card-active': activeFilter === 'resolvido' }" title="Filtrar por: Resolvidas">
             <div class="kpi-top">
-              <div class="kpi-icon green">
-                <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
+              <div class="kpi-icon white">
+                <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
                   <circle cx="9" cy="9" r="7"/>
                   <path d="M6 9l2.5 2.5 4-5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <span v-if="activeFilter === 'resolvido'" class="kpi-active-dot green-dot"></span>
+              <span v-if="activeFilter === 'resolvido'" class="kpi-active-dot"></span>
             </div>
-            <div class="kpi-label dark">Resolvidas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '-' : (rawTotals.resolvido ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ rawTotals.por_resolver ?? 0 }} por resolver</div>
+            <div class="kpi-label light">Resolvidas</div>
+            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.resolvido ?? 0) }}</div>
+            <div class="kpi-sub light">{{ rawTotals.por_resolver ?? 0 }} por resolver</div>
           </div>
 
-          <div class="kpi-card" @click="selectCard('urgente')" :class="{ 'card-active': activeFilter === 'urgente' }" title="Filtrar por: Urgentes">
+          <div class="kpi-card kpi-purple" @click="selectCard('nao_resolvida')" :class="{ 'card-active': activeFilter === 'nao_resolvida' }" title="Filtrar por: Não Resolvidas">
             <div class="kpi-top">
-              <div class="kpi-icon green">
-                <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
-                  <path d="M2 16c0-2.761 2.239-5 5-5h4c2.761 0 5 2.239 5 5"/>
-                  <circle cx="9" cy="7" r="3"/>
+              <div class="kpi-icon white">
+                <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
+                  <circle cx="9" cy="9" r="7"/>
+                  <path d="M9 5.5v4M9 12.5v.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span v-if="activeFilter === 'urgente'" class="kpi-active-dot green-dot"></span>
+              <span v-if="activeFilter === 'nao_resolvida'" class="kpi-active-dot"></span>
             </div>
-            <div class="kpi-label dark">Urgentes</div>
-            <div class="kpi-value dark">{{ statsLoading ? '-' : (rawAlertLevel.urgent ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ rawAlertLevel.gbv ?? 0 }} casos GBV</div>
+            <div class="kpi-label light">Não Resolvidas</div>
+            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.nao_resolvida ?? 0) }}</div>
+            <div class="kpi-sub light">Sem actividade há mais de 5 dias</div>
           </div>
 
-          <div class="kpi-card" @click="selectCard('nao_validado')" :class="{ 'card-active': activeFilter === 'nao_validado' }" title="Filtrar por: Não Validadas">
+          <div class="kpi-card kpi-red" @click="selectCard('nao_validado')" :class="{ 'card-active': activeFilter === 'nao_validado' }" title="Filtrar por: Não Validadas">
             <div class="kpi-top">
-              <div class="kpi-icon green">
-                <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 18 18">
+              <div class="kpi-icon white">
+                <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
                   <circle cx="6" cy="6" r="2.5"/><circle cx="12" cy="6" r="2.5"/>
                   <path d="M1 15c0-2.209 2.239-4 5-4M9 15c0-2.209 1.343-4 4-4 2.761 0 5 1.791 5 4" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span v-if="activeFilter === 'nao_validado'" class="kpi-active-dot green-dot"></span>
+              <span v-if="activeFilter === 'nao_validado'" class="kpi-active-dot"></span>
             </div>
-            <div class="kpi-label dark">Não Validadas</div>
-            <div class="kpi-value dark">{{ statsLoading ? '-' : (rawTotals.nao_validado ?? 0) }}</div>
-            <div class="kpi-sub dark">Processos concluídos</div>
+            <div class="kpi-label light">Não Validadas</div>
+            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.nao_validado ?? 0) }}</div>
+            <div class="kpi-sub light">Processos concluídos</div>
           </div>
         </div>
 
@@ -681,23 +681,23 @@ const activeFilter  = ref(null)
 const filterLoading = ref(false)
 
 const FILTER_MAP = {
-    por_validar:  { status: 'por_validar' },
-    resolvido:    { status: 'resolvido'   },
-    urgente:      { alert_type: 'urgent'  },
-    nao_validado: { status: 'nao_validado'},
+    por_validar:   { status: 'por_validar'   },
+    resolvido:     { status: 'resolvido'     },
+    nao_resolvida: { status: 'nao_resolvida' },
+    nao_validado:  { status: 'nao_validado'  },
 }
 
 const FILTER_LABELS = {
-    por_validar:  'Por Validar',
-    resolvido:    'Resolvidas',
-    urgente:      'Urgentes',
-    nao_validado: 'Não Validadas',
+    por_validar:   'Por Validar',
+    resolvido:     'Resolvidas',
+    nao_resolvida: 'Não Resolvidas',
+    nao_validado:  'Não Validadas',
 }
 
 // ── Estatísticas do dashboard ─────────────────────────────────
 const statsLoading = ref(true)
 const stats = reactive({
-    totals:          { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 },
+    totals:          { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 },
     overdue:         0,
     byAlertLevel:    { normal: 0, urgent: 0, gbv: 0 },
     byProvince:      [],
@@ -707,7 +707,7 @@ const stats = reactive({
 })
 
 // Valores KPI fixos - nunca se alteram quando um filtro está activo
-const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 })
+const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 })
 const rawAlertLevel = reactive({ normal: 0, urgent: 0, gbv: 0 })
 const rawOverdue    = ref(0)
 
@@ -734,7 +734,7 @@ async function applyDashFilter() {
     try {
         const data = await InternalService.getDashboardStats(buildDashFilter())
         // Zera primeiro para não ficarem valores obsoletos de chaves ausentes na resposta filtrada
-        const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 }
+        const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 }
         const zeroAlertLevel = { normal: 0, urgent: 0, gbv: 0 }
         Object.assign(stats.totals,       zeroTotals,     data.totals         ?? {})
         Object.assign(stats.byAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -807,7 +807,7 @@ function updateCharts() {
 async function refreshStats() {
     try {
         const data = await InternalService.getDashboardStats(buildDashFilter())
-        const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0 }
+        const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 }
         const zeroAlertLevel = { normal: 0, urgent: 0, gbv: 0 }
         Object.assign(stats.totals,       zeroTotals,     data.totals         ?? {})
         Object.assign(stats.byAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -1587,17 +1587,23 @@ onMounted(async () => {
   user-select: none;
 }
 .kpi-card:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07); transform: translateY(-1px); }
-.kpi-card.highlight { background: var(--green-mid); border-color: var(--green-mid); }
+.kpi-card.kpi-blue   { background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); border: none; box-shadow: 0 4px 20px rgba(59,130,246,0.35); }
+.kpi-card.kpi-green  { background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); border: none; box-shadow: 0 4px 20px rgba(45,106,79,0.35); }
+.kpi-card.kpi-purple { background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%); border: none; box-shadow: 0 4px 20px rgba(91,33,182,0.35); }
+.kpi-card.kpi-red    { background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%); border: none; box-shadow: 0 4px 20px rgba(153,27,27,0.35); }
 
 .kpi-card.card-active {
   outline: 2px solid #52B788;
   outline-offset: 2px;
   box-shadow: 0 0 0 5px rgba(82, 183, 136, 0.15), 0 4px 20px rgba(0,0,0,0.07);
 }
-.kpi-card.highlight.card-active {
-  outline: 2.5px solid rgba(255,255,255,0.9);
+.kpi-card.kpi-blue.card-active,
+.kpi-card.kpi-green.card-active,
+.kpi-card.kpi-purple.card-active,
+.kpi-card.kpi-red.card-active {
+  outline: 2px solid rgba(255,255,255,0.9);
   outline-offset: 2px;
-  box-shadow: 0 0 0 5px rgba(255,255,255,0.2);
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.2), 0 4px 20px rgba(0,0,0,0.15);
 }
 
 .kpi-active-dot {
@@ -1606,7 +1612,6 @@ onMounted(async () => {
   background: rgba(255,255,255,0.9);
   animation: pulse-dot 1.5s ease-in-out infinite;
 }
-.kpi-active-dot.green-dot { background: #52B788; }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -1688,6 +1693,7 @@ onMounted(async () => {
 .kpi-sub { font-size: 11px; }
 .kpi-sub.dark  { color: var(--text-light); }
 .kpi-sub.light { color: rgba(255, 255, 255, 0.75); }
+
 
 /* ── CHARTS ROW ──────────────────────────── */
 .charts-row {

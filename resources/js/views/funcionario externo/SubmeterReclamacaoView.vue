@@ -11,11 +11,10 @@
             <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#2D6A4F" />
             <path d="M10 28C10 28 14 20 20 20" stroke="#1B4332" stroke-width="2" stroke-linecap="round" />
           </svg>
-          Biofund Moçambique
+          Biofund
         </div>
         <h1>Registar Reclamação</h1>
-        <p>Ajude-nos a proteger os nossos ecossistemas. Preencha o formulário abaixo com o máximo de detalhes possível
-          sobre o incidente ambiental observado.</p>
+        <p>Preencha o formulário abaixo com o máximo de detalhes possível.</p>
       </div>
 
       <!-- CARD 1: Informação da Reclamação -->
@@ -29,7 +28,7 @@
           </div>
           <div class="card-header-text">
             <h3>Informação da Reclamação</h3>
-            <p>Identifique o tipo de incidente e descreva o que aconteceu.</p>
+            <p>Identifique o tipo de Ocorrencia e descreva o que aconteceu.</p>
           </div>
         </div>
 
@@ -44,7 +43,7 @@
             </div>
           </div>
           <div class="field-group">
-            <label>Categoria do Incidente</label>
+            <label>Categoria da Reclamação</label>
             <div class="select-wrap">
               <select v-model="form.categoria" :disabled="loadingFormData">
                 <option value="" disabled>{{ loadingFormData ? 'A carregar…' : 'Seleccione a categoria' }}</option>
@@ -109,7 +108,7 @@
             </svg>
           </div>
           <div class="card-header-text">
-            <h3>Localização do Incidente</h3>
+            <h3>Localização da ocorrência</h3>
             <p>Ajude a nossa equipa a localizar a ocorrência no mapa.</p>
           </div>
         </div>
@@ -135,10 +134,14 @@
           </div>
         </div>
 
-        <div class="field-row single">
+        <div class="field-row">
           <div class="field-group">
-            <label>Comunidade / Posto Administrativo (Opcional)</label>
-            <input type="text" v-model="form.comunidade" placeholder="Ex: Posto Administrativo de Manhiça" />
+            <label>Comunidade (Opcional)</label>
+            <input type="text" v-model="form.comunidade" placeholder="Ex: Comunidade de Mafuiane" />
+          </div>
+          <div class="field-group">
+            <label>Posto Administrativo (Opcional)</label>
+            <input type="text" v-model="form.postoAdministrativo" placeholder="Ex: Posto Administrativo de Manhiça" />
           </div>
         </div>
 
@@ -171,6 +174,19 @@
             <input type="text" v-model="form.nome" placeholder="Nome completo ou pseudónimo" />
           </div>
           <div class="field-group">
+            <label>Sexo (Opcional)</label>
+            <div class="select-wrap">
+              <select v-model="form.sexo">
+                <option value="">Não identificado</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
             <label>Email</label>
             <input
               type="email"
@@ -179,9 +195,6 @@
               :class="{ 'field-error': errors.contacto }"
             />
           </div>
-        </div>
-
-        <div class="field-row">
           <div class="field-group">
             <label>Número de Telefone</label>
             <input
@@ -191,10 +204,11 @@
               :class="{ 'field-error': errors.contacto }"
             />
           </div>
-          <div class="field-group contact-hint-group">
-            <span class="contact-hint" v-if="errors.contacto" style="color:#E53E3E">{{ errors.contacto }}</span>
-            <span class="contact-hint" v-else>Preencha pelo menos email ou telefone</span>
-          </div>
+        </div>
+
+        <div class="field-row single contact-hint-row">
+          <span class="contact-hint" v-if="errors.contacto" style="color:#E53E3E">{{ errors.contacto }}</span>
+          <span class="contact-hint" v-else>Preencha pelo menos email ou telefone</span>
         </div>
       </div>
 
@@ -340,8 +354,8 @@ const today = new Date().toISOString().split('T')[0]
 // ─── Formulário ───────────────────────────────────────────────
 const form = reactive({
   projeto: '', categoria: '', tipoOcorrencia: '', descricao: '', data: '',
-  provincia: '', distrito: '', comunidade: '', coordenadas: '',
-  nome: '', email: '', phone: '',
+  provincia: '', distrito: '', comunidade: '', postoAdministrativo: '', coordenadas: '',
+  nome: '', sexo: '', email: '', phone: '',
 })
 
 // ─── Listas de referência ─────────────────────────────────────
@@ -439,6 +453,7 @@ async function submitForm() {
 
   // Nome - opcional, submissão anónima permitida
   if (form.nome.trim())  fd.append('complainant_name',  form.nome.trim())
+  if (form.sexo)         fd.append('complainant_gender', form.sexo)
   if (form.email.trim()) fd.append('complainant_email', form.email.trim())
   if (form.phone.trim()) fd.append('complainant_phone', form.phone.trim())
 
@@ -451,10 +466,11 @@ async function submitForm() {
   if (form.provincia) fd.append('province_id',     form.provincia)
   if (form.distrito)  fd.append('district_id',     form.distrito)
 
-  // Combina comunidade + coordenadas num único campo location_detail
+  // Combina comunidade + posto administrativo + coordenadas num único campo location_detail
   const locationParts = []
-  if (form.comunidade.trim())  locationParts.push(form.comunidade.trim())
-  if (form.coordenadas.trim()) locationParts.push(form.coordenadas.trim())
+  if (form.comunidade.trim())          locationParts.push(form.comunidade.trim())
+  if (form.postoAdministrativo.trim()) locationParts.push(form.postoAdministrativo.trim())
+  if (form.coordenadas.trim())         locationParts.push(form.coordenadas.trim())
   if (locationParts.length) fd.append('location_detail', locationParts.join(' - '))
 
   // Anexos
@@ -983,5 +999,6 @@ async function copyCode() {
 
 /* HINT DE CONTACTO */
 .contact-hint-group { justify-content: center; }
-.contact-hint { font-size: 11.5px; color: var(--text-light); margin-top: 4px; }
+.contact-hint-row { margin-top: -10px; margin-bottom: 4px; }
+.contact-hint { font-size: 11.5px; color: var(--text-light); }
 </style>

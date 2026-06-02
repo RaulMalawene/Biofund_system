@@ -42,7 +42,8 @@ class OccurrenceResource extends JsonResource
         $isOverdue = $dueDate !== null
             && $dueDate->timestamp < time()
             && $status !== OccurrenceStatusEnum::Resolvido
-            && $status !== OccurrenceStatusEnum::NaoValidado;
+            && $status !== OccurrenceStatusEnum::NaoValidado
+            && $status !== OccurrenceStatusEnum::NaoResolvida;
 
         return [
             'id'             => $a['id'],
@@ -60,9 +61,10 @@ class OccurrenceResource extends JsonResource
 
             // Reclamante/Pessoa Afectada - dados sensíveis apenas para gestor/admin
             'complainant' => $this->when($isManagerOrAbove, fn() => [
-                'name'  => $a['complainant_name'],
-                'email' => $a['complainant_email'],
-                'phone' => $a['complainant_phone'],
+                'name'   => $a['complainant_name'],
+                'email'  => $a['complainant_email'],
+                'phone'  => $a['complainant_phone'],
+                'gender' => $a['complainant_gender'] ?? null,
             ]),
 
             // Classificação

@@ -71,9 +71,17 @@
             <h1>Validação de Ocorrências</h1>
             <p>Analise as denúncias pendentes nas províncias e projectos sob a sua responsabilidade.</p>
           </div>
-          <div class="header-badges">
-            <span class="badge-em-analise">{{ countStatus('por_resolver') }} Por Resolver</span>
-            <span class="badge-pendentes">{{ countStatus('por_validar') }} Por Validar</span>
+          <div class="header-right">
+            <button class="btn-registar" @click="openRegistoModal">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
+                <path d="M7 1v12M1 7h12" stroke-linecap="round" />
+              </svg>
+              Registar Nova
+            </button>
+            <div class="header-badges">
+              <span class="badge-em-analise">{{ countStatus('por_resolver') }} Por Resolver</span>
+              <span class="badge-pendentes">{{ countStatus('por_validar') }} Por Validar</span>
+            </div>
           </div>
         </div>
 
@@ -119,6 +127,7 @@
                 <option value="nao_validado">Não Validado</option>
                 <option value="resolvendo">Resolvendo</option>
                 <option value="resolvido">Resolvido</option>
+                <option value="nao_resolvida">Não Resolvida</option>
               </select>
             </div>
           </div>
@@ -310,21 +319,21 @@
               <div class="state-actions">
                 <div class="state-flow">
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Validar</span>
+                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['nao_validado','nao_resolvida'].includes(selected.status) }">Por Validar</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Resolver</span>
+                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['nao_validado','nao_resolvida'].includes(selected.status) }">Por Resolver</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'resolvendo', 'flow-done': selected.status === 'resolvido' }">Resolvendo</span>
+                    :class="{ 'flow-active': selected.status === 'resolvendo', 'flow-done': selected.status === 'resolvido', 'flow-skip': selected.status === 'nao_resolvida' }">Resolvendo</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolvido' }">Resolvido</span>
+                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolvido', 'flow-skip': selected.status === 'nao_resolvida' }">Resolvido</span>
                 </div>
 
                 <template v-if="selected.status === 'por_validar'">
@@ -401,6 +410,19 @@
                     </div>
                   </div>
                   <div v-if="selected.comentario" class="sf-comment sf-comment-rejeitado">{{ selected.comentario }}</div>
+                </template>
+
+                <template v-else-if="selected.status === 'nao_resolvida'">
+                  <div class="state-final sf-nao-resolvida">
+                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" />
+                        <path d="M10 6v4M10 13.5v.5" stroke-linecap="round" />
+                      </svg></div>
+                    <div>
+                      <div class="sf-title">Não Resolvida</div>
+                      <div class="sf-sub">Marcada automaticamente por falta de actividade durante 5 dias.</div>
+                    </div>
+                  </div>
                 </template>
 
                 <!-- Adicionar comentário - disponível em todos os estados -->
@@ -714,6 +736,237 @@
       </div>
     </transition>
 
+    <!-- ── MODAL REGISTO ── -->
+    <transition name="modal-fade">
+      <div class="modal-overlay" v-if="showRegistoModal" @click.self="closeRegistoModal"></div>
+    </transition>
+    <transition name="modal-pop">
+      <div v-if="showRegistoModal" class="registo-panel">
+        <div class="registo-header">
+          <div>
+            <div class="registo-title">Registar Nova Ocorrência</div>
+            <div class="registo-subtitle">Preencha os dados do incidente ambiental observado.</div>
+          </div>
+          <button class="registo-close" @click="closeRegistoModal">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
+              <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="registo-body">
+
+          <div class="r-error-banner" v-if="rSubmitError">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6"/><path d="M8 5v3M8 11h.01" stroke-linecap="round"/>
+            </svg>
+            {{ rSubmitError }}
+          </div>
+
+          <!-- Informação do Reclamante -->
+          <div class="r-section-title">Informação do Reclamante</div>
+          <div class="r-row">
+            <div class="r-group">
+              <label>Nome <span class="r-opt">(Opcional)</span></label>
+              <input type="text" v-model="nf.complainant_name" placeholder="Nome completo ou pseudónimo" />
+            </div>
+            <div class="r-group">
+              <label>Sexo <span class="r-opt">(Opcional)</span></label>
+              <select v-model="nf.complainant_gender">
+                <option value="">Não identificado</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
+            </div>
+          </div>
+          <div class="r-row">
+            <div class="r-group">
+              <label>Email <span class="r-req-hint">*pelo menos um</span></label>
+              <input type="email" v-model="nf.complainant_email"
+                :class="{ 'r-err': rErrors.contact }"
+                placeholder="email@exemplo.com"
+                @input="rErrors.contact = ''" />
+            </div>
+            <div class="r-group">
+              <label>Telefone <span class="r-req-hint">*pelo menos um</span></label>
+              <input type="tel" v-model="nf.complainant_phone"
+                :class="{ 'r-err': rErrors.contact }"
+                placeholder="+258 84 000 0000"
+                @input="rErrors.contact = ''" />
+            </div>
+          </div>
+          <div v-if="rErrors.contact" class="r-contact-hint r-hint-error">{{ rErrors.contact }}</div>
+          <div v-else class="r-contact-hint">Preencha pelo menos email ou telefone.</div>
+
+          <!-- Dados da Ocorrência -->
+          <div class="r-section-title">Dados da Ocorrência</div>
+          <div class="r-group">
+            <label>Assunto <span class="r-req">*</span></label>
+            <input type="text" v-model="nf.subject" maxlength="255"
+              :class="{ 'r-err': rErrors.subject }"
+              placeholder="Ex: Poluição do rio Incomáti"
+              @input="rErrors.subject = ''" />
+            <span class="r-err-msg" v-if="rErrors.subject">{{ rErrors.subject }}</span>
+          </div>
+
+          <div class="r-row">
+            <div class="r-group">
+              <label>Projecto <span class="r-req">*</span></label>
+              <select v-model="nf.project_id" :class="{ 'r-err': rErrors.project_id }" @change="rErrors.project_id = ''">
+                <option value="" disabled>Seleccione o projecto</option>
+                <option v-for="p in scopeProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.project_id">{{ rErrors.project_id }}</span>
+            </div>
+            <div class="r-group">
+              <label>Categoria <span class="r-req">*</span></label>
+              <select v-model="nf.category_id" :class="{ 'r-err': rErrors.category_id }" @change="rErrors.category_id = ''">
+                <option value="" disabled>Seleccione a categoria</option>
+                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.category_id">{{ rErrors.category_id }}</span>
+            </div>
+          </div>
+
+          <div class="r-row">
+            <div class="r-group">
+              <label>Tipo de Ocorrência <span class="r-req">*</span></label>
+              <select v-model="nf.occurrence_type_id" :class="{ 'r-err': rErrors.occurrence_type_id }" @change="rErrors.occurrence_type_id = ''">
+                <option value="" disabled>Seleccione o tipo</option>
+                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.occurrence_type_id">{{ rErrors.occurrence_type_id }}</span>
+            </div>
+            <div class="r-group">
+              <label>Nível de Alerta <span class="r-req">*</span></label>
+              <select v-model="nf.alert_type" :class="{ 'r-err': rErrors.alert_type }" @change="rErrors.alert_type = ''">
+                <option value="" disabled>Seleccione o nível</option>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgente</option>
+                <option value="gbv">GBV - Violência de Género</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.alert_type">{{ rErrors.alert_type }}</span>
+            </div>
+          </div>
+
+          <div class="r-row">
+            <div class="r-group">
+              <label>Canal de Submissão <span class="r-req">*</span></label>
+              <select v-model="nf.submission_channel" :class="{ 'r-err': rErrors.submission_channel }" @change="rErrors.submission_channel = ''">
+                <option value="" disabled>Seleccione</option>
+                <option value="green_line">Linha Verde</option>
+                <option value="email">Email</option>
+                <option value="phone">Telefone</option>
+                <option value="community_meeting">Reunião Comunitária</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.submission_channel">{{ rErrors.submission_channel }}</span>
+            </div>
+            <div class="r-group">
+              <label>Data da Ocorrência</label>
+              <input type="date" v-model="nf.occurrence_date" :max="today" />
+            </div>
+          </div>
+
+          <!-- Localização -->
+          <div class="r-section-title">Localização</div>
+          <div class="r-row">
+            <div class="r-group">
+              <label>Província <span class="r-req">*</span></label>
+              <select v-model="nf.province_id"
+                :class="{ 'r-err': rErrors.province_id }"
+                :disabled="scopeProvinces.length === 1"
+                @change="onProvinceChange">
+                <option value="" disabled>Seleccione</option>
+                <option v-for="p in scopeProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.province_id">{{ rErrors.province_id }}</span>
+            </div>
+            <div class="r-group">
+              <label>Distrito</label>
+              <select v-model="nf.district_id" :disabled="!nf.province_id || rLoadingDistricts">
+                <option value="">{{ rLoadingDistricts ? 'A carregar…' : (nf.province_id ? 'Seleccione (opcional)' : 'Escolha uma província') }}</option>
+                <option v-for="d in rDistricts" :key="d.id" :value="d.id">{{ d.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="r-row">
+            <div class="r-group">
+              <label>Comunidade <span class="r-opt">(Opcional)</span></label>
+              <input type="text" v-model="nf.comunidade" placeholder="Ex: Comunidade de Mafuiane" />
+            </div>
+            <div class="r-group">
+              <label>Posto Administrativo <span class="r-opt">(Opcional)</span></label>
+              <input type="text" v-model="nf.postoAdministrativo" placeholder="Ex: Posto Administrativo de Manhiça" />
+            </div>
+          </div>
+          <div class="r-group">
+            <label>Coordenadas GPS <span class="r-opt">(Opcional)</span></label>
+            <input type="text" v-model="nf.coordenadas" placeholder="Ex: -25.9682, 32.5732" />
+          </div>
+
+          <!-- Descrição -->
+          <div class="r-group">
+            <label>Descrição Detalhada <span class="r-req">*</span></label>
+            <textarea v-model="nf.description"
+              :class="{ 'r-err': rErrors.description }"
+              placeholder="Descreva o incidente observado com o máximo de detalhe possível… (mínimo 20 caracteres)"
+              rows="4"
+              @input="rErrors.description = ''"></textarea>
+            <div class="r-char-hint" :class="nf.description.length >= 20 ? 'r-char-ok' : 'r-char-warn'"
+              v-if="nf.description.length > 0">
+              {{ nf.description.length >= 20 ? '✓ ' + nf.description.length + ' caracteres' : 'Faltam ' + (20 - nf.description.length) + ' caracteres' }}
+            </div>
+            <span class="r-err-msg" v-if="rErrors.description">{{ rErrors.description }}</span>
+          </div>
+
+          <!-- Upload -->
+          <div class="r-upload-zone"
+            :class="{ 'drag-over': rIsDragging }"
+            @click="rFileInput.click()"
+            @dragover.prevent="rIsDragging = true"
+            @dragleave="rIsDragging = false"
+            @drop.prevent="handleRDrop">
+            <div class="r-upload-icon">
+              <svg width="22" height="22" fill="none" stroke="#2D6A4F" stroke-width="1.7" viewBox="0 0 20 20">
+                <path d="M3 15v1.5A1.5 1.5 0 0 0 4.5 18h11A1.5 1.5 0 0 0 17 16.5V15" stroke-linecap="round"/>
+                <path d="M10 2v10M6.5 5.5 10 2l3.5 3.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h4>Anexar ficheiros</h4>
+            <p>PNG, JPG, PDF, MP4, MP3 - máx. 10 MB por ficheiro (até 5)</p>
+          </div>
+          <input ref="rFileInput" type="file" multiple accept=".png,.jpg,.jpeg,.pdf,.mp4,.mp3"
+            style="display:none" @change="handleRFileSelect" />
+
+          <div class="r-file-list" v-if="rFiles.length">
+            <div class="r-file-item" v-for="(f, i) in rFiles" :key="i">
+              <svg width="14" height="14" fill="none" stroke="#2D6A4F" stroke-width="1.5" viewBox="0 0 16 16">
+                <rect x="2" y="1" width="10" height="14" rx="1.5"/>
+                <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round"/>
+                <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="r-file-name">{{ f.name }}</span>
+              <span class="r-file-size">{{ (f.size / 1024).toFixed(0) }} KB</span>
+              <button class="r-btn-rm" @click.stop="rFiles.splice(i, 1)">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 12 12">
+                  <path d="M2 2l8 8M10 2L2 10" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="r-actions">
+            <button class="r-btn-cancelar" @click="closeRegistoModal" :disabled="rSaving">Cancelar</button>
+            <button class="r-btn-submit" @click="saveRegisto" :disabled="rSaving">
+              <span v-if="rSaving" class="r-spin"></span>
+              {{ rSaving ? 'A registar…' : 'Registar Ocorrência' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </transition>
+
     <!-- TOAST -->
     <transition name="toast-anim">
       <div class="toast" :class="{ red: toast.red }" v-if="toast.show">
@@ -781,20 +1034,22 @@ const ACTION_TO_API = {
   'Resolvido':   'resolvido',
 }
 const STATUS_LABEL = {
-  por_validar:  'Por Validar',
-  por_resolver: 'Por Resolver',
-  nao_validado: 'Não Validado',
-  resolvendo:   'Resolvendo',
-  resolvido:    'Resolvido',
+  por_validar:   'Por Validar',
+  por_resolver:  'Por Resolver',
+  nao_validado:  'Não Validado',
+  resolvendo:    'Resolvendo',
+  resolvido:     'Resolvido',
+  nao_resolvida: 'Não Resolvida',
 }
 
 function statusClass(s) {
   const map = {
-    por_validar:  'por-validar',
-    por_resolver: 'por-resolver',
-    nao_validado: 'nao-validado',
-    resolvendo:   'resolvendo',
-    resolvido:    'resolvido',
+    por_validar:   'por-validar',
+    por_resolver:  'por-resolver',
+    nao_validado:  'nao-validado',
+    resolvendo:    'resolvendo',
+    resolvido:     'resolvido',
+    nao_resolvida: 'nao-resolvida',
   }
   return map[s] ?? 'por-validar'
 }
@@ -838,7 +1093,10 @@ async function tryAutoSelect() {
 // ─── Load data ────────────────────────────────────────────────
 onMounted(async () => {
   InternalService.getFormData()
-    .then(data => { refCategories.value = data.categories ?? [] })
+    .then(data => {
+      refCategories.value = data.categories      ?? []
+      refTypes.value      = data.occurrence_types ?? []
+    })
     .catch(e => console.error('Erro ao carregar form data:', e))
 
   await loadOccurrences()
@@ -1029,7 +1287,7 @@ async function changeStatus(newState, comment = '') {
     if (comment && comment.trim()) payload.comment = comment.trim()
     const result = await InternalService.updateStatus(selected.value._id, payload)
     const trackingCode = selected.value.id
-    const isFinal = apiStatus === 'nao_validado' || apiStatus === 'resolvido'
+    const isFinal = ['nao_validado', 'resolvido', 'nao_resolvida'].includes(apiStatus)
     if (isFinal) {
       rows.value = rows.value.filter(r => r._id !== selected.value._id)
       selected.value = null
@@ -1052,6 +1310,153 @@ async function changeStatus(newState, comment = '') {
     const errors = e?.response?.data?.errors
     showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao actualizar o estado. Tente novamente.', true)
   } finally { confirming.value = false }
+}
+
+// ─── Registo Modal ────────────────────────────────────────────
+const today             = new Date().toISOString().split('T')[0]
+const refTypes          = ref([])
+const rDistricts        = ref([])
+const rLoadingDistricts = ref(false)
+const showRegistoModal  = ref(false)
+const rSaving           = ref(false)
+const rSubmitError      = ref('')
+const rIsDragging       = ref(false)
+const rFiles            = ref([])
+const rFileInput        = ref(null)
+
+const nf = reactive({
+  complainant_name: '', complainant_gender: '', complainant_email: '', complainant_phone: '',
+  subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+  alert_type: '', submission_channel: '', occurrence_date: '',
+  province_id: '', district_id: '', comunidade: '', postoAdministrativo: '', coordenadas: '',
+  description: '',
+})
+
+const rErrors = reactive({
+  contact: '', subject: '', project_id: '', category_id: '',
+  occurrence_type_id: '', alert_type: '', submission_channel: '',
+  province_id: '', description: '',
+})
+
+function openRegistoModal() {
+  const singleProvince = scopeProvinces.value.length === 1 ? scopeProvinces.value[0].id : ''
+  Object.assign(nf, {
+    complainant_name: '', complainant_gender: '', complainant_email: '', complainant_phone: '',
+    subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+    alert_type: '', submission_channel: '', occurrence_date: '',
+    province_id: singleProvince, district_id: '',
+    comunidade: '', postoAdministrativo: '', coordenadas: '',
+    description: '',
+  })
+  Object.assign(rErrors, {
+    contact: '', subject: '', project_id: '', category_id: '',
+    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    province_id: '', description: '',
+  })
+  rSubmitError.value = ''
+  rFiles.value = []
+  rDistricts.value = []
+  if (singleProvince) onProvinceChange()
+  showRegistoModal.value = true
+}
+
+function closeRegistoModal() { showRegistoModal.value = false }
+
+async function onProvinceChange() {
+  nf.district_id = ''
+  rDistricts.value = []
+  rErrors.province_id = ''
+  if (!nf.province_id) return
+  rLoadingDistricts.value = true
+  try {
+    const data = await InternalService.getDistrictsByProvince(nf.province_id)
+    rDistricts.value = data.districts ?? data
+  } catch {}
+  finally { rLoadingDistricts.value = false }
+}
+
+function handleRFileSelect(e) { addRFiles(Array.from(e.target.files)); e.target.value = '' }
+function handleRDrop(e) { rIsDragging.value = false; addRFiles(Array.from(e.dataTransfer.files)) }
+function addRFiles(list) {
+  list.forEach(f => {
+    if (rFiles.value.length >= 5) return
+    if (f.size <= 10 * 1024 * 1024) rFiles.value.push(f)
+  })
+}
+
+function validateRegisto() {
+  let ok = true
+  if (!nf.complainant_email.trim() && !nf.complainant_phone.trim()) {
+    rErrors.contact = 'Preencha pelo menos email ou número de telefone.'
+    ok = false
+  }
+  if (!nf.subject.trim())           { rErrors.subject            = 'O assunto é obrigatório.';               ok = false }
+  if (!nf.project_id)               { rErrors.project_id         = 'Seleccione o projecto.';                 ok = false }
+  if (!nf.category_id)              { rErrors.category_id        = 'Seleccione a categoria.';                ok = false }
+  if (!nf.occurrence_type_id)       { rErrors.occurrence_type_id = 'Seleccione o tipo de ocorrência.';       ok = false }
+  if (!nf.alert_type)               { rErrors.alert_type         = 'Seleccione o nível de alerta.';          ok = false }
+  if (!nf.submission_channel)       { rErrors.submission_channel = 'Seleccione o canal de submissão.';       ok = false }
+  if (!nf.province_id)              { rErrors.province_id        = 'Seleccione a província.';                ok = false }
+  if (!nf.description.trim())       { rErrors.description        = 'A descrição é obrigatória.';             ok = false }
+  else if (nf.description.trim().length < 20) {
+                                      rErrors.description        = 'A descrição deve ter pelo menos 20 caracteres.'; ok = false }
+  return ok
+}
+
+async function saveRegisto() {
+  rSubmitError.value = ''
+  Object.assign(rErrors, {
+    contact: '', subject: '', project_id: '', category_id: '',
+    occurrence_type_id: '', alert_type: '', submission_channel: '',
+    province_id: '', description: '',
+  })
+
+  if (!validateRegisto()) {
+    rSubmitError.value = 'Corrija os erros assinalados e tente novamente.'
+    return
+  }
+
+  rSaving.value = true
+  try {
+    const fd = new FormData()
+    if (nf.complainant_name.trim())  fd.append('complainant_name',   nf.complainant_name.trim())
+    if (nf.complainant_gender)       fd.append('complainant_gender', nf.complainant_gender)
+    if (nf.complainant_email.trim()) fd.append('complainant_email',  nf.complainant_email.trim())
+    if (nf.complainant_phone.trim()) fd.append('complainant_phone',  nf.complainant_phone.trim())
+    fd.append('subject',            nf.subject.trim())
+    fd.append('project_id',         nf.project_id)
+    fd.append('category_id',        nf.category_id)
+    fd.append('occurrence_type_id', nf.occurrence_type_id)
+    fd.append('alert_type',         nf.alert_type)
+    fd.append('submission_channel', nf.submission_channel)
+    fd.append('province_id',        nf.province_id)
+    fd.append('description',        nf.description.trim())
+    if (nf.district_id)     fd.append('district_id',     nf.district_id)
+    if (nf.occurrence_date) fd.append('occurrence_date', nf.occurrence_date)
+    const locationParts = []
+    if (nf.comunidade.trim())          locationParts.push(nf.comunidade.trim())
+    if (nf.postoAdministrativo.trim()) locationParts.push(nf.postoAdministrativo.trim())
+    if (nf.coordenadas.trim())         locationParts.push(nf.coordenadas.trim())
+    if (locationParts.length) fd.append('location_detail', locationParts.join(' - '))
+    rFiles.value.forEach(f => fd.append('attachments[]', f))
+
+    const res = await InternalService.createOccurrence(fd)
+    closeRegistoModal()
+    showToast(`Ocorrência ${res.tracking_code ?? ''} registada com sucesso!`)
+    await loadOccurrences()
+  } catch (err) {
+    if (err.response?.status === 422) {
+      const serverErrors = err.response.data.errors ?? {}
+      Object.entries(serverErrors).forEach(([field, msgs]) => {
+        if (field in rErrors) rErrors[field] = msgs[0]
+      })
+      rSubmitError.value = 'Corrija os erros assinalados e tente novamente.'
+    } else {
+      rSubmitError.value = err.response?.data?.message ?? 'Erro ao registar. Tente novamente.'
+    }
+  } finally {
+    rSaving.value = false
+  }
 }
 
 async function handleLogout() {
@@ -1524,11 +1929,12 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   white-space: nowrap;
 }
 
-.badge-status.por-validar  { background: #FB923C; color: #fff;    border: 1.5px solid #EA580C; }
-.badge-status.por-resolver { background: #FACC15; color: #713F12; border: 1.5px solid #CA8A04; }
-.badge-status.nao-validado { background: #EF4444; color: #fff;    border: 1.5px solid #DC2626; }
-.badge-status.resolvendo   { background: #FB923C; color: #fff;    border: 1.5px solid #EA580C; }
-.badge-status.resolvido    { background: #22C55E; color: #fff;    border: 1.5px solid #16A34A; }
+.badge-status.por-validar   { background: #FB923C; color: #fff;    border: 1.5px solid #EA580C; }
+.badge-status.por-resolver  { background: #FACC15; color: #713F12; border: 1.5px solid #CA8A04; }
+.badge-status.nao-validado  { background: #EF4444; color: #fff;    border: 1.5px solid #DC2626; }
+.badge-status.resolvendo    { background: #FB923C; color: #fff;    border: 1.5px solid #EA580C; }
+.badge-status.resolvido     { background: #22C55E; color: #fff;    border: 1.5px solid #16A34A; }
+.badge-status.nao-resolvida { background: #7C3AED; color: #fff;    border: 1.5px solid #6D28D9; }
 
 /* DETAIL PANEL */
 .detail-panel {
@@ -1909,8 +2315,9 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   margin-bottom: 10px;
 }
 
-.sf-resolvido { background: var(--green-pale); color: var(--green-dark); }
-.sf-rejeitado { background: #FFF5F5; color: #C53030; }
+.sf-resolvido     { background: var(--green-pale); color: var(--green-dark); }
+.sf-rejeitado     { background: #FFF5F5; color: #C53030; }
+.sf-nao-resolvida { background: #F5F3FF; color: #5B21B6; }
 
 .sf-icon { flex-shrink: 0; }
 .sf-title { font-size: 13px; font-weight: 700; }
@@ -2824,4 +3231,215 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+
+/* ── BOTÃO REGISTAR ─────────────────────────────── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.btn-registar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #40916C;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 10px rgba(64,145,108,0.3);
+}
+.btn-registar:hover { background: #2D6A4F; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(64,145,108,0.4); }
+
+/* ── MODAL REGISTO ──────────────────────────────── */
+.registo-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 680px;
+  max-width: 96vw;
+  max-height: 90vh;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.18);
+  z-index: 301;
+  display: flex;
+  flex-direction: column;
+}
+
+.registo-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 22px 26px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.registo-title    { font-size: 17px; font-weight: 800; color: var(--text-dark); margin-bottom: 3px; }
+.registo-subtitle { font-size: 12px; color: var(--text-gray); }
+
+.registo-close {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  color: var(--text-gray);
+  transition: border-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.registo-close:hover { border-color: #E53E3E; color: #E53E3E; }
+
+.registo-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 26px 32px;
+  display: flex;
+  flex-direction: column;
+}
+.registo-body::-webkit-scrollbar { width: 4px; }
+.registo-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
+
+.r-error-banner {
+  background: #FFF5F5;
+  border: 1px solid #FEB2B2;
+  border-radius: 9px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #C53030;
+  margin-bottom: 16px;
+}
+
+.r-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-light);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+  margin-top: 6px;
+}
+
+.r-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.r-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.r-row .r-group { margin-bottom: 0; }
+
+.r-group label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.r-req { color: #E53E3E; }
+.r-opt { font-size: 11px; font-weight: 500; color: var(--text-light); }
+.r-req-hint { font-size: 10.5px; font-weight: 500; color: #C66E00; margin-left: 4px; }
+
+.r-group input,
+.r-group select,
+.r-group textarea {
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 13px;
+  height: 42px;
+  outline: none;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: var(--white);
+}
+.r-group select {
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238A9490' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.r-group input:focus, .r-group select:focus, .r-group textarea:focus {
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px rgba(82,183,136,.12);
+}
+.r-group select:disabled, .r-group input:disabled { opacity: 0.55; cursor: not-allowed; }
+.r-group textarea { resize: vertical; min-height: 90px; height: auto; background-image: none; }
+
+.r-err { border-color: #FC8181 !important; box-shadow: 0 0 0 3px rgba(252,129,129,.1) !important; }
+.r-err-msg { font-size: 11.5px; color: #E53E3E; }
+
+.r-contact-hint { font-size: 11.5px; color: var(--text-light); margin-top: -10px; margin-bottom: 14px; }
+.r-hint-error   { color: #C53030; }
+
+.r-char-hint { font-size: 11.5px; margin-top: 3px; }
+.r-char-warn { color: #C66E00; }
+.r-char-ok   { color: #2D6A4F; }
+
+.r-upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: #F7F9F8;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.r-upload-zone:hover, .r-upload-zone.drag-over { border-color: var(--green-light); background: #EEF7F1; }
+.r-upload-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #DCF0E6; border-radius: 10px; }
+.r-upload-zone h4 { font-size: 13px; font-weight: 700; color: var(--text-dark); margin: 0; }
+.r-upload-zone p  { font-size: 12px; color: var(--text-gray); margin: 0; }
+
+.r-file-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.r-file-item { display: flex; align-items: center; gap: 8px; background: #EEF7F1; border: 1px solid #C3E6CE; border-radius: 8px; padding: 8px 12px; }
+.r-file-name { font-size: 12.5px; font-weight: 500; color: #2D6A4F; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-file-size { font-size: 11px; color: var(--text-light); flex-shrink: 0; }
+.r-btn-rm { background: none; border: none; cursor: pointer; color: var(--text-light); display: flex; flex-shrink: 0; transition: color 0.15s; padding: 0; }
+.r-btn-rm:hover { color: #E53E3E; }
+
+.r-actions { display: flex; gap: 12px; margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--border); }
+.r-btn-submit {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: #40916C; color: #fff; border: none; border-radius: 10px; padding: 12px;
+  font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(64,145,108,.3); transition: background 0.2s;
+}
+.r-btn-submit:hover:not(:disabled) { background: #2D6A4F; }
+.r-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.r-btn-cancelar {
+  flex: 1;
+  background: transparent; color: #E53E3E; border: 1.5px solid #FC8181; border-radius: 10px; padding: 12px;
+  font-family: 'Poppins', sans-serif; font-size: 13.5px; font-weight: 600;
+  cursor: pointer; transition: background 0.2s, border-color 0.2s;
+}
+.r-btn-cancelar:hover:not(:disabled) { background: #FFF5F5; border-color: #E53E3E; }
+.r-btn-cancelar:disabled { opacity: 0.5; cursor: not-allowed; }
+.r-spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+/* Transição do modal de registo */
+.modal-pop-enter-active { transition: opacity 0.22s ease, transform 0.22s cubic-bezier(.16,1,.3,1); }
+.modal-pop-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.modal-pop-enter-from  { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
+.modal-pop-leave-to    { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
 </style>

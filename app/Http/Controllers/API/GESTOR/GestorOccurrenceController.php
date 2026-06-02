@@ -128,12 +128,13 @@ class GestorOccurrenceController extends Controller
             }
         }
 
-        // Modo histórico: só ocorrências terminais (resolvidas ou não validadas).
+        // Modo histórico: ocorrências terminais (resolvidas, não validadas ou não resolvidas).
         // Para gestores, exclui também ocorrências submetidas pelo admin.
         if ($request->boolean('history')) {
             $query->whereIn('status', [
                 OccurrenceStatusEnum::Resolvido->value,
                 OccurrenceStatusEnum::NaoValidado->value,
+                OccurrenceStatusEnum::NaoResolvida->value,
             ]);
             if ($user->isGestor()) {
                 $query->where(fn($q) =>
@@ -151,6 +152,7 @@ class GestorOccurrenceController extends Controller
             $query->whereNotIn('status', [
                 OccurrenceStatusEnum::Resolvido->value,
                 OccurrenceStatusEnum::NaoValidado->value,
+                OccurrenceStatusEnum::NaoResolvida->value,
             ]);
         }
 

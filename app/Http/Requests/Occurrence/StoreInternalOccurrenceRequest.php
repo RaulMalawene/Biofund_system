@@ -28,6 +28,7 @@ class StoreInternalOccurrenceRequest extends FormRequest
             'complainant_name'   => ['nullable', 'string', 'max:150'],
             'complainant_email'  => ['nullable', 'email', 'max:150'],
             'complainant_phone'  => ['nullable', 'string', 'max:30'],
+            'complainant_gender' => ['nullable', 'string', 'in:masculino,feminino'],
 
             // Classificação
             'project_id'         => ['required', 'integer', 'exists:projects,id'],

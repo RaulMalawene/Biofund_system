@@ -17,31 +17,34 @@ namespace App\Enums;
  */
 enum OccurrenceStatusEnum: string
 {
-    case PorValidar  = 'por_validar';
-    case PorResolver = 'por_resolver';
-    case NaoValidado = 'nao_validado';
-    case Resolvendo  = 'resolvendo';
-    case Resolvido   = 'resolvido';
+    case PorValidar    = 'por_validar';
+    case PorResolver   = 'por_resolver';
+    case NaoValidado   = 'nao_validado';
+    case Resolvendo    = 'resolvendo';
+    case Resolvido     = 'resolvido';
+    case NaoResolvida  = 'nao_resolvida';
 
     public function label(): string
     {
         return match($this) {
-            self::PorValidar  => 'Por Validar',
-            self::PorResolver => 'Por Resolver',
-            self::NaoValidado => 'Não Validado',
-            self::Resolvendo  => 'Resolvendo',
-            self::Resolvido   => 'Resolvido',
+            self::PorValidar   => 'Por Validar',
+            self::PorResolver  => 'Por Resolver',
+            self::NaoValidado  => 'Não Validado',
+            self::Resolvendo   => 'Resolvendo',
+            self::Resolvido    => 'Resolvido',
+            self::NaoResolvida => 'Não Resolvida',
         };
     }
 
     public function color(): string
     {
         return match($this) {
-            self::PorValidar  => 'blue',
-            self::PorResolver => 'yellow',
-            self::NaoValidado => 'red',
-            self::Resolvendo  => 'orange',
-            self::Resolvido   => 'green',
+            self::PorValidar   => 'blue',
+            self::PorResolver  => 'yellow',
+            self::NaoValidado  => 'red',
+            self::Resolvendo   => 'orange',
+            self::Resolvido    => 'green',
+            self::NaoResolvida => 'purple',
         };
     }
 
@@ -56,11 +59,13 @@ enum OccurrenceStatusEnum: string
     public function allowedTransitions(): array
     {
         return match($this) {
-            self::PorValidar  => [self::PorResolver, self::NaoValidado],
-            self::PorResolver => [self::Resolvendo],
-            self::Resolvendo  => [self::Resolvido],
-            self::NaoValidado => [],
-            self::Resolvido   => [],
+            self::PorValidar   => [self::PorResolver, self::NaoValidado],
+            self::PorResolver  => [self::Resolvendo],
+            self::Resolvendo   => [self::Resolvido],
+            self::NaoValidado  => [],
+            self::Resolvido    => [],
+            // Estado terminal automático — sem transições manuais permitidas
+            self::NaoResolvida => [],
         };
     }
 

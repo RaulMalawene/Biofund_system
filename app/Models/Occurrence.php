@@ -65,6 +65,7 @@ class Occurrence extends Model
         'complainant_name',
         'complainant_email',
         'complainant_phone',
+        'complainant_gender',
         'project_id',
         'category_id',
         'subcategory_id',
@@ -208,6 +209,7 @@ class Occurrence extends Model
             && !in_array($this->status, [
                 OccurrenceStatusEnum::Resolvido,
                 OccurrenceStatusEnum::NaoValidado,
+                OccurrenceStatusEnum::NaoResolvida,
             ]);
     }
 
@@ -262,7 +264,7 @@ class Occurrence extends Model
     {
         return $query->whereNotNull('due_date')
                      ->where('due_date', '<', now())
-                     ->whereNotIn('status', ['resolvido', 'nao_validado']);
+                     ->whereNotIn('status', ['resolvido', 'nao_validado', 'nao_resolvida']);
     }
 
     /**

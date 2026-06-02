@@ -418,18 +418,26 @@
                 placeholder="+258 84 000 0000"
                 @input="mErrors.contact = ''" />
             </div>
-            <div class="f-group contact-note" v-if="mErrors.contact" style="justify-content:flex-start; padding-top:22px">
-              <svg width="13" height="13" fill="none" stroke="#C53030" stroke-width="1.7" viewBox="0 0 14 14">
-                <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
-              </svg>
-              {{ mErrors.contact }}
+            <div class="f-group">
+              <label>Sexo <span class="f-opt">(Opcional)</span></label>
+              <select v-model="nf.complainant_gender">
+                <option value="">Não identificado</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
             </div>
-            <div class="f-group contact-note" v-else style="justify-content:flex-start; padding-top:22px">
-              <svg width="13" height="13" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 14 14">
-                <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
-              </svg>
-              Preencha pelo menos email ou telefone.
-            </div>
+          </div>
+          <div class="contact-note" v-if="mErrors.contact" style="margin-top:-10px; margin-bottom:14px; color:#C53030; font-size:11.5px; display:flex; align-items:center; gap:5px;">
+            <svg width="13" height="13" fill="none" stroke="#C53030" stroke-width="1.7" viewBox="0 0 14 14">
+              <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
+            </svg>
+            {{ mErrors.contact }}
+          </div>
+          <div class="contact-note" v-else style="margin-top:-10px; margin-bottom:14px; font-size:11.5px; color:var(--text-light); display:flex; align-items:center; gap:5px;">
+            <svg width="13" height="13" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 14 14">
+              <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
+            </svg>
+            Preencha pelo menos email ou telefone.
           </div>
 
           <!-- Dados da Ocorrência -->
@@ -534,9 +542,19 @@
               </select>
             </div>
           </div>
+          <div class="f-row">
+            <div class="f-group">
+              <label>Comunidade <span class="f-opt">(Opcional)</span></label>
+              <input type="text" v-model="nf.comunidade" placeholder="Ex: Comunidade de Mafuiane" />
+            </div>
+            <div class="f-group">
+              <label>Posto Administrativo <span class="f-opt">(Opcional)</span></label>
+              <input type="text" v-model="nf.postoAdministrativo" placeholder="Ex: Posto Administrativo de Manhiça" />
+            </div>
+          </div>
           <div class="f-group">
-            <label>Localização / Coordenadas <span class="f-opt">(Opcional)</span></label>
-            <input type="text" v-model="nf.location_detail" placeholder="Ex: -25.9682, 32.5732 ou descrição do local" />
+            <label>Coordenadas GPS <span class="f-opt">(Opcional)</span></label>
+            <input type="text" v-model="nf.coordenadas" placeholder="Ex: -25.9682, 32.5732" />
           </div>
 
           <!-- Descrição -->
@@ -678,6 +696,7 @@ const nf = reactive({
   complainant_name: '',
   complainant_email: '',
   complainant_phone: '',
+  complainant_gender: '',
   subject: '',
   project_id: '',
   category_id: '',
@@ -687,7 +706,9 @@ const nf = reactive({
   occurrence_date: '',
   province_id: '',
   district_id: '',
-  location_detail: '',
+  comunidade: '',
+  postoAdministrativo: '',
+  coordenadas: '',
   description: '',
 })
 
@@ -819,10 +840,12 @@ function openRegistoModal() {
   // Pré-selecciona a província se o funcionário só tiver uma
   const singleProvince = myProvinces.value.length === 1 ? myProvinces.value[0].id : ''
   Object.assign(nf, {
-    complainant_name: '', complainant_email: '', complainant_phone: '',
+    complainant_name: '', complainant_email: '', complainant_phone: '', complainant_gender: '',
     subject: '', project_id: '', category_id: '', occurrence_type_id: '',
     alert_type: '', submission_channel: '', occurrence_date: '',
-    province_id: singleProvince, district_id: '', location_detail: '', description: '',
+    province_id: singleProvince, district_id: '',
+    comunidade: '', postoAdministrativo: '', coordenadas: '',
+    description: '',
   })
   Object.assign(mErrors, {
     contact: '', subject: '', project_id: '', category_id: '',
@@ -907,9 +930,10 @@ async function saveRegisto() {
   saving.value = true
   try {
     const fd = new FormData()
-    if (nf.complainant_name.trim())  fd.append('complainant_name',  nf.complainant_name.trim())
-    if (nf.complainant_email.trim()) fd.append('complainant_email', nf.complainant_email.trim())
-    if (nf.complainant_phone.trim()) fd.append('complainant_phone', nf.complainant_phone.trim())
+    if (nf.complainant_name.trim())  fd.append('complainant_name',   nf.complainant_name.trim())
+    if (nf.complainant_gender)       fd.append('complainant_gender', nf.complainant_gender)
+    if (nf.complainant_email.trim()) fd.append('complainant_email',  nf.complainant_email.trim())
+    if (nf.complainant_phone.trim()) fd.append('complainant_phone',  nf.complainant_phone.trim())
     fd.append('subject',            nf.subject.trim())
     fd.append('project_id',         nf.project_id)
     fd.append('category_id',        nf.category_id)
@@ -918,9 +942,13 @@ async function saveRegisto() {
     fd.append('submission_channel', nf.submission_channel)
     fd.append('province_id',        nf.province_id)
     fd.append('description',        nf.description.trim())
-    if (nf.district_id)              fd.append('district_id',     nf.district_id)
-    if (nf.occurrence_date)          fd.append('occurrence_date', nf.occurrence_date)
-    if (nf.location_detail.trim())   fd.append('location_detail', nf.location_detail.trim())
+    if (nf.district_id)     fd.append('district_id',     nf.district_id)
+    if (nf.occurrence_date) fd.append('occurrence_date', nf.occurrence_date)
+    const locationParts = []
+    if (nf.comunidade.trim())          locationParts.push(nf.comunidade.trim())
+    if (nf.postoAdministrativo.trim()) locationParts.push(nf.postoAdministrativo.trim())
+    if (nf.coordenadas.trim())         locationParts.push(nf.coordenadas.trim())
+    if (locationParts.length) fd.append('location_detail', locationParts.join(' - '))
     modalFiles.value.forEach(f => fd.append('attachments[]', f))
 
     const res = await InternalService.createOccurrence(fd)
@@ -1441,6 +1469,9 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .badge-status.rejected, .badge-status.nao_validado {
   color: #fff; border-color: #DC2626; background: #EF4444;
+}
+.badge-status.nao_resolvida {
+  color: #fff; border-color: #6D28D9; background: #7C3AED;
 }
 
 .badge-origem {

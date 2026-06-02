@@ -7,12 +7,12 @@
       <div class="hero-bg"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <div class="hero-badge">Iniciativa de Conservação da Biofund</div>
+        <div class="hero-badge">MDR-Mecanismo de Dialogo e Reclamacao</div>
         <h1>
           Registe a sua
-          <span>reclamação ambiental</span>
+          <span>reclamação</span>
         </h1>
-        <p>Ajude-nos a proteger a biodiversidade de Moçambique. A Biofund é o seu canal direto para reportar incidentes e monitorar a saúde dos nossos ecossistemas.</p>
+        <p>Fortalecer a transparencia e a participacao das partes interessadas nas iniciativas de Consercacao da Biodiversidade em MOCAMBIQUE</p>
         <div class="hero-buttons">
           <button class="btn-primary" @click="$router.push('/submeterReclamacao')">
             Submeter Reclamação
@@ -34,8 +34,8 @@
               <circle cx="18" cy="26" r="1.5" fill="#2D6A4F"/>
             </svg>
           </div>
-          <h3>Reportar Incidente</h3>
-          <p>Denuncie pesca ilegal, poluição, caça furtiva ou qualquer dano aos nossos ecossistemas naturais.</p>
+          <h3>Registar Ocorrencia</h3>
+          <p>Submeta a sua recamacao, sugestao, preocupacao, ou elogio atraves do formulario disponivel na plataforma</p>
           <router-link to="/submeterReclamacao" class="feature-link">
             Começar Submissão
             <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -50,7 +50,7 @@
             </svg>
           </div>
           <h3>Acompanhar Estado</h3>
-          <p>Verifique o progresso da sua reclamação e as medidas tomadas pelas autoridades de conservação.</p>
+          <p>Consulte o progresso da sua Ocorrencia utilizando o numero do registo</p>
           <router-link to="/visualizarReclamacao" class="feature-link">
             Consultar Agora
             <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>

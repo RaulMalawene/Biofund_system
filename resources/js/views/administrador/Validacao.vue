@@ -129,6 +129,7 @@
                 <option value="nao_validado">Não Validado</option>
                 <option value="resolvendo">Resolvendo</option>
                 <option value="resolvido">Resolvido</option>
+                <option value="nao_resolvida">Não Resolvida</option>
               </select>
             </div>
           </div>
@@ -321,21 +322,21 @@
               <div class="state-actions">
                 <div class="state-flow">
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Validar</span>
+                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['nao_validado','nao_resolvida'].includes(selected.status) }">Por Validar</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': selected.status === 'nao_validado' }">Por Resolver</span>
+                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['nao_validado','nao_resolvida'].includes(selected.status) }">Por Resolver</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'resolvendo', 'flow-done': selected.status === 'resolvido' }">Resolvendo</span>
+                    :class="{ 'flow-active': selected.status === 'resolvendo', 'flow-done': selected.status === 'resolvido', 'flow-skip': selected.status === 'nao_resolvida' }">Resolvendo</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolvido' }">Resolvido</span>
+                  <span class="flow-step" :class="{ 'flow-active': selected.status === 'resolvido', 'flow-skip': selected.status === 'nao_resolvida' }">Resolvido</span>
                 </div>
 
                 <template v-if="selected.status === 'por_validar'">
@@ -412,6 +413,19 @@
                     </div>
                   </div>
                   <div v-if="selected.comentario" class="sf-comment sf-comment-rejeitado">{{ selected.comentario }}</div>
+                </template>
+
+                <template v-else-if="selected.status === 'nao_resolvida'">
+                  <div class="state-final sf-nao-resolvida">
+                    <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
+                        <circle cx="10" cy="10" r="8" />
+                        <path d="M10 6v4M10 13.5v.5" stroke-linecap="round" />
+                      </svg></div>
+                    <div>
+                      <div class="sf-title">Não Resolvida</div>
+                      <div class="sf-sub">Marcada automaticamente por falta de actividade durante 5 dias.</div>
+                    </div>
+                  </div>
                 </template>
 
                 <!-- Adicionar comentário - disponível em todos os estados -->
@@ -799,20 +813,22 @@ const ACTION_TO_API = {
   'Resolvido':   'resolvido',
 }
 const STATUS_LABEL = {
-  por_validar:  'Por Validar',
-  por_resolver: 'Por Resolver',
-  nao_validado: 'Não Validado',
-  resolvendo:   'Resolvendo',
-  resolvido:    'Resolvido',
+  por_validar:   'Por Validar',
+  por_resolver:  'Por Resolver',
+  nao_validado:  'Não Validado',
+  resolvendo:    'Resolvendo',
+  resolvido:     'Resolvido',
+  nao_resolvida: 'Não Resolvida',
 }
 
 function statusClass(s) {
   const map = {
-    por_validar:  'por-validar',
-    por_resolver: 'por-resolver',
-    nao_validado: 'nao-validado',
-    resolvendo:   'resolvendo',
-    resolvido:    'resolvido',
+    por_validar:   'por-validar',
+    por_resolver:  'por-resolver',
+    nao_validado:  'nao-validado',
+    resolvendo:    'resolvendo',
+    resolvido:     'resolvido',
+    nao_resolvida: 'nao-resolvida',
   }
   return map[s] ?? 'por-validar'
 }
@@ -1065,7 +1081,7 @@ async function changeStatus(newState, comment = '') {
     if (comment && comment.trim()) payload.comment = comment.trim()
     const result = await InternalService.updateStatus(selected.value._id, payload)
     const trackingCode = selected.value.id
-    const isFinal = apiStatus === 'nao_validado' || apiStatus === 'resolvido'
+    const isFinal = ['nao_validado', 'resolvido', 'nao_resolvida'].includes(apiStatus)
     if (isFinal) {
       rows.value = rows.value.filter(r => r._id !== selected.value._id)
       selected.value = null
@@ -1539,6 +1555,8 @@ tbody tr:last-child td {
   font-weight: 700;
   border: 1.5px solid;
 }
+
+.badge-status.nao-resolvida { background: #7C3AED; color: #fff; border-color: #6D28D9; }
 
 .badge-status.por-validar {
   color: #fff;
@@ -2112,6 +2130,12 @@ tbody tr:last-child td {
   background: #FFF5F5;
   border-color: #FC8181;
   color: #E53E3E;
+}
+
+.sf-nao-resolvida {
+  background: #F5F3FF;
+  border-color: #A78BFA;
+  color: #5B21B6;
 }
 
 .sf-icon {

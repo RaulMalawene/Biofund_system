@@ -82,6 +82,7 @@
                 <option value="">Todos os Terminais</option>
                 <option value="resolvido">Resolvidas</option>
                 <option value="nao_validado">Não Validadas</option>
+                <option value="nao_resolvida">Não Resolvidas</option>
                 <option value="encerrado">Encerradas</option>
               </select>
             </div>
@@ -132,6 +133,7 @@
           </span>
           <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolvido') }}</span>
           <span class="badge-status nao_validado">Não Validadas · {{ countByStatus('nao_validado') }}</span>
+          <span class="badge-status nao_resolvida">Não Resolvidas · {{ countByStatus('nao_resolvida') }}</span>
         </div>
 
         <!-- TABLE CARD -->
@@ -667,6 +669,7 @@ tbody tr:last-child td { border-bottom: none; }
 .badge-status.resolvendo                              { color: #fff;    border-color: #EA580C; background: #FB923C; }
 .badge-status.resolvido, .badge-status.resolved       { color: #fff;    border-color: #16A34A; background: #22C55E; }
 .badge-status.nao_validado, .badge-status.rejected    { color: #fff;    border-color: #DC2626; background: #EF4444; }
+.badge-status.nao_resolvida                           { color: #fff;    border-color: #6D28D9; background: #7C3AED; }
 .badge-status.encerrado, .badge-status.closed         { color: #fff;    border-color: #4B5563; background: #6B7280; }
 
 .btn-detail {
