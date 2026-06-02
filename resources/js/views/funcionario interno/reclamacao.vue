@@ -427,6 +427,21 @@
               </select>
             </div>
           </div>
+          <div class="f-row">
+            <div class="f-group">
+              <label>Faixa Etária <span class="f-opt">(Opcional)</span></label>
+              <select v-model="nf.complainant_age">
+                <option value="">Não informada</option>
+                <option value="Menos de 18">Menos de 18 anos</option>
+                <option value="18 - 25">18 - 25 anos</option>
+                <option value="26 - 35">26 - 35 anos</option>
+                <option value="36 - 45">36 - 45 anos</option>
+                <option value="46 - 55">46 - 55 anos</option>
+                <option value="56 - 65">56 - 65 anos</option>
+                <option value="Mais de 65">Mais de 65 anos</option>
+              </select>
+            </div>
+          </div>
           <div class="contact-note" v-if="mErrors.contact" style="margin-top:-10px; margin-bottom:14px; color:#C53030; font-size:11.5px; display:flex; align-items:center; gap:5px;">
             <svg width="13" height="13" fill="none" stroke="#C53030" stroke-width="1.7" viewBox="0 0 14 14">
               <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
@@ -697,6 +712,7 @@ const nf = reactive({
   complainant_email: '',
   complainant_phone: '',
   complainant_gender: '',
+  complainant_age: '',
   subject: '',
   project_id: '',
   category_id: '',
@@ -840,7 +856,8 @@ function openRegistoModal() {
   // Pré-selecciona a província se o funcionário só tiver uma
   const singleProvince = myProvinces.value.length === 1 ? myProvinces.value[0].id : ''
   Object.assign(nf, {
-    complainant_name: '', complainant_email: '', complainant_phone: '', complainant_gender: '',
+    complainant_name: '', complainant_email: '', complainant_phone: '',
+    complainant_gender: '', complainant_age: '',
     subject: '', project_id: '', category_id: '', occurrence_type_id: '',
     alert_type: '', submission_channel: '', occurrence_date: '',
     province_id: singleProvince, district_id: '',
@@ -932,6 +949,7 @@ async function saveRegisto() {
     const fd = new FormData()
     if (nf.complainant_name.trim())  fd.append('complainant_name',   nf.complainant_name.trim())
     if (nf.complainant_gender)       fd.append('complainant_gender', nf.complainant_gender)
+    if (nf.complainant_age)          fd.append('complainant_age',    nf.complainant_age)
     if (nf.complainant_email.trim()) fd.append('complainant_email',  nf.complainant_email.trim())
     if (nf.complainant_phone.trim()) fd.append('complainant_phone',  nf.complainant_phone.trim())
     fd.append('subject',            nf.subject.trim())

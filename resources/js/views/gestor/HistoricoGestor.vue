@@ -372,6 +372,14 @@
               <span class="detail-key">Telefone</span>
               <span class="detail-val">{{ selected.complainant.phone }}</span>
             </div>
+            <div class="detail-row" v-if="selected.complainant.gender">
+              <span class="detail-key">Sexo</span>
+              <span class="detail-val">{{ selected.complainant.gender === 'masculino' ? 'Masculino' : 'Feminino' }}</span>
+            </div>
+            <div class="detail-row" v-if="selected.complainant.age">
+              <span class="detail-key">Faixa Etária</span>
+              <span class="detail-val">{{ selected.complainant.age }}</span>
+            </div>
           </div>
 
           <!-- Details grid -->

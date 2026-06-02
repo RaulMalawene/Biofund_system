@@ -312,7 +312,9 @@
                 <div class="info-block">
                   <div class="info-label">Denunciante</div>
                   <div class="info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
-                  <div class="info-sub">{{ selected.telefone }}</div>
+                  <div class="info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
+                  <div class="info-sub" v-if="selected.sexo">{{ selected.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</div>
+                  <div class="info-sub" v-if="selected.idade">{{ selected.idade }}</div>
                 </div>
               </div>
 
@@ -573,6 +575,8 @@
                 <div class="modal-info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
                 <div class="modal-info-sub" v-if="selected.email_afectado">{{ selected.email_afectado }}</div>
                 <div class="modal-info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
+                <div class="modal-info-sub" v-if="selected.sexo">{{ selected.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</div>
+                <div class="modal-info-sub" v-if="selected.idade">{{ selected.idade }}</div>
                 <div class="modal-info-sub" v-if="selected.registado_por">Registado por: {{ selected.registado_por }}</div>
               </div>
             </div>
@@ -776,6 +780,21 @@
                 <option value="">Não identificado</option>
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
+              </select>
+            </div>
+          </div>
+          <div class="r-row">
+            <div class="r-group">
+              <label>Faixa Etária <span class="r-opt">(Opcional)</span></label>
+              <select v-model="nf.complainant_age">
+                <option value="">Não informada</option>
+                <option value="Menos de 18">Menos de 18 anos</option>
+                <option value="18 - 25">18 - 25 anos</option>
+                <option value="26 - 35">26 - 35 anos</option>
+                <option value="36 - 45">36 - 45 anos</option>
+                <option value="46 - 55">46 - 55 anos</option>
+                <option value="56 - 65">56 - 65 anos</option>
+                <option value="Mais de 65">Mais de 65 anos</option>
               </select>
             </div>
           </div>
@@ -1071,6 +1090,8 @@ function mapOccurrence(o) {
     denunciante: o.complainant?.name ?? null,
     email_afectado: o.complainant?.email ?? null,
     telefone: o.complainant?.phone ?? null,
+    sexo: o.complainant?.gender ?? null,
+    idade: o.complainant?.age ?? null,
     registado_por: o.submitted_by?.name ?? null,
     descricao: o.description ?? '',
     foto: null,
@@ -1325,7 +1346,7 @@ const rFiles            = ref([])
 const rFileInput        = ref(null)
 
 const nf = reactive({
-  complainant_name: '', complainant_gender: '', complainant_email: '', complainant_phone: '',
+  complainant_name: '', complainant_gender: '', complainant_age: '', complainant_email: '', complainant_phone: '',
   subject: '', project_id: '', category_id: '', occurrence_type_id: '',
   alert_type: '', submission_channel: '', occurrence_date: '',
   province_id: '', district_id: '', comunidade: '', postoAdministrativo: '', coordenadas: '',
@@ -1341,7 +1362,7 @@ const rErrors = reactive({
 function openRegistoModal() {
   const singleProvince = scopeProvinces.value.length === 1 ? scopeProvinces.value[0].id : ''
   Object.assign(nf, {
-    complainant_name: '', complainant_gender: '', complainant_email: '', complainant_phone: '',
+    complainant_name: '', complainant_gender: '', complainant_age: '', complainant_email: '', complainant_phone: '',
     subject: '', project_id: '', category_id: '', occurrence_type_id: '',
     alert_type: '', submission_channel: '', occurrence_date: '',
     province_id: singleProvince, district_id: '',
@@ -1421,6 +1442,7 @@ async function saveRegisto() {
     const fd = new FormData()
     if (nf.complainant_name.trim())  fd.append('complainant_name',   nf.complainant_name.trim())
     if (nf.complainant_gender)       fd.append('complainant_gender', nf.complainant_gender)
+    if (nf.complainant_age)          fd.append('complainant_age',    nf.complainant_age)
     if (nf.complainant_email.trim()) fd.append('complainant_email',  nf.complainant_email.trim())
     if (nf.complainant_phone.trim()) fd.append('complainant_phone',  nf.complainant_phone.trim())
     fd.append('subject',            nf.subject.trim())

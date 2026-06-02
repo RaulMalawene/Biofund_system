@@ -457,6 +457,30 @@
             </div>
           </div>
 
+          <div class="f-row">
+            <div class="f-group">
+              <label>Sexo <span class="f-opt">(Opcional)</span></label>
+              <select v-model="form.complainant_gender">
+                <option value="">Não identificado</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
+            </div>
+            <div class="f-group">
+              <label>Faixa Etária <span class="f-opt">(Opcional)</span></label>
+              <select v-model="form.complainant_age">
+                <option value="">Não informada</option>
+                <option value="Menos de 18">Menos de 18 anos</option>
+                <option value="18 - 25">18 - 25 anos</option>
+                <option value="26 - 35">26 - 35 anos</option>
+                <option value="36 - 45">36 - 45 anos</option>
+                <option value="46 - 55">46 - 55 anos</option>
+                <option value="56 - 65">56 - 65 anos</option>
+                <option value="Mais de 65">Mais de 65 anos</option>
+              </select>
+            </div>
+          </div>
+
           <!-- Assunto -->
           <div class="f-group">
             <label>Assunto <span class="f-req">*</span></label>
@@ -1004,6 +1028,8 @@ const form = reactive({
     complainant_name:   '',
     complainant_email:  '',
     complainant_phone:  '',
+    complainant_gender: '',
+    complainant_age:    '',
     subject:            '',
     project_id:         '',
     category_id:        '',
@@ -1053,6 +1079,8 @@ async function submitForm() {
     if (form.complainant_name.trim())  fd.append('complainant_name',  form.complainant_name.trim())
     if (form.complainant_email.trim()) fd.append('complainant_email', form.complainant_email.trim())
     if (form.complainant_phone.trim()) fd.append('complainant_phone', form.complainant_phone.trim())
+    if (form.complainant_gender)       fd.append('complainant_gender', form.complainant_gender)
+    if (form.complainant_age)          fd.append('complainant_age',    form.complainant_age)
     fd.append('subject',            form.subject.trim())
     fd.append('project_id',         form.project_id)
     fd.append('category_id',        form.category_id)
@@ -1093,6 +1121,7 @@ function resetDrawerForm(clearSuccess = true) {
     submitError.value = ''
     Object.assign(form, {
         complainant_name: '', complainant_email: '', complainant_phone: '',
+        complainant_gender: '', complainant_age: '',
         subject: '', project_id: '', category_id: '',
         occurrence_type_id: '', alert_type: '', submission_channel: '',
         occurrence_date: '', province_id: '', district_id: '',

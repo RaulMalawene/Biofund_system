@@ -66,6 +66,7 @@ class Occurrence extends Model
         'complainant_email',
         'complainant_phone',
         'complainant_gender',
+        'complainant_age',
         'project_id',
         'category_id',
         'subcategory_id',

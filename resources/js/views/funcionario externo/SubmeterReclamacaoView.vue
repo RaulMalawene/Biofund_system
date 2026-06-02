@@ -168,11 +168,14 @@
           </div>
         </div>
 
-        <div class="field-row">
+        <div class="field-row single">
           <div class="field-group">
             <label>Seu Nome (Opcional)</label>
             <input type="text" v-model="form.nome" placeholder="Nome completo ou pseudónimo" />
           </div>
+        </div>
+
+        <div class="field-row">
           <div class="field-group">
             <label>Sexo (Opcional)</label>
             <div class="select-wrap">
@@ -180,6 +183,21 @@
                 <option value="">Não identificado</option>
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Faixa Etária (Opcional)</label>
+            <div class="select-wrap">
+              <select v-model="form.idade">
+                <option value="">Não informada</option>
+                <option value="Menos de 18">Menos de 18 anos</option>
+                <option value="18 - 25">18 - 25 anos</option>
+                <option value="26 - 35">26 - 35 anos</option>
+                <option value="36 - 45">36 - 45 anos</option>
+                <option value="46 - 55">46 - 55 anos</option>
+                <option value="56 - 65">56 - 65 anos</option>
+                <option value="Mais de 65">Mais de 65 anos</option>
               </select>
             </div>
           </div>
@@ -355,7 +373,7 @@ const today = new Date().toISOString().split('T')[0]
 const form = reactive({
   projeto: '', categoria: '', tipoOcorrencia: '', descricao: '', data: '',
   provincia: '', distrito: '', comunidade: '', postoAdministrativo: '', coordenadas: '',
-  nome: '', sexo: '', email: '', phone: '',
+  nome: '', sexo: '', idade: '', email: '', phone: '',
 })
 
 // ─── Listas de referência ─────────────────────────────────────
@@ -454,6 +472,7 @@ async function submitForm() {
   // Nome - opcional, submissão anónima permitida
   if (form.nome.trim())  fd.append('complainant_name',  form.nome.trim())
   if (form.sexo)         fd.append('complainant_gender', form.sexo)
+  if (form.idade)        fd.append('complainant_age',    form.idade)
   if (form.email.trim()) fd.append('complainant_email', form.email.trim())
   if (form.phone.trim()) fd.append('complainant_phone', form.phone.trim())
 

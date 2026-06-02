@@ -65,6 +65,7 @@ class OccurrenceResource extends JsonResource
                 'email'  => $a['complainant_email'],
                 'phone'  => $a['complainant_phone'],
                 'gender' => $a['complainant_gender'] ?? null,
+                'age'    => $a['complainant_age']    ?? null,
             ]),
 
             // Classificação

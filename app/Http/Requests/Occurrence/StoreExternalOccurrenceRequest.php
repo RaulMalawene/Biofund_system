@@ -28,6 +28,7 @@ class StoreExternalOccurrenceRequest extends FormRequest
             'complainant_email'  => ['nullable', 'email', 'max:150'],
             'complainant_phone'  => ['nullable', 'string', 'max:30'],
             'complainant_gender' => ['nullable', 'string', 'in:masculino,feminino'],
+            'complainant_age'    => ['nullable', 'string', 'max:20'],
 
             // Classificação
             'project_id'         => ['required', 'integer', 'exists:projects,id'],
