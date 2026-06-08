@@ -43,7 +43,9 @@
       "PowerShell(cd \"E:\\\\biofund\\\\biofund_api\"; php -r \"try { $pdo = new PDO\\('mysql:host=127.0.0.1;port=3306;dbname=laravel', 'root', ''\\); echo 'MySQL OK'; } catch\\(Exception $e\\) { echo 'MySQL ERRO: ' . $e->getMessage\\(\\); }\" 2>&1)",
       "PowerShell(& \"C:\\\\wamp64\\\\bin\\\\mysql\\\\mysql8.4.7\\\\bin\\\\mysql.exe\" -u root -e \"SHOW DATABASES;\" 2>&1)",
       "PowerShell(& \"C:\\\\wamp64\\\\bin\\\\mysql\\\\mysql8.4.7\\\\bin\\\\mysql.exe\" -u root -e \"SELECT table_schema, table_name, table_rows FROM information_schema.tables WHERE table_schema IN \\('laravel','biofund'\\) ORDER BY table_schema, table_name;\" 2>&1)",
-      "PowerShell(cd \"E:\\\\biofund\\\\biofund_api\"; php artisan tinker --execute=\"Mail::raw\\('Teste de email MDR', function\\(\\\\$m\\) { \\\\$m->to\\('yassermomade10@gmail.com'\\)->subject\\('Teste SMTP'\\); }\\); echo 'Email enviado com sucesso!';\" 2>&1)"
+      "PowerShell(cd \"E:\\\\biofund\\\\biofund_api\"; php artisan tinker --execute=\"Mail::raw\\('Teste de email MDR', function\\(\\\\$m\\) { \\\\$m->to\\('yassermomade10@gmail.com'\\)->subject\\('Teste SMTP'\\); }\\); echo 'Email enviado com sucesso!';\" 2>&1)",
+      "Bash(grep -rn \"EnsureFrontendRequestsAreStateful\\\\|stateful\\\\|SANCTUM\" config/*.php .env.example)",
+      "Bash(cat config/cors.php)"
     ]
   }
 }
