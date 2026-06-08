@@ -286,6 +286,18 @@
             <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
           </div>
 
+          <div class="detail-row" v-if="selected.complainant?.name">
+            <span class="detail-key">Nome do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.complainant?.email">
+            <span class="detail-key">Email do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.email }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.complainant?.phone">
+            <span class="detail-key">Telefone do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.phone }}</span>
+          </div>
           <div class="detail-row">
             <span class="detail-key">Data de Submissão</span>
             <span class="detail-val">{{ selected.submitted_at }}</span>

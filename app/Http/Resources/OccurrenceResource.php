@@ -21,7 +21,7 @@ class OccurrenceResource extends JsonResource
     public function toArray(Request $request): array
     {
         $user             = $request->user();
-        $isManagerOrAbove = $user && in_array($user->role, [RoleEnum::Admin, RoleEnum::Gestor]);
+        $isManagerOrAbove = $user && in_array($user->role, [RoleEnum::Admin, RoleEnum::Gestor, RoleEnum::Funcionario]);
 
         // Aceder getAttributes() uma única vez evita a cadeia dupla de __get
         // (JsonResource::__get → Model::__get → attributes[]) por cada campo.
