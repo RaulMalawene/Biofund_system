@@ -31,7 +31,7 @@
           </svg>
         </div>
         <h1>Acesso Restrito</h1>
-        <p>Portal administrativo para funcionários e gestores da Biofund Moçambique.</p>
+        <p>Portal administrativo para funcionários e gestores da Biofund.</p>
       </div>
 
       <!-- Login card -->

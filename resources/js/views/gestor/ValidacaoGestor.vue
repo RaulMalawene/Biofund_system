@@ -1116,7 +1116,7 @@ onMounted(async () => {
   InternalService.getFormData()
     .then(data => {
       refCategories.value = data.categories      ?? []
-      refTypes.value      = data.occurrence_types ?? []
+      refTypes.value      = (data.occurrence_types ?? []).filter(t => t.alert_level !== 'urgent')
     })
     .catch(e => console.error('Erro ao carregar form data:', e))
 

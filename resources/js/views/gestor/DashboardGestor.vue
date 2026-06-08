@@ -934,7 +934,7 @@ async function loadRefData() {
   try {
     const data = await InternalService.getFormData()
     refCategories.value = data.categories      ?? []
-    refTypes.value      = data.occurrence_types ?? []
+    refTypes.value      = (data.occurrence_types ?? []).filter(t => t.alert_level !== 'urgent')
   } catch (err) {
     console.error('Erro ao carregar dados do formulário:', err)
   } finally {
