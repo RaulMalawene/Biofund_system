@@ -899,7 +899,8 @@ async function loadOccurrences() {
   loading.value = true
   try {
     const res = await InternalService.getOccurrences({ per_page: 100 })
-    rows.value = (res.data ?? []).map(mapOccurrence)
+    const TERMINAL = ['resolvido', 'nao_validado', 'nao_resolvida']
+    rows.value = (res.data ?? []).map(mapOccurrence).filter(r => !TERMINAL.includes(r.status))
   } catch (e) {
     console.error(e)
   } finally {

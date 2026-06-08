@@ -36,7 +36,9 @@ class AttachmentController extends Controller
 
         $canAccess = match ($user->role) {
             RoleEnum::Admin       => true,
-            RoleEnum::Gestor      => $user->province_id === $occurrence->province_id,
+            RoleEnum::Gestor      => $occurrence->submitted_by_user_id === $user->id
+                                     || $user->province_id === $occurrence->province_id
+                                     || $user->provinces()->where('provinces.id', $occurrence->province_id)->exists(),
             RoleEnum::Funcionario => $occurrence->submitted_by_user_id === $user->id,
         };
 

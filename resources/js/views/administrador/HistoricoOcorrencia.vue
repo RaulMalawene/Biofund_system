@@ -228,7 +228,6 @@
           <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolvido') }}</span>
           <span class="badge-status nao_validado">Não Validadas · {{ countByStatus('nao_validado') }}</span>
           <span class="badge-status nao_resolvida">Não Resolvidas · {{ countByStatus('nao_resolvida') }}</span>
-          <span class="badge-status removido">Removidas · {{ countByStatus('removed') }}</span>
         </div>
 
         <!-- TABLE CARD -->

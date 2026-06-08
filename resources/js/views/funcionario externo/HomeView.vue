@@ -12,7 +12,7 @@
           Registe a sua
           <span>reclamação</span>
         </h1>
-        <p>Fortalecer a transparencia e a participacao das partes interessadas nas iniciativas de Consercacao da Biodiversidade em MOCAMBIQUE</p>
+        <p>Fortalecer a transparência e a participação das partes interessadas nas iniciativas de Conservação da Biodiversidade em MOÇAMBIQUE</p>
         <div class="hero-buttons">
           <button class="btn-primary" @click="$router.push('/submeterReclamacao')">
             Submeter Reclamação
@@ -34,8 +34,8 @@
               <circle cx="18" cy="26" r="1.5" fill="#2D6A4F"/>
             </svg>
           </div>
-          <h3>Registar Ocorrencia</h3>
-          <p>Submeta a sua recamacao, sugestao, preocupacao, ou elogio atraves do formulario disponivel na plataforma</p>
+          <h3>Registar Ocorrência</h3>
+          <p>Submeta a sua reclamação, sugestão, preocupação, ou elogio através do formulário disponível na plataforma</p>
           <router-link to="/submeterReclamacao" class="feature-link">
             Começar Submissão
             <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -50,7 +50,7 @@
             </svg>
           </div>
           <h3>Acompanhar Estado</h3>
-          <p>Consulte o progresso da sua Ocorrencia utilizando o numero do registo</p>
+          <p>Consulte o progresso da sua Ocorrência utilizando o código do registo</p>
           <router-link to="/visualizarReclamacao" class="feature-link">
             Consultar Agora
             <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -64,8 +64,8 @@
               <path d="M13 18 L17 22 L23 14" stroke="#2D6A4F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3>Missão Biofund</h3>
-          <p>Saiba como a Biofund está a gerir os recursos financeiros para a biodiversidade moçambicana.</p>
+          <h3>Resolução</h3>
+          <p>Promovendo a inclusão, participação e engajamento das partes interessadas</p>
           <a href="#" class="feature-link">
             Ver Impacto
             <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -116,7 +116,7 @@
     <section class="species-section reveal">
       <h2>Património a Proteger</h2>
       <div class="species-underline"></div>
-      <p>Conheça algumas das espécies emblemáticas que o BioQueixa ajuda a salvaguardar através da vigilância participativa.</p>
+      <p>Conheça algumas das espécies emblemáticas que o Biofund ajuda a salvaguardar através da vigilância participativa.</p>
 
       <div class="species-grid">
         <div class="species-card" v-for="s in species" :key="s.name">

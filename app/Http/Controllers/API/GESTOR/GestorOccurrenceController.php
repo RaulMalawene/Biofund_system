@@ -78,7 +78,9 @@ class GestorOccurrenceController extends Controller
             // Pré-resolve os IDs de funcionários elegíveis (60s cache) para evitar
             // um EXISTS correlacionado por cada linha de ocorrências na BD.
             RoleEnum::Gestor => (function () use ($query, $user, $gestorProvinceIds, $gestorProjectIds) {
-                // Funcionários que partilham AMBOS a província E o projecto com o gestor
+                $hasProjects = !empty($gestorProjectIds);
+
+                // Funcionários da mesma província; se o gestor tiver projectos, filtra também por projecto.
                 $funcionarioIds = Cache::remember(
                     "gestor_funcionarios.{$user->id}",
                     60,
@@ -87,22 +89,26 @@ class GestorOccurrenceController extends Controller
                             $q->whereIn('province_id', $gestorProvinceIds)
                               ->orWhereHas('provinces', fn($q2) => $q2->whereIn('provinces.id', $gestorProvinceIds))
                         )
-                        ->where(fn($q) =>
-                            $q->whereHas('projects', fn($q2) => $q2->whereIn('projects.id', $gestorProjectIds))
+                        ->when($hasProjects, fn($q) =>
+                            $q->where(fn($q2) =>
+                                $q2->whereHas('projects', fn($q3) => $q3->whereIn('projects.id', $gestorProjectIds))
+                            )
                         )
                         ->pluck('id')
                         ->toArray()
                 );
 
-                // Ocorrências visíveis: (província AND projecto) OU submetidas pelo próprio/funcionários da área
-                $query->where(fn($q) =>
-                    $q->where(fn($inner) =>
-                        $inner->whereIn('province_id', $gestorProvinceIds)
-                              ->whereIn('project_id', $gestorProjectIds)
-                    )
+                // Ocorrências visíveis: província (+ projecto se atribuído) OU submetidas pelo próprio/funcionários da área
+                $query->where(function ($q) use ($gestorProvinceIds, $gestorProjectIds, $user, $funcionarioIds, $hasProjects) {
+                    $q->where(function ($inner) use ($gestorProvinceIds, $gestorProjectIds, $hasProjects) {
+                        $inner->whereIn('province_id', $gestorProvinceIds);
+                        if ($hasProjects) {
+                            $inner->whereIn('project_id', $gestorProjectIds);
+                        }
+                    })
                     ->orWhere('submitted_by_user_id', $user->id)
-                    ->orWhereIn('submitted_by_user_id', $funcionarioIds)
-                );
+                    ->orWhereIn('submitted_by_user_id', $funcionarioIds);
+                });
             })(),
 
             RoleEnum::Admin => null,

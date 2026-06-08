@@ -199,7 +199,7 @@
             <div class="kpi-sub dark">{{ rawOverdue }} fora do prazo</div>
           </div>
 
-          <div class="kpi-card kpi-blue" @click="selectCard('por_validar')" :class="{ 'card-active': activeFilter === 'por_validar' }" title="Filtrar por: Por Validar">
+          <div class="kpi-card kpi-orange" @click="selectCard('por_validar')" :class="{ 'card-active': activeFilter === 'por_validar' }" title="Filtrar por: Por Validar">
             <div class="kpi-top">
               <div class="kpi-icon white">
                 <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
@@ -1616,7 +1616,7 @@ onMounted(async () => {
   user-select: none;
 }
 .kpi-card:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07); transform: translateY(-1px); }
-.kpi-card.kpi-blue   { background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%); border: none; box-shadow: 0 4px 20px rgba(59,130,246,0.35); }
+.kpi-card.kpi-orange { background: linear-gradient(135deg, #c2410c 0%, #fb923c 100%); border: none; box-shadow: 0 4px 20px rgba(251,146,60,0.35); }
 .kpi-card.kpi-green  { background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); border: none; box-shadow: 0 4px 20px rgba(45,106,79,0.35); }
 .kpi-card.kpi-purple { background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%); border: none; box-shadow: 0 4px 20px rgba(91,33,182,0.35); }
 .kpi-card.kpi-red    { background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%); border: none; box-shadow: 0 4px 20px rgba(153,27,27,0.35); }
@@ -1626,7 +1626,7 @@ onMounted(async () => {
   outline-offset: 2px;
   box-shadow: 0 0 0 5px rgba(82, 183, 136, 0.15), 0 4px 20px rgba(0,0,0,0.07);
 }
-.kpi-card.kpi-blue.card-active,
+.kpi-card.kpi-orange.card-active,
 .kpi-card.kpi-green.card-active,
 .kpi-card.kpi-purple.card-active,
 .kpi-card.kpi-red.card-active {
