@@ -194,9 +194,9 @@
               </div>
               <span class="kpi-badge up">↑ 8.2%</span>
             </div>
-            <div class="kpi-label dark">Total de Reclamações</div>
+            <div class="kpi-label dark">Total de Ocorrências</div>
             <div class="kpi-value dark">{{ statsLoading ? '-' : (rawTotals.all ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ rawOverdue }} fora do prazo</div>
+            <div class="kpi-sub dark">{{ rawReclamacoes }} reclamações · {{ rawElogios }} elogios · {{ rawSugestoes }} sugestões</div>
           </div>
 
           <div class="kpi-card kpi-orange" @click="selectCard('por_validar')" :class="{ 'card-active': activeFilter === 'por_validar' }" title="Filtrar por: Por Validar">
@@ -733,7 +733,10 @@ const stats = reactive({
 // Valores KPI fixos - nunca se alteram quando um filtro está activo
 const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 })
 const rawAlertLevel = reactive({ normal: 0, urgent: 0, gbv: 0 })
-const rawOverdue    = ref(0)
+const rawOverdue     = ref(0)
+const rawReclamacoes = ref(0)
+const rawElogios     = ref(0)
+const rawSugestoes   = ref(0)
 
 // ── Filtros de dashboard (ano / província / projecto) ──────────
 const dashFilter = reactive({ year: '', province_id: '', project_id: '', category_id: '' })
@@ -770,7 +773,10 @@ async function applyDashFilter() {
         submissions.value     = mapRecent(data.recent)
         Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
         Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
-        rawOverdue.value = data.overdue ?? 0
+        rawOverdue.value      = data.overdue      ?? 0
+        rawReclamacoes.value  = data.reclamacoes  ?? 0
+        rawElogios.value      = data.elogios      ?? 0
+        rawSugestoes.value    = data.sugestoes    ?? 0
         updateCharts()
     } catch (err) {
         console.error('Erro ao aplicar filtros:', err)
@@ -843,7 +849,10 @@ async function refreshStats() {
         submissions.value     = mapRecent(data.recent)
         Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
         Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
-        rawOverdue.value = data.overdue ?? 0
+        rawOverdue.value      = data.overdue      ?? 0
+        rawReclamacoes.value  = data.reclamacoes  ?? 0
+        rawElogios.value      = data.elogios      ?? 0
+        rawSugestoes.value    = data.sugestoes    ?? 0
         updateCharts()
     } catch (err) {
         console.error('Erro ao actualizar estatísticas:', err)

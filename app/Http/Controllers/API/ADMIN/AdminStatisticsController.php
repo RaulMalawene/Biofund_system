@@ -101,6 +101,14 @@ class AdminStatisticsController extends Controller
 
         $overdue = $baseQuery()->overdue()->count();
 
+        $byTypeCode = $baseQuery()
+            ->join('occurrence_types', 'occurrences.occurrence_type_id', '=', 'occurrence_types.id')
+            ->select('occurrence_types.code', DB::raw('count(*) as total'))
+            ->whereIn('occurrence_types.code', ['REC', 'ELO', 'SUG'])
+            ->groupBy('occurrence_types.code')
+            ->pluck('total', 'code')
+            ->toArray();
+
         $byAlertLevel = $baseQuery()
             ->join('occurrence_types', 'occurrences.occurrence_type_id', '=', 'occurrence_types.id')
             ->select('occurrence_types.alert_level', DB::raw('count(*) as total'))
@@ -166,6 +174,9 @@ class AdminStatisticsController extends Controller
         return [
             'totals'            => array_merge(['all' => $totalAll], $totals),
             'overdue'           => $overdue,
+            'reclamacoes'       => (int) ($byTypeCode['REC'] ?? 0),
+            'elogios'           => (int) ($byTypeCode['ELO'] ?? 0),
+            'sugestoes'         => (int) ($byTypeCode['SUG'] ?? 0),
             'by_alert_level'    => $byAlertLevel,
             'by_category'       => $byCategory->values()->toArray(),
             'by_province'       => $byProvince->values()->toArray(),

@@ -345,7 +345,7 @@ async function saveAll() {
   font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
   overflow: hidden; transition: box-shadow 0.18s;
 }
-.admin-avatar-img { width: 100%; height: 100%; object-fit: cover; }
+.admin-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
 </style>
 
 <!-- Estilos globais para o painel (teleportado para o body, fora do scope) -->
@@ -398,6 +398,7 @@ async function saveAll() {
 .pp-avatar-img {
   width: 90px; height: 90px; border-radius: 50%;
   object-fit: cover; border: 3px solid #52B788;
+  display: block; box-sizing: border-box;
 }
 .pp-avatar-initials {
   width: 90px; height: 90px; border-radius: 50%;
