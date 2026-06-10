@@ -10,15 +10,15 @@
         <div class="hero-badge">MDR-Mecanismo de Dialogo e Reclamacao</div>
         <h1>
           Registe a sua
-          <span>reclamação</span>
+          <span>ocorrência</span>
         </h1>
         <p>Fortalecer a transparência e a participação das partes interessadas nas iniciativas de Conservação da Biodiversidade em MOÇAMBIQUE</p>
         <div class="hero-buttons">
           <button class="btn-primary" @click="$router.push('/submeterReclamacao')">
-            Submeter Reclamação
+            Submeter Ocorrência
             <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <button class="btn-outline-white" @click="$router.push('/visualizarReclamacao')">Consultar Reclamação</button>
+          <button class="btn-outline-white" @click="$router.push('/visualizarReclamacao')">Consultar Ocorrência</button>
         </div>
       </div>
     </section>

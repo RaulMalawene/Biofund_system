@@ -13,7 +13,7 @@
           </svg>
           Biofund
         </div>
-        <h1>Registar Reclamação</h1>
+        <h1>Registar Ocorrência</h1>
         <p>Preencha o formulário abaixo com o máximo de detalhes possível.</p>
       </div>
 
@@ -27,7 +27,7 @@
             </svg>
           </div>
           <div class="card-header-text">
-            <h3>Informação da Reclamação</h3>
+            <h3>Informação da Ocorrência</h3>
             <p>Identifique o tipo de Ocorrencia e descreva o que aconteceu.</p>
           </div>
         </div>
@@ -43,7 +43,7 @@
             </div>
           </div>
           <div class="field-group">
-            <label>Categoria da Reclamação</label>
+            <label>Categoria da Ocorrência</label>
             <div class="select-wrap">
               <select v-model="form.categoria" :disabled="loadingFormData">
                 <option value="" disabled>{{ loadingFormData ? 'A carregar…' : 'Seleccione a categoria' }}</option>
@@ -297,12 +297,12 @@
               <path d="M10 28C10 28 14 20 20 20" stroke="#D8F3DC" stroke-width="2" stroke-linecap="round" />
             </svg>
           </div>
-          <p>Ao submeter esta reclamação, você declara que as informações prestadas são verdadeiras e autoriza a Biofund
+          <p>Ao submeter esta ocorrência, você declara que as informações prestadas são verdadeiras e autoriza a Biofund
             a utilizá-las para fins de investigação ambiental.</p>
         </div>
         <button class="btn-submit" @click="submitForm" :disabled="submitting">
           <span v-if="submitting" class="spinner"></span>
-          <span>{{ submitting ? 'A enviar…' : 'Enviar Reclamação' }}</span>
+          <span>{{ submitting ? 'A enviar…' : 'Enviar Ocorrência' }}</span>
           <svg v-if="!submitting" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 14 14">
             <path d="M2 7h10M8 3l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
@@ -321,8 +321,8 @@
           </svg>
         </div>
 
-        <h3>Reclamação Enviada!</h3>
-        <p>A sua reclamação foi registada com sucesso. A equipa da Biofund irá analisar e tomar as medidas necessárias.</p>
+        <h3>Ocorrência Enviada!</h3>
+        <p>A sua ocorrência foi registada com sucesso. A equipa da Biofund irá analisar e tomar as medidas necessárias.</p>
 
         <!-- Tracking Code -->
         <div class="tracking-box" v-if="trackingCode">
@@ -346,7 +346,7 @@
               </template>
             </button>
           </div>
-          <p class="tracking-hint">Guarde este código para acompanhar o estado da sua reclamação.</p>
+          <p class="tracking-hint">Guarde este código para acompanhar o estado da sua ocorrência.</p>
           <p class="tracking-due" v-if="dueDate">Prazo de resposta: <strong>{{ dueDate }}</strong></p>
         </div>
 
