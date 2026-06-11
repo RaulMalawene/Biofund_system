@@ -32,7 +32,8 @@ class ParametrizationController extends Controller
             return Category::withCount('occurrences')
                 ->with(['subcategories' => fn($q) => $q->select('id', 'category_id', 'name', 'is_active')->orderBy('name')])
                 ->orderBy('name')
-                ->get();
+                ->get()
+                ->toArray();
         });
 
         return response()->json(['categories' => $categories], 200);
@@ -171,7 +172,8 @@ class ParametrizationController extends Controller
         $projects = Cache::remember('admin.projects', 600, function () {
             return Project::withCount('occurrences')
                 ->orderBy('name')
-                ->get();
+                ->get()
+                ->toArray();
         });
 
         return response()->json(['projects' => $projects], 200);
@@ -232,7 +234,8 @@ class ParametrizationController extends Controller
         $types = Cache::remember('admin.occurrence_types', 600, function () {
             return OccurrenceType::withCount('occurrences')
                 ->orderBy('name')
-                ->get();
+                ->get()
+                ->toArray();
         });
 
         return response()->json(['occurrence_types' => $types], 200);

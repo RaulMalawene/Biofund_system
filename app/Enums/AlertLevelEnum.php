@@ -62,4 +62,22 @@ enum AlertLevelEnum: string
             AlertLevelEnum::Gbv    => 'receives_gbv_alerts',
         };
     }
+
+    /**
+     * Número máximo de dias úteis sem actualização de estado antes da
+     * ocorrência ser marcada automaticamente como 'Não Resolvida'.
+     *
+     * Ocorrências urgentes ou de GBV têm um prazo mais curto (3 dias úteis)
+     * por serem de prioridade máxima; as restantes têm 5 dias úteis.
+     *
+     * Usado pelo comando occurrences:mark-unresolved e pelas notificações
+     * enviadas aos gestores responsáveis.
+     */
+    public function statusUpdateBusinessDaysLimit(): int
+    {
+        return match($this) {
+            AlertLevelEnum::Normal => 5,
+            AlertLevelEnum::Urgent, AlertLevelEnum::Gbv => 3,
+        };
+    }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\AlertLevelEnum;
 use App\Enums\OccurrenceStatusEnum;
 use App\Models\Occurrence;
 use App\Models\OccurrenceStatusHistory;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +18,17 @@ use Illuminate\Support\Facades\DB;
  *
  * Regra de negócio: qualquer ocorrência que permaneça num estado
  * não-terminal sem qualquer actividade (mudança de estado ou comentário)
- * durante mais de 5 dias é automaticamente marcada como 'nao_resolvida'.
+ * durante mais dias ÚTEIS (segunda a sexta-feira, excluindo sábados e
+ * domingos) do que o limite aplicável ao seu nível de alerta é
+ * automaticamente marcada como 'nao_resolvida'.
+ *
+ * Limite por nível de alerta (AlertLevelEnum::statusUpdateBusinessDaysLimit):
+ *   - normal          → 5 dias úteis
+ *   - urgent / gbv    → 3 dias úteis
+ *
+ * O nível de alerta de uma ocorrência é o do seu occurrence_type;
+ * para ocorrências internas sem tipo definido usa-se o campo alert_type,
+ * com 'normal' como valor por omissão.
  *
  * A "actividade" é medida pela entrada mais recente na tabela
  * occurrence_status_history. O addComment() também cria uma entrada
@@ -27,11 +39,17 @@ use Illuminate\Support\Facades\DB;
 class MarkOccurrencesAsUnresolved extends Command
 {
     protected $signature   = 'occurrences:mark-unresolved';
-    protected $description = 'Marca como Não Resolvida qualquer ocorrência sem actividade há mais de 5 dias';
+    protected $description = 'Marca como Não Resolvida qualquer ocorrência sem actividade há mais de 5 dias úteis (3 para urgentes/GBV)';
+
+    /**
+     * Maior limite de dias úteis entre todos os níveis de alerta.
+     * Usado apenas como corte seguro no pré-filtro SQL.
+     */
+    private const MAX_BUSINESS_DAYS_LIMIT = 5;
 
     public function handle(): int
     {
-        $cutoff = now()->subDays(5);
+        $now = now();
 
         $terminalStatuses = [
             OccurrenceStatusEnum::Resolvido->value,
@@ -39,12 +57,22 @@ class MarkOccurrencesAsUnresolved extends Command
             OccurrenceStatusEnum::NaoResolvida->value,
         ];
 
-        // Ocorrências em estado não-terminal sem qualquer registo de actividade
-        // nos últimos 5 dias (nenhuma entrada em occurrence_status_history
-        // com changed_at posterior ao cutoff).
+        // Pré-filtro em SQL: como o número de dias úteis nunca excede o
+        // número de dias de calendário, uma ocorrência só pode ultrapassar
+        // o seu limite (no máximo 5 dias úteis) sem actividade se também já
+        // tiver mais de 5 dias de calendário sem actividade. Isto evita
+        // carregar ocorrências que nunca poderiam ser marcadas.
         $occurrences = Occurrence::whereNotIn('status', $terminalStatuses)
-            ->whereDoesntHave('statusHistory', fn($q) => $q->where('changed_at', '>', $cutoff))
-            ->get();
+            ->whereDoesntHave('statusHistory', fn($q) => $q->where('changed_at', '>', $now->copy()->subDays(self::MAX_BUSINESS_DAYS_LIMIT)))
+            ->with('occurrenceType:id,alert_level')
+            ->withMax('statusHistory', 'changed_at')
+            ->get()
+            ->filter(function (Occurrence $occurrence) use ($now) {
+                $lastActivity = Carbon::parse($occurrence->status_history_max_changed_at);
+                $alertLevel   = $occurrence->occurrenceType?->alert_level ?? $occurrence->alert_type ?? AlertLevelEnum::Normal;
+
+                return $lastActivity->diffInWeekdays($now) > $alertLevel->statusUpdateBusinessDaysLimit();
+            });
 
         if ($occurrences->isEmpty()) {
             $this->info('Nenhuma ocorrência para marcar.');
@@ -53,11 +81,11 @@ class MarkOccurrencesAsUnresolved extends Command
 
         $count = 0;
 
-        DB::transaction(function () use ($occurrences, &$count) {
-            $now = now();
-
+        DB::transaction(function () use ($occurrences, $now, &$count) {
             foreach ($occurrences as $occurrence) {
-                $oldStatus = $occurrence->status;
+                $oldStatus  = $occurrence->status;
+                $alertLevel = $occurrence->occurrenceType?->alert_level ?? $occurrence->alert_type ?? AlertLevelEnum::Normal;
+                $limit      = $alertLevel->statusUpdateBusinessDaysLimit();
 
                 $occurrence->update(['status' => OccurrenceStatusEnum::NaoResolvida]);
 
@@ -66,7 +94,7 @@ class MarkOccurrencesAsUnresolved extends Command
                     'from_status'   => $oldStatus->value,
                     'to_status'     => OccurrenceStatusEnum::NaoResolvida->value,
                     'changed_by'    => null,
-                    'comment'       => 'Ocorrência marcada automaticamente como Não Resolvida por falta de actividade durante 5 dias.',
+                    'comment'       => "Ocorrência marcada automaticamente como Não Resolvida por exceder {$limit} dias úteis sem actualização de estado.",
                     'internal_note' => null,
                     'changed_at'    => $now,
                 ]);

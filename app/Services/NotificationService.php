@@ -204,6 +204,18 @@ class NotificationService
         }
     }
 
+    /**
+     * Número de dias úteis sem actualização de estado a partir do qual o
+     * comando occurrences:mark-unresolved marca esta ocorrência como
+     * 'Não Resolvida'. Usado para informar o gestor no email.
+     */
+    private function statusUpdateBusinessDaysLimit(Occurrence $occurrence): int
+    {
+        $alertLevel = $occurrence->occurrenceType?->alert_level ?? $occurrence->alert_type ?? AlertLevelEnum::Normal;
+
+        return $alertLevel->statusUpdateBusinessDaysLimit();
+    }
+
     // ─── Templates ───────────────────────────────────────────────
 
     private function buildCreatedMessage(Occurrence $occurrence): string
@@ -266,15 +278,16 @@ TEXT;
 
     private function buildAssignedMessage(Occurrence $occurrence, User $gestor): string
     {
-        $gestorName = $gestor->name;
-        $code       = $occurrence->tracking_code;
-        $subject    = $occurrence->subject              ?? 'Não especificado';
-        $typeName   = $occurrence->occurrenceType?->name ?? 'Não definido';
-        $project    = $occurrence->project->name;
-        $province   = $occurrence->province->name;
-        $dueDate    = $occurrence->due_date
+        $gestorName  = $gestor->name;
+        $code        = $occurrence->tracking_code;
+        $subject     = $occurrence->subject              ?? 'Não especificado';
+        $typeName    = $occurrence->occurrenceType?->name ?? 'Não definido';
+        $project     = $occurrence->project->name;
+        $province    = $occurrence->province->name;
+        $dueDate     = $occurrence->due_date
                         ? $occurrence->due_date->format('d/m/Y')
                         : 'A definir';
+        $statusLimit = $this->statusUpdateBusinessDaysLimit($occurrence);
 
         return <<<TEXT
 Prezado(a) $gestorName,
@@ -288,6 +301,8 @@ Projecto: $project
 Província: $province
 Prazo: $dueDate
 
+Atenção: se o estado desta ocorrência não for actualizado em $statusLimit dias úteis, o sistema marcá-la-á automaticamente como "Não Resolvida".
+
 Aceda ao painel MDR para tratar esta ocorrência.
 
 Com os melhores cumprimentos,
@@ -297,16 +312,17 @@ TEXT;
 
     private function buildNewOccurrenceMessage(Occurrence $occurrence, User $user): string
     {
-        $name      = $user->name;
-        $code      = $occurrence->tracking_code;
-        $origin    = $occurrence->isExternal() ? 'Formulário público' : 'Registo interno';
-        $subject   = $occurrence->subject               ?? 'Não especificado';
-        $typeName  = $occurrence->occurrenceType?->name ?? 'Não definido';
-        $project   = $occurrence->project->name;
-        $province  = $occurrence->province->name;
-        $dueDate   = $occurrence->due_date
+        $name        = $user->name;
+        $code        = $occurrence->tracking_code;
+        $origin      = $occurrence->isExternal() ? 'Formulário público' : 'Registo interno';
+        $subject     = $occurrence->subject               ?? 'Não especificado';
+        $typeName    = $occurrence->occurrenceType?->name ?? 'Não definido';
+        $project     = $occurrence->project->name;
+        $province    = $occurrence->province->name;
+        $dueDate     = $occurrence->due_date
                         ? $occurrence->due_date->format('d/m/Y')
                         : 'A definir';
+        $statusLimit = $this->statusUpdateBusinessDaysLimit($occurrence);
 
         return <<<TEXT
 Prezado(a) $name,
@@ -321,6 +337,8 @@ Projecto: $project
 Província: $province
 Prazo: $dueDate
 
+Atenção: se o estado desta ocorrência não for actualizado em $statusLimit dias úteis, o sistema marcá-la-á automaticamente como "Não Resolvida".
+
 Aceda ao painel MDR para mais detalhes.
 
 Com os melhores cumprimentos,
@@ -330,14 +348,15 @@ TEXT;
 
     private function buildAlertMessage(Occurrence $occurrence, AlertLevelEnum $level): string
     {
-        $alertLabel = $level->label();
-        $code       = $occurrence->tracking_code;
-        $subject    = $occurrence->subject ?? 'Não especificado';
-        $project    = $occurrence->project->name;
-        $province   = $occurrence->province->name;
-        $dueDate    = $occurrence->due_date
+        $alertLabel  = $level->label();
+        $code        = $occurrence->tracking_code;
+        $subject     = $occurrence->subject ?? 'Não especificado';
+        $project     = $occurrence->project->name;
+        $province    = $occurrence->province->name;
+        $dueDate     = $occurrence->due_date
                         ? $occurrence->due_date->format('d/m/Y')
                         : 'A definir';
+        $statusLimit = $level->statusUpdateBusinessDaysLimit();
 
         return <<<TEXT
 ⚠️  ALERTA $alertLabel
@@ -349,6 +368,8 @@ Assunto: $subject
 Projecto: $project
 Província: $province
 Prazo: $dueDate
+
+Atenção: se o estado desta ocorrência não for actualizado em $statusLimit dias úteis, o sistema marcá-la-á automaticamente como "Não Resolvida".
 
 Aceda ao painel MDR para tratar esta ocorrência com urgência.
 
