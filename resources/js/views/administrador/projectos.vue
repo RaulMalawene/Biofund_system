@@ -94,7 +94,7 @@
         <div class="page-title-row">
           <div>
             <h1>Projectos</h1>
-            <p>Administre os projectos para classificar as reclamações ambientais em todo o território nacional.</p>
+            <p>Administre os projectos para classificar as ocorrências ambientais em todo o território nacional.</p>
           </div>
           <button class="btn-green-sm" @click="openAdd">
             <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 14 14">
@@ -174,7 +174,7 @@
           <div>
             <div class="notice-title">Nota sobre Taxonomia</div>
             <div class="notice-desc">A alteração do nome de um projecto irá actualizar automaticamente todos os registos
-              históricos de reclamações associadas. Recomenda-se cautela ao desactivar projectos que possuam um elevado
+              históricos de ocorrências associadas. Recomenda-se cautela ao desactivar projectos que possuam um elevado
               número de ocorrências.</div>
           </div>
         </div>

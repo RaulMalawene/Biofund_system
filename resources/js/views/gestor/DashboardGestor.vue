@@ -53,7 +53,7 @@
           <svg width="15" height="15" fill="none" stroke="#8A9490" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="7" cy="7" r="5"/><path d="M12 12l3 3" stroke-linecap="round"/>
           </svg>
-          <input type="text" placeholder="Pesquisar reclamações" v-model="searchQ"/>
+          <input type="text" placeholder="Pesquisar ocorrências" v-model="searchQ"/>
         </div>
         <div class="topbar-spacer"></div>
         <AdminNotificationPanel />
@@ -274,7 +274,7 @@
         <!-- CHARTS ROW -->
         <div class="charts-row" :class="{ 'section-dimmed': filterLoading }">
           <div class="chart-card">
-            <div class="chart-title">Reclamações por Província</div>
+            <div class="chart-title">Ocorrências por Província</div>
             <div class="chart-sub">Volume de submissões por região atribuída</div>
             <div class="chart-wrap" style="height:200px">
               <canvas ref="barChartRef"></canvas>

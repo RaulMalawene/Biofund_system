@@ -16,7 +16,7 @@
             <rect x="2" y="1" width="12" height="14" rx="1.5" />
             <path d="M5 5h6M5 8h6M5 11h4" stroke-linecap="round" />
           </svg>
-          Reclamações
+          Ocorrências
         </router-link>
         <router-link class="nav-item" to="/funcionario/historico">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
@@ -64,7 +64,7 @@
         <div class="page-title-row">
           <div>
             <h1>Histórico de Ocorrências</h1>
-            <p>Reclamações resolvidas, rejeitadas e encerradas que registou.</p>
+            <p>Ocorrências resolvidas, rejeitadas e encerradas que registou.</p>
           </div>
         </div>
 

@@ -16,7 +16,7 @@
             <rect x="2" y="1" width="12" height="14" rx="1.5" />
             <path d="M5 5h6M5 8h6M5 11h4" stroke-linecap="round" />
           </svg>
-          Reclamações
+          Ocorrências
         </router-link>
         <router-link class="nav-item" to="/funcionario/historico">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
@@ -63,8 +63,8 @@
         <!-- Page header -->
         <div class="page-title-row">
           <div>
-            <h1>Gestão de Reclamações</h1>
-            <p>Reclamações activas - por validar e em análise.</p>
+            <h1>Gestão de Ocorrências</h1>
+            <p>Ocorrências activas - por validar e em análise.</p>
           </div>
           <button class="btn-registar" @click="openRegistoModal">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 14 14">
@@ -209,7 +209,7 @@
 
                   <tr v-if="rows.length === 0">
                     <td colspan="10" class="empty-row">
-                      Nenhuma reclamação encontrada com os filtros aplicados.
+                      Nenhuma ocorrência encontrada com os filtros aplicados.
                     </td>
                   </tr>
                 </template>
@@ -220,7 +220,7 @@
           <!-- Pagination -->
           <div class="pagination-bar">
             <span class="pagination-info">
-              Mostrando {{ paginationInfo }} de {{ meta.total }} reclamações
+              Mostrando {{ paginationInfo }} de {{ meta.total }} ocorrências
             </span>
             <div class="pagination-btns">
               <button class="pg-btn" :disabled="meta.current_page <= 1 || loading"
@@ -243,7 +243,7 @@
           </div>
           <div>
             <div class="tip-title">Acompanhamento</div>
-            <div class="tip-desc">As suas reclamações são tratadas pelo gestor responsável da sua área. Pode acompanhar o estado de cada uma directamente nesta lista.</div>
+            <div class="tip-desc">As suas ocorrências são tratadas pelo gestor responsável da sua área. Pode acompanhar o estado de cada uma directamente nesta lista.</div>
           </div>
         </div>
 
@@ -387,7 +387,7 @@
       <div v-if="showModal" class="drawer-panel">
         <div class="drawer-header">
           <div>
-            <div class="drawer-title">Registar Nova Reclamação</div>
+            <div class="drawer-title">Registar Nova Ocorrência</div>
             <div class="drawer-subtitle">Preencha os dados do incidente ambiental observado.</div>
           </div>
           <button class="drawer-close" @click="closeModal">
@@ -983,7 +983,7 @@ async function saveRegisto() {
 
     const res = await InternalService.createOccurrence(fd)
     closeModal()
-    showToast(`Reclamação ${res.tracking_code ?? ''} registada com sucesso!`, 'success')
+    showToast(`Ocorrência ${res.tracking_code ?? ''} registada com sucesso!`, 'success')
     await loadOccurrences(1)
   } catch (err) {
     if (err.response?.status === 422) {

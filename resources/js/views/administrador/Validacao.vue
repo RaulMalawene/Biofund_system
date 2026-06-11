@@ -77,7 +77,7 @@
             <circle cx="7" cy="7" r="5" />
             <path d="M12 12l3 3" stroke-linecap="round" />
           </svg>
-          <input type="text" placeholder="Pesquisar reclamações ou utilizador" v-model="topSearchRaw" />
+          <input type="text" placeholder="Pesquisar ocorrências ou utilizador" v-model="topSearchRaw" />
         </div>
         <div class="topbar-spacer"></div>
         <AdminNotificationPanel />
@@ -210,7 +210,7 @@
             </div>
             <div class="pagination-bar">
               <span class="pagination-info">Mostrando {{ pagedRows.length }} de {{ filteredRows.length }}
-                reclamações</span>
+                ocorrências</span>
               <div class="pagination-btns">
                 <button class="pg-btn" :disabled="page === 1" @click="page--">Anterior</button>
                 <button class="pg-btn" :disabled="page >= totalPages" @click="page++">Próxima</button>
@@ -225,7 +225,7 @@
                 <rect x="6" y="4" width="26" height="32" rx="3" />
                 <path d="M13 13h14M13 19h14M13 25h8" stroke-linecap="round" />
               </svg>
-              <p>Seleccione uma reclamação para ver os detalhes e validar</p>
+              <p>Seleccione uma ocorrência para ver os detalhes e validar</p>
             </div>
 
             <template v-if="selected">

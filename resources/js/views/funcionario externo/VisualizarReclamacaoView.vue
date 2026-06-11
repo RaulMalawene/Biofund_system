@@ -4,7 +4,7 @@
 
     <!-- SEARCH HERO -->
     <section class="search-hero">
-      <h1>Acompanhe a sua Reclamação</h1>
+      <h1>Acompanhe a sua Ocorrência</h1>
       <p>Insira o código único recebido no momento da submissão para verificar o estado atual e as atualizações da nossa
         equipe.</p>
 
@@ -36,7 +36,7 @@
           <path d="M12 8v4M12 16h.01" stroke-linecap="round" />
         </svg>
       </div>
-      <h3>Reclamação não encontrada</h3>
+      <h3>Ocorrência não encontrada</h3>
       <p>O código <strong>{{ searchCode }}</strong> não existe no nosso sistema. Verifique e tente novamente.</p>
     </div>
 
@@ -264,7 +264,7 @@ function mapApiResponse(data) {
 
   // Descrição do estado actual
   const statusDescMap = {
-    pending: 'A sua reclamação foi recebida e aguarda análise pela equipa técnica.',
+    pending: 'A sua ocorrência foi recebida e aguarda análise pela equipa técnica.',
     in_review: 'A equipa técnica da Biofund está a analisar a ocorrência.',
     resolved: 'A ocorrência foi resolvida com sucesso.',
     rejected: 'A ocorrência foi rejeitada após análise.',
