@@ -3,7 +3,7 @@
 
 Prezado(a) **{{ $userName }}**,
 
-A sua conta de **{{ $role }}** foi criada com sucesso no sistema **MDR - Mecanismo de Diálogo e Reclamações** da BIOFUND/FNDS.
+A sua conta de **{{ $role }}** foi criada com sucesso no sistema **MDR - Mecanismo de Diálogo e Reclamações** da BIOFUND.
 
 ---
 
@@ -27,5 +27,5 @@ Aceder ao Sistema MDR
 Se tiver alguma dúvida ou dificuldade de acesso, contacte o administrador do sistema.
 
 Com os melhores cumprimentos,
-**Equipa MDR - BIOFUND/FNDS**
+**Equipa MDR - BIOFUND**
 </x-mail::message>

@@ -38,8 +38,8 @@ class NotificationService
             $this->notifyByAlertLevel($occurrence, $alertLevel);
         }
 
-        // Notificação interna (sistema) para todos os admins e gestores
-        $this->notifySystemInternalUsers($occurrence);
+        // Notifica administradores e gestores responsáveis (sistema + email)
+        $this->notifyResponsibleUsers($occurrence);
     }
 
     public function notifyStatusChanged(Occurrence $occurrence, ?string $comment): void
@@ -74,7 +74,15 @@ class NotificationService
         );
     }
 
-    private function notifySystemInternalUsers(Occurrence $occurrence): void
+    /**
+     * Notifica os administradores (sempre) e os gestores responsáveis pela
+     * província/projecto da ocorrência (ou de âmbito nacional).
+     *
+     * Cada utilizador elegível recebe:
+     *   - Uma notificação interna (channel = system, visível no painel)
+     *   - Um email "Nova ocorrência registada" (channel = email)
+     */
+    private function notifyResponsibleUsers(Occurrence $occurrence): void
     {
         $subject = $occurrence->subject ?? $occurrence->tracking_code;
         $message = "Nova ocorrência registada: {$subject} [{$occurrence->tracking_code}]";
@@ -126,37 +134,35 @@ class NotificationService
 
         // Um único INSERT em vez de N INSERTs individuais
         NotificationLog::insert($rows);
+
+        foreach ($users as $user) {
+            $this->sendEmail(
+                occurrence: $occurrence,
+                recipientEmail: $user->email,
+                userId: $user->id,
+                eventType: 'occurrence_created_responsible',
+                subject: "MDR - Nova ocorrência registada | {$occurrence->tracking_code}",
+                body: $this->buildNewOccurrenceMessage($occurrence, $user)
+            );
+        }
     }
 
     private function notifyByAlertLevel(Occurrence $occurrence, AlertLevelEnum $level): void
     {
         $column = $level->userAlertColumn();
 
+        // Nível normal: já coberto pelo email genérico de notifyResponsibleUsers().
         if ($column === null) {
-            $gestores = User::active()
-                ->where('role', 'gestor')
-                ->where(function ($q) use ($occurrence) {
-                    $q->where('management_scope', 'national')
-                      ->orWhere('province_id', $occurrence->province_id)
-                      ->orWhereHas('provinces', fn($q2) =>
-                          $q2->where('provinces.id', $occurrence->province_id)
-                      );
-                })
-                ->when($occurrence->project_id, fn($q) =>
-                    $q->whereHas('projects', fn($q2) =>
-                        $q2->where('projects.id', $occurrence->project_id)
-                    )
-                )
-                ->get();
-        } else {
-            $gestores = User::active()->where($column, true)->get();
+            return;
         }
 
-        foreach ($gestores as $gestor) {
+        $users = User::active()->where($column, true)->get();
+
+        foreach ($users as $user) {
             $this->sendEmail(
                 occurrence: $occurrence,
-                recipientEmail: $gestor->email,
-                userId: $gestor->id,
+                recipientEmail: $user->email,
+                userId: $user->id,
                 eventType: $level === AlertLevelEnum::Gbv ? 'alert_gbv' : 'alert_urgent',
                 subject: "[{$level->label()}] MDR - Nova ocorrência | {$occurrence->tracking_code}",
                 body: $this->buildAlertMessage($occurrence, $level)
@@ -229,7 +235,7 @@ Data de registo: $registedAt
 Prazo de resolução: $dueDate
 
 Com os melhores cumprimentos,
-Equipa MDR - BIOFUND/FNDS
+Equipa MDR - BIOFUND
 TEXT;
     }
 
@@ -254,7 +260,7 @@ Acompanhe a sua ocorrência em:
 $url
 
 Com os melhores cumprimentos,
-Equipa MDR - BIOFUND/FNDS
+Equipa MDR - BIOFUND
 TEXT;
     }
 
@@ -285,7 +291,40 @@ Prazo: $dueDate
 Aceda ao painel MDR para tratar esta ocorrência.
 
 Com os melhores cumprimentos,
-Sistema MDR - BIOFUND/FNDS
+Sistema MDR - BIOFUND
+TEXT;
+    }
+
+    private function buildNewOccurrenceMessage(Occurrence $occurrence, User $user): string
+    {
+        $name      = $user->name;
+        $code      = $occurrence->tracking_code;
+        $origin    = $occurrence->isExternal() ? 'Formulário público' : 'Registo interno';
+        $subject   = $occurrence->subject               ?? 'Não especificado';
+        $typeName  = $occurrence->occurrenceType?->name ?? 'Não definido';
+        $project   = $occurrence->project->name;
+        $province  = $occurrence->province->name;
+        $dueDate   = $occurrence->due_date
+                        ? $occurrence->due_date->format('d/m/Y')
+                        : 'A definir';
+
+        return <<<TEXT
+Prezado(a) $name,
+
+Foi registada uma nova ocorrência na sua área de gestão.
+
+Código: $code
+Origem: $origin
+Assunto: $subject
+Tipo: $typeName
+Projecto: $project
+Província: $province
+Prazo: $dueDate
+
+Aceda ao painel MDR para mais detalhes.
+
+Com os melhores cumprimentos,
+Sistema MDR - BIOFUND
 TEXT;
     }
 
@@ -313,7 +352,7 @@ Prazo: $dueDate
 
 Aceda ao painel MDR para tratar esta ocorrência com urgência.
 
-Sistema MDR - BIOFUND/FNDS
+Sistema MDR - BIOFUND
 TEXT;
     }
 }

@@ -13,11 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * e reenviar em caso de falha.
  *
  * Eventos que disparam notificações:
- *   - occurrence_created    → enviado ao reclamante com o tracking_code
- *   - status_changed        → enviado ao reclamante quando o estado muda
- *   - occurrence_assigned   → enviado ao gestor quando recebe uma ocorrência
- *   - alert_urgent          → enviado a todos com receives_urgent_alerts = true
- *   - alert_gbv             → enviado a todos com receives_gbv_alerts = true
+ *   - occurrence_created            → enviado ao reclamante com o tracking_code
+ *                                      (e notificação interna a admins/gestores responsáveis)
+ *   - occurrence_created_responsible → email "Nova ocorrência registada" enviado
+ *                                      a admins (sempre) e gestores da província/projecto
+ *   - status_changed                → enviado ao reclamante quando o estado muda
+ *   - occurrence_assigned           → enviado ao gestor quando recebe uma ocorrência
+ *   - alert_urgent                  → enviado a todos com receives_urgent_alerts = true
+ *   - alert_gbv                     → enviado a todos com receives_gbv_alerts = true
  *
  * @property int         $id
  * @property int         $occurrence_id
