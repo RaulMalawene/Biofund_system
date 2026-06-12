@@ -6,7 +6,8 @@
           <img src="../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="footer-logo-img"/>
           BIOFUND
         </router-link>
-        <p>Protegendo o património natural de Moçambique através da transparência e participação cidadã.</p>
+        <p>A Fundação para a Conservação da Biodiversidade (BIOFUND) é uma instituição privada, Moçambicana com estatuto de utilidade pública e sem 
+          fins lucrativos que mobiliza, aplica e gere recursos financeiros em benefício exclusivo da Conservação da biodiversidade em Moçambique. </p>
       </div>
 
       <div class="footer-col">
