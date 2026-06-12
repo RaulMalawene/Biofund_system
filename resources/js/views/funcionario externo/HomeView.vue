@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <button class="btn-green" @click="$router.push('/submeterReclamacao')">Fazer Minha Parte</button>
+        <button class="btn-green" @click="$router.push('/submeterReclamacao')">Participar no MDR</button>
       </div>
 
       <div class="why-right">
@@ -166,7 +166,7 @@ const benefits = [
   { title: 'Transparência', desc: 'Garantia de registo, acompanhamento e tratamento das ocorrências, permitindo ao utilizador  acompanhar o estado do processo.' },
   { title: 'Acessibilidade',  desc: 'Disponibilização de canais simples e inclusivos para submissão de reclamações, sugestões, preocupações, consultas ou elogios.' },
   { title: 'Confidencialidade e Anonimato',     desc: 'Protecção da identidade e dos dados pessoais dos utilizadores, com a possibilidade de submissão anónima quando aplicável.' },
-  { title: 'Resposta e Resolução',     desc: '' },
+  { title: 'Resposta e Resolução',     desc: 'Compromisso com a análise, tratamento e resposta atempada das ocorrências, promovendo soluções adequadas e melhoria contínua.' },
 ]
 
 const species = [
