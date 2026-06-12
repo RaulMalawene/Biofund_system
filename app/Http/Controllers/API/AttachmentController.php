@@ -19,6 +19,7 @@ class AttachmentController extends Controller
      *   - Admin       → acede a qualquer ficheiro
      *   - Gestor      → acede a ficheiros de ocorrências da sua província
      *   - Funcionário → acede apenas a ficheiros das suas próprias ocorrências
+     *   - Observador  → acede a ficheiros de ocorrências das suas províncias/projectos atribuídos
      *
      * ROTA: GET /api/occurrences/{occurrence}/attachments/{attachment}
      * ACESSO: Utilizadores autenticados (com permissão sobre a ocorrência)
@@ -40,6 +41,10 @@ class AttachmentController extends Controller
                                      || $user->province_id === $occurrence->province_id
                                      || $user->provinces()->where('provinces.id', $occurrence->province_id)->exists(),
             RoleEnum::Funcionario => $occurrence->submitted_by_user_id === $user->id,
+            RoleEnum::Observador  => ($user->province_id === $occurrence->province_id
+                                     || $user->provinces()->where('provinces.id', $occurrence->province_id)->exists())
+                                     && (!$user->projects()->exists()
+                                         || $user->projects()->where('projects.id', $occurrence->project_id)->exists()),
         };
 
         if (!$canAccess) {

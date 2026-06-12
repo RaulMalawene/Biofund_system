@@ -25,6 +25,7 @@ export const useAuthStore = defineStore("auth", () => {
     const isAdmin = computed(() => user.value?.role === "admin");
     const isGestor = computed(() => user.value?.role === "gestor");
     const isFuncionario = computed(() => user.value?.role === "funcionario");
+    const isObservador = computed(() => user.value?.role === "observador");
     const userInitials = computed(() => {
         if (!user.value?.name) return "?";
         return user.value.name
@@ -37,6 +38,7 @@ export const useAuthStore = defineStore("auth", () => {
         if (user.value?.role === "admin") return "/admin/dashboard";
         if (user.value?.role === "gestor") return "/gestor/dashboard";
         if (user.value?.role === "funcionario") return "/funcionario/reclamacao";
+        if (user.value?.role === "observador") return "/observador/dashboard";
         return "/";
     });
 
@@ -106,6 +108,7 @@ export const useAuthStore = defineStore("auth", () => {
         isAdmin,
         isGestor,
         isFuncionario,
+        isObservador,
         userInitials,
         dashboardRoute,
         login,

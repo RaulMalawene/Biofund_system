@@ -67,6 +67,17 @@ class GestorOccurrenceController extends Controller
             $gestorProjectIds = $user->projects->pluck('id')->all();
         }
 
+        // Pré-computa IDs de província/projecto do observador (só-leitura).
+        $observadorProvinceIds = [];
+        $observadorProjectIds  = [];
+        if ($user->isObservador()) {
+            $user->loadMissing(['provinces', 'projects']);
+            $observadorProvinceIds = collect($user->province_id ? [$user->province_id] : [])
+                ->merge($user->provinces->pluck('id'))
+                ->unique()->values()->all();
+            $observadorProjectIds = $user->projects->pluck('id')->all();
+        }
+
         // Restrição por perfil
         match ($user->role) {
             RoleEnum::Funcionario => $query->where('submitted_by_user_id', $user->id),
@@ -111,13 +122,21 @@ class GestorOccurrenceController extends Controller
                 });
             })(),
 
+            // Observador vê apenas ocorrências das suas províncias e projectos atribuídos
+            RoleEnum::Observador => $query->where(function ($inner) use ($observadorProvinceIds, $observadorProjectIds) {
+                $inner->whereIn('province_id', $observadorProvinceIds);
+                if (!empty($observadorProjectIds)) {
+                    $inner->whereIn('project_id', $observadorProjectIds);
+                }
+            }),
+
             RoleEnum::Admin => null,
         };
 
-        // Filtro de visibilidade de alertas para gestores.
+        // Filtro de visibilidade de alertas para gestores e observadores.
         // Ocorrências submetidas pelo próprio gestor são sempre visíveis,
         // independentemente do nível de alerta e das suas permissões.
-        if ($user->isGestor()) {
+        if ($user->isGestor() || $user->isObservador()) {
             if (!$user->receives_urgent_alerts) {
                 $query->where(fn($q) =>
                     $q->where('alert_type', '!=', AlertLevelEnum::Urgent->value)
@@ -435,7 +454,27 @@ class GestorOccurrenceController extends Controller
                                          && $this->gestorCanSeeAlert($user, $occurrence))
                                      || $this->gestorCanAccessViaSubmitter($user, $occurrence),
             RoleEnum::Funcionario => $occurrence->submitted_by_user_id === $user->id,
+            RoleEnum::Observador  => $this->observadorCanAccess($user, $occurrence),
         };
+    }
+
+    /**
+     * Observador só acede a ocorrências dentro das suas províncias atribuídas
+     * (e, se tiver projectos atribuídos, também dentro desses projectos),
+     * respeitando ainda as preferências de visibilidade de alertas.
+     */
+    private function observadorCanAccess(User $user, Occurrence $occurrence): bool
+    {
+        if (!$this->gestorHasProvince($user, $occurrence->province_id)) {
+            return false;
+        }
+
+        $user->loadMissing('projects');
+        if ($user->projects->isNotEmpty() && !$user->projects->contains('id', $occurrence->project_id)) {
+            return false;
+        }
+
+        return $this->gestorCanSeeAlert($user, $occurrence);
     }
 
     private function gestorHasProvince(User $user, ?int $provinceId): bool

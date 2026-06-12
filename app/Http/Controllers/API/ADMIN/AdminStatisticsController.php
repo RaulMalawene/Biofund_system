@@ -54,7 +54,11 @@ class AdminStatisticsController extends Controller
             );
         }
 
-        $cacheKey = $user->isGestor() ? "dashboard.gestor.{$user->id}" : 'dashboard.admin';
+        $cacheKey = match (true) {
+            $user->isGestor()     => "dashboard.gestor.{$user->id}",
+            $user->isObservador() => "dashboard.observador.{$user->id}",
+            default               => 'dashboard.admin',
+        };
         return response()->json(
             Cache::remember($cacheKey, 120, fn() => $this->buildDashboardData($user)),
             200
@@ -70,20 +74,20 @@ class AdminStatisticsController extends Controller
         ?int    $filterProject   = null,
         ?int    $filterCategory  = null,
     ): array {
-        $gestorProvinceIds = [];
-        $gestorProjectIds  = [];
-        if ($user->isGestor()) {
+        $scopedProvinceIds = [];
+        $scopedProjectIds  = [];
+        if ($user->isGestor() || $user->isObservador()) {
             $user->loadMissing(['provinces', 'projects']);
-            $gestorProvinceIds = collect($user->province_id ? [$user->province_id] : [])
+            $scopedProvinceIds = collect($user->province_id ? [$user->province_id] : [])
                 ->merge($user->provinces->pluck('id'))
                 ->unique()->values()->all();
-            $gestorProjectIds = $user->projects->pluck('id')->all();
+            $scopedProjectIds = $user->projects->pluck('id')->all();
         }
 
         $baseQuery = fn() => Occurrence::when(
-            $user->isGestor(),
-            fn($q) => $q->whereIn('province_id', $gestorProvinceIds)
-                        ->whereIn('project_id', $gestorProjectIds)
+            $user->isGestor() || $user->isObservador(),
+            fn($q) => $q->whereIn('province_id', $scopedProvinceIds)
+                        ->whereIn('project_id', $scopedProjectIds)
         )
         ->when($filterStatus,    fn($q) => $q->where('status',      $filterStatus))
         ->when($filterAlertType, fn($q) => $q->where('alert_type',  $filterAlertType))
@@ -119,8 +123,8 @@ class AdminStatisticsController extends Controller
         $byProvince = Occurrence::join('provinces', 'occurrences.province_id', '=', 'provinces.id')
             ->select('provinces.name', DB::raw('count(*) as total'))
             ->when(
-                $user->isGestor(),
-                fn($q) => $q->whereIn('occurrences.province_id', $gestorProvinceIds)->limit(5)
+                $user->isGestor() || $user->isObservador(),
+                fn($q) => $q->whereIn('occurrences.province_id', $scopedProvinceIds)->limit(5)
             )
             ->when($filterStatus,    fn($q) => $q->where('occurrences.status',      $filterStatus))
             ->when($filterAlertType, fn($q) => $q->where('occurrences.alert_type',  $filterAlertType))

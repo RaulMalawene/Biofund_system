@@ -14,6 +14,7 @@ import ValidacaoGestor         from '@/views/gestor/ValidacaoGestor.vue'
 import HistoricoGestor         from '@/views/gestor/HistoricoGestor.vue'
 import ReclamacaoFuncionario   from '@/views/funcionario interno/reclamacao.vue'
 import HistoricoFuncionario    from '@/views/funcionario interno/HistoricoFuncionario.vue'
+import DashboardObservador     from '@/views/observador/DashboardObservador.vue'
 
 const routes = [
     // ── Públicas ─────────────────────────────────────────────
@@ -87,6 +88,13 @@ const routes = [
         meta: { requiresAuth: true, roles: ['funcionario'], keepAlive: true },
     },
 
+    // Páginas exclusivas do observador
+    {
+        path: '/observador/dashboard',
+        component: DashboardObservador,
+        meta: { requiresAuth: true, roles: ['observador'], keepAlive: true },
+    },
+
     // Rota catch-all: redireciona para a home
     { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
@@ -134,6 +142,7 @@ router.beforeEach((to, _from, next) => {
                 admin:       '/admin/dashboard',
                 gestor:      '/gestor/dashboard',
                 funcionario: '/funcionario/reclamacao',
+                observador:  '/observador/dashboard',
             }
             const home = homeByRole[user.role] ?? '/acessoRestrito'
             if (to.path === home) return next()

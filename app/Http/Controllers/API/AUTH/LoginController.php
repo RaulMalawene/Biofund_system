@@ -206,6 +206,7 @@ class LoginController extends Controller
             'admin'       => ['*'],  // admin tem acesso total
             'gestor'      => ['occurrences:read', 'occurrences:write', 'occurrences:validate'],
             'funcionario' => ['occurrences:read', 'occurrences:write'],
+            'observador'  => ['occurrences:read'],
             default       => [],
         };
     }

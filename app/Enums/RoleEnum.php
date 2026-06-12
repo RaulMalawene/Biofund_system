@@ -11,12 +11,14 @@ namespace App\Enums;
  * - admin      → acesso total ao sistema
  * - gestor     → gere ocorrências da sua área geográfica, pode validar/rejeitar
  * - funcionario → pode submeter ocorrências mas NÃO pode validar/rejeitar
+ * - observador → acesso só-leitura ao dashboard e ocorrências dos seus projectos/províncias
  */
 enum RoleEnum: string
 {
     case Admin      = 'admin';
     case Gestor     = 'gestor';
     case Funcionario = 'funcionario';
+    case Observador = 'observador';
 
     /**
      * Retorna o label legível para humanos.
@@ -27,6 +29,7 @@ enum RoleEnum: string
             RoleEnum::Admin       => 'Administrador',
             RoleEnum::Gestor      => 'Gestor',
             RoleEnum::Funcionario => 'Funcionário',
+            RoleEnum::Observador  => 'Observador',
         };
     }
 

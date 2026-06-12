@@ -93,19 +93,13 @@
             <p>Administre as contas de acesso ao sistema BioFund.</p>
           </div>
           <div class="title-actions">
-            <button class="btn-green-sm" @click="openModal('gestor')">
+            <button class="btn-green-sm" @click="showTypeModal = true">
               <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 16 16">
                 <circle cx="8" cy="6" r="3" />
                 <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
                 <path d="M13 4v4M11 6h4" stroke-linecap="round" />
               </svg>
-              Novo Gestor
-            </button>
-            <button class="btn-outline-sm" @click="openModal('funcionario')">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
-                <path d="M7 2v10M2 7h10" stroke-linecap="round" />
-              </svg>
-              Novo Funcionário
+              Novo Utilizador
             </button>
           </div>
         </div>
@@ -278,6 +272,82 @@
       </footer>
     </div>
 
+    <!-- ── TYPE PICKER MODAL ── -->
+    <transition name="fade">
+      <div v-if="showTypeModal" class="modal-overlay" @click.self="showTypeModal = false">
+        <div class="type-picker-panel" @click.stop>
+          <div class="mf-header">
+            <div class="mf-title-row">
+              <div class="mf-title-icon">
+                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="1.9" viewBox="0 0 20 20">
+                  <circle cx="9" cy="7" r="3.5" />
+                  <path d="M2 17c0-3.314 3.134-6 7-6" stroke-linecap="round" />
+                  <path d="M15 12v5M12.5 14.5h5" stroke-linecap="round" />
+                </svg>
+              </div>
+              <h2 class="mf-title">Novo Utilizador</h2>
+            </div>
+            <button type="button" class="btn-close" @click="showTypeModal = false">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
+                <path d="M2 2l9 9M11 2L2 11" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+          <div class="type-picker-body">
+            <p class="type-picker-hint">Seleccione o tipo de perfil que deseja criar:</p>
+
+            <button type="button" class="type-option" @click="selectUserType('gestor')">
+              <div class="type-option-icon green">
+                <svg width="18" height="18" fill="none" stroke="#2D6A4F" stroke-width="1.8" viewBox="0 0 22 22">
+                  <circle cx="11" cy="8" r="4" />
+                  <path d="M3 19c0-3.314 3.582-6 8-6s8 2.686 8 6" />
+                </svg>
+              </div>
+              <div class="type-option-text">
+                <div class="type-option-title">Gestor</div>
+                <div class="type-option-desc">Gere ocorrências da sua área geográfica e pode validar/rejeitar.</div>
+              </div>
+              <svg class="type-option-arrow" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 12 12">
+                <path d="M4.5 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <button type="button" class="type-option" @click="selectUserType('funcionario')">
+              <div class="type-option-icon blue">
+                <svg width="18" height="18" fill="none" stroke="#2B6CB0" stroke-width="1.8" viewBox="0 0 22 22">
+                  <circle cx="11" cy="8" r="4" />
+                  <path d="M3 19c0-3.314 3.582-6 8-6s8 2.686 8 6" />
+                </svg>
+              </div>
+              <div class="type-option-text">
+                <div class="type-option-title">Funcionário</div>
+                <div class="type-option-desc">Regista ocorrências mas não pode validar/rejeitar.</div>
+              </div>
+              <svg class="type-option-arrow" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 12 12">
+                <path d="M4.5 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+
+            <button type="button" class="type-option" @click="selectUserType('observador')">
+              <div class="type-option-icon purple">
+                <svg width="18" height="18" fill="none" stroke="#6B46C1" stroke-width="1.8" viewBox="0 0 22 22">
+                  <path d="M2 11c0-4 4-7 9-7s9 3 9 7-4 7-9 7-9-3-9-7z" />
+                  <circle cx="11" cy="11" r="3" />
+                </svg>
+              </div>
+              <div class="type-option-text">
+                <div class="type-option-title">Observador</div>
+                <div class="type-option-desc">Acesso só-leitura ao dashboard e ocorrências dos seus projectos.</div>
+              </div>
+              <svg class="type-option-arrow" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 12 12">
+                <path d="M4.5 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <!-- ── ADD/EDIT MODAL ── -->
     <transition name="fade">
       <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
@@ -304,7 +374,7 @@
                 </svg>
               </div>
               <h2 class="mf-title">
-                {{ editingUser ? 'Editar Utilizador' : (modalTipo === 'gestor' ? 'Adicionar Gestor' : 'Adicionar Funcionário') }}
+                {{ editingUser ? 'Editar Utilizador' : (modalTipo === 'gestor' ? 'Adicionar Gestor' : modalTipo === 'observador' ? 'Adicionar Observador' : 'Adicionar Funcionário') }}
               </h2>
             </div>
             <button type="button" class="btn-close" @click="closeModal">
@@ -499,6 +569,62 @@
                 </div>
               </div>
 
+              <!-- Linha 3: Províncias + Projectos (OBSERVADOR) -->
+              <div class="mf-row" v-if="modalTipo === 'observador'">
+                <div class="mf-field">
+                  <label>Províncias <span class="req">*</span></label>
+                  <div class="input-wrap" :class="{ err: mErrors.province_ids }">
+                    <div class="input-icon">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <path d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.75 4.5 9 4.5 9s4.5-5.25 4.5-9c0-2.485-2.015-4.5-4.5-4.5z" />
+                        <circle cx="8" cy="6" r="1.8" />
+                      </svg>
+                    </div>
+                    <select @change="addProvince($event.target.value); $event.target.value = ''">
+                      <option value="">Seleccionar província…</option>
+                      <option v-for="p in availableProvinces" :key="p.id" :value="p.id">{{ p.name }}</option>
+                    </select>
+                  </div>
+                  <div class="selected-tags" v-if="mForm.province_ids.length">
+                    <span class="tag-badge" v-for="pid in mForm.province_ids" :key="pid">
+                      {{ provinceName(pid) }}
+                      <button type="button" class="tag-remove" @click="removeProvince(pid)">
+                        <svg width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 10 10">
+                          <path d="M2 2l6 6M8 2L2 8" stroke-linecap="round" />
+                        </svg>
+                      </button>
+                    </span>
+                  </div>
+                  <span class="err-msg" v-if="mErrors.province_ids">{{ mErrors.province_ids }}</span>
+                </div>
+
+                <div class="mf-field">
+                  <label>Projectos <span class="req">*</span></label>
+                  <div class="input-wrap" :class="{ err: mErrors.project_ids }">
+                    <div class="input-icon">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                        <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
+                    <select @change="addProject($event.target.value); $event.target.value = ''">
+                      <option value="">Adicionar projecto…</option>
+                      <option v-for="p in availableProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+                    </select>
+                  </div>
+                  <div class="selected-tags" v-if="mForm.project_ids.length">
+                    <span class="tag-badge proj" v-for="pid in mForm.project_ids" :key="pid">
+                      {{ projectName(pid) }}
+                      <button type="button" class="tag-remove" @click="removeProject(pid)">
+                        <svg width="8" height="8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 10 10">
+                          <path d="M2 2l6 6M8 2L2 8" stroke-linecap="round" />
+                        </svg>
+                      </button>
+                    </span>
+                  </div>
+                  <span class="err-msg" v-if="mErrors.project_ids">{{ mErrors.project_ids }}</span>
+                </div>
+              </div>
+
               <!-- Linha 4: Notificações + Estado (largura total) -->
               <div class="mf-row" v-if="modalTipo === 'gestor' || editingUser">
                 <div class="mf-field" v-if="modalTipo === 'gestor'">
@@ -611,6 +737,7 @@ async function handleLogout() {
 const loading = ref(false)
 const mLoading = ref(false)
 const showModal = ref(false)
+const showTypeModal = ref(false)
 const showDelete = ref(false)
 const modalTipo = ref('gestor')
 const editingUser = ref(null)
@@ -760,7 +887,7 @@ const mForm = reactive({
   management_scope: 'provincial',
 })
 
-const mErrors = reactive({ name: '', email: '', password: '', province_ids: '' })
+const mErrors = reactive({ name: '', email: '', password: '', province_ids: '', project_ids: '' })
 
 function resetMForm() {
   Object.assign(mForm, {
@@ -770,7 +897,7 @@ function resetMForm() {
     receives_urgent_alerts: false, receives_gbv_alerts: false,
     management_scope: 'provincial',
   })
-  Object.assign(mErrors, { name: '', email: '', password: '', province_ids: '' })
+  Object.assign(mErrors, { name: '', email: '', password: '', province_ids: '', project_ids: '' })
   formError.value = ''
   modalSaved.value = false
   showPass.value = false
@@ -784,9 +911,14 @@ function openModal(tipo) {
   showModal.value = true
 }
 
+function selectUserType(tipo) {
+  showTypeModal.value = false
+  openModal(tipo)
+}
+
 function editUser(u) {
   editingUser.value = u
-  modalTipo.value = u.role === 'gestor' ? 'gestor' : 'funcionario'
+  modalTipo.value = u.role === 'gestor' ? 'gestor' : u.role === 'observador' ? 'observador' : 'funcionario'
   resetMForm()
   mForm.name = u.name
   mForm.email = u.email
@@ -795,7 +927,7 @@ function editUser(u) {
   mForm.receives_gbv_alerts = u.receives_gbv_alerts
   mForm.management_scope = u.management_scope ?? 'provincial'
 
-  if (u.role === 'gestor') {
+  if (u.role === 'gestor' || u.role === 'observador') {
     mForm.province_ids = (u.provinces ?? []).map(p => p.id)
     mForm.project_ids = (u.projects ?? []).map(p => p.id)
   } else {
@@ -813,32 +945,38 @@ function closeModal() {
 
 async function saveUser() {
   formError.value = ''
-  Object.assign(mErrors, { name: '', email: '', password: '', province_ids: '' })
+  Object.assign(mErrors, { name: '', email: '', password: '', province_ids: '', project_ids: '' })
 
   // Validação client-side
   let ok = true
   if (!mForm.name.trim()) { mErrors.name = 'O nome é obrigatório.'; ok = false }
   if (!mForm.email.trim()) { mErrors.email = 'O email é obrigatório.'; ok = false }
 
+  const isMultiSelect = modalTipo.value === 'gestor' || modalTipo.value === 'observador'
+
   // Províncias
-  const provinceIds = modalTipo.value === 'gestor'
+  const provinceIds = isMultiSelect
     ? mForm.province_ids
     : (mForm.single_province_id ? [mForm.single_province_id] : [])
 
   if (!provinceIds.length) { mErrors.province_ids = 'Seleccione pelo menos uma província.'; ok = false }
 
-  if (!ok) return
-
   // Projectos
-  const projectIds = modalTipo.value === 'gestor'
+  const projectIds = isMultiSelect
     ? mForm.project_ids
     : (mForm.single_project_id ? [mForm.single_project_id] : [])
+
+  if (modalTipo.value === 'observador' && !projectIds.length) {
+    mErrors.project_ids = 'Seleccione pelo menos um projecto.'; ok = false
+  }
+
+  if (!ok) return
 
   const payload = {
     name: mForm.name.trim(),
     email: mForm.email.trim(),
     phone: mForm.phone.trim() || null,
-    role: modalTipo.value === 'gestor' ? 'gestor' : 'funcionario',
+    role: modalTipo.value === 'gestor' ? 'gestor' : modalTipo.value === 'observador' ? 'observador' : 'funcionario',
     province_ids: provinceIds,
     project_ids: projectIds,
     receives_urgent_alerts: mForm.receives_urgent_alerts,
@@ -869,6 +1007,7 @@ async function saveUser() {
       if (errors.email) mErrors.email = errors.email[0]
       if (errors.password) mErrors.password = errors.password[0]
       if (errors.province_ids) mErrors.province_ids = errors.province_ids[0]
+      if (errors.project_ids) mErrors.project_ids = errors.project_ids[0]
       formError.value = 'Corrija os erros e tente novamente.'
     } else {
       formError.value = err.response?.data?.message ?? 'Erro ao guardar. Tente novamente.'
@@ -1483,6 +1622,11 @@ tbody tr:last-child td {
   color: #6B46C1;
 }
 
+.badge-tipo.observador {
+  background: #FAF5FF;
+  color: #6B46C1;
+}
+
 /* Províncias múltiplas */
 .provinces-cell {
   display: flex;
@@ -1774,6 +1918,100 @@ tbody tr:last-child td {
 .mf-panel::-webkit-scrollbar-thumb {
   background: #C8D8CE;
   border-radius: 99px;
+}
+
+/* TYPE PICKER MODAL */
+.type-picker-panel {
+  background: var(--white);
+  border-radius: 16px;
+  width: 460px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+  display: flex;
+  flex-direction: column;
+}
+
+.type-picker-body {
+  padding: 20px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.type-picker-hint {
+  font-size: 13px;
+  color: var(--text-gray);
+  margin: 0 0 4px;
+}
+
+.type-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Poppins', sans-serif;
+}
+
+.type-option:hover {
+  border-color: var(--green-mid);
+  background: var(--green-bg);
+}
+
+.type-option-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.type-option-icon.green {
+  background: var(--green-pale);
+}
+
+.type-option-icon.blue {
+  background: #EBF4FF;
+}
+
+.type-option-icon.purple {
+  background: #FAF5FF;
+}
+
+.type-option-text {
+  flex: 1;
+}
+
+.type-option-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.type-option-desc {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.type-option-arrow {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.type-option:hover .type-option-arrow {
+  color: var(--green-mid);
 }
 
 .mf-success {

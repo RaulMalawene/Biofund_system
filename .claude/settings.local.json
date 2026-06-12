@@ -47,7 +47,10 @@
       "Bash(grep -rn \"EnsureFrontendRequestsAreStateful\\\\|stateful\\\\|SANCTUM\" config/*.php .env.example)",
       "Bash(cat config/cors.php)",
       "Bash(npm -v)",
-      "Bash(findstr /i \"MAIL\")"
+      "Bash(findstr /i \"MAIL\")",
+      "Bash(powershell *)",
+      "Bash(Select-String -Pattern 'function canAccess|function gestorHasProvince|function gestorCanSeeAlert|function observadorCanAccess|match \\\\\\(true\\\\\\)|match\\\\s*\\\\\\($user|RoleEnum::' -Context 0,0)",
+      "Bash(netstat -ano)"
     ]
   }
 }

@@ -178,14 +178,22 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('role:admin,gestor')
         ->name('admin.users.gestores.gestor');
 
-    // ── 3.7 ESTATÍSTICAS (admin + gestor) ───────────────────────
+    // ── 3.7 ESTATÍSTICAS (admin + gestor + observador) ──────────
 
+    // Dashboard: também acessível ao observador (apenas leitura, dados do seu escopo)
     Route::prefix('admin')->name('admin.')
-        ->middleware('role:admin,gestor')
+        ->middleware('role:admin,gestor,observador')
         ->group(function () {
 
         Route::get('statistics/dashboard', [AdminStatisticsController::class, 'dashboard'])
             ->name('statistics.dashboard');
+    });
+
+    // Relatório: apenas admin + gestor
+    Route::prefix('admin')->name('admin.')
+        ->middleware('role:admin,gestor')
+        ->group(function () {
+
         Route::get('statistics/report', [AdminStatisticsController::class, 'report'])
             ->name('statistics.report');
     });

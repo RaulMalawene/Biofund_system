@@ -114,6 +114,10 @@ class User extends Authenticatable
     {
         return $this->role === RoleEnum::Funcionario;
     }
+    public function isObservador(): bool
+    {
+        return $this->role === RoleEnum::Observador;
+    }
     public function canValidate(): bool
     {
         return $this->role->canValidate();
