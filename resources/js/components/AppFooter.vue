@@ -4,7 +4,7 @@
       <div class="footer-brand">
         <router-link to="/" class="footer-logo">
           <img src="../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="footer-logo-img"/>
-          Biofund
+          BIOFUND
         </router-link>
         <p>Protegendo o património natural de Moçambique através da transparência e participação cidadã.</p>
       </div>
@@ -20,7 +20,7 @@
         <h5>Institucional</h5>
         <a href="#">
           <svg width="13" height="13" fill="none" viewBox="0 0 14 14"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 5L7 9l6-4" stroke="currentColor" stroke-width="1.3"/></svg>
-          Biofund Moçambique
+          BIOFUND 
         </a>
         <a href="#">
           <svg width="13" height="13" fill="none" viewBox="0 0 14 14"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 5L7 9l6-4" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -49,7 +49,7 @@
     </div>
 
     <div class="footer-bottom">
-      © 2025 Biofund. Todos os direitos reservados. Inspirado na conservação ambiental de Moçambique.
+      © 2025 BIOFUND. Todos os direitos reservados. Inspirado na conservação ambiental de Moçambique.
     </div>
   </footer>
 </template>

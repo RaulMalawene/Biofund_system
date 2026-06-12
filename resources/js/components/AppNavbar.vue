@@ -2,7 +2,7 @@
   <nav :class="['app-nav', variant]">
     <router-link to="/" class="nav-logo">
       <img src="../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="nav-logo-img"/>
-      Biofund
+      BIOFUND
     </router-link>
 
     <div class="nav-links">

@@ -163,10 +163,10 @@ import imgGorongosa from '../../Imagem/parque de gorongosa.jpg'
 import imgLimpopo   from '../../Imagem/parque de limpopo.jpg'
 
 const benefits = [
-  { title: 'Transparência', desc: 'Processos claros e rastreáveis desde a submissão até à resolução final.' },
-  { title: 'Impacto Real',  desc: 'Dados que geram ações imediatas no terreno por equipas especializadas.' },
-  { title: 'Anonimato',     desc: 'Possibilidade de reportar sem revelar a identidade, garantindo segurança.' },
-  { title: 'Monitoria',     desc: 'Acompanhamento estatístico público da saúde ambiental nacional.' },
+  { title: 'Transparência', desc: 'Garantia de registo, acompanhamento e tratamento das ocorrências, permitindo ao utilizador  acompanhar o estado do processo.' },
+  { title: 'Acessibilidade',  desc: 'Disponibilização de canais simples e inclusivos para submissão de reclamações, sugestões, preocupações, consultas ou elogios.' },
+  { title: 'Confidencialidade e Anonimato',     desc: 'Protecção da identidade e dos dados pessoais dos utilizadores, com a possibilidade de submissão anónima quando aplicável.' },
+  { title: 'Resposta e Resolução',     desc: '' },
 ]
 
 const species = [
