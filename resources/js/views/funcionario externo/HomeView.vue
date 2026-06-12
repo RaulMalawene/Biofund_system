@@ -140,7 +140,7 @@
           <rect x="125" y="220" width="30" height="110" fill="white"/>
         </svg>
         <h2>Pronto para colaborar?</h2>
-        <p>Cada denúncia é um passo para um Moçambique mais verde e sustentável. Não ignore o dano ambiental, reporte-o hoje.</p>
+        <p>Cada denúncia é um passo para um Moçambique mais verde e sustentável. Não ignore o dano Ambiental e Social, reporte-o hoje.</p>
         <div class="cta-buttons">
           <button class="btn-amber" @click="$router.push('/submeterReclamacao')">Submeter Agora</button>
           <button class="btn-outline-cta">Como Funciona</button>
