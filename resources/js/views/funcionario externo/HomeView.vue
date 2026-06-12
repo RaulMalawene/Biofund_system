@@ -65,7 +65,7 @@
             </svg>
           </div>
           <h3>Resolução</h3>
-          <p>Promovendo a inclusão, participação e engajamento das partes interessadas</p>
+          <p>Receba a resposta e a resolução da sua ocorrência após a análise e tratamento da mesma.</p>
           <a href="#" class="feature-link">
             Ver Impacto
             <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -77,9 +77,9 @@
     <!-- WHY SECTION -->
     <section class="why-section reveal">
       <div class="why-left">
-        <h2>Porquê denunciar?</h2>
+        <h2>Porque registar uma ocorrência?</h2>
         <div class="why-underline"></div>
-        <p>A sua participação é fundamental para a preservação do nosso património. Cada reporte ajuda a direcionar esforços de conservação onde eles são mais necessários.</p>
+        <p>O registo de ocorrências permite que as suas preocupações, reclamações, sugestões, consultas ou elogios sejam analisados e tratados de forma adequada e atempada.</p>
 
         <div class="benefits-grid">
           <div class="benefit-item" v-for="b in benefits" :key="b.title">
@@ -106,7 +106,7 @@
           </div>
           <div>
             <div class="why-stat-num">+1.2k</div>
-            <div class="why-stat-label">Casos resolvidos com sucesso no último ano em todo Moçambique.</div>
+            <div class="why-stat-label">Casos resolvidos</div>
           </div>
         </div>
       </div>
