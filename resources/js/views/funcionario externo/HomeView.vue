@@ -7,12 +7,12 @@
       <div class="hero-bg"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <div class="hero-badge">MDR-Mecanismo de Dialogo e Reclamacao</div>
+        <div class="hero-badge">MDR · Mecanismo de Diálogo e Reclamação</div>
         <h1>
           Registe a sua
           <span>ocorrência</span>
         </h1>
-        <p>Fortalecer a transparência e a participação das partes interessadas nas iniciativas de Conservação da Biodiversidade em MOÇAMBIQUE</p>
+        <p>Fortalecer a transparência e a participação das partes interessadas nas iniciativas de Conservação da Biodiversidade em Moçambique.</p>
         <div class="hero-buttons">
           <button class="btn-primary" @click="$router.push('/submeterReclamacao')">
             Submeter Ocorrência
@@ -77,7 +77,7 @@
     <!-- WHY SECTION -->
     <section class="why-section reveal">
       <div class="why-left">
-        <h2>Porque registar uma ocorrência?</h2>
+        <h2>Por que registar uma ocorrência?</h2>
         <div class="why-underline"></div>
         <p>O registo de ocorrências permite que as suas preocupações, reclamações, sugestões, consultas ou elogios sejam analisados e tratados de forma adequada e atempada.</p>
 
@@ -112,6 +112,62 @@
       </div>
     </section>
 
+    <!-- COMMUNITIES SECTION -->
+    <section class="why-section community-section reveal">
+      <div class="why-right community-carousel">
+        <img
+          v-for="(img, i) in communityImages"
+          :key="img.src"
+          :src="img.src"
+          :alt="img.alt"
+          :class="{ 'is-active': i === activeCommunityImage }"
+        />
+        <div class="carousel-dots">
+          <span
+            v-for="(img, i) in communityImages"
+            :key="i"
+            class="carousel-dot"
+            :class="{ 'is-active': i === activeCommunityImage }"
+            @click="activeCommunityImage = i"
+          ></span>
+        </div>
+        <div class="why-stat">
+          <div class="why-stat-icon">
+            <svg width="18" height="18" fill="none" viewBox="0 0 18 18">
+              <circle cx="6.5" cy="5.5" r="2.2" stroke="#2D6A4F" stroke-width="1.4"/>
+              <path d="M2 14c0-2.3 2-3.8 4.5-3.8s4.5 1.5 4.5 3.8" stroke="#2D6A4F" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="12.5" cy="6" r="1.8" stroke="#2D6A4F" stroke-width="1.4"/>
+              <path d="M11 10.5c1.8.3 3.3 1.6 3.5 3.5" stroke="#2D6A4F" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="why-stat-num">Comunidades</div>
+            <div class="why-stat-label">No centro da conservação da biodiversidade</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-left">
+        <h2>Ao Lado das Comunidades</h2>
+        <div class="why-underline"></div>
+        <p>A conservação da biodiversidade só é sustentável quando as comunidades que vivem dela fazem parte da solução. O Biofund apoia programas que fortalecem a gestão comunitária dos recursos naturais e criam novas oportunidades para quem vive junto às áreas de conservação.</p>
+
+        <div class="benefits-grid">
+          <div class="benefit-item" v-for="c in community" :key="c.title">
+            <div class="benefit-check">
+              <svg fill="none" viewBox="0 0 12 12"><path d="M2 6 L5 9 L10 3" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h4>{{ c.title }}</h4>
+              <p>{{ c.desc }}</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-green" @click="$router.push('/submeterReclamacao')">Submeter Ocorrência</button>
+      </div>
+    </section>
+
     <!-- SPECIES SECTION -->
     <section class="species-section reveal">
       <h2>Património a Proteger</h2>
@@ -130,30 +186,12 @@
       </div>
     </section>
 
-    <!-- CTA BANNER -->
-    <section class="cta-section reveal">
-      <div class="cta-banner">
-        <svg class="cta-deco" width="280" height="340" viewBox="0 0 280 340" fill="none">
-          <ellipse cx="140" cy="130" rx="90" ry="110" fill="white"/>
-          <ellipse cx="100" cy="90" rx="60" ry="80" fill="white"/>
-          <ellipse cx="180" cy="100" rx="65" ry="75" fill="white"/>
-          <rect x="125" y="220" width="30" height="110" fill="white"/>
-        </svg>
-        <h2>Pronto para colaborar?</h2>
-        <p>Cada denúncia é um passo para um Moçambique mais verde e sustentável. Não ignore o dano Ambiental e Social, reporte-o hoje.</p>
-        <div class="cta-buttons">
-          <button class="btn-amber" @click="$router.push('/submeterReclamacao')">Submeter Agora</button>
-          <button class="btn-outline-cta">Como Funciona</button>
-        </div>
-      </div>
-    </section>
-
     <AppFooter />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
@@ -162,12 +200,32 @@ import imgDugongo   from '../../Imagem/dugongo.jpg'
 import imgGorongosa from '../../Imagem/parque de gorongosa.jpg'
 import imgLimpopo   from '../../Imagem/parque de limpopo.jpg'
 
+import imgComunidade1 from '../../Imagem/comunidade-costeira.jpg'
+import imgComunidade2 from '../../Imagem/Picture7.jpg'
+import imgComunidade3 from '../../Imagem/Picture8.jpg'
+
 const benefits = [
-  { title: 'Transparência', desc: 'Garantia de registo, acompanhamento e tratamento das ocorrências, permitindo ao utilizador  acompanhar o estado do processo.' },
+  { title: 'Transparência', desc: 'Garantia de registo, acompanhamento e tratamento das ocorrências, permitindo ao utilizador acompanhar o estado do processo.' },
   { title: 'Acessibilidade',  desc: 'Disponibilização de canais simples e inclusivos para submissão de reclamações, sugestões, preocupações, consultas ou elogios.' },
   { title: 'Confidencialidade e Anonimato',     desc: 'Protecção da identidade e dos dados pessoais dos utilizadores, com a possibilidade de submissão anónima quando aplicável.' },
   { title: 'Resposta e Resolução',     desc: 'Compromisso com a análise, tratamento e resposta atempada das ocorrências, promovendo soluções adequadas e melhoria contínua.' },
 ]
+
+const community = [
+  { title: 'Co-gestão de Recursos Naturais', desc: 'Conselhos Comunitários de Pesca e associações locais participam na gestão das áreas de conservação e dos recursos que as rodeiam.' },
+  { title: 'Economia Rural Sustentável', desc: 'Programas como o MozRural apoiam infra-estruturas, formação técnica e novas fontes de rendimento para as famílias rurais.' },
+  { title: 'Educação e Liderança', desc: 'Iniciativas como o PLCM capacitam jovens, mulheres e gestores locais para liderar a conservação nas suas comunidades.' },
+  { title: 'Conservação Participativa', desc: 'Através do MDR, qualquer membro da comunidade pode reportar preocupações e contribuir para uma gestão mais transparente.' },
+]
+
+const communityImages = [
+  { src: imgComunidade1, alt: 'Comunidades costeiras envolvidas na conservação em Moçambique' },
+  { src: imgComunidade2, alt: 'Sessão de diálogo com comunidades sobre conservação da biodiversidade' },
+  { src: imgComunidade3, alt: 'Equipa do Biofund em sessão de trabalho com comunidades locais' },
+]
+
+const activeCommunityImage = ref(0)
+let communityTimer = null
 
 const species = [
   { name: 'Elefante Africano', location: 'Reserva do Niassa',   img: imgNiassa    },
@@ -187,6 +245,14 @@ onMounted(() => {
   }, { threshold: 0.12 })
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+
+  communityTimer = setInterval(() => {
+    activeCommunityImage.value = (activeCommunityImage.value + 1) % communityImages.length
+  }, 4500)
+})
+
+onUnmounted(() => {
+  clearInterval(communityTimer)
 })
 </script>
 
@@ -498,6 +564,42 @@ onMounted(() => {
   line-height: 1.4;
 }
 
+/* ── COMMUNITY CAROUSEL ────────────────────────────────────── */
+.community-carousel img {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.community-carousel img.is-active {
+  opacity: 1;
+}
+
+.carousel-dots {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+}
+
+.carousel-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.6);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.carousel-dot.is-active {
+  background: #fff;
+  transform: scale(1.25);
+}
+
 /* ── SPECIES SECTION ───────────────────────────────────────── */
 .species-section {
   padding: 80px 64px;
@@ -560,89 +662,6 @@ onMounted(() => {
   color: rgba(255,255,255,0.75);
   letter-spacing: 0.3px;
 }
-
-/* ── CTA BANNER ────────────────────────────────────────────── */
-.cta-section { padding: 64px; }
-
-.cta-banner {
-  max-width: 1100px;
-  margin: 0 auto;
-  background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 55%, #1B5E40 100%);
-  border-radius: 20px;
-  padding: 72px 56px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.cta-banner::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 320px; height: 320px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-  pointer-events: none;
-}
-
-.cta-banner::after {
-  content: '';
-  position: absolute;
-  bottom: -80px; left: -40px;
-  width: 260px; height: 260px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-  pointer-events: none;
-}
-
-.cta-deco {
-  position: absolute;
-  bottom: 0; right: 40px;
-  opacity: 0.07;
-  pointer-events: none;
-}
-
-.cta-banner h2 { font-size: 38px; font-weight: 800; color: #fff; margin-bottom: 18px; }
-
-.cta-banner p {
-  color: rgba(255,255,255,0.82);
-  font-size: 15px;
-  line-height: 1.7;
-  max-width: 500px;
-  margin: 0 auto 36px;
-}
-
-.cta-buttons { display: flex; gap: 12px; justify-content: center; }
-
-.btn-amber {
-  background: var(--amber);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 13px 28px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-amber:hover { background: var(--amber-dark); }
-
-.btn-outline-cta {
-  background: transparent;
-  color: #fff;
-  border: 2px solid rgba(255,255,255,0.6);
-  border-radius: 8px;
-  padding: 11px 28px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.btn-outline-cta:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
 
 /* ── SCROLL REVEAL ─────────────────────────────────────────── */
 .reveal {

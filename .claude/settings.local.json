@@ -50,7 +50,9 @@
       "Bash(findstr /i \"MAIL\")",
       "Bash(powershell *)",
       "Bash(Select-String -Pattern 'function canAccess|function gestorHasProvince|function gestorCanSeeAlert|function observadorCanAccess|match \\\\\\(true\\\\\\)|match\\\\s*\\\\\\($user|RoleEnum::' -Context 0,0)",
-      "Bash(netstat -ano)"
+      "Bash(netstat -ano)",
+      "WebSearch",
+      "WebFetch(domain:www.biofund.org.mz)"
     ]
   }
 }
