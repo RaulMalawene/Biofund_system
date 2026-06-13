@@ -52,7 +52,26 @@
       "Bash(Select-String -Pattern 'function canAccess|function gestorHasProvince|function gestorCanSeeAlert|function observadorCanAccess|match \\\\\\(true\\\\\\)|match\\\\s*\\\\\\($user|RoleEnum::' -Context 0,0)",
       "Bash(netstat -ano)",
       "WebSearch",
-      "WebFetch(domain:www.biofund.org.mz)"
+      "WebFetch(domain:www.biofund.org.mz)",
+      "Bash(git status *)",
+      "Bash(git config *)",
+      "Bash(git mv *)",
+      "Bash(npx vite *)",
+      "Skill(run)",
+      "Bash(chromium-cli --help)",
+      "Bash(npx playwright *)",
+      "Bash(node -e \"require\\('playwright'\\)\")",
+      "Bash(xxd -c 100)",
+      "Bash(xxd test_header3.html)",
+      "Bash(xxd test_header4.html)",
+      "Bash(python3 -)",
+      "Bash(xxd test_header7.html)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(pkill -f \"artisan serve\")",
+      "Bash(kill 211)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Stop-Process *)"
     ]
   }
 }

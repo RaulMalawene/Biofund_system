@@ -168,21 +168,50 @@
       </div>
     </section>
 
-    <!-- SPECIES SECTION -->
-    <section class="species-section reveal">
-      <h2>Património a Proteger</h2>
-      <div class="species-underline"></div>
-      <p>Conheça algumas das espécies emblemáticas que o Biofund ajuda a salvaguardar através da vigilância participativa.</p>
+    <!-- PATRIMÓNIO / HERITAGE GALLERY -->
+    <section class="patrimonio-section reveal">
+      <div class="patrimonio-header">
+        <h2>Património a Proteger</h2>
+        <div class="patrimonio-underline"></div>
+        <p>Da savana ao oceano, conheça alguns dos ecossistemas e espécies emblemáticas que o Biofund ajuda a salvaguardar através da vigilância participativa.</p>
+      </div>
 
-      <div class="species-grid">
-        <div class="species-card" v-for="s in species" :key="s.name">
-          <img :src="s.img" :alt="s.name" />
-          <div class="species-overlay"></div>
-          <div class="species-info">
-            <h4>{{ s.name }}</h4>
-            <span>{{ s.location }}</span>
-          </div>
+      <div class="patrimonio-gallery">
+        <button class="gallery-arrow gallery-arrow--prev" @click="scrollGallery(-1)" aria-label="Imagem anterior" :disabled="activeGalleryIndex === 0">
+          <svg width="18" height="18" fill="none" viewBox="0 0 16 16"><path d="M10 3 L4 8 L10 13" stroke="#2D6A4F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <div class="gallery-track" ref="galleryTrack" @scroll="onGalleryScroll">
+          <figure class="gallery-slide" v-for="(p, i) in patrimonio" :key="p.name">
+            <img :src="p.img" :alt="`${p.name} — ${p.location}`" :loading="i === 0 ? 'eager' : 'lazy'" />
+            <div class="gallery-shade"></div>
+            <span class="gallery-counter">{{ String(i + 1).padStart(2, '0') }} / {{ String(patrimonio.length).padStart(2, '0') }}</span>
+            <figcaption class="gallery-caption">
+              <div class="gallery-caption-icon">
+                <svg width="16" height="16" fill="none" viewBox="0 0 18 18"><path d="M9 2 L11.5 7 L17 7.5 L13 11.5 L14.5 17 L9 14 L3.5 17 L5 11.5 L1 7.5 L6.5 7 Z" fill="#2D6A4F"/></svg>
+              </div>
+              <div>
+                <div class="gallery-caption-title">{{ p.name }}</div>
+                <div class="gallery-caption-loc">{{ p.location }}</div>
+              </div>
+            </figcaption>
+          </figure>
         </div>
+
+        <button class="gallery-arrow gallery-arrow--next" @click="scrollGallery(1)" aria-label="Imagem seguinte" :disabled="activeGalleryIndex === patrimonio.length - 1">
+          <svg width="18" height="18" fill="none" viewBox="0 0 16 16"><path d="M6 3 L12 8 L6 13" stroke="#2D6A4F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="gallery-dots">
+        <span
+          v-for="(p, i) in patrimonio"
+          :key="i"
+          class="gallery-dot"
+          :class="{ 'is-active': i === activeGalleryIndex }"
+          @click="scrollToSlide(i)"
+          :aria-label="`Ver ${p.name}`"
+        ></span>
       </div>
     </section>
 
@@ -195,10 +224,13 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
-import imgNiassa    from '../../Imagem/reserva do Niassa.jpg'
-import imgDugongo   from '../../Imagem/dugongo.jpg'
-import imgGorongosa from '../../Imagem/parque de gorongosa.jpg'
-import imgLimpopo   from '../../Imagem/parque de limpopo.jpg'
+import imgGirafasMaputo  from '../../Imagem/Back/Diogo-Marecos-Duarte-BIOFUND-2017-2.jpg'
+import imgZebrasLimpopo  from '../../Imagem/Back/Jose-G-Gomes-Pepe-42.jpg'
+import imgGirafasFloresta from '../../Imagem/Back/Jose-G-Gomes-Pepe-6.jpg'
+import imgZebrasMaputo   from '../../Imagem/Back/Jose-Gomes-Pepe-39-PNAM.jpg'
+import imgLibelula       from '../../Imagem/Back/REM.jpg'
+import imgNhumbi         from '../../Imagem/Back/REM3.jpg'
+import imgTubaraoBaleia  from '../../Imagem/Back/Rafael-Fernandez-Caballero.jpg'
 
 import imgComunidade1 from '../../Imagem/comunidade-costeira.jpg'
 import imgComunidade2 from '../../Imagem/Picture7.jpg'
@@ -227,12 +259,46 @@ const communityImages = [
 const activeCommunityImage = ref(0)
 let communityTimer = null
 
-const species = [
-  { name: 'Elefante Africano', location: 'Reserva do Niassa',   img: imgNiassa    },
-  { name: 'Dugongo',           location: 'Bazaruto',            img: imgDugongo   },
-  { name: 'Leão',              location: 'Parque da Gorongosa', img: imgGorongosa },
-  { name: 'Hipopótamo',        location: 'Parque do Limpopo',   img: imgLimpopo   },
+const patrimonio = [
+  { name: 'Girafas',                 location: 'Reserva Especial de Maputo',          img: imgGirafasMaputo    },
+  { name: 'Zebras-das-Planícies',     location: 'Parque Nacional do Limpopo',          img: imgZebrasLimpopo    },
+  { name: 'Família de Girafas',       location: 'Parque Nacional do Limpopo',          img: imgGirafasFloresta  },
+  { name: 'Zebras',                   location: 'Parque Nacional de Maputo',           img: imgZebrasMaputo     },
+  { name: 'Libélula',                 location: 'Zonas Húmidas do Delta do Zambeze',   img: imgLibelula         },
+  { name: 'Nhumbi (Gnu-Azul)',        location: 'Parque Nacional de Banhine',          img: imgNhumbi           },
+  { name: 'Tubarão-Baleia',           location: 'Costa de Inhambane',                  img: imgTubaraoBaleia    },
 ]
+
+const galleryTrack = ref(null)
+const activeGalleryIndex = ref(0)
+let gallerySnapTimeout = null
+
+function scrollToSlide(i) {
+  const track = galleryTrack.value
+  if (!track || !track.children[i]) return
+  track.scrollTo({ left: track.children[i].offsetLeft, behavior: 'smooth' })
+  activeGalleryIndex.value = i
+}
+
+function scrollGallery(direction) {
+  const next = Math.min(Math.max(activeGalleryIndex.value + direction, 0), patrimonio.length - 1)
+  scrollToSlide(next)
+}
+
+function onGalleryScroll() {
+  const track = galleryTrack.value
+  if (!track) return
+  clearTimeout(gallerySnapTimeout)
+  gallerySnapTimeout = setTimeout(() => {
+    let closest = 0
+    let minDist = Infinity
+    Array.from(track.children).forEach((slide, i) => {
+      const dist = Math.abs(slide.offsetLeft - track.scrollLeft)
+      if (dist < minDist) { minDist = dist; closest = i }
+    })
+    activeGalleryIndex.value = closest
+  }, 120)
+}
 
 onMounted(() => {
   const observer = new IntersectionObserver((entries) => {
@@ -253,6 +319,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearInterval(communityTimer)
+  clearTimeout(gallerySnapTimeout)
 })
 </script>
 
@@ -600,67 +667,171 @@ onUnmounted(() => {
   transform: scale(1.25);
 }
 
-/* ── SPECIES SECTION ───────────────────────────────────────── */
-.species-section {
-  padding: 80px 64px;
+/* ── PATRIMÓNIO / HERITAGE GALLERY ─────────────────────────── */
+.patrimonio-section {
+  padding: 90px 0 100px;
   background: var(--offwhite);
   text-align: center;
 }
 
-.species-section h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+.patrimonio-header {
+  max-width: 620px;
+  margin: 0 auto 48px;
+  padding: 0 24px;
+}
 
-.species-underline {
+.patrimonio-header h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; color: var(--text-dark); }
+
+.patrimonio-underline {
   width: 44px; height: 4px;
   background: var(--amber);
   border-radius: 2px;
   margin: 0 auto 16px;
 }
 
-.species-section > p {
+.patrimonio-header p {
   color: var(--text-gray);
   font-size: 14px;
-  margin-bottom: 44px;
+  line-height: 1.7;
 }
 
-.species-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.species-card {
+.patrimonio-gallery {
   position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  height: 220px;
-  cursor: pointer;
+  width: 100%;
 }
 
-.species-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
-.species-card:hover img { transform: scale(1.06); }
+.gallery-track {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
 
-.species-overlay {
+.gallery-track::-webkit-scrollbar { display: none; }
+
+.gallery-slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: clamp(280px, 50vw, 540px);
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.gallery-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%);
+  background: linear-gradient(to top, rgba(10,25,15,0.6) 0%, rgba(10,25,15,0.05) 45%, transparent 70%);
+  pointer-events: none;
 }
 
-.species-info {
+.gallery-counter {
   position: absolute;
-  bottom: 14px; left: 14px;
+  top: 24px; right: 28px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(8px);
   color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+
+.gallery-caption {
+  position: absolute;
+  bottom: 28px; left: 28px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.16);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100% - 56px);
+}
+
+.gallery-caption-icon {
+  width: 36px; height: 36px;
+  background: var(--green-pale);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.gallery-caption-title { font-size: 16px; font-weight: 800; color: var(--text-dark); text-align: left; }
+
+.gallery-caption-loc {
+  font-size: 11.5px;
+  color: var(--text-gray);
+  margin-top: 2px;
   text-align: left;
 }
 
-.species-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, opacity 0.2s;
+}
 
-.species-info span {
-  font-size: 11px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.75);
-  letter-spacing: 0.3px;
+.gallery-arrow:hover { background: var(--green-pale); transform: translateY(-50%) scale(1.08); }
+
+.gallery-arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gallery-arrow--prev { left: 28px; }
+.gallery-arrow--next { right: 28px; }
+
+.gallery-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.gallery-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--card-border);
+  cursor: pointer;
+  transition: background 0.2s, width 0.2s, border-radius 0.2s;
+}
+
+.gallery-dot:hover { background: var(--green-light); }
+
+.gallery-dot.is-active {
+  background: var(--green-mid);
+  width: 22px;
+  border-radius: 4px;
+}
+
+@media (max-width: 720px) {
+  .patrimonio-header h2 { font-size: 26px; }
+  .gallery-arrow { display: none; }
+  .gallery-caption { left: 16px; bottom: 16px; padding: 10px 16px; gap: 10px; }
+  .gallery-caption-icon { width: 30px; height: 30px; }
+  .gallery-caption-title { font-size: 14px; }
+  .gallery-counter { top: 14px; right: 16px; }
 }
 
 /* ── SCROLL REVEAL ─────────────────────────────────────────── */
