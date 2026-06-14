@@ -96,25 +96,29 @@
         <button class="btn-green" @click="$router.push('/submeterReclamacao')">Participar no MDR</button>
       </div>
 
-      <div class="why-right">
-        <img src="../../Imagem/LATERALIMAGEM.jpg" alt="Guarda florestal em Moçambique" />
-        <div class="why-stat">
-          <div class="why-stat-icon">
-            <svg width="18" height="18" fill="none" viewBox="0 0 18 18">
-              <path d="M9 2 L11.5 7 L17 7.5 L13 11.5 L14.5 17 L9 14 L3.5 17 L5 11.5 L1 7.5 L6.5 7 Z" fill="#2D6A4F"/>
-            </svg>
-          </div>
-          <div>
-            <div class="why-stat-num">+1.2k</div>
-            <div class="why-stat-label">Casos resolvidos</div>
-          </div>
+      <div class="why-right image-carousel">
+        <img
+          v-for="(img, i) in porqueDenunciarImages"
+          :key="img.src"
+          :src="img.src"
+          :alt="img.alt"
+          :class="{ 'is-active': i === activePorqueDenunciarImage }"
+        />
+        <div class="carousel-dots">
+          <span
+            v-for="(img, i) in porqueDenunciarImages"
+            :key="i"
+            class="carousel-dot"
+            :class="{ 'is-active': i === activePorqueDenunciarImage }"
+            @click="activePorqueDenunciarImage = i"
+          ></span>
         </div>
       </div>
     </section>
 
     <!-- COMMUNITIES SECTION -->
     <section class="why-section community-section reveal">
-      <div class="why-right community-carousel">
+      <div class="why-right image-carousel">
         <img
           v-for="(img, i) in communityImages"
           :key="img.src"
@@ -148,7 +152,7 @@
       </div>
 
       <div class="why-left">
-        <h2>Ao Lado das Comunidades</h2>
+        <h2>Engajamento Comunitário</h2>
         <div class="why-underline"></div>
         <p>A conservação da biodiversidade só é sustentável quando as comunidades que vivem dela fazem parte da solução. O Biofund financia a conservação, fortalece comunidades e promove o uso sustentável dos ecossistemas em Moçambique.</p>
 
@@ -177,40 +181,35 @@
       </div>
     </section>
 
-    <!-- PATRIMÓNIO / HERITAGE MOSAIC -->
-    <section class="patrimonio-section reveal">
-      <div class="patrimonio-grid">
-        <!-- Intro card: title + description live inside the whale-shark photo -->
-        <article class="patrimonio-card patrimonio-card--intro">
-          <img :src="patrimonioIntro.img" :alt="patrimonioIntro.alt" />
-          <div class="patrimonio-shade patrimonio-shade--intro"></div>
-          <div class="patrimonio-intro-content">
+    <!-- DOCUMENTOS E POLÍTICAS -->
+    <section class="documents-section reveal">
+      <div class="documents-intro">
+        <h2>Documentos e Políticas</h2>
+        <div class="documents-underline"></div>
+        <p>Consulte os documentos oficiais que orientam a actuação do Biofund e o funcionamento do Mecanismo de Diálogo e Reclamação (MDR).</p>
+      </div>
 
-            <h2>Património a Proteger</h2>
-            <div class="patrimonio-underline"></div>
-            <p>Conheça alguns dos ecossistemas e espécies emblemáticas que o Biofund ajuda a salvaguardar, com o apoio da vigilância participativa das comunidades.</p>
-            <div class="patrimonio-stat">
-            </div>
-          </div>
-        </article>
-
-        <!-- Species cards: name + location live inside each photo -->
-        <article
-          v-for="p in patrimonio"
-          :key="p.name"
-          class="patrimonio-card"
-          :class="`patrimonio-card--${p.size}`"
+      <div class="documents-grid">
+        <a
+          v-for="doc in documents"
+          :key="doc.title"
+          :href="doc.link"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="document-card"
         >
-          <img :src="p.img" :alt="`${p.name} — ${p.location}`" loading="lazy" />
-          <div class="patrimonio-shade"></div>
-          <div class="patrimonio-caption">
-            
-            <div>
-              <div class="patrimonio-caption-title">{{ p.name }}</div>
-              <div class="patrimonio-caption-loc">{{ p.location }}</div>
-            </div>
+          <div class="document-card-img">
+            <img :src="doc.img" :alt="doc.title" loading="lazy" />
           </div>
-        </article>
+          <div class="document-card-body">
+            <h3>{{ doc.title }}</h3>
+            <p>{{ doc.desc }}</p>
+            <span class="document-card-link">
+              Ver documento
+              <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </a>
       </div>
     </section>
 
@@ -223,17 +222,18 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
-import imgGirafasMaputo  from '../../Imagem/Back/Diogo-Marecos-Duarte-BIOFUND-2017-2.jpg'
-import imgZebrasLimpopo  from '../../Imagem/Back/Jose-G-Gomes-Pepe-42.jpg'
-import imgGirafasFloresta from '../../Imagem/Back/Jose-G-Gomes-Pepe-6.jpg'
-import imgZebrasMaputo   from '../../Imagem/Back/Jose-Gomes-Pepe-39-PNAM.jpg'
-import imgLibelula       from '../../Imagem/Back/REM.jpg'
-import imgNhumbi         from '../../Imagem/Back/REM3.jpg'
-import imgTubaraoBaleia  from '../../Imagem/Back/Rafael-Fernandez-Caballero.jpg'
-
 import imgComunidade1 from '../../Imagem/comunidade-costeira.jpg'
 import imgComunidade2 from '../../Imagem/Picture7.jpg'
 import imgComunidade3 from '../../Imagem/Picture8.jpg'
+
+import imgPorqueDenunciar1 from '../../Imagem/Porque denunciar/imagem 1.png'
+import imgPorqueDenunciar2 from '../../Imagem/Porque denunciar/imagem 2.png'
+import imgPorqueDenunciar3 from '../../Imagem/Porque denunciar/imagem3.png'
+import imgPorqueDenunciar4 from '../../Imagem/Porque denunciar/Picture7.jpg'
+
+import imgCodigoConduta from '../../Imagem/MDR-img/codigo de conduta.png'
+import imgCodigoEtica from '../../Imagem/MDR-img/Codigo de Etica.png'
+import imgManualMDR from '../../Imagem/MDR-img/MDR.png'
 
 const benefits = [
   { title: 'Transparência', desc: 'Garantia de registo, acompanhamento e tratamento das ocorrências, permitindo ao utilizador acompanhar o estado do processo.' },
@@ -265,18 +265,35 @@ const communityImages = [
 const activeCommunityImage = ref(0)
 let communityTimer = null
 
-const patrimonioIntro = {
-  img: imgTubaraoBaleia,
-  alt: 'Tubarão-baleia na Costa de Inhambane, Moçambique',
-}
+const porqueDenunciarImages = [
+  { src: imgPorqueDenunciar1, alt: 'Sessão de diálogo com comunidades sobre o registo de ocorrências' },
+  { src: imgPorqueDenunciar2, alt: 'Equipa do Biofund em acção de protecção da vida selvagem' },
+  { src: imgPorqueDenunciar3, alt: 'Elefante numa área de conservação em Moçambique' },
+  { src: imgPorqueDenunciar4, alt: 'Equipa do Biofund em sessão de trabalho com comunidades locais' },
+]
 
-const patrimonio = [
-  { name: 'Zebras-das-Planícies',     location: 'Parque Nacional do Limpopo',          img: imgZebrasLimpopo,    size: 'normal'   },
-  { name: 'Família de Girafas',       location: 'Parque Nacional do Limpopo',          img: imgGirafasFloresta,  size: 'normal'   },
-  { name: 'Girafas',                  location: 'Reserva Especial de Maputo',          img: imgGirafasMaputo,    size: 'featured' },
-  { name: 'Zebras',                   location: 'Parque Nacional de Maputo',           img: imgZebrasMaputo,     size: 'normal'   },
-  { name: 'Libélula',                 location: 'Zonas Húmidas do Delta do Zambeze',   img: imgLibelula,         size: 'normal'   },
-  { name: 'Nhumbi (Gnu-Azul)',        location: 'Parque Nacional de Banhine',          img: imgNhumbi,           size: 'featured' },
+const activePorqueDenunciarImage = ref(0)
+let porqueDenunciarTimer = null
+
+const documents = [
+  {
+    title: 'Código de Conduta',
+    desc: 'Prevenção da Violência Baseada no Género, Exploração e Abuso Sexual e Assédio Sexual (VBG/EAS/AS).',
+    img: imgCodigoConduta,
+    link: 'https://www.biofund.org.mz/wp-content/uploads/2025/12/Codigo-de-Conduta-contra-VBG-EAS-AS.pdf',
+  },
+  {
+    title: 'Código de Ética',
+    desc: 'Princípios e valores que orientam a conduta institucional do Biofund, dos seus colaboradores e parceiros.',
+    img: imgCodigoEtica,
+    link: 'https://www.biofund.org.mz/wp-content/uploads/2024/01/Codigo-de-Etica_BIOFUND.pdf',
+  },
+  {
+    title: 'Manual do MDR',
+    desc: 'Manual de Implementação do Mecanismo de Diálogo e Reclamação, com os procedimentos de registo e tratamento de ocorrências.',
+    img: imgManualMDR,
+    link: 'https://www.biofund.org.mz/wp-content/uploads/2025/12/Manual-do-Mecanismo-de-Dialogo-e-Reclamacao.pdf',
+  },
 ]
 
 onMounted(() => {
@@ -294,10 +311,15 @@ onMounted(() => {
   communityTimer = setInterval(() => {
     activeCommunityImage.value = (activeCommunityImage.value + 1) % communityImages.length
   }, 4500)
+
+  porqueDenunciarTimer = setInterval(() => {
+    activePorqueDenunciarImage.value = (activePorqueDenunciarImage.value + 1) % porqueDenunciarImages.length
+  }, 4500)
 })
 
 onUnmounted(() => {
   clearInterval(communityTimer)
+  clearInterval(porqueDenunciarTimer)
 })
 </script>
 
@@ -614,15 +636,15 @@ onUnmounted(() => {
   line-height: 1.4;
 }
 
-/* ── COMMUNITY CAROUSEL ────────────────────────────────────── */
-.community-carousel img {
+/* ── IMAGE CAROUSEL ────────────────────────────────────────── */
+.image-carousel img {
   position: absolute;
   inset: 0;
   opacity: 0;
   transition: opacity 1.2s ease;
 }
 
-.community-carousel img.is-active {
+.image-carousel img.is-active {
   opacity: 1;
 }
 
@@ -699,231 +721,116 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* ── PATRIMÓNIO / HERITAGE MOSAIC ──────────────────────────── */
-.patrimonio-section {
+/* ── DOCUMENTOS E POLÍTICAS ─────────────────────────────────── */
+.documents-section {
   position: relative;
-  padding: 90px 0 110px;
-  background: linear-gradient(180deg, var(--offwhite) 0%, var(--green-pale) 160%);
-  overflow: hidden;
-}
-
-.patrimonio-section::before,
-.patrimonio-section::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.patrimonio-section::before {
-  width: 380px; height: 380px;
-  background: var(--green-light);
-  opacity: 0.18;
-  top: -140px; left: -120px;
-}
-
-.patrimonio-section::after {
-  width: 440px; height: 440px;
-  background: var(--amber);
-  opacity: 0.12;
-  bottom: -180px; right: -140px;
-}
-
-.patrimonio-grid {
-  position: relative;
-  z-index: 1;
+  padding: 90px 64px 110px;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 24px;
+}
+
+.documents-intro {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 48px;
+}
+
+.documents-intro h2 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+.documents-underline {
+  width: 44px;
+  height: 4px;
+  background: var(--amber);
+  border-radius: 2px;
+  margin: 0 auto 22px;
+}
+
+.documents-intro p {
+  font-size: 14px;
+  color: var(--text-gray);
+  line-height: 1.75;
+}
+
+.documents-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
-.patrimonio-card {
-  position: relative;
-  border-radius: 20px;
+.document-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
   overflow: hidden;
-  aspect-ratio: 2.3 / 1;
-  box-shadow: 0 4px 24px rgba(27,67,50,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-.patrimonio-card--intro,
-.patrimonio-card--featured {
-  grid-column: 1 / -1;
+.document-card:hover {
+  transform: translateY(-4px);
+  background: var(--offwhite);
+  box-shadow: 0 10px 28px rgba(27,67,50,0.14);
 }
 
-.patrimonio-card img {
-  position: absolute;
-  inset: 0;
+.document-card-img {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--offwhite);
+}
+
+.document-card-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.7s ease;
+  object-position: top;
+  transition: transform 0.5s ease;
 }
 
-.patrimonio-card:hover img {
-  transform: scale(1.06);
+.document-card:hover .document-card-img img {
+  transform: scale(1.05);
 }
 
-.patrimonio-shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(10,25,15,0.82) 0%, rgba(10,25,15,0.15) 55%, transparent 80%);
+.document-card-body {
+  padding: 22px 24px 26px;
 }
 
-.patrimonio-shade--intro {
-  background: linear-gradient(100deg, rgba(10,25,15,0.92) 0%, rgba(10,25,15,0.6) 40%, rgba(27,67,50,0.15) 75%, rgba(45,106,79,0.05) 100%);
-}
-
-/* Intro card content */
-.patrimonio-intro-content {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 48px;
-  max-width: 560px;
-  color: #fff;
-}
-
-.patrimonio-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: fit-content;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.3);
-  backdrop-filter: blur(8px);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  padding: 6px 14px;
-  border-radius: 99px;
-  margin-bottom: 18px;
-}
-
-.patrimonio-intro-content h2 {
-  font-size: clamp(28px, 4vw, 38px);
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.patrimonio-underline {
-  width: 44px; height: 4px;
-  background: var(--amber);
-  border-radius: 2px;
-  margin-bottom: 18px;
-}
-
-.patrimonio-intro-content p {
-  font-size: 14px;
-  line-height: 1.7;
-  color: rgba(255,255,255,0.88);
-  margin-bottom: 26px;
-  max-width: 440px;
-}
-
-.patrimonio-stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  width: fit-content;
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px 18px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-}
-
-.patrimonio-stat-icon {
-  width: 36px; height: 36px;
-  background: var(--green-pale);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-
-.patrimonio-stat-num { font-size: 16px; font-weight: 800; color: var(--green-mid); }
-
-.patrimonio-stat-label {
-  font-size: 11px;
-  color: var(--text-gray);
-  max-width: 150px;
-  line-height: 1.4;
-}
-
-/* Species cards: caption lives directly on the photo */
-.patrimonio-caption {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 22px 24px;
-}
-
-.patrimonio-caption-icon {
-  width: 38px; height: 38px;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.3);
-  backdrop-filter: blur(6px);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-
-.patrimonio-caption-title {
-  color: #fff;
-  font-weight: 800;
+.document-card-body h3 {
   font-size: 16px;
-  line-height: 1.3;
-  text-align: left;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dark);
 }
 
-.patrimonio-caption-loc {
-  color: rgba(255,255,255,0.78);
-  font-size: 12px;
-  margin-top: 2px;
-  text-align: left;
+.document-card-body p {
+  font-size: 13px;
+  color: var(--text-gray);
+  line-height: 1.6;
+  margin-bottom: 16px;
 }
 
-.patrimonio-card--featured .patrimonio-caption-title { font-size: 21px; }
-.patrimonio-card--featured .patrimonio-caption-icon { width: 44px; height: 44px; }
+.document-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green-mid);
+  font-size: 13px;
+  font-weight: 600;
+  transition: gap 0.2s;
+}
 
-@media (max-width: 720px) {
-  .patrimonio-grid { grid-template-columns: 1fr; gap: 16px; }
+.document-card:hover .document-card-link { gap: 10px; }
 
-  .patrimonio-card--intro {
-    aspect-ratio: auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .patrimonio-card--intro img {
-    position: static;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-  }
-
-  .patrimonio-shade--intro { display: none; }
-
-  .patrimonio-intro-content {
-    position: static;
-    max-width: none;
-    padding: 28px 22px;
-    background: var(--green-dark);
-  }
-
-  .patrimonio-intro-content h2 { font-size: 26px; }
-  .patrimonio-intro-content p { max-width: none; }
-
-  .patrimonio-card--featured .patrimonio-caption-title { font-size: 18px; }
+@media (max-width: 820px) {
+  .documents-section { padding: 60px 24px 80px; }
+  .documents-grid { grid-template-columns: 1fr; }
 }
 
 /* ── SCROLL REVEAL ─────────────────────────────────────────── */
