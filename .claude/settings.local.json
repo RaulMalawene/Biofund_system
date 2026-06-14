@@ -71,7 +71,21 @@
       "Bash(kill 211)",
       "PowerShell(Get-NetTCPConnection *)",
       "PowerShell(Get-Process *)",
-      "PowerShell(Stop-Process *)"
+      "PowerShell(Stop-Process *)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(timeout 30 bash -c 'until curl -sf http://127.0.0.1:8000 >/dev/null; do sleep 1; done')",
+      "Bash(chromium-cli --session biofund)",
+      "Bash(npx --yes playwright install-deps chromium)",
+      "Bash(node -e \"const {chromium}=require\\('playwright'\\); chromium.executablePath ? console.log\\(chromium.executablePath\\(\\)\\) : console.log\\('no'\\)\")",
+      "Read(//c/Program Files \\(x86\\)/Microsoft/Edge/Application//**)",
+      "Read(//c/Program Files/Microsoft/Edge/**)",
+      "Bash(npm install *)",
+      "Bash(node _preview_shot.mjs)",
+      "Bash(rm -f _preview_shot.mjs _preview_desktop.png _preview_mobile.png)",
+      "Bash(npm uninstall *)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(taskkill //F //IM php.exe)",
+      "WebFetch(domain:biofund.org.mz)"
     ]
   }
 }

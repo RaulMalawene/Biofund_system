@@ -767,6 +767,78 @@
             {{ rSubmitError }}
           </div>
 
+          <!-- Dados da Ocorrência -->
+          <div class="r-section-title">Dados da Ocorrência</div>
+          <div class="r-row">
+            <div class="r-group">
+              <label>Projecto <span class="r-req">*</span></label>
+              <select v-model="nf.project_id" :class="{ 'r-err': rErrors.project_id }" @change="rErrors.project_id = ''">
+                <option value="" disabled>Seleccione o projecto</option>
+                <option v-for="p in scopeProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.project_id">{{ rErrors.project_id }}</span>
+            </div>
+            <div class="r-group">
+              <label>Categoria <span class="r-req">*</span></label>
+              <select v-model="nf.category_id" :class="{ 'r-err': rErrors.category_id }" @change="rErrors.category_id = ''">
+                <option value="" disabled>Seleccione a categoria</option>
+                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.category_id">{{ rErrors.category_id }}</span>
+            </div>
+          </div>
+
+          <div class="r-group">
+            <label>Assunto <span class="r-req">*</span></label>
+            <input type="text" v-model="nf.subject" maxlength="255"
+              :class="{ 'r-err': rErrors.subject }"
+              placeholder="Ex: Poluição do rio Incomáti"
+              @input="rErrors.subject = ''" />
+            <span class="r-err-msg" v-if="rErrors.subject">{{ rErrors.subject }}</span>
+          </div>
+
+          <div class="r-row">
+            <div class="r-group">
+              <label>Tipo de Ocorrência <span class="r-req">*</span></label>
+              <select v-model="nf.occurrence_type_id" :class="{ 'r-err': rErrors.occurrence_type_id }" @change="rErrors.occurrence_type_id = ''">
+                <option value="" disabled>Seleccione o tipo</option>
+                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.occurrence_type_id">{{ rErrors.occurrence_type_id }}</span>
+            </div>
+            <div class="r-group">
+              <label>Nível de Alerta <span class="r-req">*</span></label>
+              <select v-model="nf.alert_type" :class="{ 'r-err': rErrors.alert_type }" @change="rErrors.alert_type = ''">
+                <option value="" disabled>Seleccione o nível</option>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgente</option>
+                <option value="gbv">GBV - Violência de Género</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.alert_type">{{ rErrors.alert_type }}</span>
+            </div>
+          </div>
+
+          <div class="r-row">
+            <div class="r-group">
+              <label>Canal de Submissão <span class="r-req">*</span></label>
+              <select v-model="nf.submission_channel" :class="{ 'r-err': rErrors.submission_channel }" @change="rErrors.submission_channel = ''">
+                <option value="" disabled>Seleccione</option>
+                <option value="green_line">Linha Verde</option>
+                <option value="email">Email</option>
+                <option value="phone">Telefone</option>
+                <option value="community_meeting">Reunião Comunitária</option>
+              </select>
+              <span class="r-err-msg" v-if="rErrors.submission_channel">{{ rErrors.submission_channel }}</span>
+            </div>
+            <div class="r-group">
+              <label>Data da Ocorrência</label>
+              <div class="date-input-wrap">
+                <input type="date" v-model="nf.occurrence_date" :max="today" :class="{ 'is-empty': !nf.occurrence_date }" />
+                <span class="date-placeholder" v-if="!nf.occurrence_date">dia / mês / ano</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Informação do Reclamante -->
           <div class="r-section-title">Informação do Reclamante</div>
           <div class="r-row">
@@ -816,75 +888,6 @@
           </div>
           <div v-if="rErrors.contact" class="r-contact-hint r-hint-error">{{ rErrors.contact }}</div>
           <div v-else class="r-contact-hint">Preencha pelo menos email ou telefone.</div>
-
-          <!-- Dados da Ocorrência -->
-          <div class="r-section-title">Dados da Ocorrência</div>
-          <div class="r-group">
-            <label>Assunto <span class="r-req">*</span></label>
-            <input type="text" v-model="nf.subject" maxlength="255"
-              :class="{ 'r-err': rErrors.subject }"
-              placeholder="Ex: Poluição do rio Incomáti"
-              @input="rErrors.subject = ''" />
-            <span class="r-err-msg" v-if="rErrors.subject">{{ rErrors.subject }}</span>
-          </div>
-
-          <div class="r-row">
-            <div class="r-group">
-              <label>Projecto <span class="r-req">*</span></label>
-              <select v-model="nf.project_id" :class="{ 'r-err': rErrors.project_id }" @change="rErrors.project_id = ''">
-                <option value="" disabled>Seleccione o projecto</option>
-                <option v-for="p in scopeProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
-              </select>
-              <span class="r-err-msg" v-if="rErrors.project_id">{{ rErrors.project_id }}</span>
-            </div>
-            <div class="r-group">
-              <label>Categoria <span class="r-req">*</span></label>
-              <select v-model="nf.category_id" :class="{ 'r-err': rErrors.category_id }" @change="rErrors.category_id = ''">
-                <option value="" disabled>Seleccione a categoria</option>
-                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
-              </select>
-              <span class="r-err-msg" v-if="rErrors.category_id">{{ rErrors.category_id }}</span>
-            </div>
-          </div>
-
-          <div class="r-row">
-            <div class="r-group">
-              <label>Tipo de Ocorrência <span class="r-req">*</span></label>
-              <select v-model="nf.occurrence_type_id" :class="{ 'r-err': rErrors.occurrence_type_id }" @change="rErrors.occurrence_type_id = ''">
-                <option value="" disabled>Seleccione o tipo</option>
-                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
-              </select>
-              <span class="r-err-msg" v-if="rErrors.occurrence_type_id">{{ rErrors.occurrence_type_id }}</span>
-            </div>
-            <div class="r-group">
-              <label>Nível de Alerta <span class="r-req">*</span></label>
-              <select v-model="nf.alert_type" :class="{ 'r-err': rErrors.alert_type }" @change="rErrors.alert_type = ''">
-                <option value="" disabled>Seleccione o nível</option>
-                <option value="normal">Normal</option>
-                <option value="urgent">Urgente</option>
-                <option value="gbv">GBV - Violência de Género</option>
-              </select>
-              <span class="r-err-msg" v-if="rErrors.alert_type">{{ rErrors.alert_type }}</span>
-            </div>
-          </div>
-
-          <div class="r-row">
-            <div class="r-group">
-              <label>Canal de Submissão <span class="r-req">*</span></label>
-              <select v-model="nf.submission_channel" :class="{ 'r-err': rErrors.submission_channel }" @change="rErrors.submission_channel = ''">
-                <option value="" disabled>Seleccione</option>
-                <option value="green_line">Linha Verde</option>
-                <option value="email">Email</option>
-                <option value="phone">Telefone</option>
-                <option value="community_meeting">Reunião Comunitária</option>
-              </select>
-              <span class="r-err-msg" v-if="rErrors.submission_channel">{{ rErrors.submission_channel }}</span>
-            </div>
-            <div class="r-group">
-              <label>Data da Ocorrência</label>
-              <input type="date" v-model="nf.occurrence_date" :max="today" />
-            </div>
-          </div>
 
           <!-- Localização -->
           <div class="r-section-title">Localização</div>
@@ -3406,6 +3409,21 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
 
 .r-err { border-color: #FC8181 !important; box-shadow: 0 0 0 3px rgba(252,129,129,.1) !important; }
 .r-err-msg { font-size: 11.5px; color: #E53E3E; }
+
+.date-input-wrap { position: relative; }
+.date-input-wrap input[type="date"].is-empty:not(:focus)::-webkit-datetime-edit {
+  color: transparent;
+}
+.date-input-wrap .date-placeholder {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-light);
+  pointer-events: none;
+}
+.date-input-wrap:focus-within .date-placeholder { display: none; }
 
 .r-contact-hint { font-size: 11.5px; color: var(--text-light); margin-top: -10px; margin-bottom: 14px; }
 .r-hint-error   { color: #C53030; }

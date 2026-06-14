@@ -91,7 +91,8 @@
                   <path d="M5 1v2M11 1v2M1 6h14" stroke-linecap="round" />
                 </svg>
               </span>
-              <input type="date" v-model="form.data" :max="today" />
+              <input type="date" v-model="form.data" :max="today" :class="{ 'is-empty': !form.data }" />
+              <span class="date-placeholder" v-if="!form.data">dia / mês / ano</span>
             </div>
           </div>
         </div>
@@ -717,6 +718,24 @@ async function copyCode() {
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
+}
+
+.date-wrap input[type="date"].is-empty:not(:focus)::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.date-placeholder {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+.date-wrap:focus-within .date-placeholder {
+  display: none;
 }
 
 .field-group select:disabled {

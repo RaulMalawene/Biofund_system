@@ -427,6 +427,84 @@
             {{ submitError }}
           </div>
 
+          <!-- Projecto + Categoria -->
+          <div class="f-row">
+            <div class="f-group">
+              <label>Projecto <span class="f-req">*</span></label>
+              <select v-model="form.project_id" :class="{ 'f-err': errors.project_id }" @change="errors.project_id = ''">
+                <option value="" disabled>{{ loadingRef ? 'A carregar…' : 'Seleccione o projecto' }}</option>
+                <option v-for="p in refProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.project_id">{{ errors.project_id }}</span>
+            </div>
+            <div class="f-group">
+              <label>Categoria <span class="f-req">*</span></label>
+              <select v-model="form.category_id" :class="{ 'f-err': errors.category_id }"
+                @change="handleCategoryChange">
+                <option value="" disabled>Seleccione a categoria</option>
+                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.category_id">{{ errors.category_id }}</span>
+            </div>
+          </div>
+
+          <!-- Assunto -->
+          <div class="f-group">
+            <label>Assunto <span class="f-req">*</span></label>
+            <input type="text" v-model="form.subject" maxlength="255"
+              :class="{ 'f-err': errors.subject }"
+              placeholder="Ex: Poluição do rio Incomáti"
+              @input="errors.subject = ''"/>
+            <span class="f-err-msg" v-if="errors.subject">{{ errors.subject }}</span>
+          </div>
+
+          <!-- Tipo de Ocorrência + Nível de Alerta -->
+          <div class="f-row">
+            <div class="f-group">
+              <label>Tipo de Ocorrência <span class="f-req">*</span></label>
+              <select v-model="form.occurrence_type_id" :class="{ 'f-err': errors.occurrence_type_id }"
+                @change="errors.occurrence_type_id = ''">
+                <option value="" disabled>Seleccione o tipo</option>
+                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.occurrence_type_id">{{ errors.occurrence_type_id }}</span>
+            </div>
+            <div class="f-group">
+              <label>Nível de Alerta <span class="f-req">*</span></label>
+              <select v-model="form.alert_type" :class="{ 'f-err': errors.alert_type }"
+                @change="errors.alert_type = ''">
+                <option value="" disabled>Seleccione o nível</option>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgente</option>
+                <option value="gbv">GBV - Violência de Género</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.alert_type">{{ errors.alert_type }}</span>
+            </div>
+          </div>
+
+          <!-- Canal de Submissão + Data -->
+          <div class="f-row">
+            <div class="f-group">
+              <label>Canal de Submissão <span class="f-req">*</span></label>
+              <select v-model="form.submission_channel" :class="{ 'f-err': errors.submission_channel }"
+                @change="errors.submission_channel = ''">
+                <option value="" disabled>Seleccione o canal</option>
+                <option value="green_line">Linha Verde</option>
+                <option value="email">Email</option>
+                <option value="phone">Telefone</option>
+                <option value="community_meeting">Reunião Comunitária</option>
+              </select>
+              <span class="f-err-msg" v-if="errors.submission_channel">{{ errors.submission_channel }}</span>
+            </div>
+            <div class="f-group">
+              <label>Data da Ocorrência</label>
+              <div class="date-input-wrap">
+                <input type="date" v-model="form.occurrence_date" :max="today" :class="{ 'is-empty': !form.occurrence_date }"/>
+                <span class="date-placeholder" v-if="!form.occurrence_date">dia / mês / ano</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Contacto do Reclamante -->
           <div class="f-row">
             <div class="f-group">
@@ -478,81 +556,6 @@
                 <option value="56 - 65">56 - 65 anos</option>
                 <option value="Mais de 65">Mais de 65 anos</option>
               </select>
-            </div>
-          </div>
-
-          <!-- Assunto -->
-          <div class="f-group">
-            <label>Assunto <span class="f-req">*</span></label>
-            <input type="text" v-model="form.subject" maxlength="255"
-              :class="{ 'f-err': errors.subject }"
-              placeholder="Ex: Poluição do rio Incomáti"
-              @input="errors.subject = ''"/>
-            <span class="f-err-msg" v-if="errors.subject">{{ errors.subject }}</span>
-          </div>
-
-          <!-- Projecto + Categoria -->
-          <div class="f-row">
-            <div class="f-group">
-              <label>Projecto <span class="f-req">*</span></label>
-              <select v-model="form.project_id" :class="{ 'f-err': errors.project_id }" @change="errors.project_id = ''">
-                <option value="" disabled>{{ loadingRef ? 'A carregar…' : 'Seleccione o projecto' }}</option>
-                <option v-for="p in refProjects" :key="p.id" :value="p.id">{{ p.name }}</option>
-              </select>
-              <span class="f-err-msg" v-if="errors.project_id">{{ errors.project_id }}</span>
-            </div>
-            <div class="f-group">
-              <label>Categoria <span class="f-req">*</span></label>
-              <select v-model="form.category_id" :class="{ 'f-err': errors.category_id }"
-                @change="handleCategoryChange">
-                <option value="" disabled>Seleccione a categoria</option>
-                <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
-              </select>
-              <span class="f-err-msg" v-if="errors.category_id">{{ errors.category_id }}</span>
-            </div>
-          </div>
-
-          <!-- Tipo de Ocorrência + Nível de Alerta -->
-          <div class="f-row">
-            <div class="f-group">
-              <label>Tipo de Ocorrência <span class="f-req">*</span></label>
-              <select v-model="form.occurrence_type_id" :class="{ 'f-err': errors.occurrence_type_id }"
-                @change="errors.occurrence_type_id = ''">
-                <option value="" disabled>Seleccione o tipo</option>
-                <option v-for="t in refTypes" :key="t.id" :value="t.id">{{ t.name }}</option>
-              </select>
-              <span class="f-err-msg" v-if="errors.occurrence_type_id">{{ errors.occurrence_type_id }}</span>
-            </div>
-            <div class="f-group">
-              <label>Nível de Alerta <span class="f-req">*</span></label>
-              <select v-model="form.alert_type" :class="{ 'f-err': errors.alert_type }"
-                @change="errors.alert_type = ''">
-                <option value="" disabled>Seleccione o nível</option>
-                <option value="normal">Normal</option>
-                <option value="urgent">Urgente</option>
-                <option value="gbv">GBV - Violência de Género</option>
-              </select>
-              <span class="f-err-msg" v-if="errors.alert_type">{{ errors.alert_type }}</span>
-            </div>
-          </div>
-
-          <!-- Canal de Submissão + Data -->
-          <div class="f-row">
-            <div class="f-group">
-              <label>Canal de Submissão <span class="f-req">*</span></label>
-              <select v-model="form.submission_channel" :class="{ 'f-err': errors.submission_channel }"
-                @change="errors.submission_channel = ''">
-                <option value="" disabled>Seleccione o canal</option>
-                <option value="green_line">Linha Verde</option>
-                <option value="email">Email</option>
-                <option value="phone">Telefone</option>
-                <option value="community_meeting">Reunião Comunitária</option>
-              </select>
-              <span class="f-err-msg" v-if="errors.submission_channel">{{ errors.submission_channel }}</span>
-            </div>
-            <div class="f-group">
-              <label>Data da Ocorrência</label>
-              <input type="date" v-model="form.occurrence_date" :max="today"/>
             </div>
           </div>
 
@@ -2018,6 +2021,21 @@ tbody td {
   font-size: 11.5px;
   color: #E53E3E;
 }
+
+.date-input-wrap { position: relative; }
+.date-input-wrap input[type="date"].is-empty:not(:focus)::-webkit-datetime-edit {
+  color: transparent;
+}
+.date-input-wrap .date-placeholder {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-light);
+  pointer-events: none;
+}
+.date-input-wrap:focus-within .date-placeholder { display: none; }
 
 /* ── UPLOAD ──────────────────────────────── */
 .upload-zone {

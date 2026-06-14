@@ -141,8 +141,8 @@
             </svg>
           </div>
           <div>
-            <div class="why-stat-num">Comunidades</div>
-            <div class="why-stat-label">No centro da conservação da biodiversidade</div>
+            <div class="why-stat-num">5 Áreas</div>
+            <div class="why-stat-label">de conservação comunitária geridas pelas populações locais</div>
           </div>
         </div>
       </div>
@@ -150,7 +150,7 @@
       <div class="why-left">
         <h2>Ao Lado das Comunidades</h2>
         <div class="why-underline"></div>
-        <p>A conservação da biodiversidade só é sustentável quando as comunidades que vivem dela fazem parte da solução. O Biofund apoia programas que fortalecem a gestão comunitária dos recursos naturais e criam novas oportunidades para quem vive junto às áreas de conservação.</p>
+        <p>A conservação da biodiversidade só é sustentável quando as comunidades que vivem dela fazem parte da solução. O Biofund financia a conservação, fortalece comunidades e promove o uso sustentável dos ecossistemas em Moçambique.</p>
 
         <div class="benefits-grid">
           <div class="benefit-item" v-for="c in community" :key="c.title">
@@ -164,54 +164,53 @@
           </div>
         </div>
 
-        <button class="btn-green" @click="$router.push('/submeterReclamacao')">Submeter Ocorrência</button>
+        <div class="community-projects">
+          <span class="community-projects-label">Também fazem parte dos nossos projectos</span>
+          <div class="project-pills">
+            <span class="project-pill" v-for="proj in communityProjects" :key="proj">
+              <span class="project-pill-dot"></span>{{ proj }}
+            </span>
+          </div>
+        </div>
+
+       <!--- <button class="btn-green" @click="$router.push('/submeterReclamacao')">Submeter Ocorrência</button> -->
       </div>
     </section>
 
-    <!-- PATRIMÓNIO / HERITAGE GALLERY -->
+    <!-- PATRIMÓNIO / HERITAGE MOSAIC -->
     <section class="patrimonio-section reveal">
-      <div class="patrimonio-header">
-        <h2>Património a Proteger</h2>
-        <div class="patrimonio-underline"></div>
-        <p>Da savana ao oceano, conheça alguns dos ecossistemas e espécies emblemáticas que o Biofund ajuda a salvaguardar através da vigilância participativa.</p>
-      </div>
+      <div class="patrimonio-grid">
+        <!-- Intro card: title + description live inside the whale-shark photo -->
+        <article class="patrimonio-card patrimonio-card--intro">
+          <img :src="patrimonioIntro.img" :alt="patrimonioIntro.alt" />
+          <div class="patrimonio-shade patrimonio-shade--intro"></div>
+          <div class="patrimonio-intro-content">
 
-      <div class="patrimonio-gallery">
-        <button class="gallery-arrow gallery-arrow--prev" @click="scrollGallery(-1)" aria-label="Imagem anterior" :disabled="activeGalleryIndex === 0">
-          <svg width="18" height="18" fill="none" viewBox="0 0 16 16"><path d="M10 3 L4 8 L10 13" stroke="#2D6A4F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+            <h2>Património a Proteger</h2>
+            <div class="patrimonio-underline"></div>
+            <p>Conheça alguns dos ecossistemas e espécies emblemáticas que o Biofund ajuda a salvaguardar, com o apoio da vigilância participativa das comunidades.</p>
+            <div class="patrimonio-stat">
+            </div>
+          </div>
+        </article>
 
-        <div class="gallery-track" ref="galleryTrack" @scroll="onGalleryScroll">
-          <figure class="gallery-slide" v-for="(p, i) in patrimonio" :key="p.name">
-            <img :src="p.img" :alt="`${p.name} — ${p.location}`" :loading="i === 0 ? 'eager' : 'lazy'" />
-            <div class="gallery-shade"></div>
-            <span class="gallery-counter">{{ String(i + 1).padStart(2, '0') }} / {{ String(patrimonio.length).padStart(2, '0') }}</span>
-            <figcaption class="gallery-caption">
-              <div class="gallery-caption-icon">
-                <svg width="16" height="16" fill="none" viewBox="0 0 18 18"><path d="M9 2 L11.5 7 L17 7.5 L13 11.5 L14.5 17 L9 14 L3.5 17 L5 11.5 L1 7.5 L6.5 7 Z" fill="#2D6A4F"/></svg>
-              </div>
-              <div>
-                <div class="gallery-caption-title">{{ p.name }}</div>
-                <div class="gallery-caption-loc">{{ p.location }}</div>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <button class="gallery-arrow gallery-arrow--next" @click="scrollGallery(1)" aria-label="Imagem seguinte" :disabled="activeGalleryIndex === patrimonio.length - 1">
-          <svg width="18" height="18" fill="none" viewBox="0 0 16 16"><path d="M6 3 L12 8 L6 13" stroke="#2D6A4F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-
-      <div class="gallery-dots">
-        <span
-          v-for="(p, i) in patrimonio"
-          :key="i"
-          class="gallery-dot"
-          :class="{ 'is-active': i === activeGalleryIndex }"
-          @click="scrollToSlide(i)"
-          :aria-label="`Ver ${p.name}`"
-        ></span>
+        <!-- Species cards: name + location live inside each photo -->
+        <article
+          v-for="p in patrimonio"
+          :key="p.name"
+          class="patrimonio-card"
+          :class="`patrimonio-card--${p.size}`"
+        >
+          <img :src="p.img" :alt="`${p.name} — ${p.location}`" loading="lazy" />
+          <div class="patrimonio-shade"></div>
+          <div class="patrimonio-caption">
+            
+            <div>
+              <div class="patrimonio-caption-title">{{ p.name }}</div>
+              <div class="patrimonio-caption-loc">{{ p.location }}</div>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -244,10 +243,17 @@ const benefits = [
 ]
 
 const community = [
-  { title: 'Co-gestão de Recursos Naturais', desc: 'Conselhos Comunitários de Pesca e associações locais participam na gestão das áreas de conservação e dos recursos que as rodeiam.' },
-  { title: 'Economia Rural Sustentável', desc: 'Programas como o MozRural apoiam infra-estruturas, formação técnica e novas fontes de rendimento para as famílias rurais.' },
-  { title: 'Educação e Liderança', desc: 'Iniciativas como o PLCM capacitam jovens, mulheres e gestores locais para liderar a conservação nas suas comunidades.' },
-  { title: 'Conservação Participativa', desc: 'Através do MDR, qualquer membro da comunidade pode reportar preocupações e contribuir para uma gestão mais transparente.' },
+  { title: 'MozRural', desc: 'Programa de Economia Rural Sustentável que apoia infra-estruturas, formação técnica e novas fontes de rendimento para famílias que vivem junto às áreas de conservação.' },
+  { title: 'PLCM', desc: 'Programa de Liderança para a Conservação de Moçambique: estágios pré-profissionais que já capacitaram mais de 100 jovens para o Sistema Nacional de Áreas de Conservação.' },
+  { title: 'Áreas de Conservação Comunitária', desc: 'Rede de áreas protegidas geridas directamente pelas comunidades locais, com participação na gestão dos recursos naturais e partilha de benefícios.' },
+  { title: 'MozNorte', desc: 'Projecto de resiliência rural que reforça a adaptação às alterações climáticas e a subsistência sustentável das comunidades do Norte de Moçambique.' },
+]
+
+const communityProjects = [
+  'PROMOVE Biodiversidade',
+  'Fundo de Apoio aos Fiscais',
+  'Contrabalanços de Biodiversidade',
+  'Cartão BIO',
 ]
 
 const communityImages = [
@@ -259,46 +265,19 @@ const communityImages = [
 const activeCommunityImage = ref(0)
 let communityTimer = null
 
+const patrimonioIntro = {
+  img: imgTubaraoBaleia,
+  alt: 'Tubarão-baleia na Costa de Inhambane, Moçambique',
+}
+
 const patrimonio = [
-  { name: 'Girafas',                 location: 'Reserva Especial de Maputo',          img: imgGirafasMaputo    },
-  { name: 'Zebras-das-Planícies',     location: 'Parque Nacional do Limpopo',          img: imgZebrasLimpopo    },
-  { name: 'Família de Girafas',       location: 'Parque Nacional do Limpopo',          img: imgGirafasFloresta  },
-  { name: 'Zebras',                   location: 'Parque Nacional de Maputo',           img: imgZebrasMaputo     },
-  { name: 'Libélula',                 location: 'Zonas Húmidas do Delta do Zambeze',   img: imgLibelula         },
-  { name: 'Nhumbi (Gnu-Azul)',        location: 'Parque Nacional de Banhine',          img: imgNhumbi           },
-  { name: 'Tubarão-Baleia',           location: 'Costa de Inhambane',                  img: imgTubaraoBaleia    },
+  { name: 'Zebras-das-Planícies',     location: 'Parque Nacional do Limpopo',          img: imgZebrasLimpopo,    size: 'normal'   },
+  { name: 'Família de Girafas',       location: 'Parque Nacional do Limpopo',          img: imgGirafasFloresta,  size: 'normal'   },
+  { name: 'Girafas',                  location: 'Reserva Especial de Maputo',          img: imgGirafasMaputo,    size: 'featured' },
+  { name: 'Zebras',                   location: 'Parque Nacional de Maputo',           img: imgZebrasMaputo,     size: 'normal'   },
+  { name: 'Libélula',                 location: 'Zonas Húmidas do Delta do Zambeze',   img: imgLibelula,         size: 'normal'   },
+  { name: 'Nhumbi (Gnu-Azul)',        location: 'Parque Nacional de Banhine',          img: imgNhumbi,           size: 'featured' },
 ]
-
-const galleryTrack = ref(null)
-const activeGalleryIndex = ref(0)
-let gallerySnapTimeout = null
-
-function scrollToSlide(i) {
-  const track = galleryTrack.value
-  if (!track || !track.children[i]) return
-  track.scrollTo({ left: track.children[i].offsetLeft, behavior: 'smooth' })
-  activeGalleryIndex.value = i
-}
-
-function scrollGallery(direction) {
-  const next = Math.min(Math.max(activeGalleryIndex.value + direction, 0), patrimonio.length - 1)
-  scrollToSlide(next)
-}
-
-function onGalleryScroll() {
-  const track = galleryTrack.value
-  if (!track) return
-  clearTimeout(gallerySnapTimeout)
-  gallerySnapTimeout = setTimeout(() => {
-    let closest = 0
-    let minDist = Infinity
-    Array.from(track.children).forEach((slide, i) => {
-      const dist = Math.abs(slide.offsetLeft - track.scrollLeft)
-      if (dist < minDist) { minDist = dist; closest = i }
-    })
-    activeGalleryIndex.value = closest
-  }, 120)
-}
 
 onMounted(() => {
   const observer = new IntersectionObserver((entries) => {
@@ -319,7 +298,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearInterval(communityTimer)
-  clearTimeout(gallerySnapTimeout)
 })
 </script>
 
@@ -523,6 +501,11 @@ onUnmounted(() => {
   align-items: center;
 }
 
+.community-section {
+  margin-top: -64px;
+  padding-top: 36px;
+}
+
 .why-section h2 {
   font-size: 36px;
   font-weight: 800;
@@ -667,100 +650,196 @@ onUnmounted(() => {
   transform: scale(1.25);
 }
 
-/* ── PATRIMÓNIO / HERITAGE GALLERY ─────────────────────────── */
+/* ── COMMUNITY PROJECT PILLS ───────────────────────────────── */
+.community-projects {
+  margin-bottom: 32px;
+}
+
+.community-projects-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin-bottom: 12px;
+}
+
+.project-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.project-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+  background: var(--green-pale);
+  border: 1px solid transparent;
+  border-radius: 99px;
+  padding: 7px 14px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.project-pill:hover {
+  background: #fff;
+  border-color: var(--green-mid);
+  transform: translateY(-2px);
+}
+
+.project-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex-shrink: 0;
+}
+
+/* ── PATRIMÓNIO / HERITAGE MOSAIC ──────────────────────────── */
 .patrimonio-section {
-  padding: 90px 0 100px;
-  background: var(--offwhite);
-  text-align: center;
+  position: relative;
+  padding: 90px 0 110px;
+  background: linear-gradient(180deg, var(--offwhite) 0%, var(--green-pale) 160%);
+  overflow: hidden;
 }
 
-.patrimonio-header {
-  max-width: 620px;
-  margin: 0 auto 48px;
+.patrimonio-section::before,
+.patrimonio-section::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.patrimonio-section::before {
+  width: 380px; height: 380px;
+  background: var(--green-light);
+  opacity: 0.18;
+  top: -140px; left: -120px;
+}
+
+.patrimonio-section::after {
+  width: 440px; height: 440px;
+  background: var(--amber);
+  opacity: 0.12;
+  bottom: -180px; right: -140px;
+}
+
+.patrimonio-grid {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
   padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
-.patrimonio-header h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; color: var(--text-dark); }
+.patrimonio-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 2.3 / 1;
+  box-shadow: 0 4px 24px rgba(27,67,50,0.08);
+}
+
+.patrimonio-card--intro,
+.patrimonio-card--featured {
+  grid-column: 1 / -1;
+}
+
+.patrimonio-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.patrimonio-card:hover img {
+  transform: scale(1.06);
+}
+
+.patrimonio-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,25,15,0.82) 0%, rgba(10,25,15,0.15) 55%, transparent 80%);
+}
+
+.patrimonio-shade--intro {
+  background: linear-gradient(100deg, rgba(10,25,15,0.92) 0%, rgba(10,25,15,0.6) 40%, rgba(27,67,50,0.15) 75%, rgba(45,106,79,0.05) 100%);
+}
+
+/* Intro card content */
+.patrimonio-intro-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px;
+  max-width: 560px;
+  color: #fff;
+}
+
+.patrimonio-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  margin-bottom: 18px;
+}
+
+.patrimonio-intro-content h2 {
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 800;
+  margin-bottom: 10px;
+}
 
 .patrimonio-underline {
   width: 44px; height: 4px;
   background: var(--amber);
   border-radius: 2px;
-  margin: 0 auto 16px;
+  margin-bottom: 18px;
 }
 
-.patrimonio-header p {
-  color: var(--text-gray);
+.patrimonio-intro-content p {
   font-size: 14px;
   line-height: 1.7;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 26px;
+  max-width: 440px;
 }
 
-.patrimonio-gallery {
-  position: relative;
-  width: 100%;
-}
-
-.gallery-track {
-  display: flex;
-  width: 100%;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-}
-
-.gallery-track::-webkit-scrollbar { display: none; }
-
-.gallery-slide {
-  position: relative;
-  flex: 0 0 100%;
-  width: 100%;
-  height: clamp(280px, 50vw, 540px);
-  scroll-snap-align: start;
-  overflow: hidden;
-}
-
-.gallery-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.gallery-shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(10,25,15,0.6) 0%, rgba(10,25,15,0.05) 45%, transparent 70%);
-  pointer-events: none;
-}
-
-.gallery-counter {
-  position: absolute;
-  top: 24px; right: 28px;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.35);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  padding: 6px 14px;
-  border-radius: 99px;
-}
-
-.gallery-caption {
-  position: absolute;
-  bottom: 28px; left: 28px;
+.patrimonio-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
   background: #fff;
   border-radius: 12px;
-  padding: 14px 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.16);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  max-width: calc(100% - 56px);
+  padding: 12px 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
 }
 
-.gallery-caption-icon {
+.patrimonio-stat-icon {
   width: 36px; height: 36px;
   background: var(--green-pale);
   border-radius: 8px;
@@ -768,70 +847,83 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.gallery-caption-title { font-size: 16px; font-weight: 800; color: var(--text-dark); text-align: left; }
+.patrimonio-stat-num { font-size: 16px; font-weight: 800; color: var(--green-mid); }
 
-.gallery-caption-loc {
-  font-size: 11.5px;
+.patrimonio-stat-label {
+  font-size: 11px;
   color: var(--text-gray);
+  max-width: 150px;
+  line-height: 1.4;
+}
+
+/* Species cards: caption lives directly on the photo */
+.patrimonio-caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 24px;
+}
+
+.patrimonio-caption-icon {
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.patrimonio-caption-title {
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.patrimonio-caption-loc {
+  color: rgba(255,255,255,0.78);
+  font-size: 12px;
   margin-top: 2px;
   text-align: left;
 }
 
-.gallery-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  width: 46px; height: 46px;
-  border-radius: 50%;
-  background: #fff;
-  border: none;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.18);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s, opacity 0.2s;
-}
-
-.gallery-arrow:hover { background: var(--green-pale); transform: translateY(-50%) scale(1.08); }
-
-.gallery-arrow:disabled {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.gallery-arrow--prev { left: 28px; }
-.gallery-arrow--next { right: 28px; }
-
-.gallery-dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 28px;
-}
-
-.gallery-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--card-border);
-  cursor: pointer;
-  transition: background 0.2s, width 0.2s, border-radius 0.2s;
-}
-
-.gallery-dot:hover { background: var(--green-light); }
-
-.gallery-dot.is-active {
-  background: var(--green-mid);
-  width: 22px;
-  border-radius: 4px;
-}
+.patrimonio-card--featured .patrimonio-caption-title { font-size: 21px; }
+.patrimonio-card--featured .patrimonio-caption-icon { width: 44px; height: 44px; }
 
 @media (max-width: 720px) {
-  .patrimonio-header h2 { font-size: 26px; }
-  .gallery-arrow { display: none; }
-  .gallery-caption { left: 16px; bottom: 16px; padding: 10px 16px; gap: 10px; }
-  .gallery-caption-icon { width: 30px; height: 30px; }
-  .gallery-caption-title { font-size: 14px; }
-  .gallery-counter { top: 14px; right: 16px; }
+  .patrimonio-grid { grid-template-columns: 1fr; gap: 16px; }
+
+  .patrimonio-card--intro {
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .patrimonio-card--intro img {
+    position: static;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .patrimonio-shade--intro { display: none; }
+
+  .patrimonio-intro-content {
+    position: static;
+    max-width: none;
+    padding: 28px 22px;
+    background: var(--green-dark);
+  }
+
+  .patrimonio-intro-content h2 { font-size: 26px; }
+  .patrimonio-intro-content p { max-width: none; }
+
+  .patrimonio-card--featured .patrimonio-caption-title { font-size: 18px; }
 }
 
 /* ── SCROLL REVEAL ─────────────────────────────────────────── */
