@@ -135,20 +135,7 @@
             @click="activeCommunityImage = i"
           ></span>
         </div>
-        <div class="why-stat">
-          <div class="why-stat-icon">
-            <svg width="18" height="18" fill="none" viewBox="0 0 18 18">
-              <circle cx="6.5" cy="5.5" r="2.2" stroke="#2D6A4F" stroke-width="1.4"/>
-              <path d="M2 14c0-2.3 2-3.8 4.5-3.8s4.5 1.5 4.5 3.8" stroke="#2D6A4F" stroke-width="1.4" stroke-linecap="round"/>
-              <circle cx="12.5" cy="6" r="1.8" stroke="#2D6A4F" stroke-width="1.4"/>
-              <path d="M11 10.5c1.8.3 3.3 1.6 3.5 3.5" stroke="#2D6A4F" stroke-width="1.4" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div>
-            <div class="why-stat-num">5 Áreas</div>
-            <div class="why-stat-label">de conservação comunitária geridas pelas populações locais</div>
-          </div>
-        </div>
+        
       </div>
 
       <div class="why-left">
@@ -277,10 +264,10 @@ let porqueDenunciarTimer = null
 
 const documents = [
   {
-    title: 'Código de Conduta',
-    desc: 'Prevenção da Violência Baseada no Género, Exploração e Abuso Sexual e Assédio Sexual (VBG/EAS/AS).',
-    img: imgCodigoConduta,
-    link: 'https://www.biofund.org.mz/wp-content/uploads/2025/12/Codigo-de-Conduta-contra-VBG-EAS-AS.pdf',
+    title: 'Manual do MDR',
+    desc: 'Manual de Implementação do Mecanismo de Diálogo e Reclamação, com os procedimentos de registo e tratamento de ocorrências.',
+    img: imgManualMDR,
+    link: 'https://www.biofund.org.mz/wp-content/uploads/2025/12/Manual-do-Mecanismo-de-Dialogo-e-Reclamacao.pdf',
   },
   {
     title: 'Código de Ética',
@@ -289,10 +276,10 @@ const documents = [
     link: 'https://www.biofund.org.mz/wp-content/uploads/2024/01/Codigo-de-Etica_BIOFUND.pdf',
   },
   {
-    title: 'Manual do MDR',
-    desc: 'Manual de Implementação do Mecanismo de Diálogo e Reclamação, com os procedimentos de registo e tratamento de ocorrências.',
-    img: imgManualMDR,
-    link: 'https://www.biofund.org.mz/wp-content/uploads/2025/12/Manual-do-Mecanismo-de-Dialogo-e-Reclamacao.pdf',
+    title: 'Código de Conduta',
+    desc: 'Prevenção da Violência Baseada no Género, Exploração e Abuso Sexual e Assédio Sexual (VBG/EAS/AS).',
+    img: imgCodigoConduta,
+    link: 'https://www.biofund.org.mz/wp-content/uploads/2025/12/Codigo-de-Conduta-contra-VBG-EAS-AS.pdf',
   },
 ]
 
@@ -397,6 +384,8 @@ onUnmounted(() => {
   max-width: 540px;
   margin-left: auto;
   margin-right: auto;
+  text-align: justify;
+  hyphens: auto;
 }
 
 .hero-buttons {
@@ -497,6 +486,8 @@ onUnmounted(() => {
   color: var(--text-gray);
   line-height: 1.65;
   margin-bottom: 20px;
+  text-align: justify;
+  hyphens: auto;
 }
 
 .feature-link {
@@ -754,6 +745,8 @@ onUnmounted(() => {
   font-size: 14px;
   color: var(--text-gray);
   line-height: 1.75;
+  text-align: justify;
+  hyphens: auto;
 }
 
 .documents-grid {
@@ -814,6 +807,8 @@ onUnmounted(() => {
   color: var(--text-gray);
   line-height: 1.6;
   margin-bottom: 16px;
+  text-align: justify;
+  hyphens: auto;
 }
 
 .document-card-link {

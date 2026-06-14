@@ -211,9 +211,7 @@ class NotificationService
      */
     private function statusUpdateBusinessDaysLimit(Occurrence $occurrence): int
     {
-        $alertLevel = $occurrence->occurrenceType?->alert_level ?? $occurrence->alert_type ?? AlertLevelEnum::Normal;
-
-        return $alertLevel->statusUpdateBusinessDaysLimit();
+        return $occurrence->statusUpdateBusinessDaysLimit();
     }
 
     // ─── Templates ───────────────────────────────────────────────
@@ -223,9 +221,7 @@ class NotificationService
         // Variáveis locais - o heredoc não suporta operadores (??) dentro de {}
         $name       = $occurrence->complainant_name ?? 'Reclamante';
         $subject    = $occurrence->subject          ?? 'Não especificado';
-        $dueDate    = $occurrence->due_date
-                        ? $occurrence->due_date->format('d/m/Y')
-                        : 'A definir';
+        $dueDate    = $occurrence->statusUpdateDueDate()->format('d/m/Y');
         $code       = $occurrence->tracking_code;
         $url        = config('app.url') . "/acompanhar?codigo={$code}";
         $project    = $occurrence->project->name;
@@ -356,7 +352,7 @@ TEXT;
         $dueDate     = $occurrence->due_date
                         ? $occurrence->due_date->format('d/m/Y')
                         : 'A definir';
-        $statusLimit = $level->statusUpdateBusinessDaysLimit();
+        $statusLimit = $this->statusUpdateBusinessDaysLimit($occurrence);
 
         return <<<TEXT
 ⚠️  ALERTA $alertLabel

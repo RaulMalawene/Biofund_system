@@ -49,10 +49,11 @@ class OccurrenceTypeSeeder extends Seeder
                 'name'        => 'Reclamação Urgente',
                 'alert_level' => 'urgent',
                 'sla_days'    => 5,
+                'is_active'   => false,
             ],
             [
                 'code'        => 'GBV',
-                'name'        => 'Violência Baseada no Género (GBV)',
+                'name'        => 'Violência Baseada no Género (VBG)',
                 'alert_level' => 'gbv',
                 'sla_days'    => 3,
             ],
@@ -65,7 +66,7 @@ class OccurrenceTypeSeeder extends Seeder
                     'name'        => $type['name'],
                     'alert_level' => $type['alert_level'],
                     'sla_days'    => $type['sla_days'],
-                    'is_active'   => true,
+                    'is_active'   => $type['is_active'] ?? true,
                 ]
             );
         }

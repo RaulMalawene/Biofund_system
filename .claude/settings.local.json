@@ -85,7 +85,18 @@
       "Bash(npm uninstall *)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(taskkill //F //IM php.exe)",
-      "WebFetch(domain:biofund.org.mz)"
+      "WebFetch(domain:biofund.org.mz)",
+      "Bash(find vendor/laravel/framework/src/Illuminate/Notifications/resources -type f)",
+      "Bash(cat vendor/laravel/framework/src/Illuminate/Notifications/resources/views/email/header.blade.php)",
+      "Bash(find public *)",
+      "Bash(find storage/app/public -maxdepth 3 -iname \"*logo*\")",
+      "Bash(php artisan tinker '--execute= *)",
+      "Read(//tmp/**)",
+      "Bash(grep -o 'data:image/jpeg;base64,[A-Za-z0-9+/=]\\\\{0,30\\\\}' /tmp/email_render2.html)",
+      "Bash(rm -f /tmp/email_render2.html)",
+      "Bash(git --no-pager diff --stat)",
+      "Bash(git --no-pager diff app/Models/Occurrence.php app/Services/NotificationService.php)",
+      "Bash(npx vue-tsc *)"
     ]
   }
 }

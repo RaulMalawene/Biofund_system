@@ -223,6 +223,45 @@ class Occurrence extends Model
     }
 
     /**
+     * Limite de dias úteis sem actualização de estado antes da ocorrência
+     * ser marcada automaticamente como 'Não Resolvida' (occurrences:mark-unresolved).
+     *
+     * - Ocorrências externas (formulário público, sem campo "tipo de alerta"):
+     *   sempre 5 dias úteis.
+     * - Ocorrências internas (gestor/admin/funcionário): baseado no campo
+     *   alert_type - 'urgent' => 3 dias úteis, restantes => 5 dias úteis.
+     */
+    public function statusUpdateBusinessDaysLimit(): int
+    {
+        if ($this->isExternal()) {
+            return AlertLevelEnum::Normal->statusUpdateBusinessDaysLimit();
+        }
+
+        return $this->alert_type === AlertLevelEnum::Urgent
+            ? AlertLevelEnum::Urgent->statusUpdateBusinessDaysLimit()
+            : AlertLevelEnum::Normal->statusUpdateBusinessDaysLimit();
+    }
+
+    /**
+     * Data-limite (em dias úteis) para actualização de estado, a partir do
+     * registo da ocorrência. Usada no email de confirmação enviado ao reclamante.
+     */
+    public function statusUpdateDueDate(): \Carbon\Carbon
+    {
+        $date      = $this->created_at->copy();
+        $remaining = $this->statusUpdateBusinessDaysLimit();
+
+        while ($remaining > 0) {
+            $date->addDay();
+            if (!$date->isWeekend()) {
+                $remaining--;
+            }
+        }
+
+        return $date;
+    }
+
+    /**
      * Retorna o nome da pessoa afectada conforme digitado no formulário.
      */
     public function getComplainantNameAttribute(): ?string

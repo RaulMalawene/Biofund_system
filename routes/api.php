@@ -224,6 +224,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('categories.store');
         Route::put('categories/{category}', [ParametrizationController::class, 'categoriesUpdate'])
             ->name('categories.update');
+        Route::delete('categories/{category}', [ParametrizationController::class, 'categoriesDestroy'])
+            ->name('categories.destroy');
 
         Route::post('categories/{category}/subcategories', [ParametrizationController::class, 'subcategoriesStore'])
             ->name('subcategories.store');
@@ -234,6 +236,8 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('projects.store');
         Route::put('projects/{project}', [ParametrizationController::class, 'projectsUpdate'])
             ->name('projects.update');
+        Route::delete('projects/{project}', [ParametrizationController::class, 'projectsDestroy'])
+            ->name('projects.destroy');
 
         Route::post('occurrence-types', [ParametrizationController::class, 'occurrenceTypesStore'])
             ->name('occurrence-types.store');

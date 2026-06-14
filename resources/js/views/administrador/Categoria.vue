@@ -164,6 +164,11 @@
                     <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z" stroke-linejoin="round" />
                   </svg>
                 </button>
+                <button class="btn-icon-sm btn-icon-delete" @click="confirmDeleteCategory(cat)" title="Apagar">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
+                    <path d="M2 3.5h10M5.5 3.5V2.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v1M3.5 3.5l.5 8h6l.5-8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
 
               </div>
             </div>
@@ -300,7 +305,28 @@
     </transition>
 
 
-    <!-- ── TOAST ── -->
+    <!-- ── CONFIRMAR REMOÇÃO ── -->
+    <transition name="fade">
+      <div v-if="deleteModal.show" class="confirm-overlay" @click.self="deleteModal.show = false">
+        <div class="confirm-modal" @click.stop>
+          <div class="confirm-icon">
+            <svg width="22" height="22" fill="none" stroke="#E53E3E" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M5 6l1 14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-14"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3>Apagar Categoria</h3>
+          <p class="confirm-desc">Tem a certeza que deseja apagar a categoria <strong>{{ deleteModal.target?.name }}</strong>?
+            Esta acção não pode ser desfeita.</p>
+          <div class="confirm-actions">
+            <button class="btn-confirm-cancel" @click="deleteModal.show = false">Cancelar</button>
+            <button class="btn-confirm-delete" @click="doRemoveCategory" :disabled="deleteModal.loading">
+              {{ deleteModal.loading ? 'A apagar…' : 'Apagar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <!-- ── TOAST ── -->
     <transition name="toast-up">
@@ -486,6 +512,32 @@ async function guardar() {
     }
   } finally {
     saving.value = false
+  }
+}
+
+// ── Apagar ────────────────────────────────────────────────────
+const deleteModal = reactive({ show: false, loading: false, target: null })
+
+function confirmDeleteCategory(cat) {
+  deleteModal.target = cat
+  deleteModal.show = true
+}
+
+async function doRemoveCategory() {
+  if (!deleteModal.target) return
+  const target = deleteModal.target
+
+  deleteModal.loading = true
+  try {
+    await InternalService.deleteCategory(target.id)
+    categorias.value = categorias.value.filter(c => c.id !== target.id)
+    showToast('Categoria apagada com sucesso.')
+  } catch (err) {
+    showToast(err.response?.data?.message ?? 'Erro ao apagar categoria.', 'error')
+  } finally {
+    deleteModal.loading = false
+    deleteModal.show = false
+    deleteModal.target = null
   }
 }
 
@@ -1055,6 +1107,12 @@ async function toggleSubActive(sub) {
   color: var(--green-mid);
 }
 
+.btn-icon-delete:hover {
+  background: #FDEDED;
+  border-color: #E53E3E;
+  color: #E53E3E;
+}
+
 .cat-name {
   font-size: 14px;
   font-weight: 800;
@@ -1532,6 +1590,96 @@ async function toggleSubActive(sub) {
   font-style: italic;
   text-align: center;
   padding: 20px 0;
+}
+
+/* CONFIRMAR REMOÇÃO */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 16px;
+}
+
+.confirm-modal {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px 32px 28px;
+  width: 380px;
+  max-width: 95vw;
+  box-shadow: 0 16px 60px rgba(0, 0, 0, .18);
+  text-align: left;
+}
+
+.confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #FFF5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.confirm-modal h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.confirm-desc {
+  font-size: 13px;
+  color: var(--text-gray);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-confirm-cancel {
+  flex: 1;
+  background: var(--white);
+  color: var(--text-gray);
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 11px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-confirm-cancel:hover {
+  border-color: var(--text-gray);
+}
+
+.btn-confirm-delete {
+  flex: 1;
+  background: #E53E3E;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 11px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-confirm-delete:hover:not(:disabled) {
+  background: #C53030;
+}
+
+.btn-confirm-delete:disabled {
+  background: #F1A9A9;
+  cursor: not-allowed;
 }
 
 /* TOAST */

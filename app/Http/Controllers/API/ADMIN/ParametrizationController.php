@@ -108,6 +108,32 @@ class ParametrizationController extends Controller
         ], 200);
     }
 
+    /**
+     * Elimina (soft delete) uma categoria.
+     * ROTA: DELETE /api/admin/categories/{category}
+     *
+     * Bloqueado se existirem ocorrências associadas - nesse caso a
+     * categoria deve ser desactivada em vez de eliminada.
+     */
+    public function categoriesDestroy(Request $request, Category $category): JsonResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $occurrencesCount = $category->occurrences()->count();
+        if ($occurrencesCount > 0) {
+            return response()->json([
+                'message' => "Não é possível apagar a categoria \"{$category->name}\" porque existem {$occurrencesCount} ocorrência(s) associada(s). Desactive-a em alternativa.",
+            ], 422);
+        }
+
+        $this->auditService->logDeleted($category);
+        $category->delete();
+        Cache::forget('ref.form_data');
+        Cache::forget('admin.categories');
+
+        return response()->json(['message' => 'Categoria apagada com sucesso.'], 200);
+    }
+
     // ─────────────────────────────────────────────────────────────
     // SUBCATEGORIAS
     // ─────────────────────────────────────────────────────────────
@@ -223,6 +249,32 @@ class ParametrizationController extends Controller
             'message' => 'Projecto actualizado.',
             'project' => $project,
         ], 200);
+    }
+
+    /**
+     * Elimina (soft delete) um projecto.
+     * ROTA: DELETE /api/admin/projects/{project}
+     *
+     * Bloqueado se existirem ocorrências associadas - nesse caso o
+     * projecto deve ser desactivado em vez de eliminado.
+     */
+    public function projectsDestroy(Request $request, Project $project): JsonResponse
+    {
+        $this->authorizeAdmin($request);
+
+        $occurrencesCount = $project->occurrences()->count();
+        if ($occurrencesCount > 0) {
+            return response()->json([
+                'message' => "Não é possível apagar o projecto \"{$project->name}\" porque existem {$occurrencesCount} ocorrência(s) associada(s). Desactive-o em alternativa.",
+            ], 422);
+        }
+
+        $this->auditService->logDeleted($project);
+        $project->delete();
+        Cache::forget('ref.form_data');
+        Cache::forget('admin.projects');
+
+        return response()->json(['message' => 'Projecto apagado com sucesso.'], 200);
     }
 
     // ─────────────────────────────────────────────────────────────

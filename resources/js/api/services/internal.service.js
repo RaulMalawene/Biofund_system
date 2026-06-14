@@ -6,6 +6,14 @@ let _formDataCache = null
 let _formDataCachedAt = 0
 const FORM_DATA_TTL = 60 * 60 * 1000  // 1 hour
 
+// Invalidates the in-memory form-data cache so the next getFormData() call
+// fetches fresh projects/categories - used after creating/editing/deleting
+// projects or categories so submission forms update without a page reload.
+function invalidateFormDataCache() {
+    _formDataCache = null
+    _formDataCachedAt = 0
+}
+
 export const InternalService = {
 
     /**
@@ -126,11 +134,19 @@ export const InternalService = {
 
     async createProject(payload) {
         const { data } = await api.post('/admin/projects', payload)
+        invalidateFormDataCache()
         return data
     },
 
     async updateProject(id, payload) {
         const { data } = await api.put(`/admin/projects/${id}`, payload)
+        invalidateFormDataCache()
+        return data
+    },
+
+    async deleteProject(id) {
+        const { data } = await api.delete(`/admin/projects/${id}`)
+        invalidateFormDataCache()
         return data
     },
 
@@ -143,11 +159,19 @@ export const InternalService = {
 
     async createCategory(payload) {
         const { data } = await api.post('/admin/categories', payload)
+        invalidateFormDataCache()
         return data   // { message, category }
     },
 
     async updateCategory(id, payload) {
         const { data } = await api.put(`/admin/categories/${id}`, payload)
+        invalidateFormDataCache()
+        return data
+    },
+
+    async deleteCategory(id) {
+        const { data } = await api.delete(`/admin/categories/${id}`)
+        invalidateFormDataCache()
         return data
     },
 
