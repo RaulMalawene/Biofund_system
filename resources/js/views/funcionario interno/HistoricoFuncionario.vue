@@ -4,10 +4,7 @@
     <!-- ── SIDEBAR ── -->
     <aside class="sidebar">
       <router-link to="/funcionario/reclamacao" class="sidebar-logo">
-        <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="sidebar-logo-img" />
-        <div>
-          <div class="sidebar-logo-text">BioFund Portal</div>
-        </div>
+        <img src="../../Imagem/logotipo.png" alt="Biofund" class="sidebar-logo-img" />
       </router-link>
 
       <nav class="sidebar-nav">
