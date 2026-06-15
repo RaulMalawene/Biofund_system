@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <button class="btn-green" @click="$router.push('/submeterReclamacao')">Participar no MDR</button>
+        <button class="btn-green" @click="$router.push('/submeterReclamacao')">Registar Ocorrência</button>
       </div>
 
       <div class="why-right image-carousel">
