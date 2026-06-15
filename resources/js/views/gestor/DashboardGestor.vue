@@ -205,6 +205,7 @@
             <div class="kpi-label light">Por Validar</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.por_validar ?? 0) }}</div>
             <div class="kpi-sub light">Aguardando validação</div>
+            <div class="kpi-sub light">{{ statsLoading ? '-' : (rawTotals.resolvendo ?? 0) }} em resolução</div>
           </div>
 
           <div class="kpi-card kpi-green" @click="selectCard('resolvido')" :class="{ 'card-active': activeFilter === 'resolvido' }" title="Filtrar por: Resolvidas">
@@ -1810,7 +1811,7 @@ tbody td {
 .badge-status.pendente    { background: #FB923C; color: #fff;    }
 .badge-status.por-resolver,
 .badge-status.analise     { background: #FACC15; color: #713F12; }
-.badge-status.resolvendo  { background: #FB923C; color: #fff;    }
+.badge-status.resolvendo  { background: #3b82f6; color: #fff;    }
 .badge-status.resolvido,
 .badge-status.resolvida   { background: #22C55E; color: #fff;    }
 .badge-status.nao-validado,

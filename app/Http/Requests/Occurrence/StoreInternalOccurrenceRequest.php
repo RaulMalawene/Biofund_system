@@ -34,6 +34,7 @@ class StoreInternalOccurrenceRequest extends FormRequest
             // Classificação
             'project_id'         => ['required', 'integer', 'exists:projects,id'],
             'category_id'        => ['required', 'integer', 'exists:categories,id'],
+            'subcategory_id'     => ['nullable', 'integer', 'exists:subcategories,id'],
             'occurrence_type_id' => ['nullable', 'integer', 'exists:occurrence_types,id'],
 
             // Localização

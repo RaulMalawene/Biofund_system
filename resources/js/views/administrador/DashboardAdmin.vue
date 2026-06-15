@@ -212,6 +212,7 @@
             <div class="kpi-label light">Por Validar</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.por_validar ?? 0) }}</div>
             <div class="kpi-sub light">Aguardando validação inicial</div>
+            <div class="kpi-sub light">{{ statsLoading ? '-' : (rawTotals.resolvendo ?? 0) }} em resolução</div>
           </div>
 
           <div class="kpi-card kpi-green" @click="selectCard('resolvido')" :class="{ 'card-active': activeFilter === 'resolvido' }" title="Filtrar por: Resolvidas">
@@ -408,7 +409,7 @@
         <div class="drawer-header">
           <div>
             <h2 class="drawer-title">Adicionar Ocorrência</h2>
-            <p class="drawer-subtitle">Preencha os dados da nova ocorrência ambiental</p>
+            <p class="drawer-subtitle">Preencha os dados da ocorrência</p>
           </div>
           <button class="drawer-close" @click="closeDrawer">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
@@ -445,6 +446,17 @@
                 <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
               <span class="f-err-msg" v-if="errors.category_id">{{ errors.category_id }}</span>
+            </div>
+          </div>
+
+          <!-- Subcategoria -->
+          <div class="f-row" v-if="subcategoriasDisponiveis.length">
+            <div class="f-group">
+              <label>Subcategoria <span class="f-opt">(Opcional)</span></label>
+              <select v-model="form.subcategory_id">
+                <option value="">Seleccione a subcategoria (opcional)</option>
+                <option v-for="s in subcategoriasDisponiveis" :key="s.id" :value="s.id">{{ s.name }}</option>
+              </select>
             </div>
           </div>
 
@@ -583,7 +595,11 @@
           <div class="f-group">
             <label>Localização / Coordenadas (Opcional)</label>
             <input type="text" v-model="form.location_detail"
-              placeholder="Ex: -25.9682, 32.5732 ou descrição do local"/>
+              placeholder="Ex: -25.9682, 32.5732 ou descrição do local"
+              :disabled="isVbgType"/>
+            <span class="char-hint char-warn" v-if="isVbgType">
+              Por motivos de privacidade e segurança, a localização/coordenadas não é recolhida para ocorrências de Violência Baseada no Género (VBG).
+            </span>
           </div>
 
           <!-- Descrição -->
@@ -1013,6 +1029,7 @@ async function handleProvinceChange() {
 
 function handleCategoryChange() {
     errors.category_id = ''
+    form.subcategory_id = ''
 }
 
 // ── Estado do drawer ───────────────────────────────────────────
@@ -1045,6 +1062,7 @@ const form = reactive({
     subject:            '',
     project_id:         '',
     category_id:        '',
+    subcategory_id:     '',
     occurrence_type_id: '',
     alert_type:         '',
     submission_channel: '',
@@ -1065,6 +1083,23 @@ const errors = reactive({
     submission_channel: '',
     province_id:        '',
     description:        '',
+})
+
+// Tipo VBG seleccionado - restringe a recolha de coordenadas geográficas
+// por motivos de privacidade e segurança do reclamante.
+const isVbgType = computed(() => {
+    const t = refTypes.value.find(t => t.id === form.occurrence_type_id)
+    return t?.alert_level === 'gbv' || form.alert_type === 'gbv'
+})
+
+watch(isVbgType, (vbg) => {
+    if (vbg) form.location_detail = ''
+})
+
+// Subcategorias da categoria seleccionada (opcional)
+const subcategoriasDisponiveis = computed(() => {
+    const c = refCategories.value.find(c => c.id === form.category_id)
+    return c?.subcategories ?? []
 })
 
 function validate() {
@@ -1096,6 +1131,7 @@ async function submitForm() {
     fd.append('subject',            form.subject.trim())
     fd.append('project_id',         form.project_id)
     fd.append('category_id',        form.category_id)
+    if (form.subcategory_id) fd.append('subcategory_id', form.subcategory_id)
     fd.append('occurrence_type_id', form.occurrence_type_id)
     fd.append('alert_type',         form.alert_type)
     fd.append('submission_channel', form.submission_channel)
@@ -1134,7 +1170,7 @@ function resetDrawerForm(clearSuccess = true) {
     Object.assign(form, {
         complainant_name: '', complainant_email: '', complainant_phone: '',
         complainant_gender: '', complainant_age: '',
-        subject: '', project_id: '', category_id: '',
+        subject: '', project_id: '', category_id: '', subcategory_id: '',
         occurrence_type_id: '', alert_type: '', submission_channel: '',
         occurrence_date: '', province_id: '', district_id: '',
         location_detail: '', description: '',
@@ -1843,7 +1879,7 @@ tbody td {
 .badge-status.pendente    { background: #FB923C; color: #fff;    }
 .badge-status.por-resolver,
 .badge-status.analise     { background: #FACC15; color: #713F12; }
-.badge-status.resolvendo  { background: #FB923C; color: #fff;    }
+.badge-status.resolvendo  { background: #3b82f6; color: #fff;    }
 .badge-status.resolvido,
 .badge-status.resolvida   { background: #22C55E; color: #fff;    }
 .badge-status.nao-validado { background: #EF4444; color: #fff;   }
@@ -1991,6 +2027,13 @@ tbody td {
 
 .f-group input::placeholder,
 .f-group textarea::placeholder { color: var(--text-light); }
+
+.f-group input:disabled,
+.f-group select:disabled,
+.f-group textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 
 .f-group input:focus,
 .f-group select:focus,

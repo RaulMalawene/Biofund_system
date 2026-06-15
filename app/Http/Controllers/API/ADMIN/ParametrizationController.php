@@ -163,6 +163,8 @@ class ParametrizationController extends Controller
         ]);
 
         $this->auditService->logCreated($sub);
+        Cache::forget('ref.form_data');
+        Cache::forget('admin.categories');
 
         return response()->json([
             'message'     => 'Subcategoria criada com sucesso.',
@@ -182,6 +184,8 @@ class ParametrizationController extends Controller
         $old = $subcategory->toArray();
         $subcategory->update($data);
         $this->auditService->logUpdated($subcategory, $old, $subcategory->toArray());
+        Cache::forget('ref.form_data');
+        Cache::forget('admin.categories');
 
         return response()->json([
             'message'     => 'Subcategoria actualizada.',

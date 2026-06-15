@@ -182,6 +182,7 @@
             <div class="kpi-label light">Por Validar</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.por_validar ?? 0) }}</div>
             <div class="kpi-sub light">Aguardando validação</div>
+            <div class="kpi-sub light">{{ statsLoading ? '-' : (rawTotals.resolvendo ?? 0) }} em resolução</div>
           </div>
 
           <div class="kpi-card kpi-green" @click="selectCard('resolvido')" :class="{ 'card-active': activeFilter === 'resolvido' }" title="Filtrar por: Resolvidas">
@@ -448,6 +449,26 @@
                   <div class="modal-info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
                   <div class="modal-info-sub" v-if="selected.sexo">{{ selected.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</div>
                   <div class="modal-info-sub" v-if="selected.idade">{{ selected.idade }}</div>
+                  <div class="modal-info-sub" v-if="selected.registado_por">Registado por: {{ selected.registado_por }}</div>
+                </div>
+              </div>
+
+              <div class="modal-section modal-two-col"
+                v-if="selected.subcategoria || selected.tipo_ocorrencia || selected.nivel_alerta || selected.distrito || selected.responsavel || selected.origem || selected.prazo || selected.revisado_por">
+                <div class="modal-info-block">
+                  <div class="modal-info-label">Classificação Adicional</div>
+                  <div class="modal-info-val">{{ selected.subcategoria ?? 'Sem subcategoria' }}</div>
+                  <div class="modal-info-sub" v-if="selected.tipo_ocorrencia">Tipo: {{ selected.tipo_ocorrencia }}</div>
+                  <div class="modal-info-sub" v-if="selected.nivel_alerta">Nível de Alerta: {{ selected.nivel_alerta }}</div>
+                  <div class="modal-info-sub" v-if="selected.distrito">Distrito: {{ selected.distrito }}</div>
+                  <div class="modal-info-sub" v-if="selected.origem">Origem: {{ selected.origem }}</div>
+                  <div class="modal-info-sub" v-if="selected.responsavel">Responsável: {{ selected.responsavel }}</div>
+                </div>
+                <div class="modal-info-block">
+                  <div class="modal-info-label">Prazo &amp; Revisão</div>
+                  <div class="modal-info-val" :class="{ 'overdue-text': selected.atrasada }">{{ selected.prazo ?? 'Sem prazo definido' }}</div>
+                  <div class="modal-info-sub" v-if="selected.data_revisao">Revisado em: {{ selected.data_revisao }}</div>
+                  <div class="modal-info-sub" v-if="selected.revisado_por">Revisado por: {{ selected.revisado_por }}</div>
                 </div>
               </div>
 
@@ -852,12 +873,23 @@ function mapOccurrence(o) {
     projeto: o.project?.name ?? '-',
     status: o.status,
     status_label: o.status_label,
+    origem: o.origin_label ?? null,
     coords: o.location_detail ?? '',
     denunciante: o.complainant?.name ?? null,
     email_afectado: o.complainant?.email ?? null,
     telefone: o.complainant?.phone ?? null,
     sexo: o.complainant?.gender ?? null,
     idade: o.complainant?.age ?? null,
+    responsavel: o.assigned_to?.name ?? null,
+    registado_por: o.submitted_by?.name ?? null,
+    subcategoria: o.subcategory?.name ?? null,
+    tipo_ocorrencia: o.type?.name ?? null,
+    nivel_alerta: o.alert_type_label ?? null,
+    distrito: o.district?.name ?? null,
+    prazo: o.due_date ?? null,
+    atrasada: o.is_overdue ?? false,
+    data_revisao: o.reviewed_at ?? null,
+    revisado_por: o.reviewed_by ?? null,
     descricao: o.description ?? '',
     foto: null,
     anexos: [],
@@ -1618,7 +1650,7 @@ tbody td {
 .badge-status.pendente    { background: #FB923C; color: #fff;    }
 .badge-status.por-resolver,
 .badge-status.analise     { background: #FACC15; color: #713F12; }
-.badge-status.resolvendo  { background: #FB923C; color: #fff;    }
+.badge-status.resolvendo  { background: #3b82f6; color: #fff;    }
 .badge-status.resolvido,
 .badge-status.resolvida   { background: #22C55E; color: #fff;    }
 .badge-status.nao-validado,
@@ -1908,6 +1940,11 @@ tbody td {
 .modal-info-sub {
   font-size: 11px;
   color: var(--text-gray);
+}
+
+.overdue-text {
+  color: #C05621;
+  font-weight: 600;
 }
 
 .no-attachments {

@@ -53,6 +53,18 @@
           </div>
         </div>
 
+        <div class="field-row single" v-if="subcategoriasDisponiveis.length">
+          <div class="field-group">
+            <label>Subcategoria (Opcional)</label>
+            <div class="select-wrap">
+              <select v-model="form.subcategoria">
+                <option value="">Seleccione a subcategoria (opcional)</option>
+                <option v-for="s in subcategoriasDisponiveis" :key="s.id" :value="s.id">{{ s.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div class="field-row single">
           <div class="field-group">
             <label>Tipo de Ocorrência</label>
@@ -149,7 +161,11 @@
         <div class="field-row single">
           <div class="field-group">
             <label>Coordenadas GPS (Opcional)</label>
-            <input type="text" v-model="form.coordenadas" placeholder="Ex: -25.9682, 32.5732" />
+            <input type="text" v-model="form.coordenadas" placeholder="Ex: -25.9682, 32.5732"
+              :disabled="isVbgType" />
+            <span class="field-hint vbg-hint" v-if="isVbgType">
+              Por motivos de privacidade e segurança, as coordenadas GPS não são recolhidas para ocorrências de Violência Baseada no Género (VBG).
+            </span>
           </div>
         </div>
       </div>
@@ -360,7 +376,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import { PublicService } from '../../api/services/public.service'
@@ -372,7 +388,7 @@ const today = new Date().toISOString().split('T')[0]
 
 // ─── Formulário ───────────────────────────────────────────────
 const form = reactive({
-  projeto: '', categoria: '', tipoOcorrencia: '', descricao: '', data: '',
+  projeto: '', categoria: '', subcategoria: '', tipoOcorrencia: '', descricao: '', data: '',
   provincia: '', distrito: '', comunidade: '', postoAdministrativo: '', coordenadas: '',
   nome: '', sexo: '', idade: '', email: '', phone: '',
 })
@@ -384,10 +400,31 @@ const tiposOcorrencia = ref([])
 const provincias      = ref([])
 const distritos       = ref([])
 
+// Subcategorias da categoria seleccionada (opcional)
+const subcategoriasDisponiveis = computed(() => {
+  const c = categorias.value.find(c => c.id === form.categoria)
+  return c?.subcategories ?? []
+})
+
+watch(() => form.categoria, () => {
+  form.subcategoria = ''
+})
+
 // Nome do tipo seleccionado - usado como subject ao submeter
 const selectedTipoName = computed(() => {
   const t = tiposOcorrencia.value.find(t => t.id === form.tipoOcorrencia)
   return t?.name ?? ''
+})
+
+// Tipo VBG seleccionado - restringe a recolha de coordenadas GPS
+// por motivos de privacidade e segurança do reclamante.
+const isVbgType = computed(() => {
+  const t = tiposOcorrencia.value.find(t => t.id === form.tipoOcorrencia)
+  return t?.alert_level === 'gbv'
+})
+
+watch(isVbgType, (vbg) => {
+  if (vbg) form.coordenadas = ''
 })
 
 // ─── Ficheiros ────────────────────────────────────────────────
@@ -479,6 +516,7 @@ async function submitForm() {
 
   if (form.projeto)          fd.append('project_id',          form.projeto)
   if (form.categoria)        fd.append('category_id',         form.categoria)
+  if (form.subcategoria)     fd.append('subcategory_id',      form.subcategoria)
   if (form.tipoOcorrencia)   fd.append('occurrence_type_id',  form.tipoOcorrencia)
   if (selectedTipoName.value) fd.append('subject',            selectedTipoName.value)
   if (form.descricao)        fd.append('description',         form.descricao.trim())
@@ -738,11 +776,21 @@ async function copyCode() {
   display: none;
 }
 
-.field-group select:disabled {
+.field-group select:disabled,
+.field-group input:disabled {
   background: #F4F6F5;
   color: var(--text-light);
   cursor: not-allowed;
 }
+
+.field-hint {
+  font-size: 11.5px;
+  color: var(--text-gray);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.vbg-hint { color: #C66E00; }
 
 /* UPLOAD */
 .upload-zone {

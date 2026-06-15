@@ -592,6 +592,23 @@
               </div>
             </div>
 
+            <div class="modal-section modal-two-col"
+              v-if="selected.subcategoria || selected.tipo_ocorrencia || selected.nivel_alerta || selected.distrito || selected.prazo || selected.revisado_por">
+              <div class="modal-info-block">
+                <div class="modal-info-label">Classificação Adicional</div>
+                <div class="modal-info-val">{{ selected.subcategoria ?? 'Sem subcategoria' }}</div>
+                <div class="modal-info-sub" v-if="selected.tipo_ocorrencia">Tipo: {{ selected.tipo_ocorrencia }}</div>
+                <div class="modal-info-sub" v-if="selected.nivel_alerta">Nível de Alerta: {{ selected.nivel_alerta }}</div>
+                <div class="modal-info-sub" v-if="selected.distrito">Distrito: {{ selected.distrito }}</div>
+              </div>
+              <div class="modal-info-block">
+                <div class="modal-info-label">Prazo &amp; Revisão</div>
+                <div class="modal-info-val" :class="{ 'overdue-text': selected.atrasada }">{{ selected.prazo ?? 'Sem prazo definido' }}</div>
+                <div class="modal-info-sub" v-if="selected.data_revisao">Revisado em: {{ selected.data_revisao }}</div>
+                <div class="modal-info-sub" v-if="selected.revisado_por">Revisado por: {{ selected.revisado_por }}</div>
+              </div>
+            </div>
+
             <!-- Attachments -->
             <div class="modal-section">
               <div class="modal-section-hd">
@@ -934,6 +951,15 @@ async function selectRow(r) {
 
     selected.value.anexos = anexos
     selected.value.foto = anexos.find(a => a.tipo === 'imagem')?.url ?? null
+
+    selected.value.subcategoria    = full.subcategory?.name ?? null
+    selected.value.tipo_ocorrencia = full.type?.name ?? null
+    selected.value.nivel_alerta    = full.alert_type_label ?? null
+    selected.value.distrito        = full.district?.name ?? null
+    selected.value.prazo           = full.due_date ?? null
+    selected.value.atrasada        = full.is_overdue ?? false
+    selected.value.data_revisao    = full.reviewed_at ?? null
+    selected.value.revisado_por    = full.reviewed_by ?? null
 
     if (full.history?.length) {
       const last = [...full.history].reverse().find(h => h.comment)
@@ -1579,8 +1605,8 @@ tbody tr:last-child td {
 
 .badge-status.resolvendo {
   color: #fff;
-  border-color: #EA580C;
-  background: #FB923C;
+  border-color: #2563EB;
+  background: #3b82f6;
 }
 
 .badge-status.resolvido {
@@ -2644,6 +2670,11 @@ tbody tr:last-child td {
 .modal-info-sub {
   font-size: 11px;
   color: var(--text-gray);
+}
+
+.overdue-text {
+  color: #C05621;
+  font-weight: 600;
 }
 
 .no-attachments {

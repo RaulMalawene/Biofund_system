@@ -286,6 +286,59 @@
             <label>Tags <span class="f-hint-inline">(separadas por vírgula)</span></label>
             <input type="text" v-model="form.tagsStr" placeholder="Ex: animais, biodiversidade, ilegal" />
           </div>
+
+          <div class="f-group">
+            <label>Subcategorias <span class="f-hint-inline">(opcional)</span></label>
+
+            <div class="sub-add-row">
+              <input type="text" v-model="subsModal.newName" placeholder="Ex: Caça furtiva"
+                :disabled="subsModal.saving"
+                @keyup.enter="addSubcategoria" />
+              <button type="button" class="btn-add-sub" :disabled="subsModal.saving || !subsModal.newName.trim()"
+                @click="addSubcategoria">
+                + Adicionar
+              </button>
+            </div>
+
+            <!-- Nova categoria: subcategorias pendentes, criadas após guardar -->
+            <div class="sub-list" v-if="!editingId">
+              <div class="sub-empty" v-if="pendingSubcategorias.length === 0">
+                Ainda não foram adicionadas subcategorias.
+              </div>
+              <div class="sub-item" v-for="(name, idx) in pendingSubcategorias" :key="idx">
+                <span class="sub-name">{{ name }}</span>
+                <button type="button" class="btn-sub-cancel" @click="removePendingSubcategoria(idx)">Remover</button>
+              </div>
+            </div>
+
+            <!-- Categoria existente: subcategorias já guardadas -->
+            <div class="sub-list" v-else>
+              <div class="sub-empty" v-if="subsModal.loading">A carregar subcategorias…</div>
+              <div class="sub-empty" v-else-if="subsModal.list.length === 0">
+                Ainda não existem subcategorias.
+              </div>
+              <div class="sub-item" v-for="sub in subsModal.list" :key="sub.id">
+                <template v-if="subsModal.editingId === sub.id">
+                  <input type="text" class="sub-edit-input" v-model="subsModal.editName" @keyup.enter="saveSubEdit(sub)" />
+                  <button type="button" class="btn-sub-save" @click="saveSubEdit(sub)">Guardar</button>
+                  <button type="button" class="btn-sub-cancel" @click="subsModal.editingId = null">Cancelar</button>
+                </template>
+                <template v-else>
+                  <span class="sub-name">{{ sub.name }}</span>
+                  <span class="sub-count">{{ sub.occurrences_count ?? 0 }} ocorrências</span>
+                  <span class="badge-ativa sub-badge" :class="sub.is_active ? 'ativa' : 'inativa-badge'"
+                    @click="toggleSubActive(sub)" title="Clique para activar/desactivar" style="cursor: pointer">
+                    {{ sub.is_active ? 'Ativa' : 'Inativa' }}
+                  </span>
+                  <button type="button" class="btn-icon-sm" @click="startSubEdit(sub)" title="Editar">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
+                      <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                </template>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="modal-ft">
@@ -452,10 +505,14 @@ function openNew() {
     code: '', name: '', description: '',
     icon: 'fauna', color: '#52B788', is_active: true, tagsStr: '',
   })
+  subsModal.list = []
+  subsModal.newName = ''
+  subsModal.editingId = null
+  pendingSubcategorias.value = []
   modalOpen.value = true
 }
 
-function openEdit(cat) {
+async function openEdit(cat) {
   editingId.value = cat.id
   formError.value = ''
   Object.keys(fieldErrors).forEach(k => delete fieldErrors[k])
@@ -468,7 +525,21 @@ function openEdit(cat) {
     is_active: cat.is_active,
     tagsStr: (cat.tags ?? []).join(', '),
   })
+  subsModal.newName = ''
+  subsModal.editingId = null
+  pendingSubcategorias.value = []
   modalOpen.value = true
+
+  subsModal.list = []
+  subsModal.loading = true
+  try {
+    const data = await InternalService.getSubcategories(cat.id)
+    subsModal.list = data.subcategories ?? []
+  } catch {
+    showToast('Erro ao carregar subcategorias.', 'error')
+  } finally {
+    subsModal.loading = false
+  }
 }
 
 async function guardar() {
@@ -498,7 +569,14 @@ async function guardar() {
       showToast('Categoria actualizada com sucesso.')
     } else {
       result = await InternalService.createCategory(payload)
-      categorias.value.push({ ...result.category, occurrences_count: 0, subcategories: [] })
+      const newCat = { ...result.category, occurrences_count: 0, subcategories: [] }
+      for (const name of pendingSubcategorias.value) {
+        try {
+          const subData = await InternalService.createSubcategory(newCat.id, { name })
+          newCat.subcategories.push(subData.subcategory)
+        } catch {}
+      }
+      categorias.value.push(newCat)
       showToast('Categoria criada com sucesso.')
     }
     modalOpen.value = false
@@ -541,41 +619,40 @@ async function doRemoveCategory() {
   }
 }
 
-// ── Modal de subcategorias ────────────────────────────────────
+// ── Subcategorias (campo do modal de categoria) ────────────────
 const subsModal = reactive({
-  open: false, loading: false, saving: false,
-  cat: null, list: [],
+  loading: false, saving: false,
+  list: [],
   newName: '', editingId: null, editName: '',
 })
 
-async function openSubs(cat) {
-  subsModal.cat = cat
-  subsModal.open = true
-  subsModal.list = []
-  subsModal.newName = ''
-  subsModal.editingId = null
-  subsModal.loading = true
-  try {
-    const data = await InternalService.getSubcategories(cat.id)
-    subsModal.list = data.subcategories ?? []
-  } catch {
-    showToast('Erro ao carregar subcategorias.', 'error')
-  } finally {
-    subsModal.loading = false
-  }
+// Subcategorias por criar quando a categoria ainda não existe (nova categoria)
+const pendingSubcategorias = ref([])
+
+function removePendingSubcategoria(idx) {
+  pendingSubcategorias.value.splice(idx, 1)
 }
 
 async function addSubcategoria() {
   const name = subsModal.newName.trim()
   if (!name) return
+
+  if (!editingId.value) {
+    if (!pendingSubcategorias.value.includes(name)) {
+      pendingSubcategorias.value.push(name)
+    }
+    subsModal.newName = ''
+    return
+  }
+
   subsModal.saving = true
   try {
-    const data = await InternalService.createSubcategory(subsModal.cat.id, { name })
+    const data = await InternalService.createSubcategory(editingId.value, { name })
     subsModal.list.push({ ...data.subcategory, occurrences_count: 0 })
     subsModal.newName = ''
     showToast('Subcategoria adicionada.')
     // Actualizar contador no card
-    const cat = categorias.value.find(c => c.id === subsModal.cat.id)
+    const cat = categorias.value.find(c => c.id === editingId.value)
     if (cat) cat.subcategories = [...(cat.subcategories ?? []), data.subcategory]
   } catch (err) {
     showToast(err.response?.data?.message ?? 'Erro ao adicionar subcategoria.', 'error')

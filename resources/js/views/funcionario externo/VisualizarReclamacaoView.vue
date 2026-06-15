@@ -121,6 +121,14 @@
                   <label style="margin-top:8px">Contacto</label>
                   <p>Não fornecido</p>
                 </template>
+                <template v-if="result.contacto.sexo">
+                  <label style="margin-top:8px">Sexo</label>
+                  <p>{{ result.contacto.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</p>
+                </template>
+                <template v-if="result.contacto.idade">
+                  <label style="margin-top:8px">Faixa Etária</label>
+                  <p>{{ result.contacto.idade }}</p>
+                </template>
               </div>
               <div class="info-block">
                 <div class="section-label" style="margin-bottom:10px">
@@ -131,6 +139,31 @@
                   Data da Ocorrência
                 </div>
                 <p>{{ result.dataOcorrencia }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-section" v-if="result.subcategoria || result.nivelAlerta">
+            <div class="info-row">
+              <div class="info-block" v-if="result.subcategoria">
+                <div class="section-label" style="margin-bottom:10px">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                    <rect x="1" y="1" width="14" height="14" rx="2" />
+                    <path d="M1 6h14M6 6v9" stroke-linecap="round" />
+                  </svg>
+                  Subcategoria
+                </div>
+                <p>{{ result.subcategoria }}</p>
+              </div>
+              <div class="info-block" v-if="result.nivelAlerta">
+                <div class="section-label" style="margin-bottom:10px">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+                    <circle cx="8" cy="6" r="3" />
+                    <path d="M2 14c0-2.761 2.686-5 6-5s6 2.239 6 5" stroke-linecap="round" />
+                  </svg>
+                  Nível de Alerta
+                </div>
+                <p>{{ result.nivelAlerta }}</p>
               </div>
             </div>
           </div>
@@ -279,6 +312,8 @@ function mapApiResponse(data) {
     prazo: data.due_date ?? 'A definir',
     titulo: data.type?.name ?? data.subject ?? 'Sem assunto',
     categoria: data.category ?? '-',
+    subcategoria: data.subcategory ?? null,
+    nivelAlerta: data.type?.alert_label ?? null,
     projeto: data.project?.name ?? '-',
     localizacao: locationParts.join(', ') || '-',
     descricao: data.description,
@@ -286,6 +321,8 @@ function mapApiResponse(data) {
       nome: data.submitted_by ?? 'Anónimo',
       email: data.complainant_email ?? null,
       phone: data.complainant_phone ?? null,
+      sexo: data.complainant_gender ?? null,
+      idade: data.complainant_age ?? null,
     },
     dataOcorrencia: data.occurrence_date ?? 'Não especificada',
     status: data.status_label,
@@ -954,6 +991,10 @@ async function consultar() {
 
 .status-red {
   color: #C53030;
+}
+
+.status-orange {
+  color: #3b82f6;
 }
 
 .status-gray {

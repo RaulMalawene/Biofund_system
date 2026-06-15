@@ -315,9 +315,7 @@ TEXT;
         $typeName    = $occurrence->occurrenceType?->name ?? 'Não definido';
         $project     = $occurrence->project->name;
         $province    = $occurrence->province->name;
-        $dueDate     = $occurrence->due_date
-                        ? $occurrence->due_date->format('d/m/Y')
-                        : 'A definir';
+        $dueDate     = $occurrence->statusUpdateDueDate()->format('d/m/Y');
         $statusLimit = $this->statusUpdateBusinessDaysLimit($occurrence);
 
         return <<<TEXT

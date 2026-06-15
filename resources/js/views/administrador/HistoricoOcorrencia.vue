@@ -418,9 +418,17 @@
             <span class="detail-key">Categoria</span>
             <span class="detail-val">{{ selected.category?.name ?? '-' }}</span>
           </div>
+          <div class="detail-row" v-if="selected.subcategory?.name">
+            <span class="detail-key">Subcategoria</span>
+            <span class="detail-val">{{ selected.subcategory.name }}</span>
+          </div>
           <div class="detail-row" v-if="selected.type?.name">
             <span class="detail-key">Tipo de Ocorrência</span>
             <span class="detail-val">{{ selected.type.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.alert_type_label">
+            <span class="detail-key">Nível de Alerta</span>
+            <span class="detail-val">{{ selected.alert_type_label }}</span>
           </div>
           <div class="detail-row" v-if="selected.submission_channel_label">
             <span class="detail-key">Canal de entrada</span>
@@ -1303,8 +1311,8 @@ tbody tr:last-child td {
 
 .badge-status.resolvendo {
   color: #fff;
-  border-color: #EA580C;
-  background: #FB923C;
+  border-color: #2563EB;
+  background: #3b82f6;
 }
 
 .badge-status.resolvido,

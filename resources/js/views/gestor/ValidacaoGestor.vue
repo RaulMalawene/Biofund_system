@@ -581,6 +581,23 @@
               </div>
             </div>
 
+            <div class="modal-section modal-two-col"
+              v-if="selected.subcategoria || selected.tipo_ocorrencia || selected.nivel_alerta || selected.distrito || selected.prazo || selected.revisado_por">
+              <div class="modal-info-block">
+                <div class="modal-info-label">Classificação Adicional</div>
+                <div class="modal-info-val">{{ selected.subcategoria ?? 'Sem subcategoria' }}</div>
+                <div class="modal-info-sub" v-if="selected.tipo_ocorrencia">Tipo: {{ selected.tipo_ocorrencia }}</div>
+                <div class="modal-info-sub" v-if="selected.nivel_alerta">Nível de Alerta: {{ selected.nivel_alerta }}</div>
+                <div class="modal-info-sub" v-if="selected.distrito">Distrito: {{ selected.distrito }}</div>
+              </div>
+              <div class="modal-info-block">
+                <div class="modal-info-label">Prazo &amp; Revisão</div>
+                <div class="modal-info-val" :class="{ 'overdue-text': selected.atrasada }">{{ selected.prazo ?? 'Sem prazo definido' }}</div>
+                <div class="modal-info-sub" v-if="selected.data_revisao">Revisado em: {{ selected.data_revisao }}</div>
+                <div class="modal-info-sub" v-if="selected.revisado_por">Revisado por: {{ selected.revisado_por }}</div>
+              </div>
+            </div>
+
             <div class="modal-section">
               <div class="modal-section-hd">
                 <svg width="13" height="13" fill="none" stroke="var(--green-mid)" stroke-width="1.7"
@@ -788,6 +805,16 @@
             </div>
           </div>
 
+          <div class="r-row" v-if="subcategoriasDisponiveis.length">
+            <div class="r-group">
+              <label>Subcategoria <span class="r-opt">(Opcional)</span></label>
+              <select v-model="nf.subcategory_id">
+                <option value="">Seleccione a subcategoria (opcional)</option>
+                <option v-for="s in subcategoriasDisponiveis" :key="s.id" :value="s.id">{{ s.name }}</option>
+              </select>
+            </div>
+          </div>
+
           <div class="r-group">
             <label>Assunto <span class="r-req">*</span></label>
             <input type="text" v-model="nf.subject" maxlength="255"
@@ -923,7 +950,11 @@
           </div>
           <div class="r-group">
             <label>Coordenadas GPS <span class="r-opt">(Opcional)</span></label>
-            <input type="text" v-model="nf.coordenadas" placeholder="Ex: -25.9682, 32.5732" />
+            <input type="text" v-model="nf.coordenadas" placeholder="Ex: -25.9682, 32.5732"
+              :disabled="isVbgType" />
+            <span class="r-char-hint r-char-warn" v-if="isVbgType">
+              Por motivos de privacidade e segurança, as coordenadas GPS não são recolhidas para ocorrências de Violência Baseada no Género (VBG).
+            </span>
           </div>
 
           <!-- Descrição -->
@@ -1172,6 +1203,15 @@ async function selectRow(r) {
     selected.value.anexos = anexos
     selected.value.foto = anexos.find(a => a.tipo === 'imagem')?.url ?? null
 
+    selected.value.subcategoria    = full.subcategory?.name ?? null
+    selected.value.tipo_ocorrencia = full.type?.name ?? null
+    selected.value.nivel_alerta    = full.alert_type_label ?? null
+    selected.value.distrito        = full.district?.name ?? null
+    selected.value.prazo           = full.due_date ?? null
+    selected.value.atrasada        = full.is_overdue ?? false
+    selected.value.data_revisao    = full.reviewed_at ?? null
+    selected.value.revisado_por    = full.reviewed_by ?? null
+
     if (full.history?.length) {
       const last = [...full.history].reverse().find(h => h.comment)
       if (last) selected.value.comentario = last.comment
@@ -1351,7 +1391,7 @@ const rFileInput        = ref(null)
 
 const nf = reactive({
   complainant_name: '', complainant_gender: '', complainant_age: '', complainant_email: '', complainant_phone: '',
-  subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+  subject: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
   alert_type: '', submission_channel: '', occurrence_date: '',
   province_id: '', district_id: '', comunidade: '', postoAdministrativo: '', coordenadas: '',
   description: '',
@@ -1363,11 +1403,32 @@ const rErrors = reactive({
   province_id: '', description: '',
 })
 
+// Tipo VBG seleccionado - restringe a recolha de coordenadas GPS
+// por motivos de privacidade e segurança do reclamante.
+const isVbgType = computed(() => {
+  const t = refTypes.value.find(t => t.id === nf.occurrence_type_id)
+  return t?.alert_level === 'gbv' || nf.alert_type === 'gbv'
+})
+
+watch(isVbgType, (vbg) => {
+  if (vbg) nf.coordenadas = ''
+})
+
+// Subcategorias da categoria seleccionada (opcional)
+const subcategoriasDisponiveis = computed(() => {
+  const c = refCategories.value.find(c => c.id === nf.category_id)
+  return c?.subcategories ?? []
+})
+
+watch(() => nf.category_id, () => {
+  nf.subcategory_id = ''
+})
+
 function openRegistoModal() {
   const singleProvince = scopeProvinces.value.length === 1 ? scopeProvinces.value[0].id : ''
   Object.assign(nf, {
     complainant_name: '', complainant_gender: '', complainant_age: '', complainant_email: '', complainant_phone: '',
-    subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+    subject: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
     alert_type: '', submission_channel: '', occurrence_date: '',
     province_id: singleProvince, district_id: '',
     comunidade: '', postoAdministrativo: '', coordenadas: '',
@@ -1452,6 +1513,7 @@ async function saveRegisto() {
     fd.append('subject',            nf.subject.trim())
     fd.append('project_id',         nf.project_id)
     fd.append('category_id',        nf.category_id)
+    if (nf.subcategory_id) fd.append('subcategory_id', nf.subcategory_id)
     fd.append('occurrence_type_id', nf.occurrence_type_id)
     fd.append('alert_type',         nf.alert_type)
     fd.append('submission_channel', nf.submission_channel)
@@ -1958,7 +2020,7 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
 .badge-status.por-validar   { background: #FB923C; color: #fff;    border: 1.5px solid #EA580C; }
 .badge-status.por-resolver  { background: #FACC15; color: #713F12; border: 1.5px solid #CA8A04; }
 .badge-status.nao-validado  { background: #EF4444; color: #fff;    border: 1.5px solid #DC2626; }
-.badge-status.resolvendo    { background: #FB923C; color: #fff;    border: 1.5px solid #EA580C; }
+.badge-status.resolvendo    { background: #3b82f6; color: #fff;    border: 1.5px solid #2563EB; }
 .badge-status.resolvido     { background: #22C55E; color: #fff;    border: 1.5px solid #16A34A; }
 .badge-status.nao-resolvida { background: #7C3AED; color: #fff;    border: 1.5px solid #6D28D9; }
 
@@ -2620,6 +2682,11 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
 .modal-info-sub {
   font-size: 11px;
   color: var(--text-gray);
+}
+
+.overdue-text {
+  color: #C05621;
+  font-weight: 600;
 }
 
 .no-attachments {

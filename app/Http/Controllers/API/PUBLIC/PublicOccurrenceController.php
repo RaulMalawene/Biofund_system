@@ -79,6 +79,8 @@ class PublicOccurrenceController extends Controller
             'submitted_by'       => $occurrence->complainant_name,
             'complainant_email'  => $occurrence->complainant_email,
             'complainant_phone'  => $occurrence->complainant_phone,
+            'complainant_gender' => $occurrence->complainant_gender,
+            'complainant_age'    => $occurrence->complainant_age,
 
             // Classificação
             'project' => [
@@ -154,6 +156,9 @@ class PublicOccurrenceController extends Controller
 
             'categories' => Category::active()
                 ->select('id', 'name', 'code')
+                ->with(['subcategories' => fn($q) => $q->where('is_active', true)
+                    ->select('id', 'category_id', 'name')
+                    ->orderBy('name')])
                 ->orderBy('name')
                 ->get()
                 ->toArray(),

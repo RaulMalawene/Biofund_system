@@ -260,6 +260,26 @@
             <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
           </div>
 
+          <div class="detail-row" v-if="selected.complainant?.name">
+            <span class="detail-key">Nome do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.complainant?.email">
+            <span class="detail-key">Email do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.email }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.complainant?.phone">
+            <span class="detail-key">Telefone do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.phone }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.complainant?.gender">
+            <span class="detail-key">Sexo do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.gender === 'masculino' ? 'Masculino' : 'Feminino' }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.complainant?.age">
+            <span class="detail-key">Faixa Etária do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.age }}</span>
+          </div>
           <div class="detail-row">
             <span class="detail-key">Data de Submissão</span>
             <span class="detail-val">{{ selected.submitted_at }}</span>
@@ -284,6 +304,18 @@
             <span class="detail-key">Categoria</span>
             <span class="detail-val">{{ selected.category?.name ?? '-' }}</span>
           </div>
+          <div class="detail-row" v-if="selected.subcategory?.name">
+            <span class="detail-key">Subcategoria</span>
+            <span class="detail-val">{{ selected.subcategory.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.type?.name">
+            <span class="detail-key">Tipo de Ocorrência</span>
+            <span class="detail-val">{{ selected.type.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.alert_type_label">
+            <span class="detail-key">Nível de Alerta</span>
+            <span class="detail-val">{{ selected.alert_type_label }}</span>
+          </div>
           <div class="detail-row" v-if="selected.submission_channel_label">
             <span class="detail-key">Canal de Entrada</span>
             <span class="detail-val">{{ selected.submission_channel_label }}</span>
@@ -292,9 +324,25 @@
             <span class="detail-key">Responsável</span>
             <span class="detail-val">{{ selected.assigned_to?.name ?? 'Sem responsável' }}</span>
           </div>
+          <div class="detail-row" v-if="selected.submitted_by?.name">
+            <span class="detail-key">Registado por</span>
+            <span class="detail-val">{{ selected.submitted_by.name }}</span>
+          </div>
           <div class="detail-row">
             <span class="detail-key">Projecto</span>
             <span class="detail-val">{{ selected.project?.name ?? '-' }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.due_date">
+            <span class="detail-key">Prazo de Validação</span>
+            <span class="detail-val" :class="{ 'overdue-text': selected.is_overdue }">{{ selected.due_date }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.reviewed_at">
+            <span class="detail-key">Data de Revisão</span>
+            <span class="detail-val">{{ selected.reviewed_at }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.reviewed_by">
+            <span class="detail-key">Revisado por</span>
+            <span class="detail-val">{{ selected.reviewed_by }}</span>
           </div>
 
           <div class="drawer-section">
@@ -666,7 +714,7 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .badge-status.por_validar, .badge-status.pending      { color: #fff;    border-color: #EA580C; background: #FB923C; }
 .badge-status.por_resolver, .badge-status.in_review   { color: #713F12; border-color: #CA8A04; background: #FACC15; }
-.badge-status.resolvendo                              { color: #fff;    border-color: #EA580C; background: #FB923C; }
+.badge-status.resolvendo                              { color: #fff;    border-color: #2563EB; background: #3b82f6; }
 .badge-status.resolvido, .badge-status.resolved       { color: #fff;    border-color: #16A34A; background: #22C55E; }
 .badge-status.nao_validado, .badge-status.rejected    { color: #fff;    border-color: #DC2626; background: #EF4444; }
 .badge-status.nao_resolvida                           { color: #fff;    border-color: #6D28D9; background: #7C3AED; }
@@ -735,6 +783,7 @@ tbody tr:last-child td { border-bottom: none; }
 .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #F0F4F2; }
 .detail-key { font-size: 12px; font-weight: 600; color: var(--text-light); min-width: 140px; }
 .detail-val { font-size: 13px; color: var(--text-dark); text-align: right; flex: 1; }
+.overdue-text { color: #C05621; font-weight: 600; }
 .drawer-section { margin-top: 20px; }
 .drawer-section-label { font-size: 11.5px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
 .drawer-desc { background: #F4F6F5; border-radius: 9px; padding: 14px; font-size: 13px; color: var(--text-gray); line-height: 1.7; }

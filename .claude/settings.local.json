@@ -96,7 +96,8 @@
       "Bash(rm -f /tmp/email_render2.html)",
       "Bash(git --no-pager diff --stat)",
       "Bash(git --no-pager diff app/Models/Occurrence.php app/Services/NotificationService.php)",
-      "Bash(npx vue-tsc *)"
+      "Bash(npx vue-tsc *)",
+      "PowerShell(npx vite build 2>&1 | Select-Object -Last 60)"
     ]
   }
 }

@@ -298,6 +298,14 @@
             <span class="detail-key">Telefone do Reclamante</span>
             <span class="detail-val">{{ selected.complainant.phone }}</span>
           </div>
+          <div class="detail-row" v-if="selected.complainant?.gender">
+            <span class="detail-key">Sexo do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.gender === 'masculino' ? 'Masculino' : 'Feminino' }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.complainant?.age">
+            <span class="detail-key">Faixa Etária do Reclamante</span>
+            <span class="detail-val">{{ selected.complainant.age }}</span>
+          </div>
           <div class="detail-row">
             <span class="detail-key">Data de Submissão</span>
             <span class="detail-val">{{ selected.submitted_at }}</span>
@@ -322,6 +330,18 @@
             <span class="detail-key">Categoria</span>
             <span class="detail-val">{{ selected.category?.name ?? '-' }}</span>
           </div>
+          <div class="detail-row" v-if="selected.subcategory?.name">
+            <span class="detail-key">Subcategoria</span>
+            <span class="detail-val">{{ selected.subcategory.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.type?.name">
+            <span class="detail-key">Tipo de Ocorrência</span>
+            <span class="detail-val">{{ selected.type.name }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.alert_type_label">
+            <span class="detail-key">Nível de Alerta</span>
+            <span class="detail-val">{{ selected.alert_type_label }}</span>
+          </div>
           <div class="detail-row" v-if="selected.submission_channel_label">
             <span class="detail-key">Canal de Entrada</span>
             <span class="detail-val">{{ selected.submission_channel_label }}</span>
@@ -330,9 +350,25 @@
             <span class="detail-key">Responsável</span>
             <span class="detail-val">{{ selected.assigned_to?.name ?? 'Sem responsável' }}</span>
           </div>
+          <div class="detail-row" v-if="selected.submitted_by?.name">
+            <span class="detail-key">Registado por</span>
+            <span class="detail-val">{{ selected.submitted_by.name }}</span>
+          </div>
           <div class="detail-row">
             <span class="detail-key">Projecto</span>
             <span class="detail-val">{{ selected.project?.name ?? '-' }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.due_date">
+            <span class="detail-key">Prazo de Validação</span>
+            <span class="detail-val" :class="{ 'overdue-text': selected.is_overdue }">{{ selected.due_date }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.reviewed_at">
+            <span class="detail-key">Data de Revisão</span>
+            <span class="detail-val">{{ selected.reviewed_at }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.reviewed_by">
+            <span class="detail-key">Revisado por</span>
+            <span class="detail-val">{{ selected.reviewed_by }}</span>
           </div>
 
           <div class="drawer-section">
@@ -429,6 +465,16 @@
                 <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
               <span class="f-err-msg" v-if="mErrors.category_id">{{ mErrors.category_id }}</span>
+            </div>
+          </div>
+
+          <div class="f-row" v-if="subcategoriasDisponiveis.length">
+            <div class="f-group">
+              <label>Subcategoria <span class="f-opt">(Opcional)</span></label>
+              <select v-model="nf.subcategory_id">
+                <option value="">Seleccione a subcategoria (opcional)</option>
+                <option v-for="s in subcategoriasDisponiveis" :key="s.id" :value="s.id">{{ s.name }}</option>
+              </select>
             </div>
           </div>
 
@@ -584,7 +630,11 @@
           </div>
           <div class="f-group">
             <label>Coordenadas GPS <span class="f-opt">(Opcional)</span></label>
-            <input type="text" v-model="nf.coordenadas" placeholder="Ex: -25.9682, 32.5732" />
+            <input type="text" v-model="nf.coordenadas" placeholder="Ex: -25.9682, 32.5732"
+              :disabled="isVbgType" />
+            <span class="char-hint char-warn" v-if="isVbgType">
+              Por motivos de privacidade e segurança, as coordenadas GPS não são recolhidas para ocorrências de Violência Baseada no Género (VBG).
+            </span>
           </div>
 
           <!-- Descrição -->
@@ -669,7 +719,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
@@ -731,6 +781,7 @@ const nf = reactive({
   subject: '',
   project_id: '',
   category_id: '',
+  subcategory_id: '',
   occurrence_type_id: '',
   alert_type: '',
   submission_channel: '',
@@ -759,6 +810,27 @@ const submitError  = ref('')
 const isDragging   = ref(false)
 const modalFiles   = ref([])
 const modalFileInput = ref(null)
+
+// Tipo VBG seleccionado - restringe a recolha de coordenadas GPS
+// por motivos de privacidade e segurança do reclamante.
+const isVbgType = computed(() => {
+  const t = refTypes.value.find(t => t.id === nf.occurrence_type_id)
+  return t?.alert_level === 'gbv' || nf.alert_type === 'gbv'
+})
+
+watch(isVbgType, (vbg) => {
+  if (vbg) nf.coordenadas = ''
+})
+
+// Subcategorias da categoria seleccionada (opcional)
+const subcategoriasDisponiveis = computed(() => {
+  const c = refCategories.value.find(c => c.id === nf.category_id)
+  return c?.subcategories ?? []
+})
+
+watch(() => nf.category_id, () => {
+  nf.subcategory_id = ''
+})
 
 // ── Init ──────────────────────────────────────────────────────
 onMounted(() => {
@@ -873,7 +945,7 @@ function openRegistoModal() {
   Object.assign(nf, {
     complainant_name: '', complainant_email: '', complainant_phone: '',
     complainant_gender: '', complainant_age: '',
-    subject: '', project_id: '', category_id: '', occurrence_type_id: '',
+    subject: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
     alert_type: '', submission_channel: '', occurrence_date: '',
     province_id: singleProvince, district_id: '',
     comunidade: '', postoAdministrativo: '', coordenadas: '',
@@ -970,6 +1042,7 @@ async function saveRegisto() {
     fd.append('subject',            nf.subject.trim())
     fd.append('project_id',         nf.project_id)
     fd.append('category_id',        nf.category_id)
+    if (nf.subcategory_id) fd.append('subcategory_id', nf.subcategory_id)
     fd.append('occurrence_type_id', nf.occurrence_type_id)
     fd.append('alert_type',         nf.alert_type)
     fd.append('submission_channel', nf.submission_channel)
@@ -1495,7 +1568,7 @@ tbody tr:last-child td { border-bottom: none; }
   color: #713F12; border-color: #CA8A04; background: #FACC15;
 }
 .badge-status.resolvendo {
-  color: #fff; border-color: #EA580C; background: #FB923C;
+  color: #fff; border-color: #2563EB; background: #3b82f6;
 }
 .badge-status.resolvido, .badge-status.resolved {
   color: #fff; border-color: #16A34A; background: #22C55E;
@@ -1699,6 +1772,8 @@ tbody tr:last-child td { border-bottom: none; }
 
 .detail-key { font-size: 12px; font-weight: 600; color: var(--text-light); min-width: 140px; }
 .detail-val { font-size: 13px; color: var(--text-dark); text-align: right; flex: 1; }
+
+.overdue-text { color: #C05621; font-weight: 600; }
 
 .drawer-section { margin-top: 20px; }
 
