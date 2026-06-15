@@ -91,7 +91,7 @@
         <div class="page-title-row">
           <div>
             <h1>Validação de Ocorrências</h1>
-            <p>Analise as denúncias ambientais pendentes submetidas pela população moçambicana.</p>
+            <p>Analise as Ocorrências</p>
           </div>
           <div class="header-badges">
             <span class="badge-em-analise">{{ countStatus('por_resolver') }} Por Resolver</span>

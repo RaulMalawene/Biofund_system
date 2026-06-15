@@ -86,7 +86,7 @@
         <div class="page-title-row">
           <div>
             <h1>Dashboard Geral</h1>
-            <p>Bem-vindo ao painel central de monitoria ambiental nacional.</p>
+            <p>Bem-vindo ao painel do Administrador</p>
           </div>
           <div class="title-actions">
             <button class="btn-outline-sm">
