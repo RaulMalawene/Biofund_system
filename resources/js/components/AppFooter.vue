@@ -6,8 +6,7 @@
           <img src="../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="footer-logo-img"/>
           BIOFUND
         </router-link>
-        <p>Ė uma instituição sem 
-          fins lucrativos que mobiliza, aplica e gere recursos financeiros em benefício exclusivo da Conservação da biodiversidade em Moçambique. </p>
+        <p>Instituição privada de utilidade pública que mobiliza recursos para a conservação. </p>
       </div>
 
       <div class="footer-col">

@@ -141,7 +141,7 @@
       <div class="why-left">
         <h2>Engajamento Comunitário</h2>
         <div class="why-underline"></div>
-        <p>A conservação da biodiversidade só é sustentável quando as comunidades que vivem dela fazem parte da solução. O Biofund financia a conservação, fortalece comunidades e promove o uso sustentável dos ecossistemas em Moçambique.</p>
+        <p>A conservação da biodiversidade só é sustentável quando as comunidades que vivem dela fazem parte da solução. A Biofund financia a conservação, fortalece comunidades e promove o uso sustentável dos ecossistemas em Moçambique.</p>
 
         <div class="benefits-grid">
           <div class="benefit-item" v-for="c in community" :key="c.title">
