@@ -49,9 +49,9 @@ export const InternalService = {
     },
 
     /**
-     * Actualiza a classificação de uma ocorrência (projecto e/ou categoria).
+     * Actualiza a classificação de uma ocorrência (projecto, categoria e/ou subcategoria).
      * @param {number} id
-     * @param {{ project_id?, category_id? }} payload
+     * @param {{ project_id?, category_id?, subcategory_id? }} payload
      */
     async updateClassification(id, payload) {
         const { data } = await api.patch(`/occurrences/${id}/classification`, payload)

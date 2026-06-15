@@ -982,7 +982,7 @@ async function consultar() {
 }
 
 .status-blue {
-  color: #3182CE;
+  color: #EA580C;
 }
 
 .status-yellow {

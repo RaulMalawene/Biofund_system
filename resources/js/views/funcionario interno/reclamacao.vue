@@ -401,7 +401,7 @@
             <div class="drawer-section-label">Histórico de Estados</div>
             <div class="timeline" v-if="selected.history?.length">
               <div class="timeline-item" v-for="(ev, i) in selected.history" :key="i">
-                <div class="tl-dot" :style="{ borderColor: ev.to_color, background: ev.to_color + '22' }"></div>
+                <div class="tl-dot" :style="{ borderColor: dotColor(ev.to_color), background: dotColor(ev.to_color) + '22' }"></div>
                 <div class="tl-content">
                   <div class="tl-title">{{ ev.to }}</div>
                   <div class="tl-comment" v-if="ev.comment">{{ ev.comment }}</div>
@@ -737,6 +737,19 @@ async function handleLogout() {
 // ── Projectos e províncias do funcionário (âmbito) ───────────
 const scopeProjects  = computed(() => auth.user?.projects  ?? [])
 const myProvinces    = computed(() => auth.user?.provinces ?? [])
+
+// ── Cores do histórico de estados (alinhadas com .badge-status) ─
+const STATUS_DOT_COLORS = {
+  blue:   '#FB923C', // Por Validar
+  yellow: '#FACC15', // Por Resolver
+  red:    '#EF4444', // Não Validado
+  orange: '#3b82f6', // Resolvendo
+  green:  '#22C55E', // Resolvido
+  purple: '#7C3AED', // Não Resolvida
+}
+function dotColor(toColor) {
+  return STATUS_DOT_COLORS[toColor] ?? toColor
+}
 
 // ── Estado ────────────────────────────────────────────────────
 const loading = ref(false)

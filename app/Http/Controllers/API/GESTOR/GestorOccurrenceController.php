@@ -428,18 +428,20 @@ class GestorOccurrenceController extends Controller
         }
 
         $data = $request->validate([
-            'project_id'  => ['sometimes', 'integer', 'exists:projects,id'],
-            'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
+            'project_id'     => ['sometimes', 'integer', 'exists:projects,id'],
+            'category_id'    => ['sometimes', 'integer', 'exists:categories,id'],
+            'subcategory_id' => ['sometimes', 'nullable', 'integer', 'exists:subcategories,id'],
         ]);
 
         $occurrence->update($data);
 
-        $occurrence->load(['project:id,name,code', 'category:id,name']);
+        $occurrence->load(['project:id,name,code', 'category:id,name', 'subcategory:id,name']);
 
         return response()->json([
             'message'     => 'Classificação actualizada com sucesso.',
             'project'     => $occurrence->project  ? ['id' => $occurrence->project->id,  'name' => $occurrence->project->name]  : null,
             'category'    => $occurrence->category ? ['id' => $occurrence->category->id, 'name' => $occurrence->category->name] : null,
+            'subcategory' => $occurrence->subcategory ? ['id' => $occurrence->subcategory->id, 'name' => $occurrence->subcategory->name] : null,
         ], 200);
     }
 

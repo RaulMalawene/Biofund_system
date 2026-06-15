@@ -153,6 +153,29 @@
             </select>
           </div>
 
+          <div class="dash-filter-chip" :class="{ 'chip-active': dashFilter.gender }">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <circle cx="8" cy="5" r="3"/>
+              <path d="M8 8v6M5.5 11.5h5" stroke-linecap="round"/>
+            </svg>
+            <select class="dash-filter-select" v-model="dashFilter.gender">
+              <option value="">Todos os Sexos</option>
+              <option value="masculino">Masculino</option>
+              <option value="feminino">Feminino</option>
+            </select>
+          </div>
+
+          <div class="dash-filter-chip" :class="{ 'chip-active': dashFilter.age_range }">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6.5"/>
+              <path d="M8 4.5V8l2.5 1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <select class="dash-filter-select" v-model="dashFilter.age_range">
+              <option value="">Todas as Idades</option>
+              <option v-for="a in AGE_RANGES" :key="a" :value="a">{{ a }} anos</option>
+            </select>
+          </div>
+
           <button class="dash-filter-apply-btn" @click="applyDashFilter" :disabled="filterLoading">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">
               <path d="M2 4h12M4 8h8M6 12h4" stroke-linecap="round"/>
@@ -718,14 +741,15 @@ const rawReclamacoes = ref(0)
 const rawElogios     = ref(0)
 const rawSugestoes   = ref(0)
 
-// ── Filtros de dashboard (ano / província / projecto) ──────────
-const dashFilter = reactive({ year: '', province_id: '', project_id: '', category_id: '' })
+// ── Filtros de dashboard (ano / província / projecto / sexo / faixa etária) ──
+const dashFilter = reactive({ year: '', province_id: '', project_id: '', category_id: '', gender: '', age_range: '' })
 const filterYears = computed(() => {
   const y = new Date().getFullYear()
   return Array.from({ length: y - 2019 }, (_, i) => y - i)
 })
+const AGE_RANGES = ['Menos de 18', '18 - 25', '26 - 35', '36 - 45', '46 - 55', '56 - 65', 'Mais de 65']
 const hasActiveDashFilter = computed(() =>
-  !!(dashFilter.year || dashFilter.province_id || dashFilter.project_id || dashFilter.category_id)
+  !!(dashFilter.year || dashFilter.province_id || dashFilter.project_id || dashFilter.category_id || dashFilter.gender || dashFilter.age_range)
 )
 function buildDashFilter() {
   const p = {}
@@ -733,6 +757,8 @@ function buildDashFilter() {
   if (dashFilter.province_id) p.province_id = dashFilter.province_id
   if (dashFilter.project_id)  p.project_id  = dashFilter.project_id
   if (dashFilter.category_id) p.category_id = dashFilter.category_id
+  if (dashFilter.gender)      p.gender      = dashFilter.gender
+  if (dashFilter.age_range)   p.age_range   = dashFilter.age_range
   return p
 }
 async function applyDashFilter() {
@@ -768,6 +794,8 @@ function clearDashFilter() {
   dashFilter.province_id = ''
   dashFilter.project_id  = ''
   dashFilter.category_id = ''
+  dashFilter.gender = ''
+  dashFilter.age_range = ''
   applyDashFilter()
 }
 

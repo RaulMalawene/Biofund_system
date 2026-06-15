@@ -501,6 +501,13 @@
                     <option v-for="c in refCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
                   </select>
                 </div>
+                <div class="edit-field" v-if="editSubcategoriasDisponiveis.length">
+                  <label>Subcategoria</label>
+                  <select v-model="editForm.subcategory_id" :disabled="editSaving">
+                    <option value="">Sem subcategoria</option>
+                    <option v-for="s in editSubcategoriasDisponiveis" :key="s.id" :value="s.id">{{ s.name }}</option>
+                  </select>
+                </div>
                 <div class="edit-class-actions">
                   <button class="btn-edit-cancel" @click="toggleEditMode" :disabled="editSaving">Cancelar</button>
                   <button class="btn-edit-save" @click="saveClassification" :disabled="editSaving">
@@ -1072,7 +1079,19 @@ const loading = ref(false)
 // ─── Edit classification state ───────────────────────────────
 const editMode   = ref(false)
 const editSaving = ref(false)
-const editForm   = reactive({ project_id: '', category_id: '' })
+const editForm   = reactive({ project_id: '', category_id: '', subcategory_id: '' })
+
+// Subcategorias da categoria seleccionada na edição de classificação (opcional)
+const editSubcategoriasDisponiveis = computed(() => {
+  const c = refCategories.value.find(c => c.id === editForm.category_id)
+  return c?.subcategories ?? []
+})
+
+watch(() => editForm.category_id, () => {
+  if (!editSubcategoriasDisponiveis.value.some(s => s.id === editForm.subcategory_id)) {
+    editForm.subcategory_id = ''
+  }
+})
 
 // ─── Reference data ───────────────────────────────────────────
 const refCategories = ref([])
@@ -1204,6 +1223,7 @@ async function selectRow(r) {
     selected.value.foto = anexos.find(a => a.tipo === 'imagem')?.url ?? null
 
     selected.value.subcategoria    = full.subcategory?.name ?? null
+    selected.value._subcategory_id = full.subcategory?.id ?? ''
     selected.value.tipo_ocorrencia = full.type?.name ?? null
     selected.value.nivel_alerta    = full.alert_type_label ?? null
     selected.value.distrito        = full.district?.name ?? null
@@ -1228,6 +1248,7 @@ function toggleEditMode() {
   if (editMode.value && selected.value) {
     editForm.project_id  = selected.value._project_id  ?? ''
     editForm.category_id = selected.value._category_id ?? ''
+    editForm.subcategory_id = selected.value._subcategory_id ?? ''
   }
 }
 
@@ -1238,6 +1259,7 @@ async function saveClassification() {
     const payload = {}
     if (editForm.project_id)  payload.project_id  = editForm.project_id
     if (editForm.category_id) payload.category_id = editForm.category_id
+    payload.subcategory_id = editForm.subcategory_id || null
     const result = await InternalService.updateClassification(selected.value._id, payload)
     if (result.project) {
       selected.value.projeto     = result.project.name
@@ -1247,6 +1269,8 @@ async function saveClassification() {
       selected.value.categoria     = result.category.name
       selected.value._category_id  = result.category.id
     }
+    selected.value.subcategoria    = result.subcategory?.name ?? null
+    selected.value._subcategory_id = result.subcategory?.id ?? ''
     const idx = rows.value.findIndex(r => r._id === selected.value._id)
     if (idx !== -1) {
       if (result.project)  rows.value[idx].projeto   = result.project.name
