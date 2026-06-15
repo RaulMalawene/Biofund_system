@@ -156,6 +156,8 @@
               <button class="tab" :class="{ active: tab === 'gestor' }" @click="changeTab('gestor')">Gestores</button>
               <button class="tab" :class="{ active: tab === 'funcionario' }"
                 @click="changeTab('funcionario')">Funcionários</button>
+              <button class="tab" :class="{ active: tab === 'observador' }"
+                @click="changeTab('observador')">Observadores</button>
             </div>
             <div class="toolbar-right">
               <div class="search-inline">
