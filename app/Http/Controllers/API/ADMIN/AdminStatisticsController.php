@@ -164,6 +164,32 @@ class AdminStatisticsController extends Controller
             ->orderBy('year')->orderBy('month')
             ->get();
 
+        $byGender = $baseQuery()
+            ->select(
+                DB::raw("CASE
+                    WHEN complainant_gender = 'masculino' THEN 'Masculino'
+                    WHEN complainant_gender = 'feminino'  THEN 'Feminino'
+                    ELSE 'Não Identificado'
+                END as gender_label"),
+                DB::raw('count(*) as total')
+            )
+            ->groupBy('gender_label')
+            ->pluck('total', 'gender_label')
+            ->toArray();
+
+        $ageOrder   = ['Menos de 18', '18 - 25', '26 - 35', '36 - 45', '46 - 55', '56 - 65', 'Mais de 65'];
+        $byAgeRaw   = $baseQuery()
+            ->select('complainant_age', DB::raw('count(*) as total'))
+            ->whereNotNull('complainant_age')
+            ->where('complainant_age', '!=', '')
+            ->groupBy('complainant_age')
+            ->pluck('total', 'complainant_age')
+            ->toArray();
+        $byAgeRange = collect($ageOrder)->map(fn($age) => [
+            'label' => $age,
+            'total' => (int) ($byAgeRaw[$age] ?? 0),
+        ])->all();
+
         $recent = $baseQuery()
             ->with([
                 'project:id,name',
@@ -192,6 +218,8 @@ class AdminStatisticsController extends Controller
             'by_alert_level'    => $byAlertLevel,
             'by_category'       => $byCategory->values()->toArray(),
             'by_province'       => $byProvince->values()->toArray(),
+            'by_gender'         => $byGender,
+            'by_age_range'      => $byAgeRange,
             'by_month'          => $byMonthRaw->map(fn($r) => [
                 'label' => sprintf('%04d-%02d', $r->year, $r->month),
                 'total' => (int) $r->total,

@@ -405,6 +405,38 @@
           </div>
         </div>
 
+        <!-- DEMOGRAPHICS ROW -->
+        <div class="demo-row" :class="{ 'section-dimmed': filterLoading }">
+          <div class="chart-card">
+            <div class="chart-title">Distribuição por Sexo</div>
+            <div class="chart-sub">Perfil de género dos reclamantes</div>
+            <div class="pie-center-wrap">
+              <canvas ref="pieChartRef"></canvas>
+              <div class="donut-center" v-if="rawTotals.all">
+                <div class="donut-total">{{ rawTotals.all }}</div>
+                <div class="donut-total-label">total</div>
+              </div>
+            </div>
+            <div class="gender-legend">
+              <div class="gender-legend-item" v-for="item in genderLegend" :key="item.label">
+                <span class="pie-dot" :style="{ background: item.color }"></span>
+                <span class="gender-leg-label">{{ item.label }}</span>
+                <span class="gender-leg-val">{{ item.count }}</span>
+                <span class="gender-leg-pct">{{ item.pct }}%</span>
+              </div>
+              <div class="pie-legend-empty" v-if="!genderLegend.length">Sem dados de género disponíveis</div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Ocorrências por Faixa Etária</div>
+            <div class="chart-sub">Distribuição etária dos reclamantes (dados informados)</div>
+            <div class="chart-wrap" style="height:230px; margin-top:16px">
+              <canvas ref="ageBarChartRef"></canvas>
+            </div>
+          </div>
+        </div>
+
       </main>
 
       <!-- FOOTER -->
@@ -736,9 +768,11 @@ async function handleLogout() {
 }
 
 const searchQ      = ref('')
-const barChartRef  = ref(null)
-const donutChartRef = ref(null)
-const lineChartRef = ref(null)
+const barChartRef    = ref(null)
+const donutChartRef  = ref(null)
+const lineChartRef   = ref(null)
+const pieChartRef    = ref(null)
+const ageBarChartRef = ref(null)
 
 const submissions = ref([])
 
@@ -770,6 +804,8 @@ const stats = reactive({
     byCategory:      [],
     byMonth:         [],
     byMonthResolved: [],
+    byGender:        {},
+    byAgeRange:      [],
 })
 
 // Valores KPI fixos - nunca se alteram quando um filtro está activo
@@ -815,6 +851,8 @@ async function applyDashFilter() {
         stats.byCategory      = data.by_category      ?? []
         stats.byMonth         = data.by_month         ?? []
         stats.byMonthResolved = data.by_month_resolved ?? []
+        stats.byGender        = data.by_gender         ?? {}
+        stats.byAgeRange      = data.by_age_range      ?? []
         submissions.value     = mapRecent(data.recent)
         Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
         Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -839,12 +877,15 @@ function clearDashFilter() {
     applyDashFilter()
 }
 
-const CHART_COLORS = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
+const CHART_COLORS  = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
+const GENDER_COLORS = { Masculino: '#74C0FC', Feminino: '#FC8181', 'Não Identificado': '#D1D5DB' }
 
 // Instâncias dos gráficos - guardadas para actualizar sem recriar
-let barChart   = null
-let donutChart = null
-let lineChart  = null
+let barChart    = null
+let donutChart  = null
+let lineChart   = null
+let pieChart    = null
+let ageBarChart = null
 
 // Eixo temporal: últimos 6 meses no formato 'YYYY-MM'
 function buildMonthAxis() {
@@ -878,6 +919,18 @@ function updateCharts() {
         lineChart.data.datasets[1].data = ax.map(m => stats.byMonthResolved.find(r => r.label === m)?.total ?? 0)
         lineChart.update()
     }
+    if (pieChart) {
+        const gLabels = Object.keys(stats.byGender)
+        const gValues = Object.values(stats.byGender)
+        pieChart.data.labels                      = gLabels.length ? gLabels : ['Sem dados']
+        pieChart.data.datasets[0].data            = gValues.length ? gValues : [1]
+        pieChart.data.datasets[0].backgroundColor = gLabels.length ? gLabels.map(l => GENDER_COLORS[l] ?? '#E2E8F0') : ['#E2E8F0']
+        pieChart.update()
+    }
+    if (ageBarChart) {
+        ageBarChart.data.datasets[0].data = stats.byAgeRange.map(a => a.total)
+        ageBarChart.update()
+    }
 }
 
 // Recarrega stats completas (aplica dashFilter se activo) e actualiza tudo
@@ -893,6 +946,8 @@ async function refreshStats() {
         stats.byCategory      = data.by_category      ?? []
         stats.byMonth         = data.by_month         ?? []
         stats.byMonthResolved = data.by_month_resolved ?? []
+        stats.byGender        = data.by_gender         ?? {}
+        stats.byAgeRange      = data.by_age_range      ?? []
         submissions.value     = mapRecent(data.recent)
         Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
         Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -940,6 +995,8 @@ async function selectCard(key) {
         stats.byCategory      = data.by_category      ?? []
         stats.byMonth         = data.by_month         ?? []
         stats.byMonthResolved = data.by_month_resolved ?? []
+        stats.byGender        = data.by_gender         ?? {}
+        stats.byAgeRange      = data.by_age_range      ?? []
         submissions.value     = mapRecent(data.recent)
         updateCharts()
     } catch (err) {
@@ -956,6 +1013,17 @@ const donutLegend = computed(() => {
         label: cat.name,
         color: CHART_COLORS[i % CHART_COLORS.length],
         pct:   total ? Math.round(cat.total / total * 100) : 0,
+    }))
+})
+
+const genderLegend = computed(() => {
+    const total = Object.values(stats.byGender).reduce((s, v) => s + v, 0)
+    if (!total) return []
+    return Object.entries(stats.byGender).map(([label, count]) => ({
+        label,
+        count,
+        color: GENDER_COLORS[label] ?? '#E2E8F0',
+        pct:   Math.round(count / total * 100),
     }))
 })
 
@@ -1242,6 +1310,8 @@ onUnmounted(() => {
   barChart?.destroy()
   donutChart?.destroy()
   lineChart?.destroy()
+  pieChart?.destroy()
+  ageBarChart?.destroy()
 })
 
 onMounted(async () => {
@@ -1259,6 +1329,8 @@ onMounted(async () => {
     stats.byCategory      = data.by_category      ?? []
     stats.byMonth         = data.by_month         ?? []
     stats.byMonthResolved = data.by_month_resolved ?? []
+    stats.byGender        = data.by_gender         ?? {}
+    stats.byAgeRange      = data.by_age_range      ?? []
     submissions.value     = mapRecent(data.recent)
     // Snapshot KPI - fica fixo mesmo quando um filtro é aplicado
     Object.assign(rawTotals,     data.totals         ?? {})
@@ -1327,6 +1399,60 @@ onMounted(async () => {
       scales: {
         x: { grid: { display: false }, ticks: { font: { size: 11 } } },
         y: { beginAtZero: true, grid: { color: '#F0F4F2' }, ticks: { font: { size: 11 } } }
+      }
+    }
+  })
+
+  const AGE_ORDER  = ['Menos de 18', '18 - 25', '26 - 35', '36 - 45', '46 - 55', '56 - 65', 'Mais de 65']
+  const AGE_COLORS = [
+    'rgba(82,183,136,0.85)', 'rgba(82,183,136,0.70)', 'rgba(82,183,136,0.55)',
+    'rgba(116,192,252,0.85)', 'rgba(116,192,252,0.70)',
+    'rgba(244,165,42,0.85)', 'rgba(244,165,42,0.70)',
+  ]
+
+  const gLabels0 = Object.keys(stats.byGender)
+  const gValues0 = Object.values(stats.byGender)
+
+  pieChart = new Chart(pieChartRef.value, {
+    type: 'doughnut',
+    data: {
+      labels: gLabels0.length ? gLabels0 : ['Sem dados'],
+      datasets: [{
+        data: gValues0.length ? gValues0 : [1],
+        backgroundColor: gLabels0.length ? gLabels0.map(l => GENDER_COLORS[l] ?? '#E2E8F0') : ['#E2E8F0'],
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } }
+      }
+    }
+  })
+
+  ageBarChart = new Chart(ageBarChartRef.value, {
+    type: 'bar',
+    data: {
+      labels: AGE_ORDER,
+      datasets: [{
+        data: stats.byAgeRange.map(a => a.total),
+        backgroundColor: AGE_COLORS,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        x: { beginAtZero: true, grid: { color: '#F0F4F2' }, ticks: { font: { size: 11 }, precision: 0 } }
       }
     }
   })
@@ -2267,4 +2393,95 @@ tbody td {
 .toast-anim-enter-active, .toast-anim-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
 .toast-anim-enter-from, .toast-anim-leave-to { opacity: 0; transform: translateY(12px); }
 
+/* ── DEMOGRAPHICS ROW ────────────────────── */
+.demo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.pie-center-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 18px auto 0;
+}
+
+.donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-total {
+  font-size: 22px;
+  font-weight: 800;
+  color: #162119;
+  line-height: 1;
+}
+
+.donut-total-label {
+  font-size: 9.5px;
+  color: #8A9490;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-top: 2px;
+}
+
+.gender-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.gender-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  background: #F7FAF8;
+  border-radius: 9px;
+}
+
+.pie-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gender-leg-label {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--text-gray);
+  font-weight: 500;
+}
+
+.gender-leg-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.gender-leg-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2D6A4F;
+  background: #EBF8F1;
+  padding: 2px 9px;
+  border-radius: 99px;
+}
+
+.pie-legend-empty {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  padding: 16px 0;
+}
 </style>
