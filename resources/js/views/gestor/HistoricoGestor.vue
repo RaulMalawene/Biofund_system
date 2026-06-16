@@ -491,6 +491,15 @@
       </div>
     </transition>
 
+    <!-- Modal de relatório periódico -->
+    <RelatorioPeriodicoModal
+      :open="modalRelatorio"
+      :projects="scopeProjects"
+      :provinces="scopeProvinces"
+      :categories="refCategories"
+      @close="modalRelatorio = false"
+    />
+
   </div>
 </template>
 
@@ -502,6 +511,7 @@ import { InternalService } from '@/api/services/internal.service'
 import api from '@/api/client'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
+import RelatorioPeriodicoModal from '@/components/RelatorioPeriodicoModal.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -517,6 +527,7 @@ async function handleLogout() {
 
 // ── Estado ────────────────────────────────────────────────────
 const loading = ref(false)
+const modalRelatorio = ref(false)
 const detailLoading = ref(false)
 const topSearch = ref('')
 const selected = ref(null)
@@ -665,29 +676,9 @@ async function downloadAttachment(a) {
   } catch {}
 }
 
-// ── Exportar ──────────────────────────────────────────────────
-async function exportar() {
-  const params = {}
-  if (filters.status)            params.status      = filters.status
-  if (filters.province_id)       params.province_id = filters.province_id
-  if (filters.project_id)        params.project_id  = filters.project_id
-  if (filters.category_id)       params.category_id = filters.category_id
-  if (filters.date_from)         params.date_from   = filters.date_from
-  if (topSearch.value.trim())    params.search      = topSearch.value.trim()
-
-  try {
-    const response = await api.get('/admin/statistics/report', { params })
-    const json = JSON.stringify(response.data, null, 2)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url  = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href     = url
-    link.download = `relatorio_${new Date().toISOString().slice(0, 10)}.json`
-    link.click()
-    setTimeout(() => URL.revokeObjectURL(url), 60000)
-  } catch (e) {
-    console.error('Erro ao exportar relatório:', e)
-  }
+// ── Exportar — abre o modal de relatório periódico ──────────
+function exportar() {
+  modalRelatorio.value = true
 }
 </script>
 

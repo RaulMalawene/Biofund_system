@@ -502,6 +502,15 @@
       </div>
     </transition>
 
+    <!-- Modal de relatório periódico -->
+    <RelatorioPeriodicoModal
+      :open="modalRelatorio"
+      :projects="refProjects"
+      :provinces="refProvinces"
+      :categories="refCategories"
+      @close="modalRelatorio = false"
+    />
+
   </div>
 </template>
 
@@ -512,6 +521,7 @@ import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
+import RelatorioPeriodicoModal from '@/components/RelatorioPeriodicoModal.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -523,6 +533,7 @@ async function handleLogout() {
 
 // ── Estado ────────────────────────────────────────────────────
 const loading = ref(false)
+const modalRelatorio = ref(false)
 const detailLoading = ref(false)
 const topSearch = ref('')
 const selected = ref(null)
@@ -686,16 +697,9 @@ async function downloadAttachment(a) {
   } catch {}
 }
 
-// ── Exportar ──────────────────────────────────────────────────
+// ── Exportar — abre o modal de relatório periódico ─────────
 function exportar() {
-  // Abre o endpoint do relatório numa nova aba para download
-  const url = new URL(`${import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'}/admin/statistics/report`)
-  if (filters.status) url.searchParams.set('status', filters.status)
-  if (filters.province_id) url.searchParams.set('province_id', filters.province_id)
-  if (filters.project_id) url.searchParams.set('project_id', filters.project_id)
-  if (filters.category_id) url.searchParams.set('category_id', filters.category_id)
-  if (filters.date_from) url.searchParams.set('date_from', filters.date_from)
-  window.open(url.toString(), '_blank')
+  modalRelatorio.value = true
 }
 </script>
 

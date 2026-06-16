@@ -233,6 +233,248 @@ class AdminStatisticsController extends Controller
     }
 
     /**
+     * Gera um relatório periódico (trimestral ou semestral) de ocorrências.
+     *
+     * ROTA: GET /api/admin/statistics/report/periodic
+     * ACESSO: Autenticado (admin, gestor)
+     *
+     * Query params obrigatórios:
+     *   ?period=Q1|Q2|Q3|Q4|S1|S2   — trimestre ou semestre
+     *   ?year=2025                   — ano (default: ano actual)
+     *
+     * Query params opcionais (filtros adicionais):
+     *   ?project_id=1
+     *   ?province_id=2
+     *   ?category_id=3
+     *
+     * Resposta:
+     *   {
+     *     "meta": { "period_label", "date_from", "date_to", "year", "period", "generated_at" },
+     *     "summary": { "total", "resolved", "unresolved", "overdue", "resolution_rate", "by_status", "by_alert_level" },
+     *     "by_category":  [...],
+     *     "by_province":  [...],
+     *     "by_project":   [...],
+     *     "by_month":     [...],
+     *     "by_type":      [...],
+     *     "by_gender":    {...},
+     *     "by_age_range": [...],
+     *     "occurrences":  [...]
+     *   }
+     */
+    public function periodicReport(Request $request): JsonResponse
+    {
+        $request->validate([
+            'period'      => ['required', 'string', 'in:Q1,Q2,Q3,Q4,S1,S2'],
+            'year'        => ['nullable', 'integer', 'min:2020', 'max:2099'],
+            'project_id'  => ['nullable', 'integer', 'exists:projects,id'],
+            'province_id' => ['nullable', 'integer', 'exists:provinces,id'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+        ]);
+
+        $period = strtoupper($request->input('period'));
+        $year   = (int) ($request->input('year', now()->year));
+
+        // Calcular datas de início e fim do período
+        [$dateFrom, $dateTo, $periodLabel] = $this->resolvePeriodDates($period, $year);
+
+        $user = $request->user();
+
+        // Âmbito geográfico para gestores
+        $scopedProvinceIds = [];
+        $scopedProjectIds  = [];
+        if ($user->isGestor()) {
+            $user->loadMissing(['provinces', 'projects']);
+            $scopedProvinceIds = collect($user->province_id ? [$user->province_id] : [])
+                ->merge($user->provinces->pluck('id'))
+                ->unique()->values()->all();
+            $scopedProjectIds = $user->projects->pluck('id')->all();
+        }
+
+        // Query base com filtros de período + âmbito + filtros opcionais.
+        // Todas as colunas sem JOIN usam prefixo 'occurrences.' para evitar
+        // ambiguidade quando queries derivadas adicionam JOINs.
+        $base = fn() => Occurrence::whereBetween('occurrences.created_at', [$dateFrom, $dateTo])
+            ->when(
+                $user->isGestor(),
+                fn($q) => $q->whereIn('occurrences.province_id', $scopedProvinceIds)
+                             ->whereIn('occurrences.project_id', $scopedProjectIds)
+            )
+            ->when($request->project_id,  fn($q) => $q->where('occurrences.project_id',  $request->project_id))
+            ->when($request->province_id, fn($q) => $q->where('occurrences.province_id', $request->province_id))
+            ->when($request->category_id, fn($q) => $q->where('occurrences.category_id', $request->category_id));
+
+        // ── Totais e resumo ─────────────────────────────────────
+        $total    = $base()->count();
+        $resolved = $base()->where('occurrences.status', 'resolvido')->count();
+        $overdue  = $base()->overdue()->count();
+
+        $byStatus = $base()
+            ->select('occurrences.status', DB::raw('count(*) as total'))
+            ->groupBy('occurrences.status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        $byAlertLevel = $base()
+            ->join('occurrence_types', 'occurrences.occurrence_type_id', '=', 'occurrence_types.id')
+            ->select('occurrence_types.alert_level', DB::raw('count(*) as total'))
+            ->groupBy('occurrence_types.alert_level')
+            ->pluck('total', 'alert_level')
+            ->toArray();
+
+        // ── Breakdown por dimensão ───────────────────────────────
+        $byCategory = $base()
+            ->join('categories', 'occurrences.category_id', '=', 'categories.id')
+            ->select('categories.name', DB::raw('count(*) as total'))
+            ->groupBy('categories.name')
+            ->orderByDesc('total')
+            ->get()->values()->toArray();
+
+        $byProvince = $base()
+            ->join('provinces', 'occurrences.province_id', '=', 'provinces.id')
+            ->select('provinces.name', DB::raw('count(*) as total'))
+            ->groupBy('provinces.name')
+            ->orderByDesc('total')
+            ->get()->values()->toArray();
+
+        $byProject = $base()
+            ->join('projects', 'occurrences.project_id', '=', 'projects.id')
+            ->select('projects.name', DB::raw('count(*) as total'))
+            ->groupBy('projects.name')
+            ->orderByDesc('total')
+            ->get()->values()->toArray();
+
+        $byType = $base()
+            ->join('occurrence_types', 'occurrences.occurrence_type_id', '=', 'occurrence_types.id')
+            ->select('occurrence_types.name', 'occurrence_types.alert_level', DB::raw('count(*) as total'))
+            ->groupBy('occurrence_types.name', 'occurrence_types.alert_level')
+            ->orderByDesc('total')
+            ->get()->values()->toArray();
+
+        // Evolução mensal dentro do período
+        $byMonth = $base()
+            ->select(
+                DB::raw('YEAR(occurrences.created_at) as year'),
+                DB::raw('MONTH(occurrences.created_at) as month'),
+                DB::raw('count(*) as total'),
+                DB::raw("sum(case when occurrences.status = 'resolvido' then 1 else 0 end) as resolved")
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')->orderBy('month')
+            ->get()
+            ->map(fn($r) => [
+                'label'    => sprintf('%04d-%02d', $r->year, $r->month),
+                'total'    => (int) $r->total,
+                'resolved' => (int) $r->resolved,
+            ])->values()->toArray();
+
+        // Género
+        $byGender = $base()
+            ->select(
+                DB::raw("CASE
+                    WHEN occurrences.complainant_gender = 'masculino' THEN 'Masculino'
+                    WHEN occurrences.complainant_gender = 'feminino'  THEN 'Feminino'
+                    ELSE 'Não Identificado'
+                END as gender_label"),
+                DB::raw('count(*) as total')
+            )
+            ->groupBy('gender_label')
+            ->pluck('total', 'gender_label')
+            ->toArray();
+
+        // Faixa etária
+        $ageOrder   = ['Menos de 18', '18 - 25', '26 - 35', '36 - 45', '46 - 55', '56 - 65', 'Mais de 65'];
+        $byAgeRaw   = $base()
+            ->select('occurrences.complainant_age', DB::raw('count(*) as total'))
+            ->whereNotNull('occurrences.complainant_age')
+            ->where('occurrences.complainant_age', '!=', '')
+            ->groupBy('occurrences.complainant_age')
+            ->pluck('total', 'complainant_age')
+            ->toArray();
+        $byAgeRange = collect($ageOrder)->map(fn($age) => [
+            'label' => $age,
+            'total' => (int) ($byAgeRaw[$age] ?? 0),
+        ])->all();
+
+        // ── Lista de ocorrências ──────────────────────────────────
+        $occurrences = $base()
+            ->with([
+                'project:id,name',
+                'province:id,name',
+                'category:id,name',
+                'occurrenceType:id,name,alert_level',
+                'assignedTo:id,name',
+            ])
+            ->orderBy('occurrences.created_at', 'desc')
+            ->get()
+            ->map(fn($o) => [
+                'tracking_code' => $o->tracking_code,
+                'subject'       => $o->subject ?? '-',
+                'status'        => $o->status->label(),
+                'project'       => $o->project?->name  ?? '-',
+                'province'      => $o->province?->name ?? '-',
+                'category'      => $o->category?->name ?? '-',
+                'type'          => $o->occurrenceType?->name ?? '-',
+                'alert_level'   => $o->occurrenceType?->alert_level?->label() ?? '-',
+                'assigned_to'   => $o->assignedTo?->name ?? '-',
+                'submitted_at'  => $o->created_at->format('d/m/Y'),
+                'due_date'      => $o->due_date?->format('d/m/Y') ?? '-',
+                'gender'        => $o->complainant_gender ?? '-',
+            ])->values()->toArray();
+
+        return response()->json([
+            'meta' => [
+                'period'       => $period,
+                'period_label' => $periodLabel,
+                'year'         => $year,
+                'date_from'    => $dateFrom->format('d/m/Y'),
+                'date_to'      => $dateTo->format('d/m/Y'),
+                'generated_at' => now()->format('d/m/Y H:i'),
+                'generated_by' => $user->name,
+            ],
+            'summary' => [
+                'total'           => $total,
+                'resolved'        => $resolved,
+                'unresolved'      => $total - $resolved,
+                'overdue'         => $overdue,
+                'resolution_rate' => $total > 0 ? round(($resolved / $total) * 100, 1) : 0,
+                'by_status'       => $byStatus,
+                'by_alert_level'  => $byAlertLevel,
+            ],
+            'by_category'  => $byCategory,
+            'by_province'  => $byProvince,
+            'by_project'   => $byProject,
+            'by_type'      => $byType,
+            'by_month'     => $byMonth,
+            'by_gender'    => $byGender,
+            'by_age_range' => $byAgeRange,
+            'occurrences'  => $occurrences,
+        ], 200);
+    }
+
+    /**
+     * Resolve as datas de início e fim para um dado período e ano.
+     * Retorna [\Carbon\Carbon $from, \Carbon\Carbon $to, string $label].
+     */
+    private function resolvePeriodDates(string $period, int $year): array
+    {
+        $ranges = [
+            'Q1' => [1,  3,  "1.º Trimestre {$year}"],
+            'Q2' => [4,  6,  "2.º Trimestre {$year}"],
+            'Q3' => [7,  9,  "3.º Trimestre {$year}"],
+            'Q4' => [10, 12, "4.º Trimestre {$year}"],
+            'S1' => [1,  6,  "1.º Semestre {$year}"],
+            'S2' => [7,  12, "2.º Semestre {$year}"],
+        ];
+
+        [$startMonth, $endMonth, $label] = $ranges[$period];
+
+        $from = \Carbon\Carbon::create($year, $startMonth, 1)->startOfDay();
+        $to   = \Carbon\Carbon::create($year, $endMonth, 1)->endOfMonth()->endOfDay();
+
+        return [$from, $to, $label];
+    }
+
+    /**
      * Gera um relatório filtrado de ocorrências para exportação.
      *
      * ROTA: GET /api/admin/statistics/report

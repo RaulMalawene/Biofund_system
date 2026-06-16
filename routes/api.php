@@ -196,6 +196,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('statistics/report', [AdminStatisticsController::class, 'report'])
             ->name('statistics.report');
+
+        Route::get('statistics/report/periodic', [AdminStatisticsController::class, 'periodicReport'])
+            ->name('statistics.report.periodic');
     });
 
     // ── 3.8 PARAMETRIZAÇÃO - leitura (admin + gestor) ───────────
