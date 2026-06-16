@@ -431,7 +431,7 @@
           <div class="chart-card">
             <div class="chart-title">Ocorrências por Faixa Etária</div>
             <div class="chart-sub">Distribuição etária dos reclamantes (dados informados)</div>
-            <div class="chart-wrap" style="height:230px; margin-top:16px">
+            <div class="chart-wrap" style="height:270px; margin-top:16px">
               <canvas ref="ageBarChartRef"></canvas>
             </div>
           </div>
@@ -1405,9 +1405,13 @@ onMounted(async () => {
 
   const AGE_ORDER  = ['Menos de 18', '18 - 25', '26 - 35', '36 - 45', '46 - 55', '56 - 65', 'Mais de 65']
   const AGE_COLORS = [
-    'rgba(82,183,136,0.85)', 'rgba(82,183,136,0.70)', 'rgba(82,183,136,0.55)',
-    'rgba(116,192,252,0.85)', 'rgba(116,192,252,0.70)',
-    'rgba(244,165,42,0.85)', 'rgba(244,165,42,0.70)',
+    '#22C55E',  /* verde vivo   — < 18      */
+    '#52B788',  /* verde marca  — 18–25     */
+    '#06B6D4',  /* ciano        — 26–35     */
+    '#6366F1',  /* índigo       — 36–45     */
+    '#A855F7',  /* violeta      — 46–55     */
+    '#F59E0B',  /* âmbar        — 56–65     */
+    '#F97316',  /* laranja      — > 65      */
   ]
 
   const gLabels0 = Object.keys(stats.byGender)
@@ -2396,7 +2400,7 @@ tbody td {
 /* ── DEMOGRAPHICS ROW ────────────────────── */
 .demo-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 16px;
   margin-top: 16px;
   margin-bottom: 8px;
@@ -2404,9 +2408,9 @@ tbody td {
 
 .pie-center-wrap {
   position: relative;
-  width: 160px;
-  height: 160px;
-  margin: 18px auto 0;
+  width: 120px;
+  height: 120px;
+  margin: 12px auto 0;
 }
 
 .donut-center {
@@ -2419,7 +2423,7 @@ tbody td {
 }
 
 .donut-total {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
   color: #162119;
   line-height: 1;
