@@ -138,33 +138,20 @@
         
       </div>
 
-      <div class="why-left">
+      <div class="why-left community-text">
         <h2>Engajamento Comunitário</h2>
         <div class="why-underline"></div>
         <p>A conservação da biodiversidade só é sustentável quando as comunidades que vivem dela fazem parte da solução. A Biofund financia a conservação, fortalece comunidades e promove o uso sustentável dos ecossistemas em Moçambique.</p>
 
-        <div class="benefits-grid">
-          <div class="benefit-item" v-for="c in community" :key="c.title">
-            <div class="benefit-check">
-              <svg fill="none" viewBox="0 0 12 12"><path d="M2 6 L5 9 L10 3" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div>
-              <h4>{{ c.title }}</h4>
-              <p>{{ c.desc }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="community-projects">
-          <span class="community-projects-label">Também fazem parte dos nossos projectos</span>
-          <div class="project-pills">
-            <span class="project-pill" v-for="proj in communityProjects" :key="proj">
-              <span class="project-pill-dot"></span>{{ proj }}
-            </span>
-          </div>
-        </div>
-
-       <!--- <button class="btn-green" @click="$router.push('/submeterReclamacao')">Submeter Ocorrência</button> -->
+        <a
+          href="https://www.biofund.org.mz/o-que-fazemos/projectos-financiados-e-patrocinados/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="community-readmore"
+        >
+          Ler mais
+          <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
     </section>
 
@@ -663,53 +650,32 @@ onUnmounted(() => {
   transform: scale(1.25);
 }
 
-/* ── COMMUNITY PROJECT PILLS ───────────────────────────────── */
-.community-projects {
-  margin-bottom: 32px;
+/* ── COMMUNITY TEXT & READ MORE ────────────────────────────── */
+.community-text > p {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text-gray);
+  max-width: 440px;
+  margin-bottom: 36px;
 }
 
-.community-projects-label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--green-mid);
-  margin-bottom: 12px;
-}
-
-.project-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.project-pill {
+.community-readmore {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-dark);
-  background: var(--green-pale);
-  border: 1px solid transparent;
-  border-radius: 99px;
-  padding: 7px 14px;
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  gap: 8px;
+  color: var(--green-mid);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 2px solid var(--green-mid);
+  padding-bottom: 2px;
+  transition: gap 0.2s, color 0.2s, border-color 0.2s;
 }
 
-.project-pill:hover {
-  background: #fff;
-  border-color: var(--green-mid);
-  transform: translateY(-2px);
-}
-
-.project-pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--amber);
-  flex-shrink: 0;
+.community-readmore:hover {
+  gap: 13px;
+  color: var(--green-dark);
+  border-color: var(--green-dark);
 }
 
 /* ── DOCUMENTOS E POLÍTICAS ─────────────────────────────────── */
