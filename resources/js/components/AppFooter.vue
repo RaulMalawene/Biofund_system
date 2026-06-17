@@ -48,7 +48,7 @@
     </div>
 
     <div class="footer-bottom">
-      © 2025 BIOFUND. Todos os direitos reservados. Inspirado na conservação ambiental de Moçambique.
+      © 2025 BIOFUND. Todos os direitos reservados.
     </div>
   </footer>
 </template>
