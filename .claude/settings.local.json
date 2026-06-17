@@ -100,7 +100,8 @@
       "PowerShell(npx vite build 2>&1 | Select-Object -Last 60)",
       "Bash(node *)",
       "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"resources/js/Imagem/logotipo.png\")",
-      "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"public/images/logotipo.png\")"
+      "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"public/images/logotipo.png\")",
+      "Bash(tasklist)"
     ]
   }
 }

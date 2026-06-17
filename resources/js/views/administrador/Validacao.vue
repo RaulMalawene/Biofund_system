@@ -5,9 +5,6 @@
     <aside class="sidebar">
       <router-link to="/" class="sidebar-logo">
         <img src="../../Imagem/logotipo.png" alt="Biofund" class="sidebar-logo-img" />
-        <div>
-          <div class="sidebar-logo-text">BioFund Admin</div>
-        </div>
       </router-link>
       <nav class="sidebar-nav">
         <router-link class="nav-item" to="/admin/dashboard">
@@ -1196,25 +1193,17 @@ async function handleLogout() {
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 18px 16px 16px;
+  justify-content: center;
+  padding: 20px 16px 18px;
   border-bottom: 1px solid rgba(0, 0, 0, .06);
   text-decoration: none;
 }
 
 .sidebar-logo-img {
-  width: 32px;
-  height: 32px;
+  height: 56px;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-
-.sidebar-logo-text {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--green-dark);
-  line-height: 1.2;
 }
 
 .sidebar-nav {
