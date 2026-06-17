@@ -4,7 +4,7 @@
     <!-- ── SIDEBAR ── -->
     <aside class="sidebar">
       <router-link to="/" class="sidebar-logo">
-        <img src="../../Imagem/logotipoBiofund.jpeg" alt="Biofund" class="sidebar-logo-img"/>
+        <img src="../../Imagem/logotipo.png" alt="Biofund" class="sidebar-logo-img"/>
         <div>
           <div class="sidebar-logo-text">BioFund Admin</div>
         </div>
