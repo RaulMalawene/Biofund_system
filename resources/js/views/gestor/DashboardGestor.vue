@@ -70,6 +70,13 @@
             <p>Visão geral das ocorrências nas suas províncias e projectos atribuídos.</p>
           </div>
           <div class="title-actions">
+            <button class="btn-outline-sm" @click="modalRelatorio = true">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
+                <rect x="1" y="2" width="12" height="11" rx="1.5"/>
+                <path d="M4 1v2M10 1v2M1 6h12" stroke-linecap="round"/>
+              </svg>
+              Relatório Mensal
+            </button>
             <button class="btn-green-sm" @click="drawerOpen = true">
               <svg width="13" height="13" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 14 14">
                 <path d="M7 2C4.239 2 2 4.239 2 7c0 3.5 5 7 5 7s5-3.5 5-7c0-2.761-2.239-5-5-5z"/>
@@ -703,6 +710,16 @@
       </div>
     </transition>
 
+    <!-- Modal de relatório periódico -->
+    <RelatorioPeriodicoModal
+      :open="modalRelatorio"
+      :projects="scopeProjects"
+      :provinces="scopeProvinces"
+      :categories="refCategories"
+      :periodo-inicial="'mensal'"
+      @close="modalRelatorio = false"
+    />
+
   </div>
 </template>
 
@@ -714,6 +731,7 @@ import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
+import RelatorioPeriodicoModal from '@/components/RelatorioPeriodicoModal.vue'
 
 Chart.register(...registerables)
 
@@ -1067,6 +1085,7 @@ async function handleProvinceChange() {
 }
 
 const drawerOpen  = ref(false)
+const modalRelatorio = ref(false)
 const toast       = reactive({ show: false, msg: '' })
 const loading     = ref(false)
 const submitError = ref('')
@@ -1545,6 +1564,16 @@ onMounted(async () => {
 .page-title-row p  { font-size: 13px; color: var(--text-gray); line-height: 1.5; }
 
 .title-actions { display: flex; gap: 10px; flex-shrink: 0; margin-top: 2px; }
+
+.btn-outline-sm {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--white, #fff); color: var(--text-dark, #1A1A1A);
+  border: 1.5px solid var(--border, #DDE8E1); border-radius: 8px;
+  padding: 8px 16px;
+  font-family: 'Poppins', sans-serif; font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.btn-outline-sm:hover { border-color: var(--green-mid, #2D6A4F); color: var(--green-mid, #2D6A4F); }
 
 .btn-green-sm {
   display: flex; align-items: center; gap: 7px;

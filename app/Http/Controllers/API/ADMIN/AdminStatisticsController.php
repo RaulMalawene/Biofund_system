@@ -264,7 +264,7 @@ class AdminStatisticsController extends Controller
     public function periodicReport(Request $request): JsonResponse
     {
         $request->validate([
-            'period'      => ['required', 'string', 'in:Q1,Q2,Q3,Q4,S1,S2'],
+            'period'      => ['required', 'string', 'regex:/^(Q[1-4]|S[1-2]|M(0[1-9]|1[0-2]))$/'],
             'year'        => ['nullable', 'integer', 'min:2020', 'max:2099'],
             'project_id'  => ['nullable', 'integer', 'exists:projects,id'],
             'province_id' => ['nullable', 'integer', 'exists:provinces,id'],
@@ -453,10 +453,27 @@ class AdminStatisticsController extends Controller
 
     /**
      * Resolve as datas de início e fim para um dado período e ano.
+     * Suporta meses (M01–M12), trimestres (Q1–Q4) e semestres (S1–S2).
      * Retorna [\Carbon\Carbon $from, \Carbon\Carbon $to, string $label].
      */
     private function resolvePeriodDates(string $period, int $year): array
     {
+        // Período mensal: M01, M02, ... M12
+        if (preg_match('/^M(\d{2})$/', $period, $m)) {
+            $month = (int) $m[1];
+            $nomesMeses = [
+                1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+                5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+                9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+            ];
+
+            $from  = \Carbon\Carbon::create($year, $month, 1)->startOfDay();
+            $to    = $from->copy()->endOfMonth()->endOfDay();
+            $label = "{$nomesMeses[$month]} {$year}";
+
+            return [$from, $to, $label];
+        }
+
         $ranges = [
             'Q1' => [1,  3,  "1.º Trimestre {$year}"],
             'Q2' => [4,  6,  "2.º Trimestre {$year}"],

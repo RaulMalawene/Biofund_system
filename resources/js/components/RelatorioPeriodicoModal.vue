@@ -162,14 +162,24 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import api from '@/api/client'
-import XLSXStyle from 'xlsx-js-style'
+
+// ── Logo Biofund (carregado de forma resiliente) ───────────────
+// Usa import.meta.glob para não falhar o build caso a imagem ainda
+// não tenha sido colocada em resources/js/Imagem/logo_biofund_2.png
+const logoModules = import.meta.glob('../Imagem/logotipo.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+})
+const logoUrl = Object.values(logoModules)[0] ?? null
 
 // ── Props & emits ─────────────────────────────────────────────
 const props = defineProps({
-  open:       { type: Boolean, default: false },
-  projects:   { type: Array, default: () => [] },
-  provinces:  { type: Array, default: () => [] },
-  categories: { type: Array, default: () => [] },
+  open:            { type: Boolean, default: false },
+  projects:        { type: Array,   default: () => [] },
+  provinces:       { type: Array,   default: () => [] },
+  categories:      { type: Array,   default: () => [] },
+  periodoInicial:  { type: String,  default: '' },  // 'mensal' | 'trimestral' | 'semestral'
 })
 const emit = defineEmits(['close'])
 
@@ -189,11 +199,23 @@ const erro         = ref('')
 
 // ── Opções ───────────────────────────────────────────────────
 const tipoOpcoes = [
+  { value: 'mensal',     label: 'Mensal'     },
   { value: 'trimestral', label: 'Trimestral' },
   { value: 'semestral',  label: 'Semestral'  },
 ]
 
+const nomesMeses = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+]
+
 const periodoOpcoes = computed(() => {
+  if (form.value.tipo === 'mensal') {
+    return nomesMeses.map((nome, i) => ({
+      value: `M${String(i + 1).padStart(2, '0')}`,
+      label: nome,
+    }))
+  }
   if (form.value.tipo === 'trimestral') {
     return [
       { value: 'Q1', label: 'T1 · Jan–Mar' },
@@ -213,9 +235,23 @@ const anosDisponiveis = computed(() => {
   return Array.from({ length: 6 }, (_, i) => ano - i)
 })
 
+// Último dia do mês (considera ano bissexto)
+function ultimoDiaMes(mes, ano) {
+  return new Date(ano, mes, 0).getDate()
+}
+
 // Texto descritivo do range seleccionado
 const rangeTexto = computed(() => {
   const y = form.value.year
+  const p = form.value.periodo
+
+  if (p?.startsWith('M')) {
+    const mes = parseInt(p.slice(1), 10)
+    const ultimoDia = ultimoDiaMes(mes, y)
+    const mm = String(mes).padStart(2, '0')
+    return `01/${mm}/${y} – ${ultimoDia}/${mm}/${y}`
+  }
+
   const ranges = {
     Q1: `01/01/${y} – 31/03/${y}`,
     Q2: `01/04/${y} – 30/06/${y}`,
@@ -224,26 +260,49 @@ const rangeTexto = computed(() => {
     S1: `01/01/${y} – 30/06/${y}`,
     S2: `01/07/${y} – 31/12/${y}`,
   }
-  return ranges[form.value.periodo] ?? ''
+  return ranges[p] ?? ''
 })
 
 const labelPeriodoSeleccionado = computed(() => {
   const y = form.value.year
+  const p = form.value.periodo
+
+  if (p?.startsWith('M')) {
+    const mes = parseInt(p.slice(1), 10)
+    return `${nomesMeses[mes - 1]} ${y}`
+  }
+
   const labels = {
     Q1: `1.º Trimestre ${y}`, Q2: `2.º Trimestre ${y}`,
     Q3: `3.º Trimestre ${y}`, Q4: `4.º Trimestre ${y}`,
     S1: `1.º Semestre ${y}`,  S2: `2.º Semestre ${y}`,
   }
-  return labels[form.value.periodo] ?? ''
+  return labels[p] ?? ''
 })
 
-// ── Reset quando fecha ────────────────────────────────────────
+// ── Reset / inicialização quando abre ou fecha ────────────────
 watch(() => props.open, (val) => {
-  if (!val) {
+  if (val) {
+    // Quando abre com periodoInicial definido (ex: vindo do Dashboard)
+    // pré-selecciona automaticamente o tipo e o mês/período actual
+    if (props.periodoInicial) {
+      form.value.tipo = props.periodoInicial
+
+      if (props.periodoInicial === 'mensal') {
+        // Pré-selecciona o mês actual no formato M01..M12
+        const mesActual = new Date().getMonth() + 1
+        form.value.periodo = `M${String(mesActual).padStart(2, '0')}`
+      } else {
+        form.value.periodo = '' // limpa para o utilizador escolher
+      }
+    }
+  } else {
     form.value.periodo     = ''
     form.value.project_id  = ''
     form.value.province_id = ''
     form.value.category_id = ''
+    // Repor tipo para o default quando fecha
+    form.value.tipo = props.periodoInicial || 'trimestral'
     erro.value = ''
   }
 })
@@ -285,382 +344,280 @@ async function exportar(formato) {
   }
 }
 
-// ── Geração de Excel via SheetJS — totalmente estilizado ──
+// ── Geração de Excel via ExcelJS (CDN) — totalmente estilizado ──
+// ExcelJS substitui o SheetJS porque suporta nativamente imagens
+// embutidas (workbook.addImage) além de estilos completos por célula.
 async function gerarExcel(data) {
-  const XLSX = XLSXStyle
+  const ExcelJS = await importarExcelJS()
 
   // ── Paleta Biofund ────────────────────────────────────────────
   const COR = {
-    verdeDark:  '1B4332',  // cabeçalhos principais
-    verdeMid:   '2D6A4F',  // cabeçalhos secundários
-    verdeLight: '52B788',  // destaques / separadores
-    verdePale:  'D8F3DC',  // linhas alternadas
-    verdeBg:    'F0FAF4',  // fundo de secção
-    branco:     'FFFFFF',
-    cinzaHead:  'F4F6F5',  // cabeçalho de tabela neutro
-    cinzaAlt:   'FAFAFA',  // linha alternada neutra
-    cinzaBorda: 'DDE8E1',
-    textDark:   '1A1A1A',
-    textGray:   '555B5A',
-    amber:      'F4A52A',  // urgente
-    vermelho:   'C53030',  // em atraso / GBV
-    azul:       '2B6CB0',  // normal
+    verdeDark:  'FF1B4332',
+    verdeMid:   'FF2D6A4F',
+    verdeLight: 'FF52B788',
+    verdePale:  'FFD8F3DC',
+    verdeBg:    'FFF0FAF4',
+    branco:     'FFFFFFFF',
+    cinzaHead:  'FFF4F6F5',
+    cinzaBorda: 'FFDDE8E1',
+    textDark:   'FF1A1A1A',
+    textGray:   'FF555B5A',
+    amber:      'FFB7791F',
+    vermelho:   'FFC53030',
+    azul:       'FF2B6CB0',
+    verdeOk:    'FF276749',
   }
+
+  const FONTE = 'Calibri'
 
   // ── Helpers de estilo ────────────────────────────────────────
-  // Borda fina em todos os lados
-  const borda = (cor = COR.cinzaBorda) => ({
-    top:    { style: 'thin', color: { rgb: cor } },
-    bottom: { style: 'thin', color: { rgb: cor } },
-    left:   { style: 'thin', color: { rgb: cor } },
-    right:  { style: 'thin', color: { rgb: cor } },
+  const bordaFina = (cor = COR.cinzaBorda) => ({
+    top:    { style: 'thin', color: { argb: cor } },
+    bottom: { style: 'thin', color: { argb: cor } },
+    left:   { style: 'thin', color: { argb: cor } },
+    right:  { style: 'thin', color: { argb: cor } },
   })
 
-  // Célula de título principal (fundo verde escuro, texto branco, grande)
-  const estTitulo = {
-    font:      { bold: true, sz: 16, color: { rgb: COR.branco }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdeDark } },
-    alignment: { horizontal: 'left', vertical: 'center', wrapText: false },
+  function aplicarTitulo(cell, texto) {
+    cell.value = texto
+    cell.font  = { bold: true, size: 16, color: { argb: COR.branco }, name: FONTE }
+    cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COR.verdeDark } }
+    cell.alignment = { horizontal: 'left', vertical: 'middle' }
   }
 
-  // Célula de subtítulo (fundo verde mid, texto branco, médio)
-  const estSubtitulo = {
-    font:      { bold: true, sz: 11, color: { rgb: COR.branco }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdeMid } },
-    alignment: { horizontal: 'left', vertical: 'center' },
+  function aplicarMeta(cell, texto) {
+    cell.value = texto
+    cell.font  = { size: 10, color: { argb: COR.textGray }, name: FONTE }
+    cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COR.verdeBg } }
+    cell.alignment = { horizontal: 'left', vertical: 'middle' }
   }
 
-  // Célula de metadado (fundo verde claro, texto dark)
-  const estMeta = {
-    font:      { sz: 10, color: { rgb: COR.textGray }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdeBg } },
-    alignment: { horizontal: 'left', vertical: 'center' },
+  function aplicarSeccao(cell, texto) {
+    cell.value = texto
+    cell.font  = { bold: true, size: 11, color: { argb: COR.branco }, name: FONTE }
+    cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COR.verdeLight } }
+    cell.alignment = { horizontal: 'left', vertical: 'middle' }
   }
 
-  // Cabeçalho de tabela (fundo verde escuro, texto branco, bold)
-  const estCabecalho = (sz = 10) => ({
-    font:      { bold: true, sz, color: { rgb: COR.branco }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdeDark } },
-    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-    border:    borda(COR.verdeLight),
-  })
-
-  // Cabeçalho de tabela secundário (verde mid)
-  const estCabecalhoSec = {
-    font:      { bold: true, sz: 10, color: { rgb: COR.branco }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdeMid } },
-    alignment: { horizontal: 'center', vertical: 'center' },
-    border:    borda(COR.verdeLight),
+  function aplicarCabecalho(cell, texto, size = 10) {
+    cell.value = texto
+    cell.font  = { bold: true, size, color: { argb: COR.branco }, name: FONTE }
+    cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COR.verdeDark } }
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
+    cell.border = bordaFina(COR.verdeLight)
   }
 
-  // Linha normal (branco)
-  const estLinha = (alinhamento = 'left') => ({
-    font:      { sz: 10, color: { rgb: COR.textDark }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.branco } },
-    alignment: { horizontal: alinhamento, vertical: 'center', wrapText: true },
-    border:    borda(),
-  })
-
-  // Linha alternada (verde palido)
-  const estLinhaAlt = (alinhamento = 'left') => ({
-    font:      { sz: 10, color: { rgb: COR.textDark }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdePale } },
-    alignment: { horizontal: alinhamento, vertical: 'center', wrapText: true },
-    border:    borda(),
-  })
-
-  // Número (direita, bold)
-  const estNumero = (alt = false) => ({
-    font:      { bold: true, sz: 11, color: { rgb: COR.verdeDark }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: alt ? COR.verdePale : COR.branco } },
-    alignment: { horizontal: 'center', vertical: 'center' },
-    border:    borda(),
-  })
-
-  // KPI card (fundo verde pale, número grande)
-  const estKpi = {
-    font:      { bold: true, sz: 18, color: { rgb: COR.verdeDark }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdePale } },
-    alignment: { horizontal: 'center', vertical: 'center' },
-    border:    borda(COR.verdeLight),
-  }
-  const estKpiLabel = {
-    font:      { sz: 9, color: { rgb: COR.verdeMid }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdeBg } },
-    alignment: { horizontal: 'center', vertical: 'center' },
-    border:    borda(COR.verdeLight),
+  function aplicarKpiValor(cell, valor) {
+    cell.value = valor
+    cell.font  = { bold: true, size: 18, color: { argb: COR.verdeDark }, name: FONTE }
+    cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COR.verdePale } }
+    cell.alignment = { horizontal: 'center', vertical: 'middle' }
+    cell.border = bordaFina(COR.verdeLight)
   }
 
-  // Secção separadora
-  const estSeccao = {
-    font:      { bold: true, sz: 11, color: { rgb: COR.branco }, name: 'Calibri' },
-    fill:      { fgColor: { rgb: COR.verdeLight } },
-    alignment: { horizontal: 'left', vertical: 'center' },
+  function aplicarKpiLabel(cell, texto) {
+    cell.value = texto
+    cell.font  = { size: 9, color: { argb: COR.verdeMid }, name: FONTE }
+    cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: COR.verdeBg } }
+    cell.alignment = { horizontal: 'center', vertical: 'middle' }
+    cell.border = bordaFina(COR.verdeLight)
   }
 
-  // Célula vazia com fundo branco (para separação visual)
-  const estVazia = { fill: { fgColor: { rgb: COR.branco } } }
-
-  // ── Helper: escrever célula num sheet ────────────────────────
-  function cel(ws, col, row, value, style, numFmt) {
-    const addr = XLSX.utils.encode_cell({ c: col, r: row })
-    ws[addr] = { v: value, t: typeof value === 'number' ? 'n' : 's', s: style }
-    if (numFmt) ws[addr].z = numFmt
+  function aplicarLinha(cell, valor, { alt = false, alinhar = 'left', numero = false, corTexto = null, bold = false } = {}) {
+    cell.value = valor
+    const corFundo = alt ? COR.verdePale : COR.branco
+    cell.fill  = { type: 'pattern', pattern: 'solid', fgColor: { argb: corFundo } }
+    cell.font  = {
+      size: 10,
+      name: FONTE,
+      bold: bold || numero,
+      color: { argb: corTexto ?? (numero ? COR.verdeDark : COR.textDark) },
+    }
+    cell.alignment = { horizontal: numero ? 'center' : alinhar, vertical: 'middle', wrapText: true }
+    cell.border = bordaFina()
   }
 
-  // ── Helper: merge de células ─────────────────────────────────
-  function merge(ws, c1, r1, c2, r2) {
-    if (!ws['!merges']) ws['!merges'] = []
-    ws['!merges'].push({ s: { c: c1, r: r1 }, e: { c: c2, r: r2 } })
-  }
+  // Escreve uma tabela estilizada (cabeçalho + linhas) a partir de startRow
+  // headers: [{ label, width, right }]
+  function escreverTabela(ws, headers, rows, startRow, startCol = 1) {
+    const headerRow = ws.getRow(startRow)
+    headers.forEach((h, i) => aplicarCabecalho(headerRow.getCell(startCol + i), h.label))
+    headerRow.height = 22
 
-  // ── Helper: definir altura de linhas ─────────────────────────
-  function alturaLinha(ws, row, hpx) {
-    if (!ws['!rows']) ws['!rows'] = []
-    ws['!rows'][row] = { hpx }
-  }
-
-  // ── Helper: aplicar tabela de dados estilizada ───────────────
-  // headers: [{label, width}], rows: array de arrays, startRow, startCol, ws
-  function tabelaEstilizada(ws, headers, rows, startRow, startCol = 0) {
-    // Cabeçalho
-    headers.forEach((h, ci) => {
-      cel(ws, startCol + ci, startRow, h.label, estCabecalho())
-    })
-    alturaLinha(ws, startRow, 22)
-
-    // Linhas de dados
     rows.forEach((row, ri) => {
+      const excelRow = ws.getRow(startRow + 1 + ri)
+      excelRow.height = 18
       const isAlt = ri % 2 === 1
-      alturaLinha(ws, startRow + 1 + ri, 18)
       row.forEach((val, ci) => {
-        const isNum   = typeof val === 'number'
-        const isRight = isNum || headers[ci]?.right
-        const estBase = isNum
-          ? estNumero(isAlt)
-          : (isAlt ? estLinhaAlt(isRight ? 'right' : 'left') : estLinha(isRight ? 'right' : 'left'))
-        cel(ws, startCol + ci, startRow + 1 + ri, val, estBase)
+        const isNum = typeof val === 'number'
+        aplicarLinha(excelRow.getCell(startCol + ci), val, {
+          alt: isAlt,
+          alinhar: headers[ci]?.right ? 'right' : 'left',
+          numero: isNum,
+        })
       })
     })
 
-    // Larguras das colunas
-    if (!ws['!cols']) ws['!cols'] = []
-    headers.forEach((h, ci) => {
-      ws['!cols'][startCol + ci] = { wch: h.width || 18 }
+    headers.forEach((h, i) => {
+      ws.getColumn(startCol + i).width = h.width || 18
     })
 
     return startRow + 1 + rows.length
   }
 
-  // ────────────────────────────────────────────────────────────
-  // LABELS auxiliares
-  // ────────────────────────────────────────────────────────────
+  // ── Labels auxiliares ─────────────────────────────────────────
   const statusLabels = {
     por_validar: 'Por Validar', por_resolver: 'Por Resolver',
     nao_validado: 'Não Validado', resolvendo: 'Resolvendo',
     resolvido: 'Resolvido', nao_resolvida: 'Não Resolvida',
   }
   const alertLabels = { normal: 'Normal', urgent: 'Urgente', gbv: 'GBV' }
+  const pct = (v) => data.summary.total > 0 ? `${((v / data.summary.total) * 100).toFixed(1)}%` : '0%'
 
-  const wb = XLSX.utils.book_new()
+  const wb = new ExcelJS.Workbook()
+  wb.creator      = 'Biofund MDR'
+  wb.created      = new Date()
+  wb.lastModifiedBy = data.meta.generated_by
 
   // ════════════════════════════════════════════════════════════
   // FOLHA 1 — RESUMO
   // ════════════════════════════════════════════════════════════
-  const ws1 = {}
-  let r = 0
+  const ws1 = wb.addWorksheet('📊 Resumo', { views: [{ showGridLines: false }] })
+  let r = 1
 
-  // Título principal (merge A1:F1)
-  cel(ws1, 0, r, `BIOFUND MDR — ${data.meta.period_label}`, estTitulo)
-  merge(ws1, 0, r, 5, r)
-  alturaLinha(ws1, r, 36)
+  // Título principal
+  ws1.mergeCells(r, 1, r, 6)
+  aplicarTitulo(ws1.getCell(r, 1), `BIOFUND MDR — ${data.meta.period_label}`)
+  ws1.getRow(r).height = 36
   r++
 
-  // Metadados (merge A2:F2 e A3:F3)
-  cel(ws1, 0, r, `Período: ${data.meta.date_from}  a  ${data.meta.date_to}`, estMeta)
-  merge(ws1, 0, r, 5, r)
-  alturaLinha(ws1, r, 18)
+  // Metadados
+  ws1.mergeCells(r, 1, r, 6)
+  aplicarMeta(ws1.getCell(r, 1), `Período: ${data.meta.date_from}  a  ${data.meta.date_to}`)
+  ws1.getRow(r).height = 18
   r++
 
-  cel(ws1, 0, r, `Gerado em: ${data.meta.generated_at}   |   Por: ${data.meta.generated_by}`, estMeta)
-  merge(ws1, 0, r, 5, r)
-  alturaLinha(ws1, r, 18)
+  ws1.mergeCells(r, 1, r, 6)
+  aplicarMeta(ws1.getCell(r, 1), `Gerado em: ${data.meta.generated_at}   |   Por: ${data.meta.generated_by}`)
+  ws1.getRow(r).height = 18
   r++
 
-  // Linha de espaço
-  alturaLinha(ws1, r, 10)
+  ws1.getRow(r).height = 10
   r++
 
-  // ── KPIs (linha de cards) ────────────────────────────────────
-  cel(ws1, 0, r, 'INDICADORES CHAVE', estSeccao)
-  merge(ws1, 0, r, 5, r)
-  alturaLinha(ws1, r, 20)
+  // KPIs
+  ws1.mergeCells(r, 1, r, 6)
+  aplicarSeccao(ws1.getCell(r, 1), 'INDICADORES CHAVE')
+  ws1.getRow(r).height = 20
   r++
 
   const kpis = [
-    { label: 'Total de Ocorrências',   valor: data.summary.total },
-    { label: 'Resolvidas',             valor: data.summary.resolved },
-    { label: 'Não Resolvidas',         valor: data.summary.unresolved },
-    { label: 'Em Atraso',              valor: data.summary.overdue },
-    { label: 'Taxa de Resolução',      valor: `${data.summary.resolution_rate}%` },
+    { label: 'Total de Ocorrências', valor: data.summary.total },
+    { label: 'Resolvidas',           valor: data.summary.resolved },
+    { label: 'Não Resolvidas',       valor: data.summary.unresolved },
+    { label: 'Em Atraso',            valor: data.summary.overdue },
+    { label: 'Taxa de Resolução',    valor: `${data.summary.resolution_rate}%` },
   ]
 
-  // Linha com os valores grandes
-  alturaLinha(ws1, r, 36)
-  kpis.forEach((k, ci) => cel(ws1, ci, r, k.valor, estKpi))
+  const rowKpiValor = ws1.getRow(r)
+  rowKpiValor.height = 36
+  kpis.forEach((k, i) => aplicarKpiValor(rowKpiValor.getCell(i + 1), k.valor))
   r++
 
-  // Linha com as labels
-  alturaLinha(ws1, r, 18)
-  kpis.forEach((k, ci) => cel(ws1, ci, r, k.label, estKpiLabel))
+  const rowKpiLabel = ws1.getRow(r)
+  rowKpiLabel.height = 18
+  kpis.forEach((k, i) => aplicarKpiLabel(rowKpiLabel.getCell(i + 1), k.label))
   r++
 
-  // Espaço
-  alturaLinha(ws1, r, 14)
+  ws1.getRow(r).height = 14
   r++
 
-  // ── Tabela: Totais por Estado ────────────────────────────────
-  cel(ws1, 0, r, 'TOTAIS POR ESTADO', estSeccao)
-  merge(ws1, 0, r, 2, r)
-  alturaLinha(ws1, r, 20)
+  // Totais por Estado
+  ws1.mergeCells(r, 1, r, 3)
+  aplicarSeccao(ws1.getCell(r, 1), 'TOTAIS POR ESTADO')
+  ws1.getRow(r).height = 20
   r++
 
-  const estadoRows = Object.entries(data.summary.by_status).map(([k, v]) => [
-    statusLabels[k] ?? k,
-    v,
-    data.summary.total > 0 ? `${((v / data.summary.total) * 100).toFixed(1)}%` : '0%',
-  ])
-  r = tabelaEstilizada(ws1,
+  const estadoRows = Object.entries(data.summary.by_status).map(([k, v]) => [statusLabels[k] ?? k, v, pct(v)])
+  r = escreverTabela(ws1,
     [{ label: 'Estado', width: 22 }, { label: 'Total', width: 12 }, { label: '%', width: 10, right: true }],
     estadoRows, r
   )
 
-  // Espaço
-  alturaLinha(ws1, r, 14)
+  ws1.getRow(r).height = 14
   r++
 
-  // ── Tabela: Por Nível de Alerta ──────────────────────────────
-  cel(ws1, 0, r, 'POR NÍVEL DE ALERTA', estSeccao)
-  merge(ws1, 0, r, 2, r)
-  alturaLinha(ws1, r, 20)
+  // Por Nível de Alerta
+  ws1.mergeCells(r, 1, r, 3)
+  aplicarSeccao(ws1.getCell(r, 1), 'POR NÍVEL DE ALERTA')
+  ws1.getRow(r).height = 20
   r++
 
-  const alertaRows = Object.entries(data.summary.by_alert_level).map(([k, v]) => [
-    alertLabels[k] ?? k,
-    v,
-    data.summary.total > 0 ? `${((v / data.summary.total) * 100).toFixed(1)}%` : '0%',
-  ])
-  r = tabelaEstilizada(ws1,
+  const alertaRows = Object.entries(data.summary.by_alert_level).map(([k, v]) => [alertLabels[k] ?? k, v, pct(v)])
+  r = escreverTabela(ws1,
     [{ label: 'Nível de Alerta', width: 22 }, { label: 'Total', width: 12 }, { label: '%', width: 10, right: true }],
     alertaRows, r
   )
 
-  ws1['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: 5, r: r + 2 } })
-  ws1['!cols'] = [
-    { wch: 26 }, { wch: 14 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 18 }
+  ws1.columns = [
+    { width: 26 }, { width: 14 }, { width: 12 }, { width: 20 }, { width: 20 }, { width: 18 },
   ]
-  XLSX.utils.book_append_sheet(wb, ws1, '📊 Resumo')
 
   // ════════════════════════════════════════════════════════════
   // FOLHA 2 — POR CATEGORIA
   // ════════════════════════════════════════════════════════════
-  const ws2 = {}
-  r = 0
+  const ws2 = wb.addWorksheet('📁 Por Categoria', { views: [{ showGridLines: false }] })
+  r = 1
+  ws2.mergeCells(r, 1, r, 3); aplicarTitulo(ws2.getCell(r, 1), 'Ocorrências por Categoria'); ws2.getRow(r).height = 32; r++
+  ws2.mergeCells(r, 1, r, 3); aplicarMeta(ws2.getCell(r, 1), `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`); ws2.getRow(r).height = 18; r += 2
 
-  cel(ws2, 0, r, 'Ocorrências por Categoria', estTitulo)
-  merge(ws2, 0, r, 2, r)
-  alturaLinha(ws2, r, 32)
-  r++
-  cel(ws2, 0, r, `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`, estMeta)
-  merge(ws2, 0, r, 2, r)
-  alturaLinha(ws2, r, 18)
-  r += 2
-
-  const catRows = data.by_category.map((c, i) => [i + 1, c.name, c.total,
-    data.summary.total > 0 ? `${((c.total / data.summary.total) * 100).toFixed(1)}%` : '0%'
-  ])
-  tabelaEstilizada(ws2,
+  const catRows = data.by_category.map((c, i) => [i + 1, c.name, c.total, pct(c.total)])
+  escreverTabela(ws2,
     [{ label: '#', width: 6 }, { label: 'Categoria', width: 38 }, { label: 'Total', width: 12 }, { label: '% do Total', width: 14, right: true }],
     catRows, r
   )
 
-  ws2['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: 3, r: r + catRows.length + 2 } })
-  XLSX.utils.book_append_sheet(wb, ws2, '📁 Por Categoria')
-
   // ════════════════════════════════════════════════════════════
   // FOLHA 3 — POR PROVÍNCIA
   // ════════════════════════════════════════════════════════════
-  const ws3 = {}
-  r = 0
+  const ws3 = wb.addWorksheet('🗺️ Por Província', { views: [{ showGridLines: false }] })
+  r = 1
+  ws3.mergeCells(r, 1, r, 3); aplicarTitulo(ws3.getCell(r, 1), 'Ocorrências por Província'); ws3.getRow(r).height = 32; r++
+  ws3.mergeCells(r, 1, r, 3); aplicarMeta(ws3.getCell(r, 1), `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`); ws3.getRow(r).height = 18; r += 2
 
-  cel(ws3, 0, r, 'Ocorrências por Província', estTitulo)
-  merge(ws3, 0, r, 2, r)
-  alturaLinha(ws3, r, 32)
-  r++
-  cel(ws3, 0, r, `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`, estMeta)
-  merge(ws3, 0, r, 2, r)
-  alturaLinha(ws3, r, 18)
-  r += 2
-
-  const provRows = data.by_province.map((p, i) => [i + 1, p.name, p.total,
-    data.summary.total > 0 ? `${((p.total / data.summary.total) * 100).toFixed(1)}%` : '0%'
-  ])
-  tabelaEstilizada(ws3,
+  const provRows = data.by_province.map((p, i) => [i + 1, p.name, p.total, pct(p.total)])
+  escreverTabela(ws3,
     [{ label: '#', width: 6 }, { label: 'Província', width: 30 }, { label: 'Total', width: 12 }, { label: '% do Total', width: 14, right: true }],
     provRows, r
   )
 
-  ws3['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: 3, r: r + provRows.length + 2 } })
-  XLSX.utils.book_append_sheet(wb, ws3, '🗺️ Por Província')
-
   // ════════════════════════════════════════════════════════════
   // FOLHA 4 — POR PROJECTO
   // ════════════════════════════════════════════════════════════
-  const ws4 = {}
-  r = 0
+  const ws4 = wb.addWorksheet('🏗️ Por Projecto', { views: [{ showGridLines: false }] })
+  r = 1
+  ws4.mergeCells(r, 1, r, 3); aplicarTitulo(ws4.getCell(r, 1), 'Ocorrências por Projecto'); ws4.getRow(r).height = 32; r++
+  ws4.mergeCells(r, 1, r, 3); aplicarMeta(ws4.getCell(r, 1), `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`); ws4.getRow(r).height = 18; r += 2
 
-  cel(ws4, 0, r, 'Ocorrências por Projecto', estTitulo)
-  merge(ws4, 0, r, 2, r)
-  alturaLinha(ws4, r, 32)
-  r++
-  cel(ws4, 0, r, `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`, estMeta)
-  merge(ws4, 0, r, 2, r)
-  alturaLinha(ws4, r, 18)
-  r += 2
-
-  const projRows = data.by_project.map((p, i) => [i + 1, p.name, p.total,
-    data.summary.total > 0 ? `${((p.total / data.summary.total) * 100).toFixed(1)}%` : '0%'
-  ])
-  tabelaEstilizada(ws4,
+  const projRows = data.by_project.map((p, i) => [i + 1, p.name, p.total, pct(p.total)])
+  escreverTabela(ws4,
     [{ label: '#', width: 6 }, { label: 'Projecto', width: 42 }, { label: 'Total', width: 12 }, { label: '% do Total', width: 14, right: true }],
     projRows, r
   )
 
-  ws4['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: 3, r: r + projRows.length + 2 } })
-  XLSX.utils.book_append_sheet(wb, ws4, '🏗️ Por Projecto')
-
   // ════════════════════════════════════════════════════════════
   // FOLHA 5 — EVOLUÇÃO MENSAL
   // ════════════════════════════════════════════════════════════
-  const ws5 = {}
-  r = 0
-
-  cel(ws5, 0, r, 'Evolução Mensal no Período', estTitulo)
-  merge(ws5, 0, r, 3, r)
-  alturaLinha(ws5, r, 32)
-  r++
-  cel(ws5, 0, r, `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`, estMeta)
-  merge(ws5, 0, r, 3, r)
-  alturaLinha(ws5, r, 18)
-  r += 2
+  const ws5 = wb.addWorksheet('📅 Evolução Mensal', { views: [{ showGridLines: false }] })
+  r = 1
+  ws5.mergeCells(r, 1, r, 4); aplicarTitulo(ws5.getCell(r, 1), 'Evolução Mensal no Período'); ws5.getRow(r).height = 32; r++
+  ws5.mergeCells(r, 1, r, 4); aplicarMeta(ws5.getCell(r, 1), `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`); ws5.getRow(r).height = 18; r += 2
 
   const mesRows = data.by_month.map(m => [
-    m.label,
-    m.total,
-    m.resolved,
+    m.label, m.total, m.resolved,
     m.total > 0 ? `${((m.resolved / m.total) * 100).toFixed(1)}%` : '0%',
   ])
-  tabelaEstilizada(ws5,
+  escreverTabela(ws5,
     [
       { label: 'Mês', width: 14 },
       { label: 'Submetidas', width: 16 },
@@ -670,163 +627,136 @@ async function gerarExcel(data) {
     mesRows, r
   )
 
-  ws5['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: 3, r: r + mesRows.length + 2 } })
-  XLSX.utils.book_append_sheet(wb, ws5, '📅 Evolução Mensal')
-
   // ════════════════════════════════════════════════════════════
   // FOLHA 6 — DEMOGRÁFICOS
   // ════════════════════════════════════════════════════════════
-  const ws6 = {}
-  r = 0
+  const ws6 = wb.addWorksheet('👥 Demográficos', { views: [{ showGridLines: false }] })
+  r = 1
+  ws6.mergeCells(r, 1, r, 3); aplicarTitulo(ws6.getCell(r, 1), 'Dados Demográficos'); ws6.getRow(r).height = 32; r++
+  ws6.mergeCells(r, 1, r, 3); aplicarMeta(ws6.getCell(r, 1), `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`); ws6.getRow(r).height = 18; r += 2
 
-  cel(ws6, 0, r, 'Dados Demográficos', estTitulo)
-  merge(ws6, 0, r, 2, r)
-  alturaLinha(ws6, r, 32)
-  r++
-  cel(ws6, 0, r, `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}`, estMeta)
-  merge(ws6, 0, r, 2, r)
-  alturaLinha(ws6, r, 18)
-  r += 2
-
-  // Sub-secção Género
-  cel(ws6, 0, r, 'DISTRIBUIÇÃO POR GÉNERO', estSeccao)
-  merge(ws6, 0, r, 2, r)
-  alturaLinha(ws6, r, 20)
+  ws6.mergeCells(r, 1, r, 3)
+  aplicarSeccao(ws6.getCell(r, 1), 'DISTRIBUIÇÃO POR GÉNERO')
+  ws6.getRow(r).height = 20
   r++
 
-  const generoRows = Object.entries(data.by_gender).map(([k, v]) => [
-    k, v,
-    data.summary.total > 0 ? `${((v / data.summary.total) * 100).toFixed(1)}%` : '0%',
-  ])
-  r = tabelaEstilizada(ws6,
+  const generoRows = Object.entries(data.by_gender).map(([k, v]) => [k, v, pct(v)])
+  r = escreverTabela(ws6,
     [{ label: 'Género', width: 22 }, { label: 'Total', width: 12 }, { label: '%', width: 10, right: true }],
     generoRows, r
   )
 
-  // Espaço
-  alturaLinha(ws6, r, 14)
+  ws6.getRow(r).height = 14
   r++
 
-  // Sub-secção Faixa Etária
-  cel(ws6, 0, r, 'DISTRIBUIÇÃO POR FAIXA ETÁRIA', estSeccao)
-  merge(ws6, 0, r, 2, r)
-  alturaLinha(ws6, r, 20)
+  ws6.mergeCells(r, 1, r, 3)
+  aplicarSeccao(ws6.getCell(r, 1), 'DISTRIBUIÇÃO POR FAIXA ETÁRIA')
+  ws6.getRow(r).height = 20
   r++
 
-  const idadeRows = data.by_age_range.map(a => [
-    a.label, a.total,
-    data.summary.total > 0 ? `${((a.total / data.summary.total) * 100).toFixed(1)}%` : '0%',
-  ])
-  r = tabelaEstilizada(ws6,
+  const idadeRows = data.by_age_range.map(a => [a.label, a.total, pct(a.total)])
+  escreverTabela(ws6,
     [{ label: 'Faixa Etária', width: 22 }, { label: 'Total', width: 12 }, { label: '%', width: 10, right: true }],
     idadeRows, r
   )
 
-  ws6['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: 2, r: r + 2 } })
-  XLSX.utils.book_append_sheet(wb, ws6, '👥 Demográficos')
-
   // ════════════════════════════════════════════════════════════
   // FOLHA 7 — LISTAGEM COMPLETA
   // ════════════════════════════════════════════════════════════
-  const ws7 = {}
-  r = 0
-
-  cel(ws7, 0, r, `Listagem Completa de Ocorrências — ${data.occurrences.length} registos`, estTitulo)
-  merge(ws7, 0, r, 10, r)
-  alturaLinha(ws7, r, 32)
+  const ws7 = wb.addWorksheet('📋 Ocorrências', { views: [{ showGridLines: false }] })
+  r = 1
+  ws7.mergeCells(r, 1, r, 11)
+  aplicarTitulo(ws7.getCell(r, 1), `Listagem Completa de Ocorrências — ${data.occurrences.length} registos`)
+  ws7.getRow(r).height = 32
   r++
-  cel(ws7, 0, r, `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}  ·  Gerado em: ${data.meta.generated_at}`, estMeta)
-  merge(ws7, 0, r, 10, r)
-  alturaLinha(ws7, r, 18)
+  ws7.mergeCells(r, 1, r, 11)
+  aplicarMeta(ws7.getCell(r, 1), `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}  ·  Gerado em: ${data.meta.generated_at}`)
+  ws7.getRow(r).height = 18
   r += 2
 
   const headersLista = [
-    { label: '#',             width: 6  },
-    { label: 'Código',        width: 20 },
-    { label: 'Assunto',       width: 45 },
-    { label: 'Estado',        width: 18 },
-    { label: 'Projecto',      width: 30 },
-    { label: 'Província',     width: 20 },
-    { label: 'Categoria',     width: 24 },
-    { label: 'Tipo',          width: 22 },
-    { label: 'Nível Alerta',  width: 16 },
-    { label: 'Atribuído a',   width: 24 },
-    { label: 'Submissão',     width: 14 },
+    { label: '#',            width: 6  },
+    { label: 'Código',       width: 20 },
+    { label: 'Assunto',      width: 45 },
+    { label: 'Estado',       width: 18 },
+    { label: 'Projecto',     width: 30 },
+    { label: 'Província',    width: 20 },
+    { label: 'Categoria',    width: 24 },
+    { label: 'Tipo',         width: 22 },
+    { label: 'Nível Alerta', width: 16 },
+    { label: 'Atribuído a',  width: 24 },
+    { label: 'Submissão',    width: 14 },
   ]
 
-  // Cabeçalhos da listagem
-  headersLista.forEach((h, ci) => {
-    cel(ws7, ci, r, h.label, estCabecalho(9))
-  })
-  alturaLinha(ws7, r, 24)
+  const headerRowLista = ws7.getRow(r)
+  headersLista.forEach((h, i) => aplicarCabecalho(headerRowLista.getCell(1 + i), h.label, 9))
+  headerRowLista.height = 24
   r++
 
-  // Função de cor por estado
   const corEstado = (estado) => {
-    if (estado === 'Resolvido')        return { rgb: '276749' }
-    if (estado === 'Não Validado')     return { rgb: COR.vermelho }
-    if (estado === 'Não Resolvida')    return { rgb: '7B341E' }
-    if (estado === 'Resolvendo')       return { rgb: '744210' }
-    if (estado === 'Por Resolver')     return { rgb: '744210' }
-    return { rgb: COR.textDark }
+    if (estado === 'Resolvido')     return COR.verdeOk
+    if (estado === 'Não Validado')  return COR.vermelho
+    if (estado === 'Não Resolvida') return 'FF7B341E'
+    if (estado === 'Resolvendo')    return 'FF744210'
+    if (estado === 'Por Resolver')  return 'FF744210'
+    return COR.textDark
   }
-
   const corAlerta = (nivel) => {
-    if (nivel === 'Urgente') return { rgb: COR.amber.replace('#','') }
-    if (nivel === 'GBV')     return { rgb: COR.vermelho }
-    return { rgb: COR.azul }
+    if (nivel === 'Urgente') return COR.amber
+    if (nivel === 'GBV')     return COR.vermelho
+    return COR.azul
   }
 
-  // Linhas de dados com cor especial no Estado e Nível Alerta
   data.occurrences.forEach((o, ri) => {
     const isAlt = ri % 2 === 1
-    const bgFill = { fgColor: { rgb: isAlt ? COR.verdePale : COR.branco } }
-    const estBase = (al = 'left') => ({
-      font:      { sz: 9, color: { rgb: COR.textDark }, name: 'Calibri' },
-      fill:      bgFill,
-      alignment: { horizontal: al, vertical: 'center', wrapText: false },
-      border:    borda(),
-    })
+    const excelRow = ws7.getRow(r)
+    excelRow.height = 16
 
     const rowData = [ri + 1, o.tracking_code, o.subject, o.status, o.project,
       o.province, o.category, o.type, o.alert_level, o.assigned_to, o.submitted_at]
 
     rowData.forEach((val, ci) => {
-      let est = estBase(ci === 0 ? 'center' : ci >= 3 && ci <= 5 ? 'left' : 'left')
+      const cell = excelRow.getCell(1 + ci)
+      let corTexto = null
+      let bold = false
 
-      // Colorir coluna Estado (índice 3)
-      if (ci === 3) {
-        est = { ...est, font: { ...est.font, bold: true, color: corEstado(val) } }
-      }
-      // Colorir coluna Nível Alerta (índice 8)
-      if (ci === 8) {
-        est = { ...est, font: { ...est.font, bold: true, color: corAlerta(val) } }
-      }
-      // Índice (negrito, centrado)
-      if (ci === 0) {
-        est = { ...est, font: { ...est.font, bold: true, color: { rgb: COR.verdeMid } } }
-      }
+      if (ci === 0) { corTexto = COR.verdeMid; bold = true }       // índice
+      if (ci === 3) { corTexto = corEstado(val); bold = true }      // estado
+      if (ci === 8) { corTexto = corAlerta(val); bold = true }      // nível alerta
 
-      cel(ws7, ci, r, val, est)
+      aplicarLinha(cell, val, {
+        alt: isAlt,
+        alinhar: ci === 0 ? 'center' : 'left',
+        corTexto,
+        bold,
+      })
     })
-
-    alturaLinha(ws7, r, 16)
     r++
   })
 
-  ws7['!ref']  = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: 10, r: r } })
-  ws7['!cols'] = headersLista.map(h => ({ wch: h.width }))
-  XLSX.utils.book_append_sheet(wb, ws7, '📋 Ocorrências')
+  headersLista.forEach((h, i) => { ws7.getColumn(1 + i).width = h.width })
+
+  // Congela cabeçalho da listagem para facilitar leitura ao deslocar
+  ws7.views = [{ showGridLines: false, state: 'frozen', ySplit: 4 }]
 
   // ── Escrever ficheiro ────────────────────────────────────────
   const nomeFicheiro = `Relatorio_MDR_${data.meta.period}_${data.meta.year}.xlsx`
-  XLSX.writeFile(wb, nomeFicheiro)
+  const buffer = await wb.xlsx.writeBuffer()
+  const blob   = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  const url    = URL.createObjectURL(blob)
+  const link   = document.createElement('a')
+  link.href     = url
+  link.download = nomeFicheiro
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 60000)
 }
 
 // ── Geração de PDF via jsPDF + autotable (CDN) ───────────────
 async function gerarPdf(data) {
   const { jsPDF } = await importarJsPDF()
   const autoTable  = await importarAutoTable()
+  const logo       = await carregarLogoBase64()
+
 
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
   const pW  = doc.internal.pageSize.getWidth()
@@ -839,26 +769,77 @@ async function gerarPdf(data) {
   const cinzaLight = [245, 248, 246]
 
   // ── Capa / Cabeçalho ────────────────────────────────────────
+  const alturaHeader = 40
   doc.setFillColor(...verde)
-  doc.rect(0, 0, pW, 38, 'F')
+  doc.rect(0, 0, pW, alturaHeader, 'F')
 
-  doc.setTextColor(255, 255, 255)
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(20)
-  doc.text('BIOFUND', 14, 16)
+  // Faixa decorativa inferior do cabeçalho
+  doc.setFillColor(...verdeLight)
+  doc.rect(0, alturaHeader - 1.5, pW, 1.5, 'F')
 
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.text('Mecanismo de Denúncia e Reclamação', 14, 23)
+  if (logo) {
+    // Logo contido dentro do cabeçalho com padding interno de 5mm
+    const padding  = 5
+    const seloH    = alturaHeader - padding * 2   // 30mm — altura do selo branco
+    const logoH    = seloH - 6                    // 24mm — logo dentro do selo (3px padding c/ d/ e b)
+    const logoW    = logoH * (logo.width / logo.height)
+    const seloW    = logoW + 6
+    const seloX    = padding
+    const seloY    = padding
 
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(13)
-  doc.text(`Relatório ${data.meta.period_label}`, 14, 33)
+    // Selo branco arredondado
+    doc.setFillColor(255, 255, 255)
+    doc.roundedRect(seloX, seloY, seloW, seloH, 2, 2, 'F')
 
+    // Logo centrado dentro do selo
+    doc.addImage(logo.dataUrl, 'PNG', seloX + 3, seloY + 3, logoW, logoH)
+
+    // Linha separadora vertical
+    const sepX = seloX + seloW + 8
+    doc.setDrawColor(82, 183, 136)
+    doc.setLineWidth(0.4)
+    doc.line(sepX, 7, sepX, alturaHeader - 7)
+
+    // Textos alinhados verticalmente ao centro do cabeçalho
+    const txtX    = sepX + 8
+    const centroY = alturaHeader / 2
+
+    doc.setTextColor(180, 220, 195)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.text('MECANISMO DE DENÚNCIA E RECLAMAÇÃO', txtX, centroY - 8)
+
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(15)
+    doc.text(`Relatório ${data.meta.period_label}`, txtX, centroY + 2)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8.5)
+    doc.setTextColor(180, 220, 195)
+    doc.text(`${data.meta.date_from}  –  ${data.meta.date_to}`, txtX, centroY + 11)
+
+  } else {
+    // Sem logo — texto alinhado à esquerda
+    const centroY = alturaHeader / 2
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(16)
+    doc.text('BIOFUND MDR', 14, centroY - 4)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(180, 220, 195)
+    doc.text(`Relatório ${data.meta.period_label}`, 14, centroY + 7)
+  }
+
+  // Linha de metadados abaixo do cabeçalho
   doc.setTextColor(...cinza)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8)
-  doc.text(`Período: ${data.meta.date_from} a ${data.meta.date_to}   |   Gerado em: ${data.meta.generated_at} por ${data.meta.generated_by}`, 14, 43)
+  doc.text(
+    `Período: ${data.meta.date_from} a ${data.meta.date_to}   |   Gerado em: ${data.meta.generated_at} por ${data.meta.generated_by}`,
+    14, alturaHeader + 7
+  )
 
   // ── KPI Cards ───────────────────────────────────────────────
   const kpis = [
@@ -870,7 +851,7 @@ async function gerarPdf(data) {
   ]
 
   const cardW   = (pW - 28 - (kpis.length - 1) * 4) / kpis.length
-  const cardY   = 50
+  const cardY   = 55
   const cardH   = 20
 
   kpis.forEach((kpi, i) => {
@@ -1092,6 +1073,53 @@ async function gerarPdf(data) {
   doc.save(`Relatorio_MDR_${data.meta.period}_${data.meta.year}.pdf`)
 }
 
+// ── Importações dinâmicas (CDN via esm.sh) ───────────────────
+
+// Converte o logo (importado via Vite) para Data URL base64 + dimensões.
+// Resultado é cacheado porque o logo não muda entre exportações.
+let logoCache = null
+function carregarLogoBase64() {
+  if (!logoUrl) return Promise.resolve(null)
+  if (logoCache) return Promise.resolve(logoCache)
+
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width  = img.naturalWidth
+        canvas.height = img.naturalHeight
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0)
+        logoCache = {
+          dataUrl: canvas.toDataURL('image/png'),
+          width:   img.naturalWidth,
+          height:  img.naturalHeight,
+        }
+        resolve(logoCache)
+      } catch (e) {
+        console.warn('[RelatorioPeriodicoModal] Falha ao converter logo:', e)
+        resolve(null)
+      }
+    }
+    img.onerror = () => resolve(null)
+    img.src = logoUrl
+  })
+}
+
+function importarExcelJS() {
+  return new Promise((resolve, reject) => {
+    if (window.ExcelJS) { resolve(window.ExcelJS); return }
+    // ExcelJS suporta nativamente estilos completos por célula E imagens
+    // embutidas (workbook.addImage) — necessário para o logo no relatório
+    const s = document.createElement('script')
+    s.src = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'
+    s.onload  = () => resolve(window.ExcelJS)
+    s.onerror = reject
+    document.head.appendChild(s)
+  })
+}
 
 function importarJsPDF() {
   return new Promise((resolve, reject) => {

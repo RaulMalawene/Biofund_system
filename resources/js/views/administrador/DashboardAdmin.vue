@@ -89,7 +89,7 @@
             <p>Bem-vindo ao painel do Administrador</p>
           </div>
           <div class="title-actions">
-            <button class="btn-outline-sm">
+            <button class="btn-outline-sm" @click="modalRelatorio = true">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14">
                 <rect x="1" y="2" width="12" height="11" rx="1.5"/>
                 <path d="M4 1v2M10 1v2M1 6h12" stroke-linecap="round"/>
@@ -745,6 +745,16 @@
       </div>
     </transition>
 
+    <!-- Modal de relatório periódico (abre com período mensal pré-seleccionado) -->
+    <RelatorioPeriodicoModal
+      :open="modalRelatorio"
+      :projects="refProjects"
+      :provinces="refProvinces"
+      :categories="refCategories"
+      :periodo-inicial="'mensal'"
+      @close="modalRelatorio = false"
+    />
+
   </div>
 </template>
 
@@ -756,6 +766,7 @@ import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
+import RelatorioPeriodicoModal from '@/components/RelatorioPeriodicoModal.vue'
 
 Chart.register(...registerables)
 
@@ -1130,6 +1141,7 @@ function handleCategoryChange() {
 
 // ── Estado do drawer ───────────────────────────────────────────
 const drawerOpen       = ref(false)
+const modalRelatorio   = ref(false)
 const toast            = reactive({ show: false, msg: '' })
 
 function showToast(msg) {
