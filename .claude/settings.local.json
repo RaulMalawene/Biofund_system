@@ -98,7 +98,19 @@
       "Bash(git --no-pager diff app/Models/Occurrence.php app/Services/NotificationService.php)",
       "Bash(npx vue-tsc *)",
       "PowerShell(npx vite build 2>&1 | Select-Object -Last 60)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"resources/js/Imagem/logotipo.png\")",
+      "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"public/images/logotipo.png\")",
+      "Bash(tasklist)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c ' *)",
+      "Bash(npm ls *)",
+      "Read(//e//**)",
+      "Bash(echo \"started with pid $!\")",
+      "Bash(npx --yes playwright install chromium)",
+      "Bash(pwd -W)",
+      "Read(//c/tmp/**)",
+      "Bash(git check-ignore *)"
     ]
   }
 }

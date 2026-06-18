@@ -1121,26 +1121,17 @@ function showToast(msg, type = 'success') {
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px 18px 18px;
+  justify-content: center;
+  padding: 22px 18px 20px;
   border-bottom: 1px solid var(--border);
   text-decoration: none;
 }
 
 .sidebar-logo-img {
-  width: 34px;
-  height: 34px;
+  height: 56px;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.sidebar-logo-text {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--green-dark);
-  line-height: 1.2;
-  letter-spacing: 0.2px;
 }
 
 .sidebar-nav {

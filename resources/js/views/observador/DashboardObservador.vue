@@ -378,6 +378,57 @@
           </div>
         </div>
 
+        <!-- CANAL & PROJECTOS ROW -->
+        <div class="demo-row-2" :class="{ 'section-dimmed': filterLoading }">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div>
+                <div class="chart-title">Canal de Submissão</div>
+                <div class="chart-sub">Como as ocorrências chegam ao sistema</div>
+              </div>
+              <span class="total-chip" v-if="channelTotal">{{ channelTotal }} total</span>
+            </div>
+            <div class="polar-wrap">
+              <canvas ref="channelChartRef"></canvas>
+            </div>
+            <div class="gender-legend">
+              <div class="gender-legend-item" v-for="item in channelLegend" :key="item.label">
+                <span class="pie-dot" :style="{ background: item.color }"></span>
+                <span class="gender-leg-label">{{ item.label }}</span>
+                <span class="gender-leg-val">{{ item.count }}</span>
+                <span class="gender-leg-pct">{{ item.pct }}%</span>
+              </div>
+              <div class="pie-legend-empty" v-if="!channelLegend.length">Sem dados de canal disponíveis</div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">Projecto com Mais Ocorrências</div>
+            <div class="chart-sub">Ranking dos projectos por volume de submissões</div>
+            <div class="project-leader" v-if="topProject">
+              <svg width="14" height="14" fill="#52B788" stroke="#2D6A4F" stroke-width="1.2" viewBox="0 0 16 16">
+                <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
+              </svg>
+              <span><strong>{{ topProject.name }}</strong> lidera com {{ topProject.total }} ocorrências</span>
+            </div>
+            <div class="rank-list">
+              <div class="rank-item" v-for="(p, i) in stats.byProject" :key="p.name">
+                <div class="rank-badge" :class="'rank-' + (i + 1)">{{ i + 1 }}</div>
+                <div class="rank-info">
+                  <div class="rank-name-row">
+                    <span class="rank-name">{{ p.name }}</span>
+                    <span class="rank-count">{{ p.total }}</span>
+                  </div>
+                  <div class="rank-bar-track">
+                    <div class="rank-bar-fill" :style="{ width: projectPct(p.total) + '%', background: PROJECT_COLORS[i % PROJECT_COLORS.length] }"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pie-legend-empty" v-if="!stats.byProject.length">Sem dados de projecto disponíveis</div>
+            </div>
+          </div>
+        </div>
+
       </main>
 
       <footer class="dash-footer">
@@ -624,6 +675,7 @@ const donutChartRef  = ref(null)
 const lineChartRef   = ref(null)
 const pieChartRef    = ref(null)
 const ageBarChartRef = ref(null)
+const channelChartRef = ref(null)
 const submissions    = ref([])
 
 // ── Filtro de KPI cards ────────────────────────────────────────
@@ -656,6 +708,8 @@ const stats = reactive({
   byMonthResolved: [],
   byGender:        {},
   byAgeRange:      [],
+  byChannel:       [],
+  byProject:       [],
 })
 
 // Valores KPI fixos - não se alteram quando um filtro está activo
@@ -702,6 +756,8 @@ async function applyDashFilter() {
     stats.byMonthResolved = data.by_month_resolved ?? []
     stats.byGender        = data.by_gender         ?? {}
     stats.byAgeRange      = data.by_age_range      ?? []
+    stats.byChannel       = data.by_channel        ?? []
+    stats.byProject       = data.by_project        ?? []
     submissions.value     = mapRecent(data.recent)
     Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
     Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -726,12 +782,21 @@ function clearDashFilter() {
 
 const CHART_COLORS  = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
 const GENDER_COLORS = { Masculino: '#74C0FC', Feminino: '#FC8181', 'Não Identificado': '#D1D5DB' }
+const CHANNEL_COLORS = {
+  'Linha Verde':           '#52B788',
+  'Email':                 '#74C0FC',
+  'Telefone':              '#F4A52A',
+  'Reunião Comunitária':   '#9F7AEA',
+  'Portal Online':         '#06B6D4',
+}
+const PROJECT_COLORS = ['#2D6A4F','#52B788','#74C0FC','#9F7AEA','#F4A52A','#FC8181']
 
-let barChart    = null
-let donutChart  = null
-let lineChart   = null
-let pieChart    = null
-let ageBarChart = null
+let barChart     = null
+let donutChart   = null
+let lineChart    = null
+let pieChart     = null
+let ageBarChart  = null
+let channelChart = null
 
 function buildMonthAxis() {
   const months = []
@@ -780,6 +845,14 @@ function updateCharts() {
     ageBarChart.data.datasets[0].data = stats.byAgeRange.map(a => a.total)
     ageBarChart.update()
   }
+  if (channelChart) {
+    channelChart.data.labels                      = stats.byChannel.length ? stats.byChannel.map(c => c.label) : ['Sem dados']
+    channelChart.data.datasets[0].data            = stats.byChannel.length ? stats.byChannel.map(c => c.total) : [1]
+    channelChart.data.datasets[0].backgroundColor = stats.byChannel.length
+      ? stats.byChannel.map(c => CHANNEL_COLORS[c.label] ?? '#E2E8F0')
+      : ['#E2E8F0']
+    channelChart.update()
+  }
 }
 
 async function refreshStats() {
@@ -796,6 +869,8 @@ async function refreshStats() {
     stats.byMonthResolved = data.by_month_resolved ?? []
     stats.byGender        = data.by_gender         ?? {}
     stats.byAgeRange      = data.by_age_range      ?? []
+    stats.byChannel       = data.by_channel        ?? []
+    stats.byProject       = data.by_project        ?? []
     submissions.value     = mapRecent(data.recent)
     Object.assign(rawTotals,     zeroTotals,     data.totals         ?? {})
     Object.assign(rawAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -843,6 +918,8 @@ async function selectCard(key) {
     stats.byMonthResolved = data.by_month_resolved ?? []
     stats.byGender        = data.by_gender         ?? {}
     stats.byAgeRange      = data.by_age_range      ?? []
+    stats.byChannel       = data.by_channel        ?? []
+    stats.byProject       = data.by_project        ?? []
     submissions.value     = mapRecent(data.recent)
     updateCharts()
   } catch (err) {
@@ -872,6 +949,26 @@ const genderLegend = computed(() => {
     pct:   Math.round(count / total * 100),
   }))
 })
+
+const channelTotal = computed(() => stats.byChannel.reduce((s, c) => s + c.total, 0))
+
+const channelLegend = computed(() => {
+  if (!stats.byChannel.length) return []
+  const total = channelTotal.value
+  return stats.byChannel.map(c => ({
+    label: c.label,
+    count: c.total,
+    color: CHANNEL_COLORS[c.label] ?? '#E2E8F0',
+    pct:   total ? Math.round(c.total / total * 100) : 0,
+  }))
+})
+
+const topProject = computed(() => stats.byProject[0] ?? null)
+
+function projectPct(total) {
+  const max = Math.max(1, ...stats.byProject.map(p => p.total))
+  return Math.round(total / max * 100)
+}
 
 const STATUS_MAP = {
   por_validar:   { label: 'Por Validar',   cls: 'por-validar'   },
@@ -1033,6 +1130,7 @@ onUnmounted(() => {
   lineChart?.destroy()
   pieChart?.destroy()
   ageBarChart?.destroy()
+  channelChart?.destroy()
 })
 
 onMounted(async () => {
@@ -1054,6 +1152,8 @@ onMounted(async () => {
     stats.byMonthResolved = data.by_month_resolved ?? []
     stats.byGender        = data.by_gender         ?? {}
     stats.byAgeRange      = data.by_age_range      ?? []
+    stats.byChannel       = data.by_channel        ?? []
+    stats.byProject       = data.by_project        ?? []
     submissions.value     = mapRecent(data.recent)
     Object.assign(rawTotals,     data.totals         ?? {})
     Object.assign(rawAlertLevel, data.by_alert_level ?? {})
@@ -1182,6 +1282,37 @@ onMounted(async () => {
       }
     }
   })
+
+  const chLabels0 = stats.byChannel.map(c => c.label)
+  const chValues0 = stats.byChannel.map(c => c.total)
+
+  channelChart = new Chart(channelChartRef.value, {
+    type: 'polarArea',
+    data: {
+      labels: chLabels0.length ? chLabels0 : ['Sem dados'],
+      datasets: [{
+        data: chValues0.length ? chValues0 : [1],
+        backgroundColor: chLabels0.length ? chLabels0.map(l => CHANNEL_COLORS[l] ?? '#E2E8F0') : ['#E2E8F0'],
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 10,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } }
+      },
+      scales: {
+        r: {
+          grid: { color: '#EAF2EC' },
+          angleLines: { color: '#EAF2EC' },
+          ticks: { display: false, backdropColor: 'transparent' }
+        }
+      }
+    }
+  })
 })
 </script>
 
@@ -1212,25 +1343,17 @@ onMounted(async () => {
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px 18px 18px;
+  justify-content: center;
+  padding: 22px 18px 20px;
   border-bottom: 1px solid var(--border);
   text-decoration: none;
 }
 
 .sidebar-logo-img {
-  width: 34px; height: 34px;
+  height: 56px;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.sidebar-logo-text {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--green-dark);
-  line-height: 1.2;
-  letter-spacing: 0.2px;
 }
 
 .sidebar-nav {
@@ -2433,5 +2556,124 @@ tbody td {
   color: var(--text-light);
   text-align: center;
   padding: 16px 0;
+}
+
+/* ── CANAL & PROJECTOS ROW ───────────────── */
+.demo-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.project-leader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #EBF8F1, #F4FBF7);
+  border: 1px solid #B7E4CA;
+  border-radius: 9px;
+  padding: 9px 14px;
+  font-size: 12.5px;
+  color: #2D6A4F;
+}
+.project-leader svg { flex-shrink: 0; }
+.project-leader strong { font-weight: 800; }
+
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.total-chip {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #2D6A4F;
+  background: #EBF8F1;
+  border: 1px solid #B7E4CA;
+  padding: 5px 12px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.polar-wrap {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 10px auto 0;
+}
+
+/* ── PROJECT RANKING LIST ────────────────── */
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rank-badge {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  background: #9CA9A2;
+}
+.rank-badge.rank-1 { background: linear-gradient(135deg, #F5C453, #E0A724); }
+.rank-badge.rank-2 { background: linear-gradient(135deg, #C9D3DC, #9AAAB8); }
+.rank-badge.rank-3 { background: linear-gradient(135deg, #E3A876, #C77F44); }
+
+.rank-info { flex: 1; min-width: 0; }
+
+.rank-name-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.rank-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-count {
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #162119;
+}
+
+.rank-bar-track {
+  height: 7px;
+  border-radius: 99px;
+  background: #F0F4F2;
+  overflow: hidden;
+}
+
+.rank-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s ease;
 }
 </style>
