@@ -103,7 +103,12 @@
       "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"public/images/logotipo.png\")",
       "Bash(tasklist)",
       "Bash(python3 -m json.tool)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(npm ls *)",
+      "Read(//e//**)",
+      "Bash(echo \"started with pid $!\")",
+      "Bash(npx --yes playwright install chromium)",
+      "Bash(pwd -W)"
     ]
   }
 }

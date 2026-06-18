@@ -433,14 +433,15 @@
         <!-- CANAL & PROJECTOS ROW -->
         <div class="demo-row-2" :class="{ 'section-dimmed': filterLoading }">
           <div class="chart-card">
-            <div class="chart-title">Canal de Submissão</div>
-            <div class="chart-sub">Como as ocorrências chegam ao sistema</div>
-            <div class="pie-center-wrap">
-              <canvas ref="channelChartRef"></canvas>
-              <div class="donut-center" v-if="channelTotal">
-                <div class="donut-total">{{ channelTotal }}</div>
-                <div class="donut-total-label">total</div>
+            <div class="chart-card-header">
+              <div>
+                <div class="chart-title">Canal de Submissão</div>
+                <div class="chart-sub">Como as ocorrências chegam ao sistema</div>
               </div>
+              <span class="total-chip" v-if="channelTotal">{{ channelTotal }} total</span>
+            </div>
+            <div class="polar-wrap">
+              <canvas ref="channelChartRef"></canvas>
             </div>
             <div class="gender-legend">
               <div class="gender-legend-item" v-for="item in channelLegend" :key="item.label">
@@ -462,8 +463,20 @@
               </svg>
               <span><strong>{{ topProject.name }}</strong> lidera com {{ topProject.total }} ocorrências</span>
             </div>
-            <div class="chart-wrap" style="height:230px; margin-top:14px">
-              <canvas ref="projectChartRef"></canvas>
+            <div class="rank-list">
+              <div class="rank-item" v-for="(p, i) in stats.byProject" :key="p.name">
+                <div class="rank-badge" :class="'rank-' + (i + 1)">{{ i + 1 }}</div>
+                <div class="rank-info">
+                  <div class="rank-name-row">
+                    <span class="rank-name">{{ p.name }}</span>
+                    <span class="rank-count">{{ p.total }}</span>
+                  </div>
+                  <div class="rank-bar-track">
+                    <div class="rank-bar-fill" :style="{ width: projectPct(p.total) + '%', background: PROJECT_COLORS[i % PROJECT_COLORS.length] }"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pie-legend-empty" v-if="!stats.byProject.length">Sem dados de projecto disponíveis</div>
             </div>
           </div>
         </div>
@@ -771,7 +784,6 @@ const lineChartRef   = ref(null)
 const pieChartRef    = ref(null)
 const ageBarChartRef = ref(null)
 const channelChartRef = ref(null)
-const projectChartRef = ref(null)
 const submissions    = ref([])
 
 // ── Filtro de KPI cards ────────────────────────────────────────
@@ -895,7 +907,6 @@ let lineChart    = null
 let pieChart     = null
 let ageBarChart  = null
 let channelChart = null
-let projectChart = null
 
 function buildMonthAxis() {
   const months = []
@@ -951,14 +962,6 @@ function updateCharts() {
       ? stats.byChannel.map(c => CHANNEL_COLORS[c.label] ?? '#E2E8F0')
       : ['#E2E8F0']
     channelChart.update()
-  }
-  if (projectChart) {
-    projectChart.data.labels                      = stats.byProject.length ? stats.byProject.map(p => p.name)  : ['Sem dados']
-    projectChart.data.datasets[0].data            = stats.byProject.length ? stats.byProject.map(p => p.total) : [0]
-    projectChart.data.datasets[0].backgroundColor = stats.byProject.length
-      ? stats.byProject.map((_, i) => PROJECT_COLORS[i % PROJECT_COLORS.length])
-      : ['#E2E8F0']
-    projectChart.update()
   }
 }
 
@@ -1071,6 +1074,11 @@ const channelLegend = computed(() => {
 })
 
 const topProject = computed(() => stats.byProject[0] ?? null)
+
+function projectPct(total) {
+  const max = Math.max(1, ...stats.byProject.map(p => p.total))
+  return Math.round(total / max * 100)
+}
 
 const STATUS_MAP = {
   por_validar:  { label: 'Por Validar',  cls: 'por-validar'  },
@@ -1292,7 +1300,6 @@ onUnmounted(() => {
   pieChart?.destroy()
   ageBarChart?.destroy()
   channelChart?.destroy()
-  projectChart?.destroy()
 })
 
 onMounted(async () => {
@@ -1445,7 +1452,7 @@ onMounted(async () => {
   const chValues0 = stats.byChannel.map(c => c.total)
 
   channelChart = new Chart(channelChartRef.value, {
-    type: 'doughnut',
+    type: 'polarArea',
     data: {
       labels: chLabels0.length ? chLabels0 : ['Sem dados'],
       datasets: [{
@@ -1453,39 +1460,21 @@ onMounted(async () => {
         backgroundColor: chLabels0.length ? chLabels0.map(l => CHANNEL_COLORS[l] ?? '#E2E8F0') : ['#E2E8F0'],
         borderWidth: 2,
         borderColor: '#fff',
-        hoverOffset: 8,
+        hoverOffset: 10,
       }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      cutout: '68%',
       plugins: {
         legend: { display: false },
         tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } }
-      }
-    }
-  })
-
-  projectChart = new Chart(projectChartRef.value, {
-    type: 'bar',
-    data: {
-      labels: stats.byProject.length ? stats.byProject.map(p => p.name) : ['Sem dados'],
-      datasets: [{
-        data: stats.byProject.length ? stats.byProject.map(p => p.total) : [0],
-        backgroundColor: stats.byProject.length
-          ? stats.byProject.map((_, i) => PROJECT_COLORS[i % PROJECT_COLORS.length])
-          : ['#E2E8F0'],
-        borderRadius: 6,
-        borderSkipped: false,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      },
       scales: {
-        y: { grid: { display: false }, ticks: { font: { size: 11 } } },
-        x: { beginAtZero: true, grid: { color: '#F0F4F2' }, ticks: { font: { size: 11 }, precision: 0 } }
+        r: {
+          grid: { color: '#EAF2EC' },
+          angleLines: { color: '#EAF2EC' },
+          ticks: { display: false, backdropColor: 'transparent' }
+        }
       }
     }
   })
@@ -2487,4 +2476,100 @@ tbody td {
 }
 .project-leader svg { flex-shrink: 0; }
 .project-leader strong { font-weight: 800; }
+
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.total-chip {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #2D6A4F;
+  background: #EBF8F1;
+  border: 1px solid #B7E4CA;
+  padding: 5px 12px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.polar-wrap {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 10px auto 0;
+}
+
+/* ── PROJECT RANKING LIST ────────────────── */
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rank-badge {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  background: #9CA9A2;
+}
+.rank-badge.rank-1 { background: linear-gradient(135deg, #F5C453, #E0A724); }
+.rank-badge.rank-2 { background: linear-gradient(135deg, #C9D3DC, #9AAAB8); }
+.rank-badge.rank-3 { background: linear-gradient(135deg, #E3A876, #C77F44); }
+
+.rank-info { flex: 1; min-width: 0; }
+
+.rank-name-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.rank-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-count {
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #162119;
+}
+
+.rank-bar-track {
+  height: 7px;
+  border-radius: 99px;
+  background: #F0F4F2;
+  overflow: hidden;
+}
+
+.rank-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
 </style>
