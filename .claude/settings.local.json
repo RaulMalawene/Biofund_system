@@ -109,7 +109,8 @@
       "Bash(echo \"started with pid $!\")",
       "Bash(npx --yes playwright install chromium)",
       "Bash(pwd -W)",
-      "Read(//c/tmp/**)"
+      "Read(//c/tmp/**)",
+      "Bash(git check-ignore *)"
     ]
   }
 }
