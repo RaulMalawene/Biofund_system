@@ -101,7 +101,9 @@
       "Bash(node *)",
       "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"resources/js/Imagem/logotipo.png\")",
       "Bash(cp \"resources/js/Imagem/Logo BIOFUND sem fundo.png\" \"public/images/logotipo.png\")",
-      "Bash(tasklist)"
+      "Bash(tasklist)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c ' *)"
     ]
   }
 }

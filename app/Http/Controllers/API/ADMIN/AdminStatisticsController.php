@@ -190,6 +190,32 @@ class AdminStatisticsController extends Controller
             'total' => (int) ($byAgeRaw[$age] ?? 0),
         ])->all();
 
+        // Canal pelo qual a ocorrência chegou ao sistema. Submissões externas
+        // (formulário público) não preenchem submission_channel, por isso
+        // entram no agrupamento "Portal Online".
+        $byChannel = $baseQuery()
+            ->select(
+                DB::raw("CASE
+                    WHEN submission_channel = 'green_line'        THEN 'Linha Verde'
+                    WHEN submission_channel = 'email'              THEN 'Email'
+                    WHEN submission_channel = 'phone'              THEN 'Telefone'
+                    WHEN submission_channel = 'community_meeting'  THEN 'Reunião Comunitária'
+                    ELSE 'Portal Online'
+                END as label"),
+                DB::raw('count(*) as total')
+            )
+            ->groupBy('label')
+            ->orderByDesc('total')
+            ->get();
+
+        $byProject = $baseQuery()
+            ->join('projects', 'occurrences.project_id', '=', 'projects.id')
+            ->select('projects.name', DB::raw('count(*) as total'))
+            ->groupBy('projects.name')
+            ->orderByDesc('total')
+            ->limit(6)
+            ->get();
+
         $recent = $baseQuery()
             ->with([
                 'project:id,name',
@@ -220,6 +246,8 @@ class AdminStatisticsController extends Controller
             'by_province'       => $byProvince->values()->toArray(),
             'by_gender'         => $byGender,
             'by_age_range'      => $byAgeRange,
+            'by_channel'        => $byChannel->values()->toArray(),
+            'by_project'        => $byProject->values()->toArray(),
             'by_month'          => $byMonthRaw->map(fn($r) => [
                 'label' => sprintf('%04d-%02d', $r->year, $r->month),
                 'total' => (int) $r->total,
