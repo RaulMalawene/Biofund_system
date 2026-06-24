@@ -110,7 +110,19 @@
       "Bash(npx --yes playwright install chromium)",
       "Bash(pwd -W)",
       "Read(//c/tmp/**)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(findstr \":3306\")",
+      "Bash(findstr /i \"mysql mariadb\")",
+      "Bash(findstr /i \"laragon xampp httpd\")",
+      "Bash(where mysqld *)",
+      "Bash(sc query *)",
+      "Read(//c//**)",
+      "Read(//c/xampp/**)",
+      "Read(//c/wamp64/**)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(\"C:/xampp/mysql/bin/mysqladmin.exe\" -u root status)",
+      "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -h 127.0.0.1 -P 3306 -e \"SELECT 1;\")",
+      "Bash(sc qc *)"
     ]
   }
 }
