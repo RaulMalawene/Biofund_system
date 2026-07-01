@@ -1000,4 +1000,31 @@ async function consultar() {
 .status-gray {
   color: var(--text-gray);
 }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .result-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .search-hero { padding: 44px 20px 40px; }
+  .search-hero h1 { font-size: 24px; }
+
+  .search-bar { flex-wrap: wrap; height: auto; }
+  .search-bar input { padding: 12px 0; min-width: 0; }
+  .btn-consultar { width: 100%; padding: 12px 0; min-height: 44px; }
+
+  .result-wrapper { margin: 28px auto 56px; padding: 0 16px; }
+
+  .detail-card { padding: 20px 18px; }
+  .detail-title-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+  .info-row { grid-template-columns: 1fr; gap: 12px; }
+
+  .attach-thumb, .attach-end { width: calc(50% - 6px); }
+}
+
+@media (max-width: 420px) {
+  .attach-thumb, .attach-end { width: 100%; }
+}
 </style>

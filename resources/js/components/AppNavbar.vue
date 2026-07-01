@@ -1,22 +1,30 @@
 <template>
-  <nav :class="['app-nav', variant]">
-    <router-link to="/" class="nav-logo">
+  <nav :class="['app-nav', variant, { 'menu-open': menuOpen }]">
+    <router-link to="/" class="nav-logo" @click="menuOpen = false">
       <img src="../Imagem/Logo BIOFUND sem fundo.png" alt="" class="nav-logo-img"/>
     </router-link>
 
-    <div class="nav-links">
-      <router-link to="/">Início</router-link>
-      <router-link to="/submeterReclamacao">Submeter</router-link>
-      <router-link to="/visualizarReclamacao">Consultar</router-link>
+    <div class="nav-links" :class="{ 'is-open': menuOpen }">
+      <router-link to="/" @click="menuOpen = false">Início</router-link>
+      <router-link to="/submeterReclamacao" @click="menuOpen = false">Submeter</router-link>
+      <router-link to="/visualizarReclamacao" @click="menuOpen = false">Consultar</router-link>
+      <button class="btn-restricted btn-restricted--mobile" @click="handleAccess">
+        {{ auth.isAuthenticated ? 'Painel' : 'Acesso Restrito' }}
+      </button>
     </div>
 
-    <button class="btn-restricted" @click="handleAccess">
+    <button class="btn-restricted btn-restricted--desktop" @click="handleAccess">
       {{ auth.isAuthenticated ? 'Painel' : 'Acesso Restrito' }}
+    </button>
+
+    <button class="nav-toggle" :class="{ 'is-open': menuOpen }" aria-label="Abrir menu" @click="menuOpen = !menuOpen">
+      <span></span><span></span><span></span>
     </button>
   </nav>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -26,8 +34,10 @@ defineProps({
 
 const router = useRouter()
 const auth = useAuthStore()
+const menuOpen = ref(false)
 
 function handleAccess() {
+  menuOpen.value = false
   if (auth.isAuthenticated && auth.dashboardRoute !== '/') {
     router.push(auth.dashboardRoute)
   } else {
@@ -39,6 +49,7 @@ function handleAccess() {
 
 <style scoped>
 .app-nav {
+  position: relative;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -117,5 +128,71 @@ function handleAccess() {
 .btn-restricted:hover {
   background: var(--green-mid);
   color: var(--white);
+}
+
+.btn-restricted--mobile { display: none; }
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--text-dark);
+  border-radius: 2px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.nav-toggle.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.is-open span:nth-child(2) { opacity: 0; }
+.nav-toggle.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 860px) {
+  .app-nav { padding: 0 20px; }
+
+  .btn-restricted--desktop { display: none; }
+  .nav-toggle { display: flex; }
+
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-left: 0;
+    background: var(--white);
+    border-bottom: 1px solid var(--card-border);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+  }
+
+  .nav-links.is-open { max-height: 320px; }
+
+  .nav-links a {
+    padding: 14px 20px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  .btn-restricted--mobile {
+    display: inline-flex;
+    justify-content: center;
+    margin: 14px 20px 18px;
+  }
 }
 </style>

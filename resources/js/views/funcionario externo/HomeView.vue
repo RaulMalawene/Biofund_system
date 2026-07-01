@@ -805,4 +805,43 @@ onUnmounted(() => {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .features-wrap { padding: 0 32px; }
+  .why-section { padding: 80px 32px; gap: 48px; }
+}
+
+@media (max-width: 900px) {
+  .why-section {
+    grid-template-columns: 1fr;
+  }
+
+  .why-right { height: 320px; }
+
+  .community-section { margin-top: 0; padding-top: 60px; }
+  .community-section .why-right { order: -1; }
+}
+
+@media (max-width: 768px) {
+  .hero { height: auto; min-height: 520px; padding: 96px 0 64px; }
+  .hero-content { padding: 0 20px; }
+
+  .features-wrap { margin-top: -48px; padding: 0 20px; }
+  .features-grid { grid-template-columns: 1fr; gap: 14px; }
+
+  .why-section { padding: 56px 20px; gap: 32px; }
+  .why-section h2, .documents-intro h2 { font-size: 28px; }
+
+  .benefits-grid { grid-template-columns: 1fr; gap: 16px; }
+
+  .documents-section { padding: 56px 20px 64px; }
+}
+
+@media (max-width: 480px) {
+  .hero-buttons { flex-direction: column; width: 100%; }
+  .hero-buttons button { width: 100%; justify-content: center; }
+
+  .why-right { height: 240px; }
+}
 </style>

@@ -143,4 +143,14 @@ footer {
   font-size: 12px;
   color: var(--text-light);
 }
+
+@media (max-width: 820px) {
+  footer { padding: 44px 24px 28px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .footer-brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 520px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+}
 </style>

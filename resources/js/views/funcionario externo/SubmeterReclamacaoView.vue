@@ -1087,4 +1087,31 @@ async function copyCode() {
 .contact-hint-group { justify-content: center; }
 .contact-hint-row { margin-top: -10px; margin-bottom: 4px; }
 .contact-hint { font-size: 11.5px; color: var(--text-light); }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .page-wrapper { padding: 32px 16px 56px; }
+  .page-header h1 { font-size: 26px; }
+
+  .form-card { padding: 22px 18px; }
+
+  .field-row { grid-template-columns: 1fr; gap: 14px; }
+
+  .upload-zone { padding: 32px 16px; }
+
+  .submit-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+  }
+
+  .btn-submit { justify-content: center; }
+
+  .success-card { padding: 32px 22px; }
+}
+
+@media (max-width: 480px) {
+  .tracking-row { flex-wrap: wrap; }
+  .tracking-code { font-size: 17px; }
+}
 </style>

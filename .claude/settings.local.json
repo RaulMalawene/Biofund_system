@@ -122,7 +122,14 @@
       "Bash(echo \"exit:$?\")",
       "Bash(\"C:/xampp/mysql/bin/mysqladmin.exe\" -u root status)",
       "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -h 127.0.0.1 -P 3306 -e \"SELECT 1;\")",
-      "Bash(sc qc *)"
+      "Bash(sc qc *)",
+      "Bash(npx --version)",
+      "Bash(mkdir -p screenshots)",
+      "Bash(npx --yes playwright@1.49 --version)",
+      "Bash(npm init *)",
+      "Bash(pkill -f \"playwright install\")",
+      "Bash(taskkill //F //IM node.exe //FI \"WINDOWTITLE eq vite*\")",
+      "Bash(taskkill *)"
     ]
   }
 }
