@@ -1166,6 +1166,7 @@ function importarAutoTable() {
   z-index: 201;
   width: 660px;
   max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(10, 28, 20, 0.18), 0 4px 16px rgba(10, 28, 20, 0.1);
@@ -1173,6 +1174,8 @@ function importarAutoTable() {
   flex-direction: column;
   overflow: hidden;
 }
+
+.rp-header, .rp-footer { flex-shrink: 0; }
 
 /* ── Header ─────────────────────────────────────────── */
 .rp-header {
@@ -1230,6 +1233,7 @@ function importarAutoTable() {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-y: auto;
 }
 .rp-row {
   display: flex;
@@ -1347,6 +1351,8 @@ function importarAutoTable() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 14px 22px 18px;
   border-top: 1px solid var(--border, #DDE8E1);
   background: var(--offwhite, #F7F9F8);
@@ -1354,6 +1360,14 @@ function importarAutoTable() {
 .rp-export-group {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .rp-footer { flex-direction: column-reverse; align-items: stretch; }
+  .rp-export-group { justify-content: stretch; }
+  .rp-export-group .rp-btn { flex: 1; justify-content: center; }
+  .rp-btn--ghost { width: 100%; justify-content: center; }
 }
 .rp-btn {
   display: inline-flex;

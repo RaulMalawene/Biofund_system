@@ -2,11 +2,14 @@
   <div class="app-shell">
 
     <!-- ── SIDEBAR ── -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
       <router-link to="/" class="sidebar-logo">
         <img src="../../Imagem/logotipo.png" alt="Biofund" class="sidebar-logo-img" />
       </router-link>
-      <nav class="sidebar-nav">
+      <button class="sidebar-close-btn" @click="sidebarOpen = false" aria-label="Fechar menu">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke-linecap="round"/></svg>
+      </button>
+      <nav class="sidebar-nav" @click="sidebarOpen = false">
         <router-link class="nav-item" to="/admin/dashboard">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="1" y="1" width="6" height="6" rx="1.5" />
@@ -65,12 +68,16 @@
         </button>
       </div>
     </aside>
+    <div class="sidebar-backdrop" v-if="sidebarOpen" @click="sidebarOpen = false"></div>
 
     <!-- ── MAIN ── -->
     <div class="main">
 
       <!-- TOPBAR -->
       <header class="topbar">
+        <button class="topbar-menu-btn" @click="sidebarOpen = true" aria-label="Abrir menu">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12" stroke-linecap="round"/></svg>
+        </button>
         <div class="search-wrap">
           <svg width="15" height="15" fill="none" stroke="#8A9490" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="7" cy="7" r="5" />
@@ -339,6 +346,7 @@ function iconColor(icon) {
 }
 
 // ── Estado ────────────────────────────────────────────────────
+const sidebarOpen = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 const search = ref('')
@@ -1428,5 +1436,104 @@ async function doRemoveProject() {
 .toast-slide-leave-to {
   opacity: 0;
   transform: translateY(16px);
+}
+
+/* ── Responsive: off-canvas sidebar ─────────── */
+.topbar-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-dark);
+}
+.topbar-menu-btn:hover { border-color: var(--green-light); }
+
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 14px; right: 12px;
+  width: 30px; height: 30px;
+  align-items: center;
+  justify-content: center;
+  background: #F4F6F5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-gray);
+  z-index: 1;
+}
+
+.sidebar-backdrop { display: none; }
+
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 300;
+    box-shadow: 10px 0 32px rgba(0,0,0,0.14);
+  }
+  .sidebar.sidebar-open { transform: translateX(0); }
+  .sidebar-close-btn { display: flex; }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,20,15,0.45);
+    z-index: 250;
+  }
+  .main { margin-left: 0; }
+  .topbar-menu-btn { display: flex; }
+
+  .proj-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .content { padding: 16px 14px 24px; }
+
+  .topbar { padding: 0 14px; gap: 10px; }
+  .search-wrap { max-width: none; }
+
+  .page-title-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .page-title-row p { max-width: none; }
+  .btn-green-sm { justify-content: center; width: 100%; }
+
+  .proj-grid { grid-template-columns: 1fr; }
+
+  .modal-row { grid-template-columns: 1fr; }
+
+  .modal-panel {
+    width: 100%;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    padding: 22px 18px 20px;
+  }
+
+  .confirm-modal {
+    width: 100%;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    padding: 24px 20px 20px;
+  }
+
+  .icon-grid { gap: 6px; }
+  .icon-opt { width: 36px; height: 36px; }
+
+  .dash-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px 14px;
+  }
 }
 </style>

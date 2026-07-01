@@ -102,8 +102,10 @@ const panelStyle = computed(() => ({
 function updatePosition() {
   if (!bellRef.value) return
   const rect = bellRef.value.getBoundingClientRect()
+  const width = Math.min(360, window.innerWidth - 24)
+  const maxRight = Math.max(12, window.innerWidth - width - 12)
   panelPos.top   = rect.bottom + 8
-  panelPos.right = window.innerWidth - rect.right
+  panelPos.right = Math.min(window.innerWidth - rect.right, maxRight)
 }
 
 // ── Open / Close ───────────────────────────────────────────────
@@ -219,14 +221,20 @@ function handleVisibilityChange() {
   if (document.visibilityState === 'visible') throttledFetchCount()
 }
 
+function handleResize() {
+  if (panelOpen.value) updatePosition()
+}
+
 onMounted(() => {
   startPolling()
   document.addEventListener('visibilitychange', handleVisibilityChange)
+  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
   stopPolling()
   document.removeEventListener('visibilitychange', handleVisibilityChange)
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -288,7 +296,8 @@ onUnmounted(() => {
   position: fixed;
   z-index: 1000;
   width: 360px;
-  max-height: 500px;
+  max-width: calc(100vw - 24px);
+  max-height: min(500px, 80vh);
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
@@ -437,7 +446,11 @@ onUnmounted(() => {
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.14);
   padding: 12px 14px;
-  max-width: 320px;
+  max-width: min(320px, calc(100vw - 32px));
+}
+
+@media (max-width: 480px) {
+  .np-toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
 }
 
 .np-toast svg {

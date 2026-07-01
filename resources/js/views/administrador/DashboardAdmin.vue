@@ -2,12 +2,15 @@
   <div class="app-shell">
 
     <!-- ── SIDEBAR ── -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
       <router-link to="/" class="sidebar-logo">
         <img src="../../Imagem/logotipo.png" alt="Biofund" class="sidebar-logo-img"/>
       </router-link>
+      <button class="sidebar-close-btn" @click="sidebarOpen = false" aria-label="Fechar menu">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke-linecap="round"/></svg>
+      </button>
 
-      <nav class="sidebar-nav">
+      <nav class="sidebar-nav" @click="sidebarOpen = false">
         <a class="nav-item active">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
             <rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/>
@@ -59,12 +62,16 @@
         </button>
       </div>
     </aside>
+    <div class="sidebar-backdrop" v-if="sidebarOpen" @click="sidebarOpen = false"></div>
 
     <!-- ── MAIN ── -->
     <div class="main">
 
       <!-- TOP BAR -->
       <header class="topbar">
+        <button class="topbar-menu-btn" @click="sidebarOpen = true" aria-label="Abrir menu">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12" stroke-linecap="round"/></svg>
+        </button>
         <div class="search-wrap">
           <svg width="15" height="15" fill="none" stroke="#8A9490" stroke-width="1.8" viewBox="0 0 16 16">
             <circle cx="7" cy="7" r="5"/><path d="M12 12l3 3" stroke-linecap="round"/>
@@ -827,6 +834,7 @@ async function handleLogout() {
 }
 
 const searchQ      = ref('')
+const sidebarOpen   = ref(false)
 const barChartRef    = ref(null)
 const donutChartRef  = ref(null)
 const lineChartRef   = ref(null)
@@ -2739,5 +2747,104 @@ tbody td {
   height: 100%;
   border-radius: 99px;
   transition: width 0.6s ease;
+}
+
+/* ── Responsive: off-canvas sidebar ─────────── */
+.topbar-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  background: #F4F6F5;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-dark);
+}
+.topbar-menu-btn:hover { border-color: var(--green-light); }
+
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 14px; right: 12px;
+  width: 30px; height: 30px;
+  align-items: center;
+  justify-content: center;
+  background: #F4F6F5;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-gray);
+  z-index: 1;
+}
+
+.sidebar-backdrop { display: none; }
+
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 300;
+    box-shadow: 10px 0 32px rgba(0,0,0,0.14);
+  }
+  .sidebar.sidebar-open { transform: translateX(0); }
+  .sidebar-close-btn { display: flex; }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,20,15,0.45);
+    z-index: 250;
+  }
+  .main { margin-left: 0; }
+  .topbar-menu-btn { display: flex; }
+
+  .charts-row { grid-template-columns: 1fr; }
+  .bottom-row { grid-template-columns: 1fr; }
+  .demo-row { grid-template-columns: 1fr; }
+  .demo-row-2 { grid-template-columns: 1fr; }
+
+  .drawer-panel { width: 92vw; max-width: 620px; }
+}
+
+@media (max-width: 768px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+
+  .content { padding: 16px 14px 24px; }
+
+  .topbar { padding: 0 14px; gap: 10px; }
+  .search-wrap { max-width: none; }
+
+  .page-title-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .title-actions { flex-wrap: wrap; }
+  .title-actions .btn-outline-sm,
+  .title-actions .btn-green-sm { flex: 1; justify-content: center; }
+
+  .dash-filter-bar { padding: 12px; }
+  .dash-filter-chip { width: 100%; }
+  .dash-filter-apply-btn,
+  .dash-filter-clear-btn { flex: 1; justify-content: center; }
+
+  .donut-legend { grid-template-columns: 1fr; }
+
+  .table-scroll { overflow-x: auto; }
+  table { min-width: 560px; }
+
+  .drawer-panel { width: 100%; max-width: 100vw; max-height: 100vh; height: 100vh; top: 0; left: 0; transform: none; border-radius: 0; }
+  .modal-pop-enter-from, .modal-pop-leave-to { transform: none; }
+
+  .f-row { grid-template-columns: 1fr; gap: 0; }
+
+  .polar-wrap { width: 130px; height: 130px; }
+  .pie-center-wrap { width: 110px; height: 110px; }
+
+  .dash-footer { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 14px; }
+  .dash-footer div { margin-left: 0; }
+  .dash-footer a { margin-left: 0; margin-right: 16px; }
 }
 </style>

@@ -346,6 +346,11 @@ async function saveAll() {
   overflow: hidden; transition: box-shadow 0.18s;
 }
 .admin-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+
+@media (max-width: 480px) {
+  .admin-text { display: none; }
+  .admin-info { gap: 0; }
+}
 </style>
 
 <!-- Estilos globais para o painel (teleportado para o body, fora do scope) -->

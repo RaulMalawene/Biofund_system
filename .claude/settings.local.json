@@ -129,7 +129,22 @@
       "Bash(npm init *)",
       "Bash(pkill -f \"playwright install\")",
       "Bash(taskkill //F //IM node.exe //FI \"WINDOWTITLE eq vite*\")",
-      "Bash(taskkill *)"
+      "Bash(taskkill *)",
+      "Bash(npx eslint *)",
+      "Bash(grep *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['scripts'].get\\('dev'\\)\\)\")",
+      "Bash(sed -n '/\"scripts\"/,/],$/p' composer.json)",
+      "Bash(mysql --version)",
+      "Bash(nohup php artisan serve --port=8000)",
+      "Bash(echo \"artisan pid: $!\")",
+      "Bash(nohup npm run dev)",
+      "Bash(echo \"vite pid: $!\")",
+      "Bash(SHOTDIR=\"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/shots\" node \"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/check.js\")",
+      "Bash(cp \"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/check.js\" \"E:/biofund/biofund_api/__check_responsive.cjs\")",
+      "Bash(SHOTDIR=\"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/shots\" node __check_responsive.cjs)",
+      "Bash(SHOTDIR=\"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/shots\" node __check_responsive3.cjs)",
+      "Bash(SHOTDIR=\"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/shots\" node __check_responsive5.cjs)",
+      "Bash(SHOTDIR=\"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/shots\" node __check_responsive6.cjs)"
     ]
   }
 }
