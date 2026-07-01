@@ -3,7 +3,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <router-link to="/" class="footer-logo">
-          <img src="../Imagem/logotipo.png" alt="Biofund" class="footer-logo-img"/>
+          <img src="../Imagem/Logo BIOFUND sem fundo.png" alt="Biofund" class="footer-logo-img"/>
         </router-link>
         <p>Instituição privada de utilidade pública que mobiliza recursos para a conservação. </p>
       </div>
