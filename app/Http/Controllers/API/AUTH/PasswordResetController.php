@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PasswordRecoveryMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -19,8 +21,8 @@ use Illuminate\Validation\ValidationException;
  * Gere o fluxo completo de recuperação e alteração de senha.
  *
  * Fluxo de recuperação:
- *   1. POST /api/auth/forgot-password  → envia email com link/token
- *   2. POST /api/auth/reset-password   → define nova senha com o token
+ *   1. POST /api/auth/forgot-password  → envia por email uma nova senha temporária
+ *   2. POST /api/auth/reset-password   → define nova senha com o token (fluxo alternativo, se usado)
  *
  * Alteração de senha (utilizador autenticado):
  *   3. POST /api/auth/change-password  → altera senha sem token
@@ -28,8 +30,12 @@ use Illuminate\Validation\ValidationException;
 class PasswordResetController extends Controller
 {
     /**
-     * Envia o email de recuperação de senha.
-     * Gera um token único e envia um link para o email do utilizador.
+     * Envia por email uma nova senha temporária para o utilizador.
+     *
+     * A senha é guardada com hash irreversível na base de dados, pelo que não é
+     * possível reenviar a senha actual; em vez disso gera-se uma nova senha
+     * temporária (mesmo padrão usado na criação de utilizadores) e envia-se por
+     * email através do template já existente (UserCredentialsMail).
      *
      * ROTA: POST /api/auth/forgot-password
      * ACESSO: Público (sem autenticação)
@@ -46,13 +52,28 @@ class PasswordResetController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        // Usa o sistema nativo de Password Reset do Laravel
-        // Só envia se o email existir na base de dados
-        Password::sendResetLink(['email' => $request->email]);
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            $temporaryPassword = Str::random(10) . rand(10, 99);
+
+            $user->forceFill([
+                'password' => Hash::make($temporaryPassword),
+            ])->save();
+
+            // Revoga todos os tokens activos por segurança
+            $user->tokens()->delete();
+
+            try {
+                Mail::to($user->email)->send(new PasswordRecoveryMail($user, $temporaryPassword));
+            } catch (\Throwable $e) {
+                Log::error("Falha ao enviar nova senha para {$user->email}: " . $e->getMessage());
+            }
+        }
 
         // Resposta genérica por segurança (não revela se o email existe)
         return response()->json([
-            'message' => 'Se o email estiver registado, receberá as instruções de recuperação em breve.',
+            'message' => 'Se o email estiver registado, receberá uma nova senha em breve.',
         ], 200);
     }
 
