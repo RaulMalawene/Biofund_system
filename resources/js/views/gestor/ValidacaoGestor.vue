@@ -2168,6 +2168,7 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   backdrop-filter: blur(4px);
 }
 
+
 .desc-box {
   margin: 0 16px;
   background: #F4F6F5;
@@ -2180,9 +2181,11 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   border-left: 3px solid var(--green-light);
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 
 /* BTN VER COMPLETO */
 .btn-ver-completo {

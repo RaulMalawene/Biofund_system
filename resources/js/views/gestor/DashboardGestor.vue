@@ -498,7 +498,7 @@
       </main>
 
       <footer class="dash-footer">
-        <span>© 2026 BioFund Gestor · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 BIOFUND Gestor · Sistema de Gestão Ambiental de Moçambique</span>
         <div>
           <a href="#">Suporte Técnico</a>
           <a href="#">Privacidade</a>
