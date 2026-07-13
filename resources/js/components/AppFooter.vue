@@ -83,8 +83,8 @@ footer {
 }
 
 .footer-logo-img {
-  width: 32px;
-  height: 32px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
   border-radius: 6px;
   flex-shrink: 0;

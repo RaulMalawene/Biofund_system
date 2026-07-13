@@ -84,8 +84,8 @@ function handleAccess() {
 }
 
 .nav-logo-img {
-  width: 36px;
-  height: 36px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
   border-radius: 6px;
   flex-shrink: 0;
