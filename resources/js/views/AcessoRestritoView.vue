@@ -31,7 +31,7 @@
           </svg>
         </div>
         <h1>Acesso Restrito</h1>
-        <p>Portal administrativo para funcionários e gestores da Biofund.</p>
+        <p>Portal administrativo para funcionários e gestores da BIOFUND.</p>
       </div>
 
       <!-- Login card -->
@@ -125,7 +125,7 @@
         <div class="security-tags">
           <span>Segurança SSL</span>
           <span class="dot">•</span>
-          <span>Biofund 2025</span>
+          <span>BIOFUND 2026</span>
         </div>
       </div>
 

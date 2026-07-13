@@ -160,7 +160,7 @@
       <div class="documents-intro">
         <h2>Documentos e Políticas</h2>
         <div class="documents-underline"></div>
-        <p>Consulte os documentos oficiais que orientam a actuação do Biofund e o funcionamento do Mecanismo de Diálogo e Reclamação (MDR).</p>
+        <p>Consulte os documentos oficiais que orientam a actuação do BIOFUND e o funcionamento do Mecanismo de Diálogo e Reclamação (MDR).</p>
       </div>
 
       <div class="documents-grid">
