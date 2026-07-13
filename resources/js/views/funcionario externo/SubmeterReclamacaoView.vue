@@ -11,7 +11,7 @@
             <path d="M6 26C6 26 8 14 20 10C28 7 28 4 28 4C28 4 30 16 20 20C12 24 10 28 10 28" fill="#2D6A4F" />
             <path d="M10 28C10 28 14 20 20 20" stroke="#1B4332" stroke-width="2" stroke-linecap="round" />
           </svg>
-          Biofund
+          BIOFUND
         </div>
         <h1>Registar Ocorrência</h1>
         <p>Preencha o formulário abaixo com o máximo de detalhes possível.</p>
@@ -121,8 +121,8 @@
             </svg>
           </div>
           <div class="card-header-text">
-            <h3>Localização da ocorrência</h3>
-            <p>Ajude a nossa equipa a localizar a ocorrência no mapa.</p>
+            <h3>Localização da Ocorrência</h3>
+            <p>Ajude a nossa equipa a localizar a Ocorrência no mapa.</p>
           </div>
         </div>
 
