@@ -94,7 +94,7 @@
         <div class="page-title-row">
           <div>
             <h1>Gestão de Utilizadores</h1>
-            <p>Administre as contas de acesso ao sistema BioFund.</p>
+            <p>Administre as contas de acesso ao sistema BIOFUND.</p>
           </div>
           <div class="title-actions">
             <button class="btn-green-sm" @click="showTypeModal = true">
