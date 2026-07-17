@@ -1,13 +1,13 @@
 import axios from 'axios'
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL ?? 'http://169.58.26.205/api',
+    baseURL: import.meta.env.VITE_API_URL ?? (window.location.origin + '/api'),
     headers: {
         'Content-Type': 'application/json',
         'Accept':        'application/json',
     },
     timeout: 45000,
-})
+})									
 
 // ── Interceptor de REQUEST ────────────────────────────────────
 // Anexa o token Sanctum em cada pedido autenticado
