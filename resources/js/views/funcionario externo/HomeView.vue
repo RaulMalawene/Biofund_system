@@ -11,13 +11,18 @@
         <h1>Registe a sua ocorrência</h1>
         <div class="hero-trust">
           <span class="hero-trust-item">
-            <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Gratuito
           </span>
           <span class="hero-trust-divider"></span>
           <span class="hero-trust-item">
-            <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Seguro
+          </span>
+          <span class="hero-trust-divider"></span>
+          <span class="hero-trust-item">
+            <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Confidencial
           </span>
         </div>
         <p>Fortalecer a transparência e a participação das partes interessadas nas iniciativas de Conservação da Biodiversidade em Moçambique.</p>
@@ -370,16 +375,18 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
+  row-gap: 8px;
   margin-bottom: 22px;
 }
 
 .hero-trust-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   color: var(--amber);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.2px;
 }
