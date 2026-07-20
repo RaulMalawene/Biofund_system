@@ -11,7 +11,7 @@
       <div class="footer-col">
         <h5>Links Rápidos</h5>
         <router-link to="/">Página Inicial</router-link>
-        <router-link to="/submeterReclamacao">Reportar Incidente</router-link>
+        <router-link to="/submeterReclamacao">Reportar Ocorrência</router-link>
         <router-link to="/visualizarReclamacao">Acompanhar Caso</router-link>
       </div>
 

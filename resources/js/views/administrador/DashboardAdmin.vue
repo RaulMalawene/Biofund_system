@@ -282,7 +282,7 @@
               </div>
               <span v-if="activeFilter === 'nao_validado'" class="kpi-active-dot"></span>
             </div>
-            <div class="kpi-label light">Não Validadas</div>
+            <div class="kpi-label light">Improcedente</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.nao_validado ?? 0) }}</div>
             <div class="kpi-sub light">Processos concluídos</div>
           </div>

@@ -9,8 +9,8 @@
       <div class="hero-content">
         <div class="hero-badge">MDR · Mecanismo de Diálogo e Reclamação</div>
         <h1>
-          Registe a sua
-          <span>ocorrência</span>
+          Registe a sua ocorrência
+          <span>É GRATUITO E SEGURO </span>
         </h1>
         <p>Fortalecer a transparência e a participação das partes interessadas nas iniciativas de Conservação da Biodiversidade em Moçambique.</p>
         <div class="hero-buttons">
@@ -66,10 +66,7 @@
           </div>
           <h3>Resolução</h3>
           <p>Receba a resposta e a resolução da sua ocorrência após a análise e tratamento da mesma.</p>
-          <a href="#" class="feature-link">
-            Ver Impacto
-            <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" stroke="#2D6A4F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
+
         </div>
       </div>
     </div>

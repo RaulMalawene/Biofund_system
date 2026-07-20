@@ -305,7 +305,7 @@
       <div class="submit-banner">
         <div class="submit-banner-text">
           <p>Ao submeter esta ocorrência, você declara que as informações prestadas são verdadeiras e autoriza a BIOFUND
-            a utilizá-las para fins de investigação ambiental.</p>
+            a utilizá-las para fins de investigação.</p>
         </div>
         <button class="btn-submit" @click="submitForm" :disabled="submitting">
           <span v-if="submitting" class="spinner"></span>
@@ -329,7 +329,7 @@
         </div>
 
         <h3>Ocorrência Enviada!</h3>
-        <p>A sua ocorrência foi registada com sucesso. A equipa da  BIOFUND irá analisar e tomar as medidas necessárias.</p>
+        <p>A sua ocorrência foi registada com sucesso. A BIOFUND irá analisar e tomar as medidas necessárias.</p>
 
         <!-- Tracking Code -->
         <div class="tracking-box" v-if="trackingCode">
