@@ -271,21 +271,25 @@
             <div class="kpi-label light">Não Resolvidas</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.nao_resolvida ?? 0) }}</div>
             <div class="kpi-sub light">Sem actividade há mais de 5 dias</div>
+            <div class="kpi-highlight-chip">
+              <span class="kpi-highlight-dot"></span>
+              {{ statsLoading ? '-' : (rawTotals.improcedente ?? 0) }} improcedentes
+            </div>
           </div>
 
-          <div class="kpi-card kpi-red" @click="selectCard('improcedente')" :class="{ 'card-active': activeFilter === 'improcedente' }" title="Filtrar por: Improcedentes">
+          <div class="kpi-card kpi-yellow" @click="selectCard('por_resolver')" :class="{ 'card-active': activeFilter === 'por_resolver' }" title="Filtrar por: Por Resolver">
             <div class="kpi-top">
               <div class="kpi-icon white">
                 <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
-                  <circle cx="6" cy="6" r="2.5"/><circle cx="12" cy="6" r="2.5"/>
-                  <path d="M1 15c0-2.209 2.239-4 5-4M9 15c0-2.209 1.343-4 4-4 2.761 0 5 1.791 5 4" stroke-linecap="round"/>
+                  <rect x="4" y="2.5" width="10" height="13" rx="1.5"/>
+                  <path d="M7 6.5h4M7 9h4M7 11.5h2.5" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span v-if="activeFilter === 'improcedente'" class="kpi-active-dot"></span>
+              <span v-if="activeFilter === 'por_resolver'" class="kpi-active-dot"></span>
             </div>
-            <div class="kpi-label light">Improcedente</div>
-            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.improcedente ?? 0) }}</div>
-            <div class="kpi-sub light">Processos concluídos</div>
+            <div class="kpi-label light">Por Resolver</div>
+            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.por_resolver ?? 0) }}</div>
+            <div class="kpi-sub light">Aguardando início da resolução</div>
           </div>
         </div>
 
@@ -853,14 +857,14 @@ const FILTER_MAP = {
     por_validar:   { status: 'por_validar'   },
     resolvido:     { status: 'resolvido'     },
     nao_resolvida: { status: 'nao_resolvida' },
-    improcedente:  { status: 'improcedente'  },
+    por_resolver:  { status: 'por_resolver'  },
 }
 
 const FILTER_LABELS = {
     por_validar:   'Por Validar',
     resolvido:     'Resolvidas',
     nao_resolvida: 'Não Resolvidas',
-    improcedente:  'Improcedentes',
+    por_resolver:  'Por Resolver',
 }
 
 // ── Estatísticas do dashboard ─────────────────────────────────
@@ -1967,7 +1971,7 @@ onMounted(async () => {
 .kpi-card.kpi-orange { background: linear-gradient(135deg, #c2410c 0%, #fb923c 100%); border: none; box-shadow: 0 4px 20px rgba(251,146,60,0.35); }
 .kpi-card.kpi-green  { background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%); border: none; box-shadow: 0 4px 20px rgba(45,106,79,0.35); }
 .kpi-card.kpi-purple { background: linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%); border: none; box-shadow: 0 4px 20px rgba(91,33,182,0.35); }
-.kpi-card.kpi-red    { background: linear-gradient(135deg, #991B1B 0%, #EF4444 100%); border: none; box-shadow: 0 4px 20px rgba(153,27,27,0.35); }
+.kpi-card.kpi-yellow  { background: linear-gradient(135deg, #854D0E 0%, #CA8A04 100%); border: none; box-shadow: 0 4px 20px rgba(133,77,14,0.35); }
 
 .kpi-card.card-active {
   outline: 2px solid #52B788;
@@ -1977,7 +1981,7 @@ onMounted(async () => {
 .kpi-card.kpi-orange.card-active,
 .kpi-card.kpi-green.card-active,
 .kpi-card.kpi-purple.card-active,
-.kpi-card.kpi-red.card-active {
+.kpi-card.kpi-yellow.card-active {
   outline: 2px solid rgba(255,255,255,0.9);
   outline-offset: 2px;
   box-shadow: 0 0 0 5px rgba(255,255,255,0.2), 0 4px 20px rgba(0,0,0,0.15);
@@ -2070,6 +2074,27 @@ onMounted(async () => {
 .kpi-sub { font-size: 11px; }
 .kpi-sub.dark  { color: var(--text-light); }
 .kpi-sub.light { color: rgba(255, 255, 255, 0.75); }
+
+.kpi-highlight-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(239, 68, 68, 0.35);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+.kpi-highlight-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #EF4444;
+  flex-shrink: 0;
+}
 
 
 /* ── CHARTS ROW ──────────────────────────── */
