@@ -112,7 +112,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('role:admin,gestor')
         ->group(function () {
 
-        // Mudar estado - comentário obrigatório em nao_validado e resolvido
+        // Mudar estado - comentário obrigatório em improcedente e resolvido
         Route::patch('{occurrence}/status', [GestorOccurrenceController::class, 'updateStatus'])
             ->name('update-status');
 

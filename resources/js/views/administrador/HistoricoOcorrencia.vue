@@ -186,7 +186,7 @@
               <select v-model="filters.status">
                 <option value="">Todos os Terminais</option>
                 <option value="resolvido">Resolvidas</option>
-                <option value="nao_validado">Não Validadas</option>
+                <option value="improcedente">Improcedentes</option>
                 <option value="nao_resolvida">Não Resolvidas</option>
                 <option value="removed">Removidas</option>
               </select>
@@ -230,7 +230,7 @@
             {{ loading ? 'A carregar…' : `${meta.total} resultado${meta.total !== 1 ? 's' : ''}` }}
           </span>
           <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolvido') }}</span>
-          <span class="badge-status nao_validado">Não Validadas · {{ countByStatus('nao_validado') }}</span>
+          <span class="badge-status improcedente">Improcedentes · {{ countByStatus('improcedente') }}</span>
           <span class="badge-status nao_resolvida">Não Resolvidas · {{ countByStatus('nao_resolvida') }}</span>
         </div>
 
@@ -1323,7 +1323,7 @@ tbody tr:last-child td {
   background: #22C55E;
 }
 
-.badge-status.nao_validado,
+.badge-status.improcedente,
 .badge-status.rejected {
   color: #fff;
   border-color: #DC2626;

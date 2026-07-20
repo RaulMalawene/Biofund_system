@@ -24,11 +24,11 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@mdr.biofund.org.mz'],
+            ['email' => 'mdr@biofund.org.mz'],
             [
                 'name'                   => 'Administrador MDR',
-                'phone'                  => '+258 21 000 000',
-                'password'               => 'Admin@MDR2024',
+                'phone'                  => '+258 84 000 000',
+                'password'               => 'Admin@MDR2026',
                 'role'                   => 'admin',
                 'management_scope'       => 'national',   // admin vê tudo
                 'province_id'            => null,

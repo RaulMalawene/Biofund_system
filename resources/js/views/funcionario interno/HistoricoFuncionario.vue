@@ -85,7 +85,7 @@
               <select v-model="filters.status">
                 <option value="">Todos os Terminais</option>
                 <option value="resolvido">Resolvidas</option>
-                <option value="nao_validado">Não Validadas</option>
+                <option value="improcedente">Improcedentes</option>
                 <option value="nao_resolvida">Não Resolvidas</option>
                 <option value="encerrado">Encerradas</option>
               </select>
@@ -136,7 +136,7 @@
             {{ loading ? 'A carregar…' : `${meta.total} resultado${meta.total !== 1 ? 's' : ''}` }}
           </span>
           <span class="badge-status resolvido">Resolvidas · {{ countByStatus('resolvido') }}</span>
-          <span class="badge-status nao_validado">Não Validadas · {{ countByStatus('nao_validado') }}</span>
+          <span class="badge-status improcedente">Improcedentes · {{ countByStatus('improcedente') }}</span>
           <span class="badge-status nao_resolvida">Não Resolvidas · {{ countByStatus('nao_resolvida') }}</span>
         </div>
 
@@ -410,7 +410,7 @@ const auth   = useAuthStore()
 const STATUS_DOT_COLORS = {
   blue:   '#FB923C', // Por Validar
   yellow: '#FACC15', // Por Resolver
-  red:    '#EF4444', // Não Validado
+  red:    '#EF4444', // Improcedente
   orange: '#3b82f6', // Resolvendo
   green:  '#22C55E', // Resolvido
   purple: '#7C3AED', // Não Resolvida
@@ -733,7 +733,7 @@ tbody tr:last-child td { border-bottom: none; }
 .badge-status.por_resolver, .badge-status.in_review   { color: #713F12; border-color: #CA8A04; background: #FACC15; }
 .badge-status.resolvendo                              { color: #fff;    border-color: #2563EB; background: #3b82f6; }
 .badge-status.resolvido, .badge-status.resolved       { color: #fff;    border-color: #16A34A; background: #22C55E; }
-.badge-status.nao_validado, .badge-status.rejected    { color: #fff;    border-color: #DC2626; background: #EF4444; }
+.badge-status.improcedente, .badge-status.rejected    { color: #fff;    border-color: #DC2626; background: #EF4444; }
 .badge-status.nao_resolvida                           { color: #fff;    border-color: #6D28D9; background: #7C3AED; }
 .badge-status.encerrado, .badge-status.closed         { color: #fff;    border-color: #4B5563; background: #6B7280; }
 

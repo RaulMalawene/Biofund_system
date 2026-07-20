@@ -130,7 +130,7 @@
                 <option value="">Todos os Estados</option>
                 <option value="por_validar">Por Validar</option>
                 <option value="por_resolver">Por Resolver</option>
-                <option value="nao_validado">Não Validado</option>
+                <option value="improcedente">Improcedente</option>
                 <option value="resolvendo">Resolvendo</option>
                 <option value="resolvido">Resolvido</option>
                 <option value="nao_resolvida">Não Resolvida</option>
@@ -328,12 +328,12 @@
               <div class="state-actions">
                 <div class="state-flow">
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['nao_validado','nao_resolvida'].includes(selected.status) }">Por Validar</span>
+                    :class="{ 'flow-active': selected.status === 'por_validar', 'flow-done': ['por_resolver','resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['improcedente','nao_resolvida'].includes(selected.status) }">Por Validar</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <span class="flow-step"
-                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['nao_validado','nao_resolvida'].includes(selected.status) }">Por Resolver</span>
+                    :class="{ 'flow-active': selected.status === 'por_resolver', 'flow-done': ['resolvendo','resolvido'].includes(selected.status), 'flow-skip': ['improcedente','nao_resolvida'].includes(selected.status) }">Por Resolver</span>
                   <svg class="flow-chevron" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 10 10">
                     <path d="M3 2l4 3-4 3" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
@@ -358,12 +358,12 @@
                       </svg>
                       {{ confirming ? 'A validar…' : 'Validar' }}
                     </button>
-                    <button class="btn-rejeitar-outline" @click="openCommentModal('NaoValidado')" :disabled="confirming">
+                    <button class="btn-rejeitar-outline" @click="openCommentModal('Improcedente')" :disabled="confirming">
                       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="6" />
                         <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke-linecap="round" />
                       </svg>
-                      Não Validar
+                      Improcedente
                     </button>
                   </div>
                 </template>
@@ -407,14 +407,14 @@
                   <div v-if="selected.comentario" class="sf-comment sf-comment-resolvido">{{ selected.comentario }}</div>
                 </template>
 
-                <template v-else-if="selected.status === 'nao_validado'">
+                <template v-else-if="selected.status === 'improcedente'">
                   <div class="state-final sf-rejeitado">
                     <div class="sf-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                         <circle cx="10" cy="10" r="8" />
                         <path d="M7 7l6 6M13 7l-6 6" stroke-linecap="round" />
                       </svg></div>
                     <div>
-                      <div class="sf-title">Ocorrência Não Validada</div>
+                      <div class="sf-title">Ocorrência Improcedente</div>
                       <div class="sf-sub">Esta ocorrência foi recusada.</div>
                     </div>
                   </div>
@@ -720,10 +720,10 @@
     <transition name="modal-fade">
       <div class="comment-overlay" v-if="commentModal.show" @click.self="cancelComment">
         <div class="comment-card">
-          <div class="comment-hd" :class="commentModal.action === 'NaoValidado' ? 'chd-rejeitar' : commentModal.action === 'Comentario' ? 'chd-comentario' : 'chd-resolver'">
+          <div class="comment-hd" :class="commentModal.action === 'Improcedente' ? 'chd-rejeitar' : commentModal.action === 'Comentario' ? 'chd-comentario' : 'chd-resolver'">
             <div class="comment-hd-left">
               <div class="comment-hd-icon">
-                <svg v-if="commentModal.action === 'NaoValidado'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
+                <svg v-if="commentModal.action === 'Improcedente'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 20 20">
                   <circle cx="10" cy="10" r="8" />
                   <path d="M7 7l6 6M13 7l-6 6" stroke-linecap="round" />
                 </svg>
@@ -737,7 +737,7 @@
                 </svg>
               </div>
               <div>
-                <div class="comment-hd-title">{{ commentModal.action === 'NaoValidado' ? 'Não Validar Ocorrência' : commentModal.action === 'Comentario' ? 'Adicionar Comentário' : 'Marcar como Resolvido' }}</div>
+                <div class="comment-hd-title">{{ commentModal.action === 'Improcedente' ? 'Marcar Ocorrência como Improcedente' : commentModal.action === 'Comentario' ? 'Adicionar Comentário' : 'Marcar como Resolvido' }}</div>
                 <div class="comment-hd-id">{{ selected?.id }} · {{ selected?.categoria }}</div>
               </div>
             </div>
@@ -749,12 +749,12 @@
           </div>
           <div class="comment-body">
             <div class="comment-field-label">
-              {{ commentModal.action === 'NaoValidado' ? 'Motivo da Não Validação' : commentModal.action === 'Comentario' ? 'Comentário' : 'Descrição da Resolução' }}
+              {{ commentModal.action === 'Improcedente' ? 'Motivo da Improcedência' : commentModal.action === 'Comentario' ? 'Comentário' : 'Descrição da Resolução' }}
               <span class="comment-required">obrigatório</span>
             </div>
             <p class="comment-hint">
-              {{ commentModal.action === 'NaoValidado'
-                ? 'Explique o motivo pelo qual esta ocorrência não foi validada.'
+              {{ commentModal.action === 'Improcedente'
+                ? 'Explique o motivo pelo qual esta ocorrência é considerada improcedente.'
                 : commentModal.action === 'Comentario'
                   ? 'Escreva um comentário sobre esta ocorrência.'
                   : 'Descreva como a ocorrência foi resolvida e as medidas tomadas.' }}
@@ -768,12 +768,12 @@
           <div class="comment-footer">
             <button class="btn-cancel-comment" @click="cancelComment" :disabled="confirming">Cancelar</button>
             <button class="btn-confirm-comment"
-              :class="commentModal.action === 'NaoValidado' ? 'bcc-rejeitar' : commentModal.action === 'Comentario' ? 'bcc-comentario' : 'bcc-resolver'"
+              :class="commentModal.action === 'Improcedente' ? 'bcc-rejeitar' : commentModal.action === 'Comentario' ? 'bcc-comentario' : 'bcc-resolver'"
               @click="confirmComment" :disabled="confirming">
               <svg v-if="confirming" class="spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 16 16">
                 <path d="M8 2a6 6 0 0 1 6 6" stroke-linecap="round" />
               </svg>
-              {{ confirming ? 'A processar…' : commentModal.action === 'NaoValidado' ? 'Confirmar Não Validação' : commentModal.action === 'Comentario' ? 'Guardar Comentário' : 'Confirmar Resolução' }}
+              {{ confirming ? 'A processar…' : commentModal.action === 'Improcedente' ? 'Confirmar Improcedência' : commentModal.action === 'Comentario' ? 'Guardar Comentário' : 'Confirmar Resolução' }}
             </button>
           </div>
         </div>
@@ -853,14 +853,14 @@ const f = reactive({ provincia: '', projeto: '', data: '', status: '', categoria
 // ─── Status helpers ───────────────────────────────────────────
 const ACTION_TO_API = {
   'PorResolver': 'por_resolver',
-  'NaoValidado': 'nao_validado',
+  'Improcedente': 'improcedente',
   'Resolvendo':  'resolvendo',
   'Resolvido':   'resolvido',
 }
 const STATUS_LABEL = {
   por_validar:   'Por Validar',
   por_resolver:  'Por Resolver',
-  nao_validado:  'Não Validado',
+  improcedente:  'Improcedente',
   resolvendo:    'Resolvendo',
   resolvido:     'Resolvido',
   nao_resolvida: 'Não Resolvida',
@@ -870,7 +870,7 @@ function statusClass(s) {
   const map = {
     por_validar:   'por-validar',
     por_resolver:  'por-resolver',
-    nao_validado:  'nao-validado',
+    improcedente:  'improcedente',
     resolvendo:    'resolvendo',
     resolvido:     'resolvido',
     nao_resolvida: 'nao-resolvida',
@@ -940,7 +940,7 @@ async function loadOccurrences() {
   loading.value = true
   try {
     const res = await InternalService.getOccurrences({ per_page: 100 })
-    const TERMINAL = ['resolvido', 'nao_validado', 'nao_resolvida']
+    const TERMINAL = ['resolvido', 'improcedente', 'nao_resolvida']
     rows.value = (res.data ?? []).map(mapOccurrence).filter(r => !TERMINAL.includes(r.status))
   } catch (e) {
     console.error(e)
@@ -1143,7 +1143,7 @@ async function changeStatus(newState, comment = '') {
     if (comment && comment.trim()) payload.comment = comment.trim()
     const result = await InternalService.updateStatus(selected.value._id, payload)
     const trackingCode = selected.value.id
-    const isFinal = ['nao_validado', 'resolvido', 'nao_resolvida'].includes(apiStatus)
+    const isFinal = ['improcedente', 'resolvido', 'nao_resolvida'].includes(apiStatus)
     if (isFinal) {
       rows.value = rows.value.filter(r => r._id !== selected.value._id)
       selected.value = null
@@ -1161,7 +1161,7 @@ async function changeStatus(newState, comment = '') {
       if (result.assigned_to) selected.value.responsavel = result.assigned_to.name
       if (editMode.value) editMode.value = false
     }
-    showToast(newState === 'NaoValidado' ? `${trackingCode} foi não validada.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'NaoValidado')
+    showToast(newState === 'Improcedente' ? `${trackingCode} foi marcada como improcedente.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'Improcedente')
   } catch (e) {
     const errors = e?.response?.data?.errors
     showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao actualizar o estado. Tente novamente.', true)
@@ -1636,7 +1636,7 @@ tbody tr:last-child td {
   background: #22C55E;
 }
 
-.badge-status.nao-validado {
+.badge-status.improcedente {
   color: #fff;
   border-color: #DC2626;
   background: #EF4444;

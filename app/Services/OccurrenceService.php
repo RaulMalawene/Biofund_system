@@ -184,7 +184,7 @@ class OccurrenceService
 
         // 3. Verifica se o utilizador tem permissão para as decisões finais
         if (
-            in_array($newStatus, [OccurrenceStatusEnum::NaoValidado, OccurrenceStatusEnum::Resolvido])
+            in_array($newStatus, [OccurrenceStatusEnum::Improcedente, OccurrenceStatusEnum::Resolvido])
             && !$changedBy->canValidate()
         ) {
             throw ValidationException::withMessages([
@@ -209,11 +209,11 @@ class OccurrenceService
                 'status'      => $newStatus,
                 'assigned_to' => $autoAssign ? $changedBy->id : $occurrence->assigned_to,
                 'reviewed_by' => in_array($newStatus, [
-                    OccurrenceStatusEnum::NaoValidado,
+                    OccurrenceStatusEnum::Improcedente,
                     OccurrenceStatusEnum::Resolvido,
                 ]) ? $changedBy->id : $occurrence->reviewed_by,
                 'reviewed_at' => in_array($newStatus, [
-                    OccurrenceStatusEnum::NaoValidado,
+                    OccurrenceStatusEnum::Improcedente,
                     OccurrenceStatusEnum::Resolvido,
                 ]) ? now() : $occurrence->reviewed_at,
             ]);

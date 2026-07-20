@@ -212,7 +212,7 @@
             <div class="kpi-sub light">Sem actividade há mais de 5 dias</div>
           </div>
 
-          <div class="kpi-card kpi-red" @click="selectCard('nao_validado')" :class="{ 'card-active': activeFilter === 'nao_validado' }" title="Filtrar por: Não Validadas">
+          <div class="kpi-card kpi-red" @click="selectCard('improcedente')" :class="{ 'card-active': activeFilter === 'improcedente' }" title="Filtrar por: Improcedentes">
             <div class="kpi-top">
               <div class="kpi-icon white">
                 <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.8" viewBox="0 0 18 18">
@@ -220,10 +220,10 @@
                   <path d="M1 15c0-2.209 2.239-4 5-4M9 15c0-2.209 1.343-4 4-4 2.761 0 5 1.791 5 4" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span v-if="activeFilter === 'nao_validado'" class="kpi-active-dot"></span>
+              <span v-if="activeFilter === 'improcedente'" class="kpi-active-dot"></span>
             </div>
-            <div class="kpi-label light">Não Validadas</div>
-            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.nao_validado ?? 0) }}</div>
+            <div class="kpi-label light">Improcedentes</div>
+            <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.improcedente ?? 0) }}</div>
             <div class="kpi-sub light">Processos concluídos</div>
           </div>
         </div>
@@ -686,20 +686,20 @@ const FILTER_MAP = {
   por_validar:   { status: 'por_validar'   },
   resolvido:     { status: 'resolvido'     },
   nao_resolvida: { status: 'nao_resolvida' },
-  nao_validado:  { status: 'nao_validado'  },
+  improcedente:  { status: 'improcedente'  },
 }
 
 const FILTER_LABELS = {
   por_validar:   'Por Validar',
   resolvido:     'Resolvidas',
   nao_resolvida: 'Não Resolvidas',
-  nao_validado:  'Não Validadas',
+  improcedente:  'Improcedentes',
 }
 
 // ── Estatísticas ─────────────────────────────────────────────
 const statsLoading = ref(true)
 const stats = reactive({
-  totals:          { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 },
+  totals:          { all: 0, por_validar: 0, por_resolver: 0, improcedente: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 },
   overdue:         0,
   byAlertLevel:    { normal: 0, urgent: 0, gbv: 0 },
   byProvince:      [],
@@ -713,7 +713,7 @@ const stats = reactive({
 })
 
 // Valores KPI fixos - não se alteram quando um filtro está activo
-const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 })
+const rawTotals     = reactive({ all: 0, por_validar: 0, por_resolver: 0, improcedente: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 })
 const rawAlertLevel = reactive({ normal: 0, urgent: 0, gbv: 0 })
 const rawOverdue     = ref(0)
 const rawReclamacoes = ref(0)
@@ -745,7 +745,7 @@ async function applyDashFilter() {
   filterLoading.value = true
   try {
     const data = await InternalService.getDashboardStats(buildDashFilter())
-    const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 }
+    const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, improcedente: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 }
     const zeroAlertLevel = { normal: 0, urgent: 0, gbv: 0 }
     Object.assign(stats.totals,       zeroTotals,     data.totals         ?? {})
     Object.assign(stats.byAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -858,7 +858,7 @@ function updateCharts() {
 async function refreshStats() {
   try {
     const data = await InternalService.getDashboardStats(buildDashFilter())
-    const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, nao_validado: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 }
+    const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, improcedente: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 }
     const zeroAlertLevel = { normal: 0, urgent: 0, gbv: 0 }
     Object.assign(stats.totals,       zeroTotals,     data.totals         ?? {})
     Object.assign(stats.byAlertLevel, zeroAlertLevel, data.by_alert_level ?? {})
@@ -975,7 +975,7 @@ const STATUS_MAP = {
   por_resolver:  { label: 'Por Resolver',  cls: 'por-resolver'  },
   resolvendo:    { label: 'Resolvendo',    cls: 'resolvendo'    },
   resolvido:     { label: 'Resolvido',     cls: 'resolvido'     },
-  nao_validado:  { label: 'Não Validado',  cls: 'nao-validado'  },
+  improcedente:  { label: 'Improcedente',  cls: 'improcedente'  },
   nao_resolvida: { label: 'Não Resolvida', cls: 'nao-resolvida' },
 }
 
@@ -1903,7 +1903,7 @@ tbody td {
 .badge-status.resolvendo  { background: #3b82f6; color: #fff;    }
 .badge-status.resolvido,
 .badge-status.resolvida   { background: #22C55E; color: #fff;    }
-.badge-status.nao-validado,
+.badge-status.improcedente,
 .badge-status.rejeitada   { background: #EF4444; color: #fff;    }
 .badge-status.nao-resolvida { background: #7C3AED; color: #fff;  }
 .badge-status.encerrada   { background: #6B7280; color: #fff;    }

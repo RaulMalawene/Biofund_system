@@ -99,7 +99,9 @@ class AdminStatisticsController extends Controller
         ->when($filterProvince,  fn($q) => $q->where('province_id', $filterProvince))
         ->when($filterProject,   fn($q) => $q->where('project_id',  $filterProject))
         ->when($filterCategory,  fn($q) => $q->where('category_id', $filterCategory))
-        ->when($filterGender,    fn($q) => $q->where('complainant_gender', $filterGender))
+        ->when($filterGender,    fn($q) => $filterGender === 'nao_identificado'
+            ? $q->whereNull('complainant_gender')
+            : $q->where('complainant_gender', $filterGender))
         ->when($filterAgeRange,  fn($q) => $q->where('complainant_age',    $filterAgeRange));
 
         $totals   = $baseQuery()
@@ -138,7 +140,9 @@ class AdminStatisticsController extends Controller
             ->when($filterProvince,  fn($q) => $q->where('occurrences.province_id', $filterProvince))
             ->when($filterProject,   fn($q) => $q->where('occurrences.project_id',  $filterProject))
             ->when($filterCategory,  fn($q) => $q->where('occurrences.category_id', $filterCategory))
-            ->when($filterGender,    fn($q) => $q->where('occurrences.complainant_gender', $filterGender))
+            ->when($filterGender,    fn($q) => $filterGender === 'nao_identificado'
+                ? $q->whereNull('occurrences.complainant_gender')
+                : $q->where('occurrences.complainant_gender', $filterGender))
             ->when($filterAgeRange,  fn($q) => $q->where('occurrences.complainant_age',    $filterAgeRange))
             ->groupBy('provinces.name')
             ->orderByDesc('total')

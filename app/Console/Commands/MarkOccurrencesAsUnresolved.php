@@ -49,7 +49,7 @@ class MarkOccurrencesAsUnresolved extends Command
 
         $terminalStatuses = [
             OccurrenceStatusEnum::Resolvido->value,
-            OccurrenceStatusEnum::NaoValidado->value,
+            OccurrenceStatusEnum::Improcedente->value,
             OccurrenceStatusEnum::NaoResolvida->value,
         ];
 

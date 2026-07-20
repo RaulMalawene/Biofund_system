@@ -42,7 +42,7 @@ class OccurrenceResource extends JsonResource
         $isOverdue = $dueDate !== null
             && $dueDate->timestamp < time()
             && $status !== OccurrenceStatusEnum::Resolvido
-            && $status !== OccurrenceStatusEnum::NaoValidado
+            && $status !== OccurrenceStatusEnum::Improcedente
             && $status !== OccurrenceStatusEnum::NaoResolvida;
 
         return [

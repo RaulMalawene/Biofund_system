@@ -36,9 +36,9 @@ class UpdateOccurrenceStatusRequest extends FormRequest
         return [
             'status' => ['required', 'string', Rule::in($validStatuses)],
 
-            // Justificação obrigatória ao não validar ou ao marcar como resolvido
+            // Justificação obrigatória ao marcar como improcedente ou como resolvido
             'comment' => [
-                Rule::requiredIf(fn() => in_array($this->status, ['nao_validado', 'resolvido'])),
+                Rule::requiredIf(fn() => in_array($this->status, ['improcedente', 'resolvido'])),
                 'nullable',
                 'string',
                 'min:10',

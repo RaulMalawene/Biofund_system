@@ -746,7 +746,7 @@ const myProvinces    = computed(() => auth.user?.provinces ?? [])
 const STATUS_DOT_COLORS = {
   blue:   '#FB923C', // Por Validar
   yellow: '#FACC15', // Por Resolver
-  red:    '#EF4444', // Não Validado
+  red:    '#EF4444', // Improcedente
   orange: '#3b82f6', // Resolvendo
   green:  '#22C55E', // Resolvido
   purple: '#7C3AED', // Não Resolvida
@@ -1582,7 +1582,7 @@ tbody tr:last-child td { border-bottom: none; }
 .badge-status.resolvido, .badge-status.resolved {
   color: #fff; border-color: #16A34A; background: #22C55E;
 }
-.badge-status.rejected, .badge-status.nao_validado {
+.badge-status.rejected, .badge-status.improcedente {
   color: #fff; border-color: #DC2626; background: #EF4444;
 }
 .badge-status.nao_resolvida {

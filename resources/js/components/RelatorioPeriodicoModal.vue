@@ -468,7 +468,7 @@ async function gerarExcel(data) {
   // ── Labels auxiliares ─────────────────────────────────────────
   const statusLabels = {
     por_validar: 'Por Validar', por_resolver: 'Por Resolver',
-    nao_validado: 'Não Validado', resolvendo: 'Resolvendo',
+    improcedente: 'Improcedente', resolvendo: 'Resolvendo',
     resolvido: 'Resolvido', nao_resolvida: 'Não Resolvida',
   }
   const alertLabels = { normal: 'Normal', urgent: 'Urgente', gbv: 'GBV' }
@@ -695,7 +695,7 @@ async function gerarExcel(data) {
 
   const corEstado = (estado) => {
     if (estado === 'Resolvido')     return COR.verdeOk
-    if (estado === 'Não Validado')  return COR.vermelho
+    if (estado === 'Improcedente') return COR.vermelho
     if (estado === 'Não Resolvida') return 'FF7B341E'
     if (estado === 'Resolvendo')    return 'FF744210'
     if (estado === 'Por Resolver')  return 'FF744210'
@@ -904,7 +904,7 @@ async function gerarPdf(data) {
   // ── Tabela: Por Estado ──────────────────────────────────────
   const statusLabels = {
     por_validar: 'Por Validar', por_resolver: 'Por Resolver',
-    nao_validado: 'Não Validado', resolvendo: 'Resolvendo',
+    improcedente: 'Improcedente', resolvendo: 'Resolvendo',
     resolvido: 'Resolvido', nao_resolvida: 'Não Resolvida',
   }
   startY = secaoTitulo('Totais por Estado e Nível de Alerta', startY)
