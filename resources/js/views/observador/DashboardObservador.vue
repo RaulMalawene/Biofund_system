@@ -210,10 +210,7 @@
             <div class="kpi-label light">Não Resolvidas</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.nao_resolvida ?? 0) }}</div>
             <div class="kpi-sub light">Sem actividade há mais de 5 dias</div>
-            <div class="kpi-highlight-chip">
-              <span class="kpi-highlight-dot"></span>
-              {{ statsLoading ? '-' : (rawTotals.improcedente ?? 0) }} improcedentes
-            </div>
+            <div class="kpi-highlight-text">{{ statsLoading ? '-' : (rawTotals.improcedente ?? 0) }} improcedentes</div>
           </div>
 
           <div class="kpi-card kpi-yellow" @click="selectCard('por_resolver')" :class="{ 'card-active': activeFilter === 'por_resolver' }" title="Filtrar por: Por Resolver">
@@ -1804,25 +1801,11 @@ onMounted(async () => {
 .kpi-sub.dark   { color: var(--text-light); }
 .kpi-sub.light  { color: rgba(255,255,255,.75); }
 
-.kpi-highlight-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 8px;
+.kpi-highlight-text {
+  margin-top: 6px;
   font-size: 11px;
   font-weight: 700;
   color: #fff;
-  background: rgba(239, 68, 68, 0.35);
-  border: 1px solid rgba(239, 68, 68, 0.55);
-  padding: 3px 9px;
-  border-radius: 99px;
-}
-.kpi-highlight-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #EF4444;
-  flex-shrink: 0;
 }
 
 
