@@ -8,10 +8,18 @@
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <div class="hero-badge">MDR · Mecanismo de Diálogo e Reclamação</div>
-        <h1>
-          Registe a sua ocorrência
-          <span>É GRATUITO E SEGURO </span>
-        </h1>
+        <h1>Registe a sua ocorrência</h1>
+        <div class="hero-trust">
+          <span class="hero-trust-item">
+            <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Gratuito
+          </span>
+          <span class="hero-trust-divider"></span>
+          <span class="hero-trust-item">
+            <svg width="14" height="14" fill="none" viewBox="0 0 16 16"><path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Seguro
+          </span>
+        </div>
         <p>Fortalecer a transparência e a participação das partes interessadas nas iniciativas de Conservação da Biodiversidade em Moçambique.</p>
         <div class="hero-buttons">
           <button class="btn-primary" @click="$router.push('/submeterReclamacao')">
@@ -358,7 +366,31 @@ onUnmounted(() => {
   margin-bottom: 18px;
 }
 
-.hero h1 span { color: var(--amber); display: block; }
+.hero-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.hero-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--amber);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.hero-trust-divider {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--amber);
+  opacity: 0.6;
+}
 
 .hero p {
   color: rgba(255,255,255,0.88);
