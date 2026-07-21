@@ -163,7 +163,7 @@
             </div>
             <div class="kpi-label dark">Total de Ocorrências</div>
             <div class="kpi-value dark">{{ statsLoading ? '-' : (rawTotals.all ?? 0) }}</div>
-            <div class="kpi-sub dark">{{ rawReclamacoes }} reclamações · {{ rawElogios }} elogios · {{ rawSugestoes }} sugestões</div>
+            <div class="kpi-sub dark">{{ rawReclamacoes }} reclamações · {{ rawElogios }} elogios · {{ rawSugestoes }} sugestões · {{ statsLoading ? '-' : (rawTotals.improcedente ?? 0) }} improcedentes</div>
           </div>
 
           <div class="kpi-card kpi-orange" @click="selectCard('por_validar')" :class="{ 'card-active': activeFilter === 'por_validar' }" title="Filtrar por: Por Validar">
@@ -194,7 +194,6 @@
             </div>
             <div class="kpi-label light">Resolvidas</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.resolvido ?? 0) }}</div>
-            <div class="kpi-sub light">{{ rawTotals.por_resolver ?? 0 }} por resolver</div>
           </div>
 
           <div class="kpi-card kpi-purple" @click="selectCard('nao_resolvida')" :class="{ 'card-active': activeFilter === 'nao_resolvida' }" title="Filtrar por: Não Resolvidas">
@@ -210,7 +209,6 @@
             <div class="kpi-label light">Não Resolvidas</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.nao_resolvida ?? 0) }}</div>
             <div class="kpi-sub light">Sem actividade há mais de 5 dias</div>
-            <div class="kpi-highlight-text">{{ statsLoading ? '-' : (rawTotals.improcedente ?? 0) }} improcedentes</div>
           </div>
 
           <div class="kpi-card kpi-yellow" @click="selectCard('por_resolver')" :class="{ 'card-active': activeFilter === 'por_resolver' }" title="Filtrar por: Por Resolver">
@@ -1800,13 +1798,6 @@ onMounted(async () => {
 .kpi-sub { font-size: 11px; }
 .kpi-sub.dark   { color: var(--text-light); }
 .kpi-sub.light  { color: rgba(255,255,255,.75); }
-
-.kpi-highlight-text {
-  margin-top: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-}
 
 
 /* ── CHARTS ROW ──────────────────────────── */
