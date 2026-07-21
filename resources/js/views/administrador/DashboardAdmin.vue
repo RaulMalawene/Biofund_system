@@ -255,6 +255,7 @@
             </div>
             <div class="kpi-label light">Resolvidas</div>
             <div class="kpi-value light">{{ statsLoading ? '-' : (rawTotals.resolvido ?? 0) }}</div>
+            <div class="kpi-sub light">Processos concluídos com sucesso</div>
           </div>
 
           <div class="kpi-card kpi-purple" @click="selectCard('nao_resolvida')" :class="{ 'card-active': activeFilter === 'nao_resolvida' }" title="Filtrar por: Não Resolvidas">
