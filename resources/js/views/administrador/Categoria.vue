@@ -417,8 +417,7 @@ const auth = useAuthStore()
 const sidebarOpen = ref(false)
 
 async function handleLogout() {
-  await auth.logout()
-  router.push('/acessoRestrito')
+  await auth.logout(router)
 }
 
 // ── Constantes visuais ────────────────────────────────────────

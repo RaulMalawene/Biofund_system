@@ -61,16 +61,26 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     /**
-     * Faz logout - revoga token no servidor e limpa estado local
+     * Faz logout - revoga token no servidor, navega para fora da rota
+     * protegida e só depois limpa o estado local.
+     *
+     * A ordem importa: clearSession() muda o `sessionId`, que é usado como
+     * `:key` do <keep-alive> em App.vue para forçar a destruição da cache
+     * ao terminar sessão. Se limpássemos o estado antes de navegar, essa
+     * mudança reactiva remontava a página protegida (ainda activa) sem
+     * token válido, disparando pedidos à API que voltavam com 401. Por
+     * isso aguardamos a navegação terminar antes de limpar a sessão.
      */
-    async function logout() {
+    async function logout(router, redirectTo = "/acessoRestrito") {
         try {
             await AuthService.logout();
         } catch {
-            // Mesmo que o servidor falhe, limpa a sessão local
-        } finally {
-            clearSession();
+            // Mesmo que o servidor falhe, termina a sessão localmente
         }
+        if (router) {
+            await router.push(redirectTo);
+        }
+        clearSession();
     }
 
     /**

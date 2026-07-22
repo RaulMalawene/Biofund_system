@@ -797,8 +797,7 @@ const auth   = useAuthStore()
 const sidebarOpen = ref(false)
 
 async function handleLogout() {
-  await auth.logout()
-  router.push('/acessoRestrito')
+  await auth.logout(router)
 }
 
 // Âmbito do gestor (províncias e projectos atribuídos)

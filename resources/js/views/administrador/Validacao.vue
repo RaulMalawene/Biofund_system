@@ -1169,8 +1169,7 @@ async function changeStatus(newState, comment = '') {
 }
 
 async function handleLogout() {
-  try { await auth.logout() } catch { }
-  router.push('/acessoRestrito')
+  await auth.logout(router)
 }
 </script>
 

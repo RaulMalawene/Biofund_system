@@ -525,8 +525,7 @@ const scopeProvinces = computed(() => auth.user?.provinces ?? [])
 const scopeProjects = computed(() => auth.user?.projects ?? [])
 
 async function handleLogout() {
-  await auth.logout()
-  router.push('/acessoRestrito')
+  await auth.logout(router)
 }
 
 // ── Estado ────────────────────────────────────────────────────

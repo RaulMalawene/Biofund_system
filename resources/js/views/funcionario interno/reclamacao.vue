@@ -734,8 +734,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 async function handleLogout() {
-  await auth.logout()
-  router.push('/')
+  await auth.logout(router, '/')
 }
 
 // ── Projectos e províncias do funcionário (âmbito) ───────────

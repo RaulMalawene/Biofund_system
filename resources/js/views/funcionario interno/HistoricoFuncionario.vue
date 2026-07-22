@@ -420,8 +420,7 @@ function dotColor(toColor) {
 }
 
 async function handleLogout() {
-  await auth.logout()
-  router.push('/')
+  await auth.logout(router, '/')
 }
 
 // ── Estado ────────────────────────────────────────────────────

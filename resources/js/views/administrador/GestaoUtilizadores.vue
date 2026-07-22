@@ -735,8 +735,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 async function handleLogout() {
-  await auth.logout()
-  router.push('/acessoRestrito')
+  await auth.logout(router)
 }
 
 // ── Estado ────────────────────────────────────────────────────
