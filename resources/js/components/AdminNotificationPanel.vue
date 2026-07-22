@@ -79,8 +79,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { NotificationService } from '@/api/services/notification.service'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 
 const bellRef   = ref(null)
 const panelOpen = ref(false)
@@ -138,6 +141,7 @@ async function fetchNotifications() {
 }
 
 async function fetchCount() {
+  if (!auth.token) return
   try {
     const res = await NotificationService.getUnreadCount()
     const newCount = res.unread ?? 0
@@ -224,6 +228,13 @@ function handleVisibilityChange() {
 function handleResize() {
   if (panelOpen.value) updatePosition()
 }
+
+// Para o polling assim que a sessão termina, sem depender do timing
+// de destruição do <keep-alive> (que corre em ciclo de render separado
+// e pode deixar o setInterval "vivo" por mais alguns ticks após o logout)
+watch(() => auth.token, (newToken) => {
+  if (!newToken) stopPolling()
+})
 
 onMounted(() => {
   startPolling()

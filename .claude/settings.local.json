@@ -146,7 +146,8 @@
       "Bash(SHOTDIR=\"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/shots\" node __check_responsive5.cjs)",
       "Bash(SHOTDIR=\"C:/Users/Lenovo/AppData/Local/Temp/claude/E--biofund-biofund-api/d6040c96-2a6b-4de7-bdbb-91dcb3ccfc6a/scratchpad/shots\" node __check_responsive6.cjs)",
       "Bash(findstr \"LISTENING\")",
-      "Bash(findstr \":8000 :80 :443\")"
+      "Bash(findstr \":8000 :80 :443\")",
+      "Bash(git log *)"
     ]
   }
 }
