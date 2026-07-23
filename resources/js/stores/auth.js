@@ -61,15 +61,18 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     /**
-     * Faz logout - revoga token no servidor, navega para fora da rota
-     * protegida e só depois limpa o estado local.
+     * Faz logout - revoga token no servidor, limpa as credenciais, navega
+     * para fora da rota protegida e só depois reinicia a `sessionId`.
      *
-     * A ordem importa: clearSession() muda o `sessionId`, que é usado como
-     * `:key` do <keep-alive> em App.vue para forçar a destruição da cache
-     * ao terminar sessão. Se limpássemos o estado antes de navegar, essa
-     * mudança reactiva remontava a página protegida (ainda activa) sem
-     * token válido, disparando pedidos à API que voltavam com 401. Por
-     * isso aguardamos a navegação terminar antes de limpar a sessão.
+     * A ordem importa dos dois lados:
+     * - As credenciais têm de ser limpas ANTES do router.push, senão o
+     *   guarda de navegação (routers/index.js) ainda vê `isAuthenticated`
+     *   true e devolve a rota `guestOnly` (/acessoRestrito) de volta para
+     *   a dashboard.
+     * - A `sessionId` (key do <keep-alive> em App.vue, usada para destruir
+     *   a cache das páginas protegidas) só deve mudar DEPOIS da navegação
+     *   terminar - se mudasse antes, remontava a página protegida ainda
+     *   activa sem token válido, disparando pedidos à API que voltavam 401.
      */
     async function logout(router, redirectTo = "/acessoRestrito") {
         try {
@@ -77,10 +80,18 @@ export const useAuthStore = defineStore("auth", () => {
         } catch {
             // Mesmo que o servidor falhe, termina a sessão localmente
         }
+
+        token.value = null;
+        user.value = null;
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        localStorage.removeItem(VALIDATED_KEY);
+
         if (router) {
             await router.push(redirectTo);
         }
-        clearSession();
+
+        sessionId.value = Date.now();
     }
 
     /**
