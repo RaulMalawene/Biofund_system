@@ -1159,7 +1159,6 @@ const loadingDistricts = ref(false)
 const today = new Date().toISOString().split('T')[0]
 
 async function loadRefData() {
-  if (refCategories.value.length) return
   loadingRef.value = true
   try {
     const data = await InternalService.getFormData()

@@ -182,11 +182,13 @@ export const InternalService = {
 
     async createSubcategory(categoryId, payload) {
         const { data } = await api.post(`/admin/categories/${categoryId}/subcategories`, payload)
+        invalidateFormDataCache()
         return data
     },
 
     async updateSubcategory(subcategoryId, payload) {
         const { data } = await api.put(`/admin/subcategories/${subcategoryId}`, payload)
+        invalidateFormDataCache()
         return data
     },
 

@@ -1206,7 +1206,6 @@ const today = new Date().toISOString().split('T')[0]
 
 // Carrega os dados de referência ao abrir o drawer
 async function loadRefData() {
-    if (refProjects.value.length) return  // já carregados
     loadingRef.value = true
     try {
         const data = await InternalService.getFormData()
