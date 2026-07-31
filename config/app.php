@@ -69,6 +69,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Display Timezone
+    |--------------------------------------------------------------------------
+    |
+    | A base de dados e o agendador mantêm-se em UTC (boa prática, evita
+    | ambiguidade em DST e não corrompe datas já gravadas). Este valor é
+    | usado apenas para converter datas/horas na apresentação ao utilizador
+    | (respostas da API e emails) para o fuso horário de Moçambique, que não
+    | observa horário de Verão (sempre UTC+2).
+    |
+    */
+
+    'display_timezone' => 'Africa/Maputo',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

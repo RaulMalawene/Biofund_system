@@ -47,7 +47,7 @@ class UserResource extends JsonResource
             'receives_urgent_alerts' => $a['receives_urgent_alerts'],
             'receives_gbv_alerts'    => $a['receives_gbv_alerts'],
             'is_active'              => $a['is_active'],
-            'last_login_at'          => $lastLoginAt?->format('d/m/Y H:i'),
+            'last_login_at'          => $lastLoginAt?->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
 
             'created_by' => $this->whenLoaded('createdBy', fn() => [
                 'id'   => $this->createdBy->id,

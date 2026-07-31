@@ -189,7 +189,7 @@ class LoginController extends Controller
             'receives_urgent_alerts' => $user->receives_urgent_alerts,
             'receives_gbv_alerts'    => $user->receives_gbv_alerts,
             'can_validate'           => $user->canValidate(),
-            'last_login_at'          => $user->last_login_at?->format('d/m/Y H:i'),
+            'last_login_at'          => $user->last_login_at?->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
         ];
     }
 

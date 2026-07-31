@@ -225,7 +225,7 @@ class NotificationService
         $code       = $occurrence->tracking_code;
         $url        = config('app.url') . "/acompanhar?codigo={$code}";
         $project    = $occurrence->project->name;
-        $registedAt = $occurrence->created_at->format('d/m/Y H:i');
+        $registedAt = $occurrence->created_at->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i');
 
         return <<<TEXT
 Prezado(a) $name,

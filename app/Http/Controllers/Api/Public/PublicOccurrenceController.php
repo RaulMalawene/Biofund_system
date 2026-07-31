@@ -115,7 +115,7 @@ class PublicOccurrenceController extends Controller
             'is_overdue'   => $occurrence->isOverdue(),
 
             // Datas
-            'submitted_at' => $occurrence->created_at->format('d/m/Y H:i'),
+            'submitted_at' => $occurrence->created_at->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
             'due_date'     => $occurrence->due_date?->format('d/m/Y'),
 
             // Anexos - inclui id para download público
@@ -133,7 +133,7 @@ class PublicOccurrenceController extends Controller
                 'to'       => $h->to_status->label(),
                 'to_color' => $h->to_status->color(),
                 'comment'  => $h->comment,
-                'date'     => $h->changed_at->format('d/m/Y H:i'),
+                'date'     => $h->changed_at->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
             ]),
         ], 200);
     }

@@ -931,8 +931,10 @@ onMounted(async () => {
   tryAutoSelect()
 })
 
-// Quando o componente é reactivado via KeepAlive (ex: vindo do dashboard)
-onActivated(() => {
+// Quando o componente é reactivado via KeepAlive (ex: vindo do dashboard),
+// recarrega a lista para reflectir ocorrências criadas noutras páginas.
+onActivated(async () => {
+  await loadOccurrences()
   tryAutoSelect()
 })
 

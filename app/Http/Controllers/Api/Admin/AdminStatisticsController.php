@@ -460,7 +460,7 @@ class AdminStatisticsController extends Controller
                 'year'         => $year,
                 'date_from'    => $dateFrom->format('d/m/Y'),
                 'date_to'      => $dateTo->format('d/m/Y'),
-                'generated_at' => now()->format('d/m/Y H:i'),
+                'generated_at' => now()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
                 'generated_by' => $user->name,
             ],
             'summary' => [

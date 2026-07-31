@@ -100,10 +100,10 @@ class OccurrenceResource extends JsonResource
 
             // Datas
             'occurrence_date' => $occurrenceDate?->format('d/m/Y'),
-            'submitted_at'    => $createdAt->format('d/m/Y H:i'),
+            'submitted_at'    => $createdAt->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
             'due_date'        => $dueDate?->format('d/m/Y'),
-            'reviewed_at'     => $reviewedAt?->format('d/m/Y H:i'),
-            'deleted_at'      => $deletedAt?->format('d/m/Y H:i'),
+            'reviewed_at'     => $reviewedAt?->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
+            'deleted_at'      => $deletedAt?->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
             'is_removed'      => $deletedAt !== null,
 
             // Responsáveis (apenas para gestor/admin)
@@ -153,7 +153,7 @@ class OccurrenceResource extends JsonResource
                     // Nota interna só visível para gestores/admin
                     'internal_note' => $isManagerOrAbove ? $h->internal_note : null,
                     'changed_by'    => $h->changedBy?->name ?? 'Sistema',
-                    'date'          => $h->changed_at->format('d/m/Y H:i'),
+                    'date'          => $h->changed_at->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
                 ])
             ),
 
