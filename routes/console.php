@@ -10,6 +10,6 @@ Artisan::command('inspire', function () {
 
 // Verifica diariamente às 01h00 se há ocorrências sem actividade há mais dias úteis
 // do que o limite do seu nível de alerta (5 dias úteis para normais, 3 para
-// urgentes/GBV). Quando encontradas, marca-as automaticamente como 'nao_resolvida'
+// urgentes/VBG). Quando encontradas, marca-as automaticamente como 'nao_resolvida'
 // e regista no histórico.
 Schedule::command('occurrences:mark-unresolved')->dailyAt('01:00');

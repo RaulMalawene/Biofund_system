@@ -599,7 +599,7 @@
                 <option value="" disabled>Seleccione o nível</option>
                 <option value="normal">Normal</option>
                 <option value="urgent">Urgente</option>
-                <option value="gbv">GBV - Violência de Género</option>
+                <option value="gbv">VBG - Violência de Género</option>
               </select>
               <span class="f-err-msg" v-if="errors.alert_type">{{ errors.alert_type }}</span>
             </div>

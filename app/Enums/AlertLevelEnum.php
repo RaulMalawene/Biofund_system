@@ -32,7 +32,7 @@ enum AlertLevelEnum: string
         return match($this) {
             AlertLevelEnum::Normal => 'Normal',
             AlertLevelEnum::Urgent => 'Urgente',
-            AlertLevelEnum::Gbv    => 'GBV - Violência Baseada no Género',
+            AlertLevelEnum::Gbv    => 'VBG - Violência Baseada no Género',
         };
     }
 
@@ -67,7 +67,7 @@ enum AlertLevelEnum: string
      * Número máximo de dias úteis sem actualização de estado antes da
      * ocorrência ser marcada automaticamente como 'Não Resolvida'.
      *
-     * Ocorrências urgentes ou de GBV têm um prazo mais curto (3 dias úteis)
+     * Ocorrências urgentes ou de VBG têm um prazo mais curto (3 dias úteis)
      * por serem de prioridade máxima; as restantes têm 5 dias úteis.
      *
      * Usado pelo comando occurrences:mark-unresolved e pelas notificações

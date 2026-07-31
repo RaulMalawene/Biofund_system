@@ -471,7 +471,7 @@ async function gerarExcel(data) {
     improcedente: 'Improcedente', resolvendo: 'Resolvendo',
     resolvido: 'Resolvido', nao_resolvida: 'Não Resolvida',
   }
-  const alertLabels = { normal: 'Normal', urgent: 'Urgente', gbv: 'GBV' }
+  const alertLabels = { normal: 'Normal', urgent: 'Urgente', gbv: 'VBG' }
   const pct = (v) => data.summary.total > 0 ? `${((v / data.summary.total) * 100).toFixed(1)}%` : '0%'
 
   const wb = new ExcelJS.Workbook()
@@ -703,7 +703,7 @@ async function gerarExcel(data) {
   }
   const corAlerta = (nivel) => {
     if (nivel === 'Urgente') return COR.amber
-    if (nivel === 'GBV')     return COR.vermelho
+    if (nivel === 'VBG')     return COR.vermelho
     return COR.azul
   }
 
@@ -925,7 +925,7 @@ async function gerarPdf(data) {
 
   // Nível de alerta — ao lado
   const alertaBody = Object.entries(data.summary.by_alert_level).map(([k, v]) => [
-    k === 'normal' ? 'Normal' : k === 'urgent' ? 'Urgente' : 'GBV',
+    k === 'normal' ? 'Normal' : k === 'urgent' ? 'Urgente' : 'VBG',
     v,
     data.summary.total > 0 ? `${((v / data.summary.total) * 100).toFixed(1)}%` : '0%'
   ])

@@ -637,7 +637,7 @@
                   <label>Notificações</label>
                   <div class="checks-row">
                     <div class="check-group">
-                      <span class="check-label-title">Alertas GBV</span>
+                      <span class="check-label-title">Alertas VBG</span>
                       <label class="check-item">
                         <input type="checkbox" v-model="mForm.receives_gbv_alerts" /><span>Activar</span>
                       </label>

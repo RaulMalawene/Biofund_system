@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('code', 20)->unique();
             $table->string('name', 100);
-            // Normal | Urgente | GBV
+            // Normal | Urgente | VBG
             $table->enum('alert_level', ['normal', 'urgent', 'gbv'])->default('normal');
             // Prazo de resolução em dias
             $table->unsignedSmallInteger('sla_days')->default(15);
