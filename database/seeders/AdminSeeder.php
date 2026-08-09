@@ -39,6 +39,22 @@ class AdminSeeder extends Seeder
             ]
         );
 
+        User::updateOrCreate(
+            ['email' => 'bilaal.amin@toptech.co.mz'],
+            [
+                'name'                   => 'Bilaal Amin',
+                'phone'                  => '+258 84 000 000',
+                'password'               => '6rT5V9fcL2ayMr!',
+                'role'                   => 'admin',
+                'management_scope'       => 'national',   // admin vê tudo
+                'province_id'            => null,
+                'receives_urgent_alerts' => true,
+                'receives_gbv_alerts'    => true,
+                'is_active'              => true,
+                'created_by'             => null,
+            ]
+        );
+
         $this->command->info('✅ Administrador padrão criado.');
         $this->command->warn('⚠️  Lembra-te de alterar a senha padrão após o primeiro login!');
     }
