@@ -206,7 +206,9 @@
                       </td>
                     </tr>
                     <tr v-if="pagedRows.length === 0">
-                      <td colspan="8" class="empty-row">Nenhuma ocorrência encontrada.</td>
+                      <td colspan="8" class="empty-row" :class="{ 'empty-row-error': loadError }">
+                        {{ loadError || 'Nenhuma ocorrência encontrada.' }}
+                      </td>
                     </tr>
                   </template>
                 </tbody>
@@ -799,6 +801,7 @@ import { ref, reactive, computed, watch, nextTick, onMounted, onActivated } from
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
@@ -848,6 +851,7 @@ const refProjects = ref([])
 const refCategories = ref([])
 
 const rows = ref([])
+const loadError = ref('')
 const f = reactive({ provincia: '', projeto: '', data: '', status: '', categoria: '', origem: '' })
 
 // ─── Status helpers ───────────────────────────────────────────
@@ -940,12 +944,15 @@ onActivated(async () => {
 
 async function loadOccurrences() {
   loading.value = true
+  loadError.value = ''
   try {
     const res = await InternalService.getOccurrences({ per_page: 100 })
     const TERMINAL = ['resolvido', 'improcedente', 'nao_resolvida']
     rows.value = (res.data ?? []).map(mapOccurrence).filter(r => !TERMINAL.includes(r.status))
   } catch (e) {
     console.error(e)
+    rows.value = []
+    loadError.value = resolveErrorMessage(e, 'Não foi possível carregar as ocorrências.')
   } finally {
     loading.value = false
   }
@@ -1048,7 +1055,7 @@ async function saveClassification() {
     editMode.value = false
     showToast('Classificação actualizada com sucesso.')
   } catch (e) {
-    showToast(e.response?.data?.message ?? 'Erro ao guardar. Tente novamente.', true)
+    showToast(resolveErrorMessage(e, 'Erro ao guardar. Tente novamente.'), true)
   } finally {
     editSaving.value = false
   }
@@ -1121,7 +1128,7 @@ async function downloadAnexo(a) {
     const blobUrl = await InternalService.getAttachmentBlobUrl(selected.value._id, a._attId)
     const link = document.createElement('a'); link.href = blobUrl; link.download = a.nome; link.click()
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60000)
-  } catch { showToast('Erro ao descarregar o ficheiro.', true) }
+  } catch (e) { showToast(resolveErrorMessage(e, 'Erro ao descarregar o ficheiro.'), true) }
 }
 
 async function addStandaloneComment(comment) {
@@ -1132,7 +1139,7 @@ async function addStandaloneComment(comment) {
     showToast('Comentário adicionado com sucesso.')
   } catch (e) {
     const errors = e?.response?.data?.errors
-    showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao adicionar comentário. Tente novamente.', true)
+    showToast(errors ? Object.values(errors).flat()[0] : resolveErrorMessage(e, 'Erro ao adicionar comentário. Tente novamente.'), true)
   } finally { confirming.value = false }
 }
 
@@ -1166,7 +1173,7 @@ async function changeStatus(newState, comment = '') {
     showToast(newState === 'Improcedente' ? `${trackingCode} foi marcada como improcedente.` : `${trackingCode} passou para "${STATUS_LABEL[apiStatus]}".`, newState === 'Improcedente')
   } catch (e) {
     const errors = e?.response?.data?.errors
-    showToast(errors ? Object.values(errors).flat()[0] : 'Erro ao actualizar o estado. Tente novamente.', true)
+    showToast(errors ? Object.values(errors).flat()[0] : resolveErrorMessage(e, 'Erro ao actualizar o estado. Tente novamente.'), true)
   } finally { confirming.value = false }
 }
 
@@ -1694,6 +1701,11 @@ tbody tr:last-child td {
   padding: 36px;
   color: var(--text-light);
   font-size: 13px;
+}
+
+.empty-row-error {
+  color: #C53030;
+  font-weight: 500;
 }
 
 /* DETAIL PANEL */

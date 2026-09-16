@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { resolveErrorMessage } from '../utils/errorMessage'
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL ?? (window.location.origin + '/api'),
@@ -25,7 +26,10 @@ api.interceptors.request.use(config => {
 })
 
 // ── Interceptor de RESPONSE ───────────────────────────────────
-// Se o servidor devolver 401, a sessão expirou - limpa e redireciona
+// Se o servidor devolver 401, a sessão expirou - limpa e redireciona.
+// Para qualquer outro erro, anexa uma mensagem clara (`friendlyMessage`)
+// que distingue falta de ligação/timeout/erro de servidor de erros de
+// negócio, para que os ecrãs não mostrem sempre a mesma mensagem genérica.
 api.interceptors.response.use(
     response => response,
     error => {
@@ -38,6 +42,12 @@ api.interceptors.response.use(
                 window.location.href = '/acessoRestrito'
             }
         }
+
+        if (!error.response) {
+            console.error('[API] Falha de ligação:', error.code ?? error.message, error.config?.url)
+        }
+        error.friendlyMessage = resolveErrorMessage(error)
+
         return Promise.reject(error)
     }
 )

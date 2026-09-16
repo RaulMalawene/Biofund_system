@@ -177,6 +177,7 @@ import { useRouter, useRoute } from 'vue-router'
 import AppNavbar from '@/components/AppNavbar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { AuthService } from '@/api/services/auth.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 
 const router = useRouter()
 const route = useRoute()
@@ -243,10 +244,8 @@ async function submitLogin() {
       loginError.value = 'Credenciais inválidas. Verifique o e-mail e a palavra-passe.'
     } else if (err.response?.status === 403) {
       loginError.value = 'A sua conta está desactivada. Contacte o administrador.'
-    } else if (!err.response) {
-      loginError.value = 'Sem ligação ao servidor. Verifique a sua ligação à internet.'
     } else {
-      loginError.value = err.response?.data?.message ?? 'Erro ao autenticar. Tente novamente.'
+      loginError.value = resolveErrorMessage(err, 'Erro ao autenticar. Tente novamente.')
     }
   } finally {
     loading.value = false
@@ -269,7 +268,7 @@ async function sendForgot() {
     forgotSuccess.value = result.message ?? 'Link enviado! Verifique o seu e-mail.'
     forgotEmail.value = ''
   } catch (err) {
-    forgotError.value = err.response?.data?.message ?? 'Erro ao enviar. Tente novamente.'
+    forgotError.value = resolveErrorMessage(err, 'Erro ao enviar. Tente novamente.')
   } finally {
     forgotLoading.value = false
   }

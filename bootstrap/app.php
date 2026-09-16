@@ -26,4 +26,28 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
             return response()->json(['message' => 'Não autenticado.'], 401);
         });
+
+        // Falha de ligação à base de dados (host em baixo, timeout de rede, etc.)
+        // - sem isto o cliente recebia um genérico "Server Error" (500) que não
+        // permite distinguir uma falha de ligação de um erro de programação.
+        $exceptions->render(function (\Illuminate\Database\QueryException $e, $request) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null; // deixa o comportamento por omissão para pedidos não-API
+            }
+
+            return response()->json([
+                'message' => 'Não foi possível processar o pedido devido a um problema de ligação à base de dados. Tente novamente dentro de instantes.',
+            ], 503);
+        });
+
+        // Falha ao contactar um serviço externo via Http::client() (ex: APIs de terceiros)
+        $exceptions->render(function (\Illuminate\Http\Client\ConnectionException $e, $request) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null;
+            }
+
+            return response()->json([
+                'message' => 'Falha de ligação a um serviço externo. Tente novamente dentro de instantes.',
+            ], 503);
+        });
     })->create();

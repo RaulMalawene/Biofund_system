@@ -409,6 +409,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
@@ -489,7 +490,7 @@ async function loadCategories() {
     const data = await InternalService.getCategories()
     categorias.value = data.categories ?? []
   } catch (err) {
-    showToast('Erro ao carregar categorias.', 'error')
+    showToast(resolveErrorMessage(err, 'Erro ao carregar categorias.'), 'error')
   } finally {
     loading.value = false
   }
@@ -539,8 +540,8 @@ async function openEdit(cat) {
   try {
     const data = await InternalService.getSubcategories(cat.id)
     subsModal.list = data.subcategories ?? []
-  } catch {
-    showToast('Erro ao carregar subcategorias.', 'error')
+  } catch (err) {
+    showToast(resolveErrorMessage(err, 'Erro ao carregar subcategorias.'), 'error')
   } finally {
     subsModal.loading = false
   }
@@ -590,7 +591,7 @@ async function guardar() {
       Object.entries(errors).forEach(([field, msgs]) => { fieldErrors[field] = msgs[0] })
       formError.value = 'Corrija os erros e tente novamente.'
     } else {
-      formError.value = err.response?.data?.message ?? 'Erro ao guardar. Tente novamente.'
+      formError.value = resolveErrorMessage(err, 'Erro ao guardar. Tente novamente.')
     }
   } finally {
     saving.value = false
@@ -615,7 +616,7 @@ async function doRemoveCategory() {
     categorias.value = categorias.value.filter(c => c.id !== target.id)
     showToast('Categoria apagada com sucesso.')
   } catch (err) {
-    showToast(err.response?.data?.message ?? 'Erro ao apagar categoria.', 'error')
+    showToast(resolveErrorMessage(err, 'Erro ao apagar categoria.'), 'error')
   } finally {
     deleteModal.loading = false
     deleteModal.show = false
@@ -659,7 +660,7 @@ async function addSubcategoria() {
     const cat = categorias.value.find(c => c.id === editingId.value)
     if (cat) cat.subcategories = [...(cat.subcategories ?? []), data.subcategory]
   } catch (err) {
-    showToast(err.response?.data?.message ?? 'Erro ao adicionar subcategoria.', 'error')
+    showToast(resolveErrorMessage(err, 'Erro ao adicionar subcategoria.'), 'error')
   } finally {
     subsModal.saving = false
   }
@@ -679,8 +680,8 @@ async function saveSubEdit(sub) {
     if (idx !== -1) subsModal.list[idx] = { ...subsModal.list[idx], ...data.subcategory }
     subsModal.editingId = null
     showToast('Subcategoria actualizada.')
-  } catch {
-    showToast('Erro ao actualizar subcategoria.', 'error')
+  } catch (err) {
+    showToast(resolveErrorMessage(err, 'Erro ao actualizar subcategoria.'), 'error')
   }
 }
 
@@ -693,8 +694,8 @@ async function toggleSubActive(sub) {
     const idx = subsModal.list.findIndex(s => s.id === sub.id)
     if (idx !== -1) subsModal.list[idx] = { ...subsModal.list[idx], ...data.subcategory }
     showToast(`Subcategoria ${!sub.is_active ? 'activada' : 'desactivada'}.`)
-  } catch {
-    showToast('Erro ao alterar estado.', 'error')
+  } catch (err) {
+    showToast(resolveErrorMessage(err, 'Erro ao alterar estado.'), 'error')
   }
 }
 </script>

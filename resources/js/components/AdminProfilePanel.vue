@@ -161,6 +161,7 @@ import { ref, reactive, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
 import { AuthService } from '@/api/services/auth.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 
 const auth = useAuthStore()
 
@@ -252,7 +253,7 @@ async function saveProfile() {
     setTimeout(() => { pfSuccess.value = false }, 3500)
   } catch (e) {
     const errs = e?.response?.data?.errors
-    pfError.value = errs ? Object.values(errs).flat()[0] : 'Erro ao actualizar o perfil.'
+    pfError.value = errs ? Object.values(errs).flat()[0] : resolveErrorMessage(e, 'Erro ao actualizar o perfil.')
   } finally {
     pfSaving.value = false
   }
@@ -278,7 +279,7 @@ async function changePassword() {
     return true
   } catch (e) {
     const errs = e?.response?.data?.errors
-    pwError.value = errs ? Object.values(errs).flat()[0] : 'Erro ao alterar a senha.'
+    pwError.value = errs ? Object.values(errs).flat()[0] : resolveErrorMessage(e, 'Erro ao alterar a senha.')
     return false
   } finally {
     pwSaving.value = false
@@ -306,7 +307,7 @@ async function saveAll() {
     avatarFile.value = null
   } catch (e) {
     const errs = e?.response?.data?.errors
-    pfError.value = errs ? Object.values(errs).flat()[0] : 'Erro ao actualizar o perfil.'
+    pfError.value = errs ? Object.values(errs).flat()[0] : resolveErrorMessage(e, 'Erro ao actualizar o perfil.')
     pfSaving.value = false
     return
   }

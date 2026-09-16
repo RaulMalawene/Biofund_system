@@ -728,6 +728,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
@@ -859,7 +860,7 @@ async function loadUsers(page = 1) {
       per_page: response.meta?.per_page ?? 15,
     })
   } catch (err) {
-    showToast('Erro ao carregar utilizadores.', true)
+    showToast(resolveErrorMessage(err, 'Erro ao carregar utilizadores.'), true)
   } finally {
     loading.value = false
   }
@@ -877,7 +878,7 @@ async function handleToggle(u) {
     u.is_active = result.is_active
     showToast(result.message)
   } catch (err) {
-    showToast(err.response?.data?.message ?? 'Erro ao alterar estado.', true)
+    showToast(resolveErrorMessage(err, 'Erro ao alterar estado.'), true)
   }
 }
 
@@ -1016,7 +1017,7 @@ async function saveUser() {
       if (errors.project_ids) mErrors.project_ids = errors.project_ids[0]
       formError.value = 'Corrija os erros e tente novamente.'
     } else {
-      formError.value = err.response?.data?.message ?? 'Erro ao guardar. Tente novamente.'
+      formError.value = resolveErrorMessage(err, 'Erro ao guardar. Tente novamente.')
     }
   } finally {
     mLoading.value = false
@@ -1035,7 +1036,7 @@ async function doDelete() {
     showToast(`${deleteTarget.value.name} eliminado.`)
   } catch (err) {
     showDelete.value = false
-    showToast(err.response?.data?.message ?? 'Erro ao eliminar.', true)
+    showToast(resolveErrorMessage(err, 'Erro ao eliminar.'), true)
   }
 }
 </script>

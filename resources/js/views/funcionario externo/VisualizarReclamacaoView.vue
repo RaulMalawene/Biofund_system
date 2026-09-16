@@ -283,6 +283,7 @@ import { ref } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import { PublicService } from '../../api/services/public.service'
+import { resolveErrorMessage } from '../../utils/errorMessage'
 
 const searchCode = ref('')
 const result = ref(null)
@@ -387,7 +388,7 @@ async function consultar() {
     if (err.response?.status === 404) {
       notFound.value = true
     } else {
-      errorMsg.value = 'Erro ao consultar. Verifique a sua ligação e tente novamente.'
+      errorMsg.value = resolveErrorMessage(err, 'Erro ao consultar. Tente novamente.')
     }
   } finally {
     loading.value = false

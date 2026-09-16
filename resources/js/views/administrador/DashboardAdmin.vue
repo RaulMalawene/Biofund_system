@@ -110,6 +110,16 @@
           </div>
         </div>
 
+        <!-- Erro ao carregar estatísticas -->
+        <div class="dash-error-banner" v-if="statsError">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="6" />
+            <path d="M8 5v3M8 11h.01" stroke-linecap="round" />
+          </svg>
+          <span>{{ statsError }}</span>
+          <button class="dash-error-retry" @click="reloadStats">Tentar novamente</button>
+        </div>
+
         <!-- DASH FILTER BAR -->
         <div class="dash-filter-bar">
           <span class="dash-filter-title">
@@ -820,6 +830,7 @@ import { useRouter } from 'vue-router'
 import { Chart, registerables } from 'chart.js'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 import RelatorioPeriodicoModal from '@/components/RelatorioPeriodicoModal.vue'
@@ -864,6 +875,8 @@ const FILTER_LABELS = {
 
 // ── Estatísticas do dashboard ─────────────────────────────────
 const statsLoading = ref(true)
+const statsError = ref('')
+function reloadStats() { window.location.reload() }
 const stats = reactive({
     totals:          { all: 0, por_validar: 0, por_resolver: 0, improcedente: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 },
     overdue:         0,
@@ -909,6 +922,7 @@ function buildDashFilter() {
 async function applyDashFilter() {
     activeFilter.value  = null
     filterLoading.value = true
+    statsError.value = ''
     try {
         const data = await InternalService.getDashboardStats(buildDashFilter())
         // Zera primeiro para não ficarem valores obsoletos de chaves ausentes na resposta filtrada
@@ -935,6 +949,7 @@ async function applyDashFilter() {
         updateCharts()
     } catch (err) {
         console.error('Erro ao aplicar filtros:', err)
+        statsError.value = resolveErrorMessage(err, 'Não foi possível aplicar os filtros.')
     } finally {
         filterLoading.value = false
     }
@@ -1024,6 +1039,7 @@ function updateCharts() {
 
 // Recarrega stats completas (aplica dashFilter se activo) e actualiza tudo
 async function refreshStats() {
+    statsError.value = ''
     try {
         const data = await InternalService.getDashboardStats(buildDashFilter())
         const zeroTotals     = { all: 0, por_validar: 0, por_resolver: 0, improcedente: 0, resolvendo: 0, resolvido: 0, nao_resolvida: 0 }
@@ -1049,6 +1065,7 @@ async function refreshStats() {
         updateCharts()
     } catch (err) {
         console.error('Erro ao actualizar estatísticas:', err)
+        statsError.value = resolveErrorMessage(err, 'Não foi possível actualizar as estatísticas.')
     }
 }
 
@@ -1079,6 +1096,7 @@ async function selectCard(key) {
     }
     activeFilter.value  = key
     filterLoading.value = true
+    statsError.value = ''
     try {
         const data = await InternalService.getDashboardStats({ ...FILTER_MAP[key], ...buildDashFilter() })
         // Actualiza apenas gráficos e tabela - KPI cards ficam inalterados
@@ -1094,6 +1112,7 @@ async function selectCard(key) {
         updateCharts()
     } catch (err) {
         console.error('Erro ao filtrar:', err)
+        statsError.value = resolveErrorMessage(err, 'Não foi possível aplicar o filtro seleccionado.')
     } finally {
         filterLoading.value = false
     }
@@ -1215,6 +1234,7 @@ async function loadRefData() {
         refProvinces.value  = data.provinces       ?? []
     } catch (err) {
         console.error('Erro ao carregar dados do formulário:', err)
+        submitError.value = resolveErrorMessage(err, 'Não foi possível carregar os dados do formulário.')
     } finally {
         loadingRef.value = false
     }
@@ -1366,7 +1386,7 @@ async function submitForm() {
             })
             submitError.value = 'Corrija os erros e tente novamente.'
         } else {
-            submitError.value = err.response?.data?.message ?? 'Erro ao registar. Tente novamente.'
+            submitError.value = resolveErrorMessage(err, 'Erro ao registar. Tente novamente.')
         }
     } finally {
         loading.value = false
@@ -1454,6 +1474,7 @@ onMounted(async () => {
     rawOverdue.value = data.overdue ?? 0
   } catch (err) {
     console.error('Erro ao carregar estatísticas:', err)
+    statsError.value = resolveErrorMessage(err, 'Não foi possível carregar as estatísticas do dashboard.')
   } finally {
     statsLoading.value = false
   }
@@ -1842,6 +1863,36 @@ onMounted(async () => {
   margin-bottom: 18px;
   flex-wrap: wrap;
 }
+
+.dash-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF5F5;
+  border: 1px solid #FED7D7;
+  color: #C53030;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.dash-error-banner span { flex: 1; }
+
+.dash-error-retry {
+  background: none;
+  border: 1px solid #C53030;
+  color: #C53030;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dash-error-retry:hover { background: #C53030; color: #fff; }
 
 .dash-filter-title {
   display: flex;

@@ -162,6 +162,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import api from '@/api/client'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 
 // ── Logo Biofund (carregado de forma resiliente) ───────────────
 // Usa import.meta.glob para não falhar o build caso a imagem ainda
@@ -337,7 +338,7 @@ async function exportar(formato) {
     }
   } catch (e) {
     console.error('[RelatorioPeriodicoModal] Erro ao gerar relatório:', e)
-    erro.value = 'Erro ao gerar o relatório. Por favor tente novamente.'
+    erro.value = resolveErrorMessage(e, 'Erro ao gerar o relatório. Por favor tente novamente.')
   } finally {
     loading.value  = false
     exportTarget.value = ''

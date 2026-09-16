@@ -20,7 +20,16 @@ if (auth.token) {
     if (Date.now() - lastValidated > FIVE_MIN) {
         auth.fetchMe()
             .then(() => localStorage.setItem('mdr_validated_at', String(Date.now())))
-            .catch(() => auth.clearSession());
+            .catch((error) => {
+                // Só termina a sessão se o servidor confirmou que o token é
+                // inválido (401/403). Uma falha de rede/timeout/erro do
+                // servidor não deve fazer logout - o utilizador continua
+                // autenticado localmente e a validação repete-se mais tarde.
+                const status = error?.response?.status;
+                if (status === 401 || status === 403) {
+                    auth.clearSession();
+                }
+            });
     }
 }
 

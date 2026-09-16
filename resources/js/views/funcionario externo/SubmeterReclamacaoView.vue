@@ -370,6 +370,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import { PublicService } from '../../api/services/public.service'
+import { resolveErrorMessage } from '../../utils/errorMessage'
 
 
 
@@ -446,7 +447,7 @@ async function loadFormData() {
     provincias.value      = data.provinces        ?? []
   } catch (error) {
     console.error('Erro ao carregar formulário:', error)
-    globalError.value = 'Não foi possível carregar os dados do formulário. Recarregue a página.'
+    globalError.value = resolveErrorMessage(error, 'Não foi possível carregar os dados do formulário. Recarregue a página.')
   } finally {
     loadingFormData.value = false
   }
@@ -537,10 +538,8 @@ async function submitForm() {
         errors[field] = msgs[0]
       })
       globalError.value = 'Corrija os erros assinalados e tente novamente.'
-    } else if (!err.response) {
-      globalError.value = 'Sem ligação ao servidor. Verifique a sua ligação à internet.'
     } else {
-      globalError.value = err.response?.data?.message ?? 'Erro ao enviar. Tente novamente.'
+      globalError.value = resolveErrorMessage(err, 'Erro ao enviar. Tente novamente.')
     }
   } finally {
     submitting.value = false

@@ -302,8 +302,8 @@
                 </tr>
 
                 <tr v-if="rows.length === 0">
-                  <td colspan="10" class="empty-row">
-                    Nenhuma ocorrência encontrada com os filtros aplicados.
+                  <td colspan="10" class="empty-row" :class="{ 'empty-row-error': loadError }">
+                    {{ loadError || 'Nenhuma ocorrência encontrada com os filtros aplicados.' }}
                   </td>
                 </tr>
               </template>
@@ -523,6 +523,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 import RelatorioPeriodicoModal from '@/components/RelatorioPeriodicoModal.vue'
@@ -542,6 +543,7 @@ const detailLoading = ref(false)
 const topSearch = ref('')
 const selected = ref(null)
 const rows = ref([])
+const loadError = ref('')
 
 const meta = reactive({
   total: 0,
@@ -582,6 +584,7 @@ onMounted(() => {
 // ── Carregar ocorrências ──────────────────────────────────────
 async function loadOccurrences(page = 1) {
   loading.value = true
+  loadError.value = ''
   try {
     const params = {
       per_page: meta.per_page,
@@ -625,6 +628,7 @@ async function loadOccurrences(page = 1) {
   } catch (err) {
     console.error('Erro ao carregar ocorrências:', err)
     rows.value = []
+    loadError.value = resolveErrorMessage(err, 'Não foi possível carregar as ocorrências.')
   } finally {
     loading.value = false
   }
@@ -1464,6 +1468,11 @@ tbody tr:last-child td {
   padding: 36px;
   color: var(--text-light);
   font-size: 13px;
+}
+
+.empty-row-error {
+  color: #C53030;
+  font-weight: 500;
 }
 
 /* ── FOOTER ─────────────────────────────── */

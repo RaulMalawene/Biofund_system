@@ -308,6 +308,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { InternalService } from '@/api/services/internal.service'
+import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
 
@@ -380,7 +381,7 @@ async function loadProjects() {
     const data = await InternalService.getProjects()
     projects.value = data.projects ?? []
   } catch (err) {
-    showToast('Erro ao carregar projectos.', true)
+    showToast(resolveErrorMessage(err, 'Erro ao carregar projectos.'), true)
   } finally {
     loading.value = false
   }
@@ -448,7 +449,7 @@ async function saveProject() {
       Object.entries(errors).forEach(([field, msgs]) => { fieldErrors[field] = msgs[0] })
       formError.value = 'Corrija os erros e tente novamente.'
     } else {
-      formError.value = err.response?.data?.message ?? 'Erro ao guardar. Tente novamente.'
+      formError.value = resolveErrorMessage(err, 'Erro ao guardar. Tente novamente.')
     }
   } finally {
     saving.value = false
@@ -473,7 +474,7 @@ async function doRemoveProject() {
     projects.value = projects.value.filter(x => x.id !== target.id)
     showToast('Projecto apagado com sucesso!')
   } catch (err) {
-    showToast(err.response?.data?.message ?? 'Erro ao apagar projecto.', true)
+    showToast(resolveErrorMessage(err, 'Erro ao apagar projecto.'), true)
   } finally {
     deleteModal.loading = false
     deleteModal.show = false
