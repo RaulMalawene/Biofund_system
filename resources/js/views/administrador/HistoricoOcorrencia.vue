@@ -576,7 +576,7 @@ onMounted(() => {
       refProjects.value   = data.projects   ?? []
       refCategories.value = data.categories ?? []
     })
-    .catch(err => console.error('Erro ao carregar filtros:', err))
+    .catch(err => console.error('Erro ao carregar filtros:', err?.message ?? err))
 
   loadOccurrences()
 })
@@ -626,7 +626,7 @@ async function loadOccurrences(page = 1) {
       per_page: response.meta?.per_page ?? 15,
     })
   } catch (err) {
-    console.error('Erro ao carregar ocorrências:', err)
+    console.error('Erro ao carregar ocorrências:', err?.message ?? err)
     rows.value = []
     loadError.value = resolveErrorMessage(err, 'Não foi possível carregar as ocorrências.')
   } finally {
@@ -687,7 +687,7 @@ async function openDetail(row) {
     // Laravel envolve recursos individuais em { data: {...} }
     selected.value = response.data ?? response
   } catch (err) {
-    console.error('Erro ao carregar detalhe:', err)
+    console.error('Erro ao carregar detalhe:', err?.message ?? err)
   } finally {
     detailLoading.value = false
   }

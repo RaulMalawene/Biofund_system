@@ -337,7 +337,7 @@ async function exportar(formato) {
       await gerarPdf(data)
     }
   } catch (e) {
-    console.error('[RelatorioPeriodicoModal] Erro ao gerar relatório:', e)
+    console.error('[RelatorioPeriodicoModal] Erro ao gerar relatório:', e?.message ?? e)
     erro.value = resolveErrorMessage(e, 'Erro ao gerar o relatório. Por favor tente novamente.')
   } finally {
     loading.value  = false
@@ -1100,7 +1100,7 @@ function carregarLogoBase64() {
         }
         resolve(logoCache)
       } catch (e) {
-        console.warn('[RelatorioPeriodicoModal] Falha ao converter logo:', e)
+        console.warn('[RelatorioPeriodicoModal] Falha ao converter logo:', e?.message ?? e)
         resolve(null)
       }
     }

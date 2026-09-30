@@ -641,12 +641,12 @@
           <!-- Contacto do Reclamante -->
           <div class="f-row">
             <div class="f-group">
-              <label>Nome do Reclamante (Opcional)</label>
+              <label>Nome (Opcional)</label>
               <input type="text" v-model="form.complainant_name"
                 placeholder="Nome completo ou pseudónimo"/>
             </div>
             <div class="f-group">
-              <label>Email do Reclamante</label>
+              <label>Email</label>
               <input type="email" v-model="form.complainant_email"
                 :class="{ 'f-err': errors.complainant_email }"
                 placeholder="email@exemplo.com"
@@ -664,7 +664,7 @@
               <svg width="14" height="14" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 16 16">
                 <circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5h.01" stroke-linecap="round"/>
               </svg>
-              Preencha pelo menos um contacto para que o reclamante possa ser notificado.
+              Preencha pelo menos um contacto para que possa ser notificado.
             </div>
           </div>
 
@@ -948,7 +948,7 @@ async function applyDashFilter() {
         rawSugestoes.value    = data.sugestoes    ?? 0
         updateCharts()
     } catch (err) {
-        console.error('Erro ao aplicar filtros:', err)
+        console.error('Erro ao aplicar filtros:', err?.message ?? err)
         statsError.value = resolveErrorMessage(err, 'Não foi possível aplicar os filtros.')
     } finally {
         filterLoading.value = false
@@ -1064,7 +1064,7 @@ async function refreshStats() {
         rawSugestoes.value    = data.sugestoes    ?? 0
         updateCharts()
     } catch (err) {
-        console.error('Erro ao actualizar estatísticas:', err)
+        console.error('Erro ao actualizar estatísticas:', err?.message ?? err)
         statsError.value = resolveErrorMessage(err, 'Não foi possível actualizar as estatísticas.')
     }
 }
@@ -1111,7 +1111,7 @@ async function selectCard(key) {
         submissions.value     = mapRecent(data.recent)
         updateCharts()
     } catch (err) {
-        console.error('Erro ao filtrar:', err)
+        console.error('Erro ao filtrar:', err?.message ?? err)
         statsError.value = resolveErrorMessage(err, 'Não foi possível aplicar o filtro seleccionado.')
     } finally {
         filterLoading.value = false
@@ -1233,7 +1233,7 @@ async function loadRefData() {
         refTypes.value      = (data.occurrence_types ?? []).filter(t => t.alert_level !== 'urgent')
         refProvinces.value  = data.provinces       ?? []
     } catch (err) {
-        console.error('Erro ao carregar dados do formulário:', err)
+        console.error('Erro ao carregar dados do formulário:', err?.message ?? err)
         submitError.value = resolveErrorMessage(err, 'Não foi possível carregar os dados do formulário.')
     } finally {
         loadingRef.value = false
@@ -1249,7 +1249,7 @@ async function handleProvinceChange() {
         const data = await InternalService.getDistrictsByProvince(form.province_id)
         refDistricts.value = data.districts ?? data
     } catch (err) {
-        console.error('Erro ao carregar distritos:', err)
+        console.error('Erro ao carregar distritos:', err?.message ?? err)
     } finally {
         loadingDistricts.value = false
     }
@@ -1473,7 +1473,7 @@ onMounted(async () => {
     Object.assign(rawAlertLevel, data.by_alert_level ?? {})
     rawOverdue.value = data.overdue ?? 0
   } catch (err) {
-    console.error('Erro ao carregar estatísticas:', err)
+    console.error('Erro ao carregar estatísticas:', err?.message ?? err)
     statsError.value = resolveErrorMessage(err, 'Não foi possível carregar as estatísticas do dashboard.')
   } finally {
     statsLoading.value = false

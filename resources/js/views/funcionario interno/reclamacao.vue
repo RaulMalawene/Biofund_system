@@ -288,6 +288,13 @@
         <div class="drawer-body" v-else>
           <div class="drawer-status-row">
             <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
+            <button v-if="selected.status !== 'por_validar'" class="btn-seguimento" @click="openFollowUp">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 16 16">
+                <path d="M2 8a6 6 0 1 1 2.2 4.65" stroke-linecap="round" />
+                <path d="M2 12v-3h3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Dar Seguimento
+            </button>
           </div>
 
           <div class="detail-row" v-if="selected.complainant?.name">
@@ -407,7 +414,10 @@
               <div class="timeline-item" v-for="(ev, i) in selected.history" :key="i">
                 <div class="tl-dot" :style="{ borderColor: dotColor(ev.to_color), background: dotColor(ev.to_color) + '22' }"></div>
                 <div class="tl-content">
-                  <div class="tl-title">{{ ev.to }}</div>
+                  <div class="tl-title">
+                    {{ ev.to }}
+                    <span v-if="ev.is_follow_up" class="tl-followup-badge">↩ Seguimento</span>
+                  </div>
                   <div class="tl-comment" v-if="ev.comment">{{ ev.comment }}</div>
                   <div class="tl-date">{{ ev.date }} · {{ ev.changed_by }}</div>
                 </div>
@@ -719,6 +729,15 @@
       </div>
     </transition>
 
+    <!-- SEGUIMENTO MODAL -->
+    <FollowUpModal
+      :open="showFollowUp"
+      :occurrence-id="selected?.id"
+      :tracking-code="selected?.tracking_code"
+      @close="showFollowUp = false"
+      @submitted="onFollowUpSubmitted"
+    />
+
   </div>
 </template>
 
@@ -730,6 +749,7 @@ import { InternalService } from '@/api/services/internal.service'
 import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
+import FollowUpModal from '@/components/FollowUpModal.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -765,6 +785,7 @@ const selected = ref(null)
 const rows = ref([])
 const loadError = ref('')
 const showModal = ref(false)
+const showFollowUp = ref(false)
 
 const meta = reactive({
   total: 0,
@@ -859,7 +880,7 @@ onMounted(() => {
       refTypes.value      = (data.occurrence_types ?? []).filter(t => t.alert_level !== 'urgent')
       refProvinces.value  = data.provinces        ?? []
     })
-    .catch(err => console.error('Erro ao carregar dados de referência:', err))
+    .catch(err => console.error('Erro ao carregar dados de referência:', err?.message ?? err))
 
   loadOccurrences()
 })
@@ -891,7 +912,7 @@ async function loadOccurrences(page = 1) {
       per_page:     response.meta?.per_page     ?? 15,
     })
   } catch (err) {
-    console.error('Erro ao carregar reclamações:', err)
+    console.error('Erro ao carregar reclamações:', err?.message ?? err)
     rows.value = []
     loadError.value = resolveErrorMessage(err, 'Não foi possível carregar as reclamações.')
   } finally {
@@ -941,7 +962,7 @@ async function openDetail(row) {
     const response = await InternalService.getOccurrence(row.id)
     selected.value = response.data ?? response
   } catch (err) {
-    console.error('Erro ao carregar detalhe:', err)
+    console.error('Erro ao carregar detalhe:', err?.message ?? err)
   } finally {
     detailLoading.value = false
   }
@@ -957,6 +978,18 @@ async function downloadAttachment(a) {
     link.click()
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60000)
   } catch {}
+}
+
+// ── Seguimento pós-validação ───────────────────────────────────
+function openFollowUp() {
+  showFollowUp.value = true
+}
+
+async function onFollowUpSubmitted() {
+  showFollowUp.value = false
+  showToast('Seguimento registado. A ocorrência foi reenviada para validação.')
+  if (selected.value) await openDetail(selected.value)
+  await loadOccurrences(meta.current_page)
 }
 
 // ── Modal de registo ──────────────────────────────────────────
@@ -1773,7 +1806,24 @@ tbody tr:last-child td { border-bottom: none; }
 .drawer-body::-webkit-scrollbar { width: 4px; }
 .drawer-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 
-.drawer-status-row { display: flex; align-items: center; margin-bottom: 18px; }
+.drawer-status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+
+.btn-seguimento {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1.5px solid var(--green-light, #52B788);
+  border-radius: 99px;
+  background: var(--green-bg, #F0FAF4);
+  color: var(--green-dark, #1B4332);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-seguimento:hover { background: var(--green-light, #52B788); color: #fff; }
 
 .detail-row {
   display: flex;
@@ -1860,7 +1910,16 @@ tbody tr:last-child td { border-bottom: none; }
 }
 
 .tl-content { flex: 1; }
-.tl-title   { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.tl-title   { font-size: 13px; font-weight: 600; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.tl-followup-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green-dark, #1B4332);
+  background: var(--green-bg, #F0FAF4);
+  border: 1px solid var(--green-light, #52B788);
+  border-radius: 99px;
+  padding: 1px 8px;
+}
 .tl-comment { font-size: 12.5px; color: var(--text-gray); margin-top: 3px; line-height: 1.5; }
 .tl-date    { font-size: 11.5px; color: var(--text-light); margin-top: 3px; }
 .tl-empty   { font-size: 13px; color: var(--text-light); font-style: italic; }

@@ -635,6 +635,7 @@
                 <div v-for="(a, i) in imageAnexos" :key="'img-' + i" class="attachment-thumb"
                   @click="lightboxImg = a.url">
                   <img :src="a.url" :alt="a.nome" />
+                  <span v-if="a.isFollowUp" class="attachment-new-badge">Novo</span>
                   <div class="attachment-thumb-overlay">
                     <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 16 16">
                       <circle cx="7" cy="7" r="4.5" />
@@ -663,7 +664,10 @@
                     <span class="doc-ext">{{ a.tipo.toUpperCase() }}</span>
                   </div>
                   <div class="doc-meta">
-                    <div class="doc-name">{{ a.nome }}</div>
+                    <div class="doc-name">
+                      {{ a.nome }}
+                      <span v-if="a.isFollowUp" class="attachment-new-badge">Novo</span>
+                    </div>
                     <div class="doc-size" v-if="a.tamanho">{{ a.tamanho }}</div>
                   </div>
                   <button class="btn-doc-open" @click="downloadAnexo(a)">
@@ -1181,7 +1185,7 @@ onMounted(async () => {
       refCategories.value = data.categories      ?? []
       refTypes.value      = (data.occurrence_types ?? []).filter(t => t.alert_level !== 'urgent')
     })
-    .catch(e => console.error('Erro ao carregar form data:', e))
+    .catch(e => console.error('Erro ao carregar form data:', e?.message ?? e))
 
   await loadOccurrences()
   tryAutoSelect()
@@ -1202,7 +1206,7 @@ async function loadOccurrences() {
     const TERMINAL = ['resolvido', 'improcedente', 'nao_resolvida']
     rows.value = (res.data ?? []).map(mapOccurrence).filter(r => !TERMINAL.includes(r.status))
   } catch (e) {
-    console.error(e)
+    console.error(e?.message ?? e)
     rows.value = []
     loadError.value = resolveErrorMessage(e, 'Não foi possível carregar as ocorrências.')
   } finally {
@@ -1225,6 +1229,8 @@ async function selectRow(r) {
       nome: a.name,
       url: a.url ?? '',
       tamanho: a.size ?? '',
+      addedAt: a.added_at ?? '',
+      isFollowUp: a.is_follow_up ?? false,
     }))
 
     const anexos = await Promise.all(rawAnexos.map(async (a) => {
@@ -1251,7 +1257,7 @@ async function selectRow(r) {
       const last = [...full.history].reverse().find(h => h.comment)
       if (last) selected.value.comentario = last.comment
     }
-  } catch (e) { console.error('Erro ao carregar detalhes:', e) }
+  } catch (e) { console.error('Erro ao carregar detalhes:', e?.message ?? e) }
 }
 
 function openFullModal() { editMode.value = false; showModal.value = true }
@@ -2776,6 +2782,27 @@ tbody tr.selected { background: #E6F5EC; border-left: 3px solid #52B788; }
   justify-content: center;
   opacity: 0;
   transition: opacity 0.18s;
+}
+
+.attachment-new-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--green-dark, #1B4332);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.doc-name .attachment-new-badge {
+  position: static;
+  margin-left: 6px;
+  vertical-align: middle;
 }
 
 .attachment-thumb:hover .attachment-thumb-overlay {

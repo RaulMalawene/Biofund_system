@@ -446,7 +446,7 @@ async function loadFormData() {
     tiposOcorrencia.value = data.occurrence_types ?? []
     provincias.value      = data.provinces        ?? []
   } catch (error) {
-    console.error('Erro ao carregar formulário:', error)
+    console.error('Erro ao carregar formulário:', error?.message ?? error)
     globalError.value = resolveErrorMessage(error, 'Não foi possível carregar os dados do formulário. Recarregue a página.')
   } finally {
     loadingFormData.value = false
@@ -463,7 +463,7 @@ async function handleProvinceChange() {
     const data = await PublicService.getDistrictsByProvince(form.provincia)
     distritos.value = data.districts ?? data
   } catch (error) {
-    console.error('Erro ao carregar distritos:', error)
+    console.error('Erro ao carregar distritos:', error?.message ?? error)
   } finally {
     loadingDistricts.value = false
   }

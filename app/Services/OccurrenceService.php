@@ -318,6 +318,85 @@ class OccurrenceService
         $this->notificationService->notifyStatusChanged($occurrence, $comment);
     }
 
+    /**
+     * Permite ao utilizador que submeteu a ocorrência (tipicamente um
+     * Funcionário, que não pode validar/rejeitar) acrescentar informação
+     * adicional - comentário e anexos - depois de o Gestor/Admin já ter
+     * agido sobre ela, reenviando-a para a fila de validação.
+     *
+     * Caminho de código isolado: NÃO usa canTransitionTo()/changeStatus(),
+     * para não alterar a máquina de estados usada pelo fluxo de validação
+     * do Gestor/Admin.
+     *
+     * @param  Occurrence  $occurrence  Ocorrência a que se acrescenta o seguimento
+     * @param  User        $user        Utilizador autenticado (deve ser quem submeteu)
+     * @param  string      $comment     Comentário do seguimento
+     * @param  array       $files       Novos anexos (opcional)
+     * @return Occurrence
+     * @throws ValidationException  Se o utilizador não for o submissor, se puder
+     *                               validar ocorrências, ou se ainda estiver por validar
+     */
+    public function submitFollowUp(
+        Occurrence $occurrence,
+        User $user,
+        string $comment,
+        array $files = []
+    ): Occurrence {
+        if ($occurrence->submitted_by_user_id !== $user->id) {
+            throw ValidationException::withMessages([
+                'occurrence' => 'Só pode dar seguimento às ocorrências que submeteu.',
+            ]);
+        }
+
+        if ($user->canValidate()) {
+            throw ValidationException::withMessages([
+                'occurrence' => 'Esta acção é exclusiva para quem submeteu a ocorrência.',
+            ]);
+        }
+
+        if ($occurrence->status === OccurrenceStatusEnum::PorValidar) {
+            throw ValidationException::withMessages([
+                'occurrence' => 'Esta ocorrência ainda está por validar.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($occurrence, $user, $comment, $files) {
+            $oldStatus = $occurrence->status;
+
+            $occurrence->update(['status' => OccurrenceStatusEnum::PorValidar]);
+
+            $this->recordStatusHistory(
+                occurrence: $occurrence,
+                from: $oldStatus,
+                to: OccurrenceStatusEnum::PorValidar,
+                changedBy: $user->id,
+                comment: $comment,
+                isFollowUp: true,
+            );
+
+            if (!empty($files)) {
+                $this->storeAttachments($occurrence, $files, uploadedBy: $user->id);
+            }
+
+            $occurrence->load(['occurrenceType', 'project', 'province', 'submittedBy', 'assignedTo']);
+            $this->notificationService->notifyFollowUpSubmitted($occurrence);
+
+            $this->auditService->logStatusChanged(
+                $occurrence,
+                $oldStatus->value,
+                OccurrenceStatusEnum::PorValidar->value,
+                $comment
+            );
+
+            Cache::forget('dashboard.admin');
+            if ($occurrence->assigned_to) {
+                Cache::forget("dashboard.gestor.{$occurrence->assigned_to}");
+            }
+
+            return $occurrence;
+        });
+    }
+
     // ─── Métodos privados ────────────────────────────────────────
 
     /**
@@ -368,6 +447,8 @@ class OccurrenceService
      * @param  int|null                  $changedBy
      * @param  string|null               $comment
      * @param  string|null               $internalNote
+     * @param  bool                      $isFollowUp   Marca a entrada como um seguimento
+     *                                                  adicionado pelo submissor (ver submitFollowUp())
      */
     private function recordStatusHistory(
         Occurrence $occurrence,
@@ -375,7 +456,8 @@ class OccurrenceService
         OccurrenceStatusEnum $to,
         ?int $changedBy,
         ?string $comment = null,
-        ?string $internalNote = null
+        ?string $internalNote = null,
+        bool $isFollowUp = false
     ): void {
         OccurrenceStatusHistory::create([
             'occurrence_id' => $occurrence->id,
@@ -384,6 +466,7 @@ class OccurrenceService
             'changed_by'    => $changedBy,
             'comment'       => $comment,
             'internal_note' => $internalNote,
+            'is_follow_up'  => $isFollowUp,
             'changed_at'    => now(),
         ]);
     }

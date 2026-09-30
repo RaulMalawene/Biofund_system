@@ -75,6 +75,20 @@ export const InternalService = {
     },
 
     /**
+     * Dá seguimento a uma ocorrência já validada (comentário + anexos opcionais).
+     * Só o funcionário que submeteu a ocorrência pode usar esta acção; o estado
+     * volta a 'por_validar' para nova validação do gestor/admin.
+     * @param {number} id
+     * @param {FormData} formData
+     */
+    async addFollowUp(id, formData) {
+        const { data } = await api.post(`/occurrences/${id}/follow-up`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        return data
+    },
+
+    /**
      * Atribui uma ocorrência a um gestor.
      */
     async assign(id, userId) {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Gestor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Occurrence\AddOccurrenceFollowUpRequest;
 use App\Http\Requests\Occurrence\StoreInternalOccurrenceRequest;
 use App\Http\Requests\Occurrence\UpdateOccurrenceStatusRequest;
 use App\Http\Resources\OccurrenceResource;
@@ -343,6 +344,30 @@ class GestorOccurrenceController extends Controller
         );
 
         return response()->json(['message' => 'Comentário adicionado com sucesso.'], 200);
+    }
+
+    /**
+     * Permite ao utilizador que submeteu a ocorrência (Funcionário) acrescentar
+     * um seguimento - comentário e anexos - depois de o Gestor/Admin já ter
+     * agido sobre ela. A ocorrência volta ao estado "Por Validar".
+     */
+    public function addFollowUp(AddOccurrenceFollowUpRequest $request, Occurrence $occurrence): JsonResponse
+    {
+        $files = $request->hasFile('attachments') ? $request->file('attachments') : [];
+
+        $occurrence = $this->occurrenceService->submitFollowUp(
+            occurrence: $occurrence,
+            user:       $request->user(),
+            comment:    $request->validated('comment'),
+            files:      $files,
+        );
+
+        return response()->json([
+            'message'      => 'Seguimento registado com sucesso. A ocorrência foi reenviada para validação.',
+            'status'       => $occurrence->status->value,
+            'status_label' => $occurrence->status->label(),
+            'status_color' => $occurrence->status->color(),
+        ]);
     }
 
     /**

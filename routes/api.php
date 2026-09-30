@@ -104,6 +104,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Download de anexo - acesso controlado por role
         Route::get('{occurrence}/attachments/{attachment}', [AttachmentController::class, 'download'])
             ->name('attachments.download');
+
+        // Seguimento pós-validação - exclusivo de quem submeteu a ocorrência
+        // (verificação de dono/role feita em OccurrenceService::submitFollowUp)
+        Route::post('{occurrence}/follow-up', [GestorOccurrenceController::class, 'addFollowUp'])
+            ->name('follow-up');
     });
 
     // ── 3.3 OCORRÊNCIAS - acções (admin + gestor apenas) ────────

@@ -75,6 +75,48 @@ class NotificationService
     }
 
     /**
+     * Notifica os administradores e os gestores responsáveis pela
+     * província/projecto da ocorrência de que o utilizador que a submeteu
+     * acrescentou um seguimento (comentário/anexos) e ela voltou a estar
+     * "Por Validar".
+     */
+    public function notifyFollowUpSubmitted(Occurrence $occurrence): void
+    {
+        $subject = $occurrence->subject ?? $occurrence->tracking_code;
+        $message = "Seguimento adicionado à ocorrência: {$subject} [{$occurrence->tracking_code}] - aguarda nova validação.";
+
+        $users = $this->getResponsibleUsers($occurrence);
+        if ($users->isEmpty()) return;
+
+        $now  = now();
+        $rows = $users->map(fn($user) => [
+            'occurrence_id'   => $occurrence->id,
+            'user_id'         => $user->id,
+            'recipient_email' => $user->email,
+            'channel'         => 'system',
+            'event_type'      => 'follow_up_submitted',
+            'message'         => $message,
+            'status'          => 'sent',
+            'sent_at'         => $now,
+            'created_at'      => $now,
+            'updated_at'      => $now,
+        ])->all();
+
+        NotificationLog::insert($rows);
+
+        foreach ($users as $user) {
+            $this->sendEmail(
+                occurrence: $occurrence,
+                recipientEmail: $user->email,
+                userId: $user->id,
+                eventType: 'follow_up_submitted',
+                subject: "MDR - Seguimento adicionado à ocorrência | {$occurrence->tracking_code}",
+                body: $this->buildFollowUpMessage($occurrence, $user)
+            );
+        }
+    }
+
+    /**
      * Notifica os administradores (sempre) e os gestores responsáveis pela
      * província/projecto da ocorrência (ou de âmbito nacional).
      *
@@ -87,35 +129,7 @@ class NotificationService
         $subject = $occurrence->subject ?? $occurrence->tracking_code;
         $message = "Nova ocorrência registada: {$subject} [{$occurrence->tracking_code}]";
 
-        $users = User::active()
-            ->where(function ($q) use ($occurrence) {
-                // Admins recebem sempre (âmbito global)
-                $q->where('role', 'admin')
-                  // Gestores recebem apenas se a ocorrência estiver no seu âmbito
-                  ->orWhere(function ($gq) use ($occurrence) {
-                      $gq->where('role', 'gestor')
-                         ->where(function ($scope) use ($occurrence) {
-                             // Âmbito nacional: recebe sempre
-                             $scope->where('management_scope', 'national')
-                                   // Ou pertence à província E ao projecto da ocorrência (AND)
-                                   ->orWhere(function ($and) use ($occurrence) {
-                                       $and->where(fn($pq) =>
-                                               $pq->where('province_id', $occurrence->province_id)
-                                                  ->orWhereHas('provinces', fn($q2) =>
-                                                      $q2->where('provinces.id', $occurrence->province_id)
-                                                  )
-                                           );
-                                       if ($occurrence->project_id) {
-                                           $and->whereHas('projects', fn($q2) =>
-                                               $q2->where('projects.id', $occurrence->project_id)
-                                           );
-                                       }
-                                   });
-                         });
-                  });
-            })
-            ->get();
-
+        $users = $this->getResponsibleUsers($occurrence);
         if ($users->isEmpty()) return;
 
         $now  = now();
@@ -145,6 +159,44 @@ class NotificationService
                 body: $this->buildNewOccurrenceMessage($occurrence, $user)
             );
         }
+    }
+
+    /**
+     * Devolve os administradores (âmbito global) e os gestores responsáveis
+     * pela província/projecto da ocorrência (ou de âmbito nacional) -
+     * a mesma lista de destinatários usada para "nova ocorrência" e para
+     * "seguimento adicionado".
+     */
+    private function getResponsibleUsers(Occurrence $occurrence)
+    {
+        return User::active()
+            ->where(function ($q) use ($occurrence) {
+                // Admins recebem sempre (âmbito global)
+                $q->where('role', 'admin')
+                  // Gestores recebem apenas se a ocorrência estiver no seu âmbito
+                  ->orWhere(function ($gq) use ($occurrence) {
+                      $gq->where('role', 'gestor')
+                         ->where(function ($scope) use ($occurrence) {
+                             // Âmbito nacional: recebe sempre
+                             $scope->where('management_scope', 'national')
+                                   // Ou pertence à província E ao projecto da ocorrência (AND)
+                                   ->orWhere(function ($and) use ($occurrence) {
+                                       $and->where(fn($pq) =>
+                                               $pq->where('province_id', $occurrence->province_id)
+                                                  ->orWhereHas('provinces', fn($q2) =>
+                                                      $q2->where('provinces.id', $occurrence->province_id)
+                                                  )
+                                           );
+                                       if ($occurrence->project_id) {
+                                           $and->whereHas('projects', fn($q2) =>
+                                               $q2->where('projects.id', $occurrence->project_id)
+                                           );
+                                       }
+                                   });
+                         });
+                  });
+            })
+            ->get();
     }
 
     private function notifyByAlertLevel(Occurrence $occurrence, AlertLevelEnum $level): void
@@ -334,6 +386,30 @@ Prazo: $dueDate
 Atenção: se o estado desta ocorrência não for actualizado em $statusLimit dias úteis, o sistema marcá-la-á automaticamente como "Não Resolvida".
 
 Aceda ao painel MDR para mais detalhes.
+
+Com os melhores cumprimentos,
+Sistema MDR - BIOFUND
+TEXT;
+    }
+
+    private function buildFollowUpMessage(Occurrence $occurrence, User $user): string
+    {
+        $name       = $user->name;
+        $code       = $occurrence->tracking_code;
+        $subject    = $occurrence->subject ?? 'Não especificado';
+        $submitter  = $occurrence->submittedBy?->name ?? 'Funcionário';
+        $project    = $occurrence->project->name;
+
+        return <<<TEXT
+Prezado(a) $name,
+
+O funcionário $submitter acrescentou um seguimento (comentário/anexos) a uma ocorrência que já tinha sido validada. O estado voltou a "Por Validar" e aguarda nova validação.
+
+Código: $code
+Assunto: $subject
+Projecto: $project
+
+Aceda ao painel MDR para rever o seguimento e validar novamente.
 
 Com os melhores cumprimentos,
 Sistema MDR - BIOFUND

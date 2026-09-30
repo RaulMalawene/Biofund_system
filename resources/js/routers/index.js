@@ -114,15 +114,6 @@ router.beforeEach((to, _from, next) => {
     })()
     const isAuthenticated = !!token && !!user
 
-    // [Debug] Remove em produção
-    console.log('[Router]', {
-        to: to.path,
-        token: !!token,
-        user,
-        role: user?.role,
-        routeRoles: to.meta.roles,
-    })
-
     // ── Rota protegida ────────────────────────────────────────
     if (to.meta.requiresAuth) {
 

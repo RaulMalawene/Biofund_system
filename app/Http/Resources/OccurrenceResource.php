@@ -132,16 +132,25 @@ class OccurrenceResource extends JsonResource
             'attachments_count' => $this->whenNotNull($a['attachments_count'] ?? null),
 
             // Detalhe completo (carregado apenas no show)
-            'attachments'  => $this->whenLoaded('attachments', fn() =>
-                $this->attachments->map(fn($att) => [
-                    'id'       => $att->id,
-                    'name'     => $att->original_name,
-                    'size'     => $att->getFormattedSize(),
-                    'mime'     => $att->mime_type,
-                    'is_image' => $att->isImage(),
-                    'url'      => $att->getUrl(),
-                ])
-            ),
+            'attachments'  => $this->whenLoaded('attachments', function () {
+                // Anexos carregados a partir do último seguimento (ver
+                // OccurrenceService::submitFollowUp) são marcados como "novos"
+                // para o gestor/admin os distinguir dos anexos originais.
+                $lastFollowUpAt = $this->relationLoaded('statusHistory')
+                    ? $this->statusHistory->where('is_follow_up', true)->sortByDesc('changed_at')->first()?->changed_at
+                    : null;
+
+                return $this->attachments->map(fn($att) => [
+                    'id'           => $att->id,
+                    'name'         => $att->original_name,
+                    'size'         => $att->getFormattedSize(),
+                    'mime'         => $att->mime_type,
+                    'is_image'     => $att->isImage(),
+                    'url'          => $att->getUrl(),
+                    'added_at'     => $att->created_at->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
+                    'is_follow_up' => $lastFollowUpAt !== null && $att->created_at->gte($lastFollowUpAt),
+                ]);
+            }),
 
             // Histórico de estados (show)
             'history' => $this->whenLoaded('statusHistory', fn() =>
@@ -152,6 +161,7 @@ class OccurrenceResource extends JsonResource
                     'comment'       => $h->comment,
                     // Nota interna só visível para gestores/admin
                     'internal_note' => $isManagerOrAbove ? $h->internal_note : null,
+                    'is_follow_up'  => $h->is_follow_up,
                     'changed_by'    => $h->changedBy?->name ?? 'Sistema',
                     'date'          => $h->changed_at->copy()->setTimezone(config('app.display_timezone'))->format('d/m/Y H:i'),
                 ])

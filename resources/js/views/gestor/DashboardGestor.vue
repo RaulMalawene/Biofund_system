@@ -916,7 +916,7 @@ async function applyDashFilter() {
     rawSugestoes.value    = data.sugestoes    ?? 0
     updateCharts()
   } catch (err) {
-    console.error('Erro ao aplicar filtros:', err)
+    console.error('Erro ao aplicar filtros:', err?.message ?? err)
     statsError.value = resolveErrorMessage(err, 'Não foi possível aplicar os filtros.')
   } finally {
     filterLoading.value = false
@@ -1033,7 +1033,7 @@ async function refreshStats() {
     rawSugestoes.value    = data.sugestoes    ?? 0
     updateCharts()
   } catch (err) {
-    console.error('Erro ao actualizar estatísticas:', err)
+    console.error('Erro ao actualizar estatísticas:', err?.message ?? err)
     statsError.value = resolveErrorMessage(err, 'Não foi possível actualizar as estatísticas.')
   }
 }
@@ -1078,7 +1078,7 @@ async function selectCard(key) {
     submissions.value     = mapRecent(data.recent)
     updateCharts()
   } catch (err) {
-    console.error('Erro ao filtrar:', err)
+    console.error('Erro ao filtrar:', err?.message ?? err)
     statsError.value = resolveErrorMessage(err, 'Não foi possível aplicar o filtro seleccionado.')
   } finally {
     filterLoading.value = false
@@ -1184,7 +1184,7 @@ async function loadRefData() {
     refCategories.value = data.categories      ?? []
     refTypes.value      = (data.occurrence_types ?? []).filter(t => t.alert_level !== 'urgent')
   } catch (err) {
-    console.error('Erro ao carregar dados do formulário:', err)
+    console.error('Erro ao carregar dados do formulário:', err?.message ?? err)
     submitError.value = resolveErrorMessage(err, 'Não foi possível carregar os dados do formulário.')
   } finally {
     loadingRef.value = false
@@ -1200,7 +1200,7 @@ async function handleProvinceChange() {
     const data = await InternalService.getDistrictsByProvince(form.province_id)
     refDistricts.value = data.districts ?? data
   } catch (err) {
-    console.error('Erro ao carregar distritos:', err)
+    console.error('Erro ao carregar distritos:', err?.message ?? err)
   } finally {
     loadingDistricts.value = false
   }
@@ -1374,7 +1374,7 @@ onMounted(async () => {
     rawElogios.value      = data.elogios      ?? 0
     rawSugestoes.value    = data.sugestoes    ?? 0
   } catch (err) {
-    console.error('Erro ao carregar estatísticas:', err)
+    console.error('Erro ao carregar estatísticas:', err?.message ?? err)
     statsError.value = resolveErrorMessage(err, 'Não foi possível carregar as estatísticas do dashboard.')
   } finally {
     statsLoading.value = false

@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null                    $changed_by
  * @property string|null                 $comment
  * @property string|null                 $internal_note
+ * @property bool                        $is_follow_up
  * @property \Carbon\Carbon              $changed_at
  */
 class OccurrenceStatusHistory extends Model
@@ -40,13 +41,15 @@ class OccurrenceStatusHistory extends Model
         'changed_by',
         'comment',
         'internal_note',
+        'is_follow_up',
         'changed_at',
     ];
 
     protected $casts = [
-        'from_status' => OccurrenceStatusEnum::class,
-        'to_status'   => OccurrenceStatusEnum::class,
-        'changed_at'  => 'datetime',
+        'from_status'  => OccurrenceStatusEnum::class,
+        'to_status'    => OccurrenceStatusEnum::class,
+        'is_follow_up' => 'boolean',
+        'changed_at'   => 'datetime',
     ];
 
     // ─── Relationships ──────────────────────────────────────────

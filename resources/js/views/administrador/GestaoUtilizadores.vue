@@ -838,7 +838,7 @@ onMounted(() => {
       refProvinces.value = data.provinces ?? []
       refProjects.value  = data.projects  ?? []
     })
-    .catch(err => console.error('Erro ao carregar dados de referência:', err))
+    .catch(err => console.error('Erro ao carregar dados de referência:', err?.message ?? err))
 
   loadUsers(1)
 })
