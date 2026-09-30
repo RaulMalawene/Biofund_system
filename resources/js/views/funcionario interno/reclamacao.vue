@@ -557,7 +557,7 @@
               <input type="text" v-model="nf.complainant_name" placeholder="Nome completo ou pseudónimo" />
             </div>
             <div class="f-group">
-              <label>Email <span class="req-hint">*pelo menos um</span></label>
+              <label>Email</label>
               <input type="email" v-model="nf.complainant_email"
                 :class="{ 'f-err': mErrors.contact }"
                 placeholder="email@exemplo.com"
@@ -566,7 +566,7 @@
           </div>
           <div class="f-row" style="margin-top:-8px">
             <div class="f-group">
-              <label>Telefone <span class="req-hint">*pelo menos um</span></label>
+              <label>Telefone</label>
               <input type="tel" v-model="nf.complainant_phone"
                 :class="{ 'f-err': mErrors.contact }"
                 placeholder="+258 84 000 0000"
@@ -606,7 +606,7 @@
             <svg width="13" height="13" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 14 14">
               <circle cx="7" cy="7" r="5.5"/><path d="M7 4.5v3M7 9.5h.01" stroke-linecap="round"/>
             </svg>
-            Preencha pelo menos email ou telefone.
+            Email e telefone são opcionais.
           </div>
 
           <!-- Localização -->
@@ -1054,10 +1054,6 @@ function addFiles(list) {
 // ── Validação ─────────────────────────────────────────────────
 function validate() {
   let ok = true
-  if (!nf.complainant_email.trim() && !nf.complainant_phone.trim()) {
-    mErrors.contact = 'Preencha pelo menos email ou número de telefone.'
-    ok = false
-  }
   if (!nf.subject.trim())           { mErrors.subject            = 'O assunto é obrigatório.';               ok = false }
   if (!nf.project_id)               { mErrors.project_id         = 'Seleccione o projecto.';                 ok = false }
   if (!nf.category_id)              { mErrors.category_id        = 'Seleccione a categoria.';                ok = false }

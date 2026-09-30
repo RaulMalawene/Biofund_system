@@ -916,14 +916,14 @@
           </div>
           <div class="r-row">
             <div class="r-group">
-              <label>Email <span class="r-req-hint">*pelo menos um</span></label>
+              <label>Email</label>
               <input type="email" v-model="nf.complainant_email"
                 :class="{ 'r-err': rErrors.contact }"
                 placeholder="email@exemplo.com"
                 @input="rErrors.contact = ''" />
             </div>
             <div class="r-group">
-              <label>Telefone <span class="r-req-hint">*pelo menos um</span></label>
+              <label>Telefone</label>
               <input type="tel" v-model="nf.complainant_phone"
                 :class="{ 'r-err': rErrors.contact }"
                 placeholder="+258 84 000 0000"
@@ -931,7 +931,7 @@
             </div>
           </div>
           <div v-if="rErrors.contact" class="r-contact-hint r-hint-error">{{ rErrors.contact }}</div>
-          <div v-else class="r-contact-hint">Preencha pelo menos email ou telefone.</div>
+          <div v-else class="r-contact-hint">Email e telefone são opcionais.</div>
 
           <!-- Localização -->
           <div class="r-section-title">Localização</div>
@@ -1517,10 +1517,6 @@ function addRFiles(list) {
 
 function validateRegisto() {
   let ok = true
-  if (!nf.complainant_email.trim() && !nf.complainant_phone.trim()) {
-    rErrors.contact = 'Preencha pelo menos email ou número de telefone.'
-    ok = false
-  }
   if (!nf.subject.trim())           { rErrors.subject            = 'O assunto é obrigatório.';               ok = false }
   if (!nf.project_id)               { rErrors.project_id         = 'Seleccione o projecto.';                 ok = false }
   if (!nf.category_id)              { rErrors.category_id        = 'Seleccione a categoria.';                ok = false }

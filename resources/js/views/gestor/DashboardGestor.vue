@@ -637,12 +637,6 @@
               <label>Telefone do Reclamante</label>
               <input type="tel" v-model="form.complainant_phone" placeholder="ex: +258 84 000 0000"/>
             </div>
-            <div class="f-group contact-note">
-              <svg width="14" height="14" fill="none" stroke="#888E8C" stroke-width="1.6" viewBox="0 0 16 16">
-                <circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5h.01" stroke-linecap="round"/>
-              </svg>
-              Preencha pelo menos um contacto para que o reclamante possa ser notificado.
-            </div>
           </div>
 
           <div class="f-row">
