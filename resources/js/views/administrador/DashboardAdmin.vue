@@ -479,12 +479,7 @@
           <div class="chart-card">
             <div class="chart-title">Projecto com Mais Ocorrências</div>
             <div class="chart-sub">Ranking dos projectos por volume de submissões</div>
-            <div class="project-leader" v-if="topProject">
-              <svg width="14" height="14" fill="#52B788" stroke="#2D6A4F" stroke-width="1.2" viewBox="0 0 16 16">
-                <path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z"/>
-              </svg>
-              <span><strong>{{ topProject.name }}</strong> lidera com {{ topProject.total }} ocorrências</span>
-            </div>
+ 
             <div class="rank-list">
               <div class="rank-item" v-for="(p, i) in stats.byProject" :key="p.name">
                 <div class="rank-badge" :class="'rank-' + (i + 1)">{{ i + 1 }}</div>
