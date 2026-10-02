@@ -17,8 +17,8 @@
             </div>
             <div>
               <h2 id="fu-title" class="fu-title">Dar Seguimento</h2>
-              <p class="fu-subtitle" v-if="trackingCode">Ocorrência {{ trackingCode }} — envia de novo para validação</p>
-              <p class="fu-subtitle" v-else>Envia a ocorrência de novo para validação</p>
+              <p class="fu-subtitle" v-if="trackingCode">Ocorrência {{ trackingCode }} — Resolvendo → Por Validar</p>
+              <p class="fu-subtitle" v-else>Resolvendo → Por Validar</p>
             </div>
           </div>
           <button class="fu-close" @click="fechar" :disabled="submitting" aria-label="Fechar">

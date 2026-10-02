@@ -59,6 +59,13 @@ class OccurrenceResource extends JsonResource
             'status_color'   => $status->color(),
             'is_overdue'     => $isOverdue,
 
+            // Seguimento: só o submissor (sem permissão de validar) e só em "Resolvendo".
+            // Espelha as regras de OccurrenceService::submitFollowUp().
+            'can_follow_up'  => $user !== null
+                && $status->allowsFollowUp()
+                && ($a['submitted_by_user_id'] ?? null) === $user->id
+                && !$user->canValidate(),
+
             // Reclamante/Pessoa Afectada - dados sensíveis apenas para gestor/admin
             'complainant' => $this->when($isManagerOrAbove, fn() => [
                 'name'   => $a['complainant_name'],

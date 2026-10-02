@@ -334,7 +334,7 @@ class OccurrenceService
      * @param  array       $files       Novos anexos (opcional)
      * @return Occurrence
      * @throws ValidationException  Se o utilizador não for o submissor, se puder
-     *                               validar ocorrências, ou se ainda estiver por validar
+     *                               validar ocorrências, ou se não estiver em 'Resolvendo'
      */
     public function submitFollowUp(
         Occurrence $occurrence,
@@ -354,9 +354,9 @@ class OccurrenceService
             ]);
         }
 
-        if ($occurrence->status === OccurrenceStatusEnum::PorValidar) {
+        if (!$occurrence->status->allowsFollowUp()) {
             throw ValidationException::withMessages([
-                'occurrence' => 'Esta ocorrência ainda está por validar.',
+                'occurrence' => "Só é possível dar seguimento quando a ocorrência está em 'Resolvendo'.",
             ]);
         }
 

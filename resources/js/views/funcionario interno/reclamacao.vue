@@ -288,13 +288,23 @@
         <div class="drawer-body" v-else>
           <div class="drawer-status-row">
             <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
-            <button v-if="selected.status !== 'por_validar'" class="btn-seguimento" @click="openFollowUp">
+            <button
+              class="btn-seguimento"
+              :disabled="!selected.can_follow_up"
+              :title="selected.can_follow_up ? 'Reenviar a ocorrência para validação' : 'Disponível apenas quando a ocorrência está em Resolvendo'"
+              @click="openFollowUp"
+            >
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 16 16">
                 <path d="M2 8a6 6 0 1 1 2.2 4.65" stroke-linecap="round" />
                 <path d="M2 12v-3h3" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               Dar Seguimento
             </button>
+          </div>
+
+          <div v-if="selected.can_follow_up" class="followup-banner">
+            <strong>Ocorrência em resolução.</strong>
+            Tem nova informação? Dê seguimento para a reenviar ao gestor e validar de novo.
           </div>
 
           <div class="detail-row" v-if="selected.complainant?.name">
@@ -1819,7 +1829,18 @@ tbody tr:last-child td { border-bottom: none; }
   cursor: pointer;
   transition: all 0.15s;
 }
-.btn-seguimento:hover { background: var(--green-light, #52B788); color: #fff; }
+.btn-seguimento:hover:not(:disabled) { background: var(--green-light, #52B788); color: #fff; }
+.btn-seguimento:disabled { opacity: 0.45; cursor: not-allowed; background: #F4F6F5; border-color: var(--border, #DDE8E1); color: var(--text-light, #888E8C); }
+.followup-banner {
+  margin: 10px 0 4px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1E3A8A;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
 
 .detail-row {
   display: flex;

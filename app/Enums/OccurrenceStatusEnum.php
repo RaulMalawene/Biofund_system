@@ -56,6 +56,15 @@ enum OccurrenceStatusEnum: string
         ]);
     }
 
+    /**
+     * O submissor só pode dar seguimento (reenviar para validação) enquanto
+     * a ocorrência está a ser resolvida.
+     */
+    public function allowsFollowUp(): bool
+    {
+        return $this === self::Resolvendo;
+    }
+
     public function allowedTransitions(): array
     {
         return match($this) {
