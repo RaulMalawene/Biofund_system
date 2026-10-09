@@ -316,7 +316,7 @@
                   <div class="info-sub">{{ selected.coords }}</div>
                 </div>
                 <div class="info-block">
-                  <div class="info-label">Denunciante</div>
+                  <div class="info-label">Dados Pessoais</div>
                   <div class="info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
                   <div class="info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
                   <div class="info-sub" v-if="selected.sexo">{{ selected.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</div>

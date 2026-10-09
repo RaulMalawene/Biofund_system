@@ -533,7 +533,7 @@
                   <div class="modal-info-sub">{{ selected.coords }}</div>
                 </div>
                 <div class="modal-info-block">
-                  <div class="modal-info-label">Pessoa Afectada</div>
+                  <div class="modal-info-label">Dados Pessoais</div>
                   <div class="modal-info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
                   <div class="modal-info-sub" v-if="selected.email_afectado">{{ selected.email_afectado }}</div>
                   <div class="modal-info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
