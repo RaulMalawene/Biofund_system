@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Enums\OccurrenceStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Occurrence;
 use App\Models\User;
@@ -435,6 +436,7 @@ class AdminStatisticsController extends Controller
                 'category:id,name',
                 'occurrenceType:id,name,alert_level',
                 'assignedTo:id,name',
+                'statusHistory' => $this->resolvedHistoryConstraint(),
             ])
             ->orderBy('occurrences.created_at', 'desc')
             ->get()
@@ -449,6 +451,7 @@ class AdminStatisticsController extends Controller
                 'alert_level'   => $o->occurrenceType?->alert_level?->label() ?? '-',
                 'assigned_to'   => $o->assignedTo?->name ?? '-',
                 'submitted_at'  => $o->created_at->format('d/m/Y'),
+                'resolved_at'   => $this->resolvedAt($o) ?? '-',
                 'due_date'      => $o->due_date?->format('d/m/Y') ?? '-',
                 'gender'        => $o->complainant_gender ?? '-',
             ])->values()->toArray();
@@ -595,6 +598,7 @@ class AdminStatisticsController extends Controller
             'project:id,name', 'province:id,name',
             'category:id,name', 'occurrenceType:id,name,alert_level',
             'assignedTo:id,name',
+            'statusHistory' => $this->resolvedHistoryConstraint(),
         ])->orderBy('created_at', 'desc')->get();
 
         return response()->json([
@@ -610,8 +614,40 @@ class AdminStatisticsController extends Controller
                 'alert_level'   => $o->occurrenceType?->alert_level?->label() ?? '-',
                 'assigned_to'   => $o->assignedTo?->name ?? '-',
                 'submitted_at'  => $o->created_at->format('d/m/Y'),
+                'resolved_at'   => $this->resolvedAt($o) ?? '-',
                 'due_date'      => $o->due_date?->format('d/m/Y') ?? '-',
             ]),
         ], 200);
+    }
+
+    /**
+     * Restringe o eager load do histórico às entradas em que a ocorrência
+     * passou a "Resolvido" - é tudo o que os relatórios precisam para
+     * calcular a data de resolução.
+     */
+    private function resolvedHistoryConstraint(): \Closure
+    {
+        return fn($q) => $q
+            ->where('to_status', OccurrenceStatusEnum::Resolvido->value)
+            ->select('id', 'occurrence_id', 'to_status', 'changed_at');
+    }
+
+    /**
+     * Data de resolução (d/m/Y) de uma ocorrência actualmente resolvida.
+     *
+     * A tabela occurrences não guarda esta data; é a da última passagem a
+     * "Resolvido" no histórico de estados. Devolve null se a ocorrência não
+     * estiver resolvida. Requer statusHistory carregado com
+     * resolvedHistoryConstraint().
+     */
+    private function resolvedAt(Occurrence $occurrence): ?string
+    {
+        if ($occurrence->status !== OccurrenceStatusEnum::Resolvido) {
+            return null;
+        }
+
+        return $occurrence->statusHistory->last()?->changed_at
+            ?->copy()->setTimezone(config('app.display_timezone'))
+            ->format('d/m/Y');
     }
 }

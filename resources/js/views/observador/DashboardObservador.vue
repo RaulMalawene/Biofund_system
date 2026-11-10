@@ -64,26 +64,6 @@
           <button class="dash-error-retry" @click="reloadStats">Tentar novamente</button>
         </div>
 
-        <!-- Âmbito do observador -->
-        <div class="scope-banner" v-if="scopeProvinces.length || scopeProjects.length">
-          <div class="scope-section" v-if="scopeProvinces.length">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-              <path d="M8 1.5C5.515 1.5 3.5 3.515 3.5 6c0 3.75 4.5 9 4.5 9s4.5-5.25 4.5-9c0-2.485-2.015-4.5-4.5-4.5z"/>
-              <circle cx="8" cy="6" r="1.8"/>
-            </svg>
-            <span class="scope-label">Províncias:</span>
-            <span class="scope-tag" v-for="p in scopeProvinces" :key="p.id">{{ p.name }}</span>
-          </div>
-          <div class="scope-sep" v-if="scopeProvinces.length && scopeProjects.length"></div>
-          <div class="scope-section" v-if="scopeProjects.length">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 16 16">
-              <path d="M2 13L6 4l4 6 3-3 3 4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="scope-label">Projectos:</span>
-            <span class="scope-tag proj" v-for="p in scopeProjects" :key="p.id">{{ p.name }}</span>
-          </div>
-        </div>
-
         <!-- DASH FILTER BAR -->
         <div class="dash-filter-bar">
           <span class="dash-filter-title">
@@ -1517,59 +1497,6 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 .page-title-row p  { font-size: 13px; color: var(--text-gray); line-height: 1.5; }
-
-/* ── SCOPE BANNER ────────────────────────── */
-.scope-banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 20px;
-  background: linear-gradient(135deg, #EBF8F1 0%, #f0faf5 100%);
-  border: 1px solid #B7E4CA;
-  border-left: 4px solid #52B788;
-  border-radius: 10px;
-  padding: 11px 18px;
-  margin-bottom: 22px;
-  font-size: 12.5px;
-}
-
-.scope-section {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  color: var(--text-gray);
-}
-
-.scope-label {
-  font-weight: 700;
-  color: #2D6A4F;
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.scope-tag {
-  background: #fff;
-  color: #2D6A4F;
-  border: 1px solid #B7E4CA;
-  border-radius: 99px;
-  padding: 2px 11px;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.scope-tag.proj {
-  background: #fff;
-  color: #1D4ED8;
-  border-color: #93C5FD;
-}
-
-.scope-sep {
-  width: 1px;
-  height: 18px;
-  background: #B7E4CA;
-}
 
 /* ── DASH FILTER BAR ─────────────────────── */
 .dash-filter-bar {

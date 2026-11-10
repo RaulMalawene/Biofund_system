@@ -666,11 +666,11 @@ async function gerarExcel(data) {
   // ════════════════════════════════════════════════════════════
   const ws7 = wb.addWorksheet('📋 Ocorrências', { views: [{ showGridLines: false }] })
   r = 1
-  ws7.mergeCells(r, 1, r, 11)
+  ws7.mergeCells(r, 1, r, 12)
   aplicarTitulo(ws7.getCell(r, 1), `Listagem Completa de Ocorrências — ${data.occurrences.length} registos`)
   ws7.getRow(r).height = 32
   r++
-  ws7.mergeCells(r, 1, r, 11)
+  ws7.mergeCells(r, 1, r, 12)
   aplicarMeta(ws7.getCell(r, 1), `${data.meta.period_label}  ·  ${data.meta.date_from} a ${data.meta.date_to}  ·  Gerado em: ${data.meta.generated_at}`)
   ws7.getRow(r).height = 18
   r += 2
@@ -687,6 +687,7 @@ async function gerarExcel(data) {
     { label: 'Nível Alerta', width: 16 },
     { label: 'Atribuído a',  width: 24 },
     { label: 'Submissão',    width: 14 },
+    { label: 'Data de Resolução', width: 18 },
   ]
 
   const headerRowLista = ws7.getRow(r)
@@ -714,7 +715,8 @@ async function gerarExcel(data) {
     excelRow.height = 16
 
     const rowData = [ri + 1, o.tracking_code, o.subject, o.status, o.project,
-      o.province, o.category, o.type, o.alert_level, o.assigned_to, o.submitted_at]
+      o.province, o.category, o.type, o.alert_level, o.assigned_to, o.submitted_at,
+      o.resolved_at ?? '-']
 
     rowData.forEach((val, ci) => {
       const cell = excelRow.getCell(1 + ci)
@@ -1039,11 +1041,12 @@ async function gerarPdf(data) {
     ...tableDefaults,
     startY: 27,
     margin: { left: 14, right: 14 },
-    head: [['Código', 'Origem / Assunto', 'Estado', 'Projecto', 'Província', 'Categoria', 'Nível', 'Atribuído a', 'Submissão']],
+    head: [['Código', 'Origem / Assunto', 'Estado', 'Projecto', 'Província', 'Categoria', 'Nível', 'Atribuído a', 'Submissão', 'Resolução']],
     body: data.occurrences.map(o => [
       o.tracking_code, o.subject?.substring(0, 45), o.status,
       o.project?.substring(0, 22), o.province, o.category?.substring(0, 18),
       o.alert_level, o.assigned_to?.substring(0, 20), o.submitted_at,
+      o.resolved_at ?? '-',
     ]),
     columnStyles: {
       0: { cellWidth: 24 },
@@ -1055,6 +1058,7 @@ async function gerarPdf(data) {
       6: { cellWidth: 16 },
       7: { cellWidth: 26 },
       8: { cellWidth: 18 },
+      9: { cellWidth: 18 },
     },
   })
 
