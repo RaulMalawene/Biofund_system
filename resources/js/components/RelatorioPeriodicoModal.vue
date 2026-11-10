@@ -678,7 +678,7 @@ async function gerarExcel(data) {
   const headersLista = [
     { label: '#',            width: 6  },
     { label: 'Código',       width: 20 },
-    { label: 'Assunto',      width: 45 },
+    { label: 'Origem / Assunto', width: 45 },
     { label: 'Estado',       width: 18 },
     { label: 'Projecto',     width: 30 },
     { label: 'Província',    width: 20 },
@@ -1039,7 +1039,7 @@ async function gerarPdf(data) {
     ...tableDefaults,
     startY: 27,
     margin: { left: 14, right: 14 },
-    head: [['Código', 'Assunto', 'Estado', 'Projecto', 'Província', 'Categoria', 'Nível', 'Atribuído a', 'Submissão']],
+    head: [['Código', 'Origem / Assunto', 'Estado', 'Projecto', 'Província', 'Categoria', 'Nível', 'Atribuído a', 'Submissão']],
     body: data.occurrences.map(o => [
       o.tracking_code, o.subject?.substring(0, 45), o.status,
       o.project?.substring(0, 22), o.province, o.category?.substring(0, 18),

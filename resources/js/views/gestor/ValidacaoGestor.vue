@@ -833,12 +833,12 @@
           </div>
 
           <div class="r-group">
-            <label>Assunto <span class="r-req">*</span></label>
-            <input type="text" v-model="nf.subject" maxlength="255"
-              :class="{ 'r-err': rErrors.subject }"
-              placeholder="Ex: Poluição do rio Incomáti"
-              @input="rErrors.subject = ''" />
-            <span class="r-err-msg" v-if="rErrors.subject">{{ rErrors.subject }}</span>
+            <label>Origem da ocorrência <span class="r-req">*</span></label>
+            <input type="text" v-model="nf.occurrence_origin" maxlength="255"
+              :class="{ 'r-err': rErrors.occurrence_origin }"
+              placeholder="Indique a origem da ocorrência"
+              @input="rErrors.occurrence_origin = ''" />
+            <span class="r-err-msg" v-if="rErrors.occurrence_origin">{{ rErrors.occurrence_origin }}</span>
           </div>
 
           <div class="r-row">
@@ -1436,14 +1436,14 @@ const rFileInput        = ref(null)
 
 const nf = reactive({
   complainant_name: '', complainant_gender: '', complainant_age: '', complainant_email: '', complainant_phone: '',
-  subject: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
+  occurrence_origin: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
   alert_type: '', submission_channel: '', occurrence_date: '',
   province_id: '', district_id: '', comunidade: '', postoAdministrativo: '', coordenadas: '',
   description: '',
 })
 
 const rErrors = reactive({
-  contact: '', subject: '', project_id: '', category_id: '',
+  contact: '', occurrence_origin: '', project_id: '', category_id: '',
   occurrence_type_id: '', alert_type: '', submission_channel: '',
   province_id: '', description: '',
 })
@@ -1473,14 +1473,14 @@ function openRegistoModal() {
   const singleProvince = scopeProvinces.value.length === 1 ? scopeProvinces.value[0].id : ''
   Object.assign(nf, {
     complainant_name: '', complainant_gender: '', complainant_age: '', complainant_email: '', complainant_phone: '',
-    subject: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
+    occurrence_origin: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
     alert_type: '', submission_channel: '', occurrence_date: '',
     province_id: singleProvince, district_id: '',
     comunidade: '', postoAdministrativo: '', coordenadas: '',
     description: '',
   })
   Object.assign(rErrors, {
-    contact: '', subject: '', project_id: '', category_id: '',
+    contact: '', occurrence_origin: '', project_id: '', category_id: '',
     occurrence_type_id: '', alert_type: '', submission_channel: '',
     province_id: '', description: '',
   })
@@ -1517,7 +1517,7 @@ function addRFiles(list) {
 
 function validateRegisto() {
   let ok = true
-  if (!nf.subject.trim())           { rErrors.subject            = 'O assunto é obrigatório.';               ok = false }
+  if (!nf.occurrence_origin.trim())           { rErrors.occurrence_origin            = 'A origem da ocorrência é obrigatória.';               ok = false }
   if (!nf.project_id)               { rErrors.project_id         = 'Seleccione o projecto.';                 ok = false }
   if (!nf.category_id)              { rErrors.category_id        = 'Seleccione a categoria.';                ok = false }
   if (!nf.occurrence_type_id)       { rErrors.occurrence_type_id = 'Seleccione o tipo de ocorrência.';       ok = false }
@@ -1533,7 +1533,7 @@ function validateRegisto() {
 async function saveRegisto() {
   rSubmitError.value = ''
   Object.assign(rErrors, {
-    contact: '', subject: '', project_id: '', category_id: '',
+    contact: '', occurrence_origin: '', project_id: '', category_id: '',
     occurrence_type_id: '', alert_type: '', submission_channel: '',
     province_id: '', description: '',
   })
@@ -1551,7 +1551,7 @@ async function saveRegisto() {
     if (nf.complainant_age)          fd.append('complainant_age',    nf.complainant_age)
     if (nf.complainant_email.trim()) fd.append('complainant_email',  nf.complainant_email.trim())
     if (nf.complainant_phone.trim()) fd.append('complainant_phone',  nf.complainant_phone.trim())
-    fd.append('subject',            nf.subject.trim())
+    fd.append('occurrence_origin',            nf.occurrence_origin.trim())
     fd.append('project_id',         nf.project_id)
     fd.append('category_id',        nf.category_id)
     if (nf.subcategory_id) fd.append('subcategory_id', nf.subcategory_id)

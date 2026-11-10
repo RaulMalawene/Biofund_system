@@ -43,7 +43,7 @@ class StoreInternalOccurrenceRequest extends FormRequest
             'location_detail'    => ['nullable', 'string', 'max:255'],
 
             // Conteúdo
-            'subject'            => ['required', 'string', 'max:255'],
+            'occurrence_origin'  => ['required', 'string', 'max:255'],
             'description'        => ['required', 'string', 'min:20'],
             'occurrence_date'    => ['nullable', 'date', 'before_or_equal:today'],
 
@@ -64,7 +64,8 @@ class StoreInternalOccurrenceRequest extends FormRequest
             'project_id.required'             => 'Seleccione o projecto.',
             'category_id.required'            => 'Seleccione a categoria.',
             'province_id.required'            => 'Seleccione a província.',
-            'subject.required'                => 'O assunto é obrigatório.',
+            'occurrence_origin.required'      => 'A origem da ocorrência é obrigatória.',
+            'occurrence_origin.max'           => 'A origem da ocorrência não pode ultrapassar 255 caracteres.',
             'description.required'            => 'A descrição é obrigatória.',
             'description.min'                 => 'A descrição deve ter pelo menos 20 caracteres.',
             'submission_channel.required'     => 'Seleccione o canal de submissão.',

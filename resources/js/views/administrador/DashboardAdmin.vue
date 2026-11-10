@@ -576,14 +576,14 @@
             </div>
           </div>
 
-          <!-- Assunto -->
+          <!-- Origem da ocorrência -->
           <div class="f-group">
-            <label>Assunto <span class="f-req">*</span></label>
-            <input type="text" v-model="form.subject" maxlength="255"
-              :class="{ 'f-err': errors.subject }"
-              placeholder="Ex: Poluição do rio Incomáti"
-              @input="errors.subject = ''"/>
-            <span class="f-err-msg" v-if="errors.subject">{{ errors.subject }}</span>
+            <label>Origem da ocorrência <span class="f-req">*</span></label>
+            <input type="text" v-model="form.occurrence_origin" maxlength="255"
+              :class="{ 'f-err': errors.occurrence_origin }"
+              placeholder="Indique a origem da ocorrência"
+              @input="errors.occurrence_origin = ''"/>
+            <span class="f-err-msg" v-if="errors.occurrence_origin">{{ errors.occurrence_origin }}</span>
           </div>
 
           <!-- Tipo de Ocorrência + Nível de Alerta -->
@@ -1277,7 +1277,7 @@ const form = reactive({
     complainant_phone:  '',
     complainant_gender: '',
     complainant_age:    '',
-    subject:            '',
+    occurrence_origin:            '',
     project_id:         '',
     category_id:        '',
     subcategory_id:     '',
@@ -1293,7 +1293,7 @@ const form = reactive({
 
 const errors = reactive({
     complainant_email:  '',
-    subject:            '',
+    occurrence_origin:            '',
     project_id:         '',
     category_id:        '',
     occurrence_type_id: '',
@@ -1322,7 +1322,7 @@ const subcategoriasDisponiveis = computed(() => {
 
 function validate() {
     let ok = true
-    if (!form.subject.trim())            { errors.subject            = 'O assunto é obrigatório.';               ok = false }
+    if (!form.occurrence_origin.trim())            { errors.occurrence_origin            = 'A origem da ocorrência é obrigatória.';               ok = false }
     if (!form.project_id)                { errors.project_id         = 'Seleccione o projecto.';                 ok = false }
     if (!form.category_id)               { errors.category_id        = 'Seleccione a categoria.';                ok = false }
     if (!form.occurrence_type_id)        { errors.occurrence_type_id = 'Seleccione o tipo de ocorrência.';       ok = false }
@@ -1346,7 +1346,7 @@ async function submitForm() {
     if (form.complainant_phone.trim()) fd.append('complainant_phone', form.complainant_phone.trim())
     if (form.complainant_gender)       fd.append('complainant_gender', form.complainant_gender)
     if (form.complainant_age)          fd.append('complainant_age',    form.complainant_age)
-    fd.append('subject',            form.subject.trim())
+    fd.append('occurrence_origin',            form.occurrence_origin.trim())
     fd.append('project_id',         form.project_id)
     fd.append('category_id',        form.category_id)
     if (form.subcategory_id) fd.append('subcategory_id', form.subcategory_id)
@@ -1388,13 +1388,13 @@ function resetDrawerForm(clearSuccess = true) {
     Object.assign(form, {
         complainant_name: '', complainant_email: '', complainant_phone: '',
         complainant_gender: '', complainant_age: '',
-        subject: '', project_id: '', category_id: '', subcategory_id: '',
+        occurrence_origin: '', project_id: '', category_id: '', subcategory_id: '',
         occurrence_type_id: '', alert_type: '', submission_channel: '',
         occurrence_date: '', province_id: '', district_id: '',
         location_detail: '', description: '',
     })
     Object.assign(errors, {
-        complainant_email: '', subject: '', project_id: '', category_id: '',
+        complainant_email: '', occurrence_origin: '', project_id: '', category_id: '',
         occurrence_type_id: '', alert_type: '', submission_channel: '',
         province_id: '', description: '',
     })

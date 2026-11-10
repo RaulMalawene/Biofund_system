@@ -83,7 +83,7 @@
             <circle cx="7" cy="7" r="5" />
             <path d="M12 12l3 3" stroke-linecap="round" />
           </svg>
-          <input type="text" placeholder="Pesquisar por código, assunto ou reclamante…" v-model="topSearch"
+          <input type="text" placeholder="Pesquisar por código, origem, assunto ou reclamante…" v-model="topSearch"
             @keyup.enter="aplicarFiltros" />
         </div>
         <div class="topbar-spacer"></div>
@@ -268,7 +268,7 @@
                 <tr v-for="r in rows" :key="r.id" @click="openDetail(r)">
                   <td>
                     <span class="id-link">{{ r.tracking_code }}</span>
-                    <div class="id-sub">{{ r.subject ?? '-' }}</div>
+                    <div class="id-sub">{{ r.occurrence_origin ?? r.subject ?? '-' }}</div>
                   </td>
                   <td class="td-muted">{{ r.submitted_at }}</td>
                   <td>{{ r.province?.name ?? '-' }}</td>
@@ -348,7 +348,7 @@
         <div class="drawer-hd">
           <div>
             <h3>{{ selected.tracking_code }}</h3>
-            <p>{{ selected.subject ?? 'Sem assunto' }}</p>
+            <p>{{ selected.occurrence_origin ?? selected.subject ?? 'Sem assunto' }}</p>
           </div>
           <button class="btn-close" @click="selected = null">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
@@ -433,6 +433,10 @@
           <div class="detail-row" v-if="selected.alert_type_label">
             <span class="detail-key">Nível de Alerta</span>
             <span class="detail-val">{{ selected.alert_type_label }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.occurrence_origin">
+            <span class="detail-key">Origem da ocorrência</span>
+            <span class="detail-val">{{ selected.occurrence_origin }}</span>
           </div>
           <div class="detail-row" v-if="selected.submission_channel_label">
             <span class="detail-key">Canal de entrada</span>

@@ -82,7 +82,7 @@ class NotificationService
      */
     public function notifyFollowUpSubmitted(Occurrence $occurrence): void
     {
-        $subject = $occurrence->subject ?? $occurrence->tracking_code;
+        $subject = $occurrence->occurrence_origin ?? $occurrence->subject ?? $occurrence->tracking_code;
         $message = "Seguimento adicionado à ocorrência: {$subject} [{$occurrence->tracking_code}] - aguarda nova validação.";
 
         $users = $this->getResponsibleUsers($occurrence);
@@ -126,7 +126,7 @@ class NotificationService
      */
     private function notifyResponsibleUsers(Occurrence $occurrence): void
     {
-        $subject = $occurrence->subject ?? $occurrence->tracking_code;
+        $subject = $occurrence->occurrence_origin ?? $occurrence->subject ?? $occurrence->tracking_code;
         $message = "Nova ocorrência registada: {$subject} [{$occurrence->tracking_code}]";
 
         $users = $this->getResponsibleUsers($occurrence);
@@ -268,11 +268,26 @@ class NotificationService
 
     // ─── Templates ───────────────────────────────────────────────
 
+    /**
+     * Linha de identificação da ocorrência usada nos emails.
+     *
+     * Os registos internos têm "Origem da ocorrência" (occurrence_origin);
+     * os registos antigos e os do formulário público continuam a ter "Assunto".
+     */
+    private function subjectLine(Occurrence $occurrence): string
+    {
+        if (filled($occurrence->occurrence_origin)) {
+            return "Origem da ocorrência: {$occurrence->occurrence_origin}";
+        }
+
+        return 'Assunto: ' . ($occurrence->subject ?? 'Não especificado');
+    }
+
     private function buildCreatedMessage(Occurrence $occurrence): string
     {
         // Variáveis locais - o heredoc não suporta operadores (??) dentro de {}
         $name       = $occurrence->complainant_name ?? 'Reclamante';
-        $subject    = $occurrence->subject          ?? 'Não especificado';
+        $subjectLine = $this->subjectLine($occurrence);
         $dueDate    = $occurrence->statusUpdateDueDate()->format('d/m/Y');
         $code       = $occurrence->tracking_code;
         $url        = config('app.url') . "/acompanhar?codigo={$code}";
@@ -289,7 +304,7 @@ Código de seguimento: $code
 Guarde este código para acompanhar o estado da sua ocorrência em:
 $url
 
-Assunto: $subject
+$subjectLine
 Projecto: $project
 Data de registo: $registedAt
 Prazo de resolução: $dueDate
@@ -328,7 +343,7 @@ TEXT;
     {
         $gestorName  = $gestor->name;
         $code        = $occurrence->tracking_code;
-        $subject     = $occurrence->subject              ?? 'Não especificado';
+        $subjectLine = $this->subjectLine($occurrence);
         $typeName    = $occurrence->occurrenceType?->name ?? 'Não definido';
         $project     = $occurrence->project->name;
         $province    = $occurrence->province->name;
@@ -343,7 +358,7 @@ Prezado(a) $gestorName,
 Foi-lhe atribuída uma nova ocorrência para tratamento.
 
 Código: $code
-Assunto: $subject
+$subjectLine
 Tipo: $typeName
 Projecto: $project
 Província: $province
@@ -363,7 +378,7 @@ TEXT;
         $name        = $user->name;
         $code        = $occurrence->tracking_code;
         $origin      = $occurrence->isExternal() ? 'Formulário público' : 'Registo interno';
-        $subject     = $occurrence->subject               ?? 'Não especificado';
+        $subjectLine = $this->subjectLine($occurrence);
         $typeName    = $occurrence->occurrenceType?->name ?? 'Não definido';
         $project     = $occurrence->project->name;
         $province    = $occurrence->province->name;
@@ -377,7 +392,7 @@ Foi registada uma nova ocorrência na sua área de gestão.
 
 Código: $code
 Origem: $origin
-Assunto: $subject
+$subjectLine
 Tipo: $typeName
 Projecto: $project
 Província: $province
@@ -396,7 +411,7 @@ TEXT;
     {
         $name       = $user->name;
         $code       = $occurrence->tracking_code;
-        $subject    = $occurrence->subject ?? 'Não especificado';
+        $subjectLine = $this->subjectLine($occurrence);
         $submitter  = $occurrence->submittedBy?->name ?? 'Funcionário';
         $project    = $occurrence->project->name;
 
@@ -406,7 +421,7 @@ Prezado(a) $name,
 O funcionário $submitter acrescentou um seguimento (comentário/anexos) a uma ocorrência que já tinha sido validada. O estado voltou a "Por Validar" e aguarda nova validação.
 
 Código: $code
-Assunto: $subject
+$subjectLine
 Projecto: $project
 
 Aceda ao painel MDR para rever o seguimento e validar novamente.
@@ -420,7 +435,7 @@ TEXT;
     {
         $alertLabel  = $level->label();
         $code        = $occurrence->tracking_code;
-        $subject     = $occurrence->subject ?? 'Não especificado';
+        $subjectLine = $this->subjectLine($occurrence);
         $project     = $occurrence->project->name;
         $province    = $occurrence->province->name;
         $dueDate     = $occurrence->due_date
@@ -434,7 +449,7 @@ TEXT;
 Foi registada uma nova ocorrência que requer atenção imediata.
 
 Código: $code
-Assunto: $subject
+$subjectLine
 Projecto: $project
 Província: $province
 Prazo: $dueDate

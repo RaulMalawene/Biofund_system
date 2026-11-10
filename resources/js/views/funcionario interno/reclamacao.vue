@@ -179,7 +179,7 @@
                   <tr v-for="r in rows" :key="r.id" @click="openDetail(r)">
                     <td>
                       <span class="id-link">{{ r.tracking_code }}</span>
-                      <div class="id-sub">{{ r.subject ?? '-' }}</div>
+                      <div class="id-sub">{{ r.occurrence_origin ?? r.subject ?? '-' }}</div>
                     </td>
                     <td class="td-muted">{{ r.submitted_at }}</td>
                     <td>{{ r.province?.name ?? '-' }}</td>
@@ -272,7 +272,7 @@
         <div class="drawer-hd">
           <div>
             <h3>{{ selected.tracking_code }}</h3>
-            <p>{{ selected.subject ?? 'Sem assunto' }}</p>
+            <p>{{ selected.occurrence_origin ?? selected.subject ?? 'Sem assunto' }}</p>
           </div>
           <button class="btn-close" @click="selected = null">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
@@ -362,6 +362,10 @@
           <div class="detail-row" v-if="selected.alert_type_label">
             <span class="detail-key">Nível de Alerta</span>
             <span class="detail-val">{{ selected.alert_type_label }}</span>
+          </div>
+          <div class="detail-row" v-if="selected.occurrence_origin">
+            <span class="detail-key">Origem da ocorrência</span>
+            <span class="detail-val">{{ selected.occurrence_origin }}</span>
           </div>
           <div class="detail-row" v-if="selected.submission_channel_label">
             <span class="detail-key">Canal de Entrada</span>
@@ -503,12 +507,12 @@
           </div>
 
           <div class="f-group">
-            <label>Assunto <span class="f-req">*</span></label>
-            <input type="text" v-model="nf.subject" maxlength="255"
-              :class="{ 'f-err': mErrors.subject }"
-              placeholder="Ex: Poluição do rio Incomáti"
-              @input="mErrors.subject = ''" />
-            <span class="f-err-msg" v-if="mErrors.subject">{{ mErrors.subject }}</span>
+            <label>Origem da ocorrência <span class="f-req">*</span></label>
+            <input type="text" v-model="nf.occurrence_origin" maxlength="255"
+              :class="{ 'f-err': mErrors.occurrence_origin }"
+              placeholder="Indique a origem da ocorrência"
+              @input="mErrors.occurrence_origin = ''" />
+            <span class="f-err-msg" v-if="mErrors.occurrence_origin">{{ mErrors.occurrence_origin }}</span>
           </div>
 
           <div class="f-row">
@@ -828,7 +832,7 @@ const nf = reactive({
   complainant_phone: '',
   complainant_gender: '',
   complainant_age: '',
-  subject: '',
+  occurrence_origin: '',
   project_id: '',
   category_id: '',
   subcategory_id: '',
@@ -846,7 +850,7 @@ const nf = reactive({
 
 const mErrors = reactive({
   contact: '',
-  subject: '',
+  occurrence_origin: '',
   project_id: '',
   category_id: '',
   occurrence_type_id: '',
@@ -1009,14 +1013,14 @@ function openRegistoModal() {
   Object.assign(nf, {
     complainant_name: '', complainant_email: '', complainant_phone: '',
     complainant_gender: '', complainant_age: '',
-    subject: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
+    occurrence_origin: '', project_id: '', category_id: '', subcategory_id: '', occurrence_type_id: '',
     alert_type: '', submission_channel: '', occurrence_date: '',
     province_id: singleProvince, district_id: '',
     comunidade: '', postoAdministrativo: '', coordenadas: '',
     description: '',
   })
   Object.assign(mErrors, {
-    contact: '', subject: '', project_id: '', category_id: '',
+    contact: '', occurrence_origin: '', project_id: '', category_id: '',
     occurrence_type_id: '', alert_type: '', submission_channel: '',
     province_id: '', description: '',
   })
@@ -1064,7 +1068,7 @@ function addFiles(list) {
 // ── Validação ─────────────────────────────────────────────────
 function validate() {
   let ok = true
-  if (!nf.subject.trim())           { mErrors.subject            = 'O assunto é obrigatório.';               ok = false }
+  if (!nf.occurrence_origin.trim())           { mErrors.occurrence_origin            = 'A origem da ocorrência é obrigatória.';               ok = false }
   if (!nf.project_id)               { mErrors.project_id         = 'Seleccione o projecto.';                 ok = false }
   if (!nf.category_id)              { mErrors.category_id        = 'Seleccione a categoria.';                ok = false }
   if (!nf.occurrence_type_id)       { mErrors.occurrence_type_id = 'Seleccione o tipo de ocorrência.';       ok = false }
@@ -1081,7 +1085,7 @@ function validate() {
 async function saveRegisto() {
   submitError.value = ''
   Object.assign(mErrors, {
-    contact: '', subject: '', project_id: '', category_id: '',
+    contact: '', occurrence_origin: '', project_id: '', category_id: '',
     occurrence_type_id: '', alert_type: '', submission_channel: '',
     province_id: '', description: '',
   })
@@ -1099,7 +1103,7 @@ async function saveRegisto() {
     if (nf.complainant_age)          fd.append('complainant_age',    nf.complainant_age)
     if (nf.complainant_email.trim()) fd.append('complainant_email',  nf.complainant_email.trim())
     if (nf.complainant_phone.trim()) fd.append('complainant_phone',  nf.complainant_phone.trim())
-    fd.append('subject',            nf.subject.trim())
+    fd.append('occurrence_origin',            nf.occurrence_origin.trim())
     fd.append('project_id',         nf.project_id)
     fd.append('category_id',        nf.category_id)
     if (nf.subcategory_id) fd.append('subcategory_id', nf.subcategory_id)

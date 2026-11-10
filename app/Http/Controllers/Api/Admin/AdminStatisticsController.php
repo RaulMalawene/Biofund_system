@@ -440,7 +440,7 @@ class AdminStatisticsController extends Controller
             ->get()
             ->map(fn($o) => [
                 'tracking_code' => $o->tracking_code,
-                'subject'       => $o->subject ?? '-',
+                'subject'       => $o->occurrence_origin ?? $o->subject ?? '-',
                 'status'        => $o->status->label(),
                 'project'       => $o->project?->name  ?? '-',
                 'province'      => $o->province?->name ?? '-',
@@ -601,7 +601,7 @@ class AdminStatisticsController extends Controller
             'summary'     => $summary,
             'occurrences' => $occurrences->map(fn($o) => [
                 'tracking_code' => $o->tracking_code,
-                'subject'       => $o->subject,
+                'subject'       => $o->occurrence_origin ?? $o->subject,
                 'status'        => $o->status->label(),
                 'project'       => $o->project?->name ?? '-',
                 'province'      => $o->province?->name ?? '-',

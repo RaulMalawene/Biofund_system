@@ -204,6 +204,7 @@ class GestorOccurrenceController extends Controller
         $query->when($request->search, fn($q) =>
             $q->where(fn($q2) =>
                 $q2->where('subject', 'like', "%{$request->search}%")
+                   ->orWhere('occurrence_origin', 'like', "%{$request->search}%")
                    ->orWhere('tracking_code', 'like', "%{$request->search}%")
                    ->orWhere('complainant_name', 'like', "%{$request->search}%")
             )

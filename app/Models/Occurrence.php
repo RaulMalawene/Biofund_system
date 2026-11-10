@@ -45,7 +45,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int                    $province_id
  * @property int|null               $district_id
  * @property string|null            $location_detail
- * @property string                 $subject
+ * @property string|null            $subject
+ * @property string|null            $occurrence_origin
  * @property string                 $description
  * @property \Carbon\Carbon|null    $occurrence_date
  * @property OccurrenceStatusEnum   $status
@@ -75,6 +76,7 @@ class Occurrence extends Model
         'district_id',
         'location_detail',
         'subject',
+        'occurrence_origin',
         'description',
         'occurrence_date',
         'status',

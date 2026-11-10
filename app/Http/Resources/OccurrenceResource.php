@@ -51,6 +51,7 @@ class OccurrenceResource extends JsonResource
             'origin'         => $origin->value,
             'origin_label'   => $origin->label(),
             'subject'        => $a['subject'],
+            'occurrence_origin' => $a['occurrence_origin'] ?? null,
             'description'    => $a['description'],
 
             // Estado
