@@ -94,7 +94,7 @@
         <div class="page-title-row">
           <div>
             <h1>Categorias</h1>
-            <p>Gerencie as categorias de ocorrências ambientais do sistema.</p>
+            <p>Gerencie as categorias de ocorrências do sistema.</p>
           </div>
           <button class="btn-nova" @click="openNew">
             <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 14 14">
@@ -206,7 +206,7 @@
       </main>
 
       <footer class="dash-footer">
-        <span>© 2026 BIOFUND Admin · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 BIOFUND Admin · Sistema de Gestão de Ocorrências</span>
         <div><a href="#">Suporte Técnico</a><a href="#">Privacidade</a></div>
       </footer>
     </div>

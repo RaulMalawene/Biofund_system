@@ -489,7 +489,7 @@
       </main>
 
       <footer class="dash-footer">
-        <span>© 2026 BIOFUND Gestor · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 BIOFUND Gestor · Sistema de Gestão de Ocorrências</span>
         <div>
           <a href="#">Suporte Técnico</a>
           <a href="#">Privacidade</a>
@@ -509,7 +509,7 @@
         <div class="drawer-header">
           <div>
             <h2 class="drawer-title">Registar Ocorrência</h2>
-            <p class="drawer-subtitle">Preencha os dados da nova ocorrência ambiental</p>
+            <p class="drawer-subtitle">Preencha os dados da ocorrência</p>
           </div>
           <button class="drawer-close" @click="closeDrawer">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 16 16">

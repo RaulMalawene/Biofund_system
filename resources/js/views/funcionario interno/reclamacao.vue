@@ -255,7 +255,7 @@
 
       <!-- FOOTER -->
       <footer class="dash-footer">
-        <span>© 2026 BIOFUND · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 BIOFUND · Sistema de Gestão de Ocorrências</span>
         <div>
           <a href="#">Suporte Técnico</a>
           <a href="#">Privacidade</a>
@@ -451,7 +451,7 @@
         <div class="drawer-header">
           <div>
             <div class="drawer-title">Registar Nova Ocorrência</div>
-            <div class="drawer-subtitle">Preencha os dados do incidente ambiental observado.</div>
+            <div class="drawer-subtitle">Preencha os dados da ocorrência</div>
           </div>
           <button class="drawer-close" @click="closeModal">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 13 13">
@@ -669,7 +669,7 @@
             <label>Descrição Detalhada <span class="f-req">*</span></label>
             <textarea v-model="nf.description"
               :class="{ 'f-err': mErrors.description }"
-              placeholder="Descreva o incidente observado com o máximo de detalhe possível… (mínimo 20 caracteres)"
+              placeholder="Descreva a ocorrência com o máximo de detalhe possível… (mínimo 20 caracteres)"
               rows="4"
               @input="mErrors.description = ''"></textarea>
             <div class="char-hint" :class="nf.description.length >= 20 ? 'char-ok' : 'char-warn'"

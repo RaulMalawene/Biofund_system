@@ -98,7 +98,7 @@
         <div class="page-title-row">
           <div>
             <h1>Projectos</h1>
-            <p>Administre os projectos para classificar as ocorrências ambientais em todo o território nacional.</p>
+            <p>Administre os projectos para classificar as ocorrências em todo o território nacional.</p>
           </div>
           <button class="btn-green-sm" @click="openAdd">
             <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 14 14">
@@ -191,7 +191,7 @@
       </main>
 
       <footer class="dash-footer">
-        <span>© 2026 BIOFUND Admin · Sistema de Gestão Ambiental de Moçambique</span>
+        <span>© 2026 BIOFUND Admin · Sistema de Gestão de Ocorrências</span>
         <div><a href="#">Suporte Técnico</a><a href="#">Privacidade</a></div>
       </footer>
     </div>

@@ -92,7 +92,7 @@
                 <path d="M5 5h4M5 8h4M5 11h2" stroke-linecap="round" />
                 <path d="M10 1v4h4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              Descrição do Incidente
+              Descrição da Ocorrência
             </div>
             <p class="section-body">{{ result.descricao }}</p>
           </div>
