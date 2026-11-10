@@ -29,7 +29,7 @@ class PasswordRecoveryMail extends Mailable
     {
         $role = match ($this->user->role->value ?? (string) $this->user->role) {
             'gestor'      => 'Gestor',
-            'funcionario' => 'Funcionário',
+            'funcionario' => 'Colaborador',
             'admin'       => 'Administrador',
             default       => 'Utilizador',
         };

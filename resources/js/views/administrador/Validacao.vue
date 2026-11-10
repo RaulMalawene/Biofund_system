@@ -149,7 +149,7 @@
               <label>Origem</label>
               <select v-model="f.origem">
                 <option value="">Todas as Origens</option>
-                <option value="internal">Funcionários Internos</option>
+                <option value="internal">Colaboradores</option>
                 <option value="external">Utilizadores Externos</option>
               </select>
             </div>

@@ -31,7 +31,7 @@
           </svg>
         </div>
         <h1>Acesso Restrito</h1>
-        <p>Portal administrativo para funcionários e gestores da BIOFUND.</p>
+        <p>Portal administrativo para colaboradores e gestores da BIOFUND.</p>
       </div>
 
       <!-- Login card -->

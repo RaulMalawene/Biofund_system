@@ -191,8 +191,8 @@
               <select v-model="filters.origin">
                 <option value="">Todas as Origens</option>
                 <option value="only_mine">Minhas Ocorrências</option>
-                <option value="external">Funcionários Externos</option>
-                <option value="internal">Funcionários Internos</option>
+                <option value="external">Utilizadores Externos</option>
+                <option value="internal">Colaboradores</option>
               </select>
             </div>
             <div class="filter-actions">

@@ -121,7 +121,7 @@
             </div>
             <div class="kpi-label dark">Total de Utilizadores</div>
             <div class="kpi-value dark">{{ meta.total ?? '-' }}</div>
-            <div class="kpi-sub dark">Gestores e funcionários</div>
+            <div class="kpi-sub dark">Gestores e colaboradores</div>
           </div>
           <div class="kpi-card highlight">
             <div class="kpi-top">
@@ -159,7 +159,7 @@
               <button class="tab" :class="{ active: tab === 'todos' }" @click="changeTab('todos')">Todos</button>
               <button class="tab" :class="{ active: tab === 'gestor' }" @click="changeTab('gestor')">Gestores</button>
               <button class="tab" :class="{ active: tab === 'funcionario' }"
-                @click="changeTab('funcionario')">Funcionários</button>
+                @click="changeTab('funcionario')">Colaboradores</button>
               <button class="tab" :class="{ active: tab === 'observador' }"
                 @click="changeTab('observador')">Observadores</button>
             </div>
@@ -326,7 +326,7 @@
                 </svg>
               </div>
               <div class="type-option-text">
-                <div class="type-option-title">Funcionário</div>
+                <div class="type-option-title">Colaborador</div>
                 <div class="type-option-desc">Regista ocorrências mas não pode validar/rejeitar.</div>
               </div>
               <svg class="type-option-arrow" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 12 12">
@@ -380,7 +380,7 @@
                 </svg>
               </div>
               <h2 class="mf-title">
-                {{ editingUser ? 'Editar Utilizador' : (modalTipo === 'gestor' ? 'Adicionar Gestor' : modalTipo === 'observador' ? 'Adicionar Observador' : 'Adicionar Funcionário') }}
+                {{ editingUser ? 'Editar Utilizador' : (modalTipo === 'gestor' ? 'Adicionar Gestor' : modalTipo === 'observador' ? 'Adicionar Observador' : 'Adicionar Colaborador') }}
               </h2>
             </div>
             <button type="button" class="btn-close" @click="closeModal">

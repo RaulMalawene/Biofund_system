@@ -412,13 +412,13 @@ TEXT;
         $name       = $user->name;
         $code       = $occurrence->tracking_code;
         $subjectLine = $this->subjectLine($occurrence);
-        $submitter  = $occurrence->submittedBy?->name ?? 'Funcionário';
+        $submitter  = $occurrence->submittedBy?->name ?? 'Colaborador';
         $project    = $occurrence->project->name;
 
         return <<<TEXT
 Prezado(a) $name,
 
-O funcionário $submitter acrescentou um seguimento (comentário/anexos) a uma ocorrência que já tinha sido validada. O estado voltou a "Por Validar" e aguarda nova validação.
+O colaborador $submitter acrescentou um seguimento (comentário/anexos) a uma ocorrência que já tinha sido validada. O estado voltou a "Por Validar" e aguarda nova validação.
 
 Código: $code
 $subjectLine
