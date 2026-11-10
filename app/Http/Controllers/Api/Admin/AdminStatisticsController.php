@@ -174,6 +174,7 @@ class AdminStatisticsController extends Controller
                 DB::raw("CASE
                     WHEN complainant_gender = 'masculino' THEN 'Masculino'
                     WHEN complainant_gender = 'feminino'  THEN 'Feminino'
+                    WHEN complainant_gender = 'ambos'     THEN 'Ambos'
                     ELSE 'Não Identificado'
                 END as gender_label"),
                 DB::raw('count(*) as total')
@@ -406,6 +407,7 @@ class AdminStatisticsController extends Controller
                 DB::raw("CASE
                     WHEN occurrences.complainant_gender = 'masculino' THEN 'Masculino'
                     WHEN occurrences.complainant_gender = 'feminino'  THEN 'Feminino'
+                    WHEN occurrences.complainant_gender = 'ambos'     THEN 'Ambos'
                     ELSE 'Não Identificado'
                 END as gender_label"),
                 DB::raw('count(*) as total')

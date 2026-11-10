@@ -322,7 +322,7 @@
                   <div class="info-label">Dados Pessoais</div>
                   <div class="info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
                   <div class="info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
-                  <div class="info-sub" v-if="selected.sexo">{{ selected.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</div>
+                  <div class="info-sub" v-if="selected.sexo">{{ ({ masculino: 'Masculino', feminino: 'Feminino', ambos: 'Ambos' })[selected.sexo] ?? selected.sexo }}</div>
                   <div class="info-sub" v-if="selected.idade">{{ selected.idade }}</div>
                 </div>
               </div>
@@ -598,7 +598,7 @@
                 <div class="modal-info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
                 <div class="modal-info-sub" v-if="selected.email_afectado">{{ selected.email_afectado }}</div>
                 <div class="modal-info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
-                <div class="modal-info-sub" v-if="selected.sexo">{{ selected.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</div>
+                <div class="modal-info-sub" v-if="selected.sexo">{{ ({ masculino: 'Masculino', feminino: 'Feminino', ambos: 'Ambos' })[selected.sexo] ?? selected.sexo }}</div>
                 <div class="modal-info-sub" v-if="selected.idade">{{ selected.idade }}</div>
                 <div class="modal-info-sub" v-if="selected.registado_por">Registado por: {{ selected.registado_por }}
                 </div>

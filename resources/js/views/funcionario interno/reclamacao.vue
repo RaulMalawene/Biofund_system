@@ -320,7 +320,7 @@
           </div>
           <div class="detail-row" v-if="selected.complainant?.gender">
             <span class="detail-key">Sexo do Utente</span>
-            <span class="detail-val">{{ selected.complainant.gender === 'masculino' ? 'Masculino' : 'Feminino' }}</span>
+            <span class="detail-val">{{ ({ masculino: 'Masculino', feminino: 'Feminino', ambos: 'Ambos' })[selected.complainant.gender] ?? selected.complainant.gender }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.age">
             <span class="detail-key">Faixa Etária do Utente</span>
@@ -597,6 +597,7 @@
                 <option value="">Não identificado</option>
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
+                <option value="ambos">Ambos</option>
               </select>
             </div>
           </div>

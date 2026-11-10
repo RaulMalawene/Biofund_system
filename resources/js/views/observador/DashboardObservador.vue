@@ -517,7 +517,7 @@
                   <div class="modal-info-val">{{ selected.denunciante ?? 'Anónimo' }}</div>
                   <div class="modal-info-sub" v-if="selected.email_afectado">{{ selected.email_afectado }}</div>
                   <div class="modal-info-sub" v-if="selected.telefone">{{ selected.telefone }}</div>
-                  <div class="modal-info-sub" v-if="selected.sexo">{{ selected.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</div>
+                  <div class="modal-info-sub" v-if="selected.sexo">{{ ({ masculino: 'Masculino', feminino: 'Feminino', ambos: 'Ambos' })[selected.sexo] ?? selected.sexo }}</div>
                   <div class="modal-info-sub" v-if="selected.idade">{{ selected.idade }}</div>
                   <div class="modal-info-sub" v-if="selected.registado_por">Registado por: {{ selected.registado_por }}</div>
                 </div>
@@ -775,7 +775,7 @@ function clearDashFilter() {
 }
 
 const CHART_COLORS  = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
-const GENDER_COLORS = { Masculino: '#74C0FC', Feminino: '#FC8181', 'Não Identificado': '#D1D5DB' }
+const GENDER_COLORS = { Masculino: '#74C0FC', Feminino: '#FC8181', Ambos: '#B794F4', 'Não Identificado': '#D1D5DB' }
 const CHANNEL_COLORS = {
   'Linha Verde':           '#52B788',
   'Email':                 '#74C0FC',

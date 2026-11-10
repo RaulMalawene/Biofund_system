@@ -123,7 +123,7 @@
                 </template>
                 <template v-if="result.contacto.sexo">
                   <label style="margin-top:8px">Sexo</label>
-                  <p>{{ result.contacto.sexo === 'masculino' ? 'Masculino' : 'Feminino' }}</p>
+                  <p>{{ ({ masculino: 'Masculino', feminino: 'Feminino', ambos: 'Ambos' })[result.contacto.sexo] ?? result.contacto.sexo }}</p>
                 </template>
                 <template v-if="result.contacto.idade">
                   <label style="margin-top:8px">Faixa Etária</label>

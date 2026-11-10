@@ -196,6 +196,7 @@
                 <option value="">Não identificado</option>
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
+                <option value="ambos">Ambos</option>
               </select>
             </div>
           </div>

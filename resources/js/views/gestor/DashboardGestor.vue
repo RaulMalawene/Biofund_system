@@ -163,6 +163,7 @@
               <option value="">Todos os Sexos</option>
               <option value="masculino">Masculino</option>
               <option value="feminino">Feminino</option>
+              <option value="ambos">Ambos</option>
               <option value="nao_identificado">Não Identificado</option>
             </select>
           </div>
@@ -632,6 +633,7 @@
                 <option value="">Não identificado</option>
                 <option value="masculino">Masculino</option>
                 <option value="feminino">Feminino</option>
+                <option value="ambos">Ambos</option>
               </select>
             </div>
             <div class="f-group">
@@ -913,7 +915,7 @@ function clearDashFilter() {
 }
 
 const CHART_COLORS  = ['#52B788','#74C0FC','#F4A52A','#FC8181','#9F7AEA','#ED8936']
-const GENDER_COLORS = { Masculino: '#74C0FC', Feminino: '#FC8181', 'Não Identificado': '#D1D5DB' }
+const GENDER_COLORS = { Masculino: '#74C0FC', Feminino: '#FC8181', Ambos: '#B794F4', 'Não Identificado': '#D1D5DB' }
 const CHANNEL_COLORS = {
   'Linha Verde':           '#52B788',
   'Email':                 '#74C0FC',
