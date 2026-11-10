@@ -834,10 +834,16 @@
 
           <div class="r-group">
             <label>Origem da ocorrência <span class="r-req">*</span></label>
-            <input type="text" v-model="nf.occurrence_origin" maxlength="255"
+            <select v-model="nf.occurrence_origin"
               :class="{ 'r-err': rErrors.occurrence_origin }"
-              placeholder="Indique a origem da ocorrência"
-              @input="rErrors.occurrence_origin = ''" />
+              @change="rErrors.occurrence_origin = ''">
+              <option value="" disabled>Seleccione a origem</option>
+              <option value="Individual">Individual</option>
+              <option value="Comunitário">Comunitário</option>
+              <option value="Grupo de trabalhadores">Grupo de trabalhadores</option>
+              <option value="Anónimo">Anónimo</option>
+              <option value="Outros">Outros</option>
+            </select>
             <span class="r-err-msg" v-if="rErrors.occurrence_origin">{{ rErrors.occurrence_origin }}</span>
           </div>
 

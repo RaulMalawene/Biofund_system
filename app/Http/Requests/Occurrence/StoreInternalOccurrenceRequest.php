@@ -5,6 +5,7 @@ namespace App\Http\Requests\Occurrence;
 use App\Enums\AlertLevelEnum;
 use App\Enums\SubmissionChannelEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 /**
@@ -19,6 +20,8 @@ use Illuminate\Validation\Rules\Enum;
  */
 class StoreInternalOccurrenceRequest extends FormRequest
 {
+    public const ORIGIN_OPTIONS = ['Individual', 'Comunitário', 'Grupo de trabalhadores', 'Anónimo', 'Outros'];
+
     public function authorize(): bool { return true; }
 
     public function rules(): array
@@ -43,7 +46,9 @@ class StoreInternalOccurrenceRequest extends FormRequest
             'location_detail'    => ['nullable', 'string', 'max:255'],
 
             // Conteúdo
-            'occurrence_origin'  => ['required', 'string', 'max:255'],
+            // Opções fixas do dropdown "Origem da ocorrência" (o mesmo texto que se grava).
+            // Ocorrências antigas com texto livre não são afectadas: esta regra só se aplica a novos registos.
+            'occurrence_origin'  => ['required', 'string', Rule::in(self::ORIGIN_OPTIONS)],
             'description'        => ['required', 'string', 'min:20'],
             'occurrence_date'    => ['nullable', 'date', 'before_or_equal:today'],
 
@@ -65,7 +70,7 @@ class StoreInternalOccurrenceRequest extends FormRequest
             'category_id.required'            => 'Seleccione a categoria.',
             'province_id.required'            => 'Seleccione a província.',
             'occurrence_origin.required'      => 'A origem da ocorrência é obrigatória.',
-            'occurrence_origin.max'           => 'A origem da ocorrência não pode ultrapassar 255 caracteres.',
+            'occurrence_origin.in'            => 'Seleccione uma origem da ocorrência válida.',
             'description.required'            => 'A descrição é obrigatória.',
             'description.min'                 => 'A descrição deve ter pelo menos 20 caracteres.',
             'submission_channel.required'     => 'Seleccione o canal de submissão.',
