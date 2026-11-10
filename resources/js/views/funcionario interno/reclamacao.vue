@@ -288,43 +288,42 @@
         <div class="drawer-body" v-else>
           <div class="drawer-status-row">
             <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
-            <button
-              class="btn-seguimento"
-              :disabled="!selected.can_follow_up"
-              :title="selected.can_follow_up ? 'Reenviar a ocorrência para validação' : 'Disponível apenas quando a ocorrência está em Resolvendo'"
-              @click="openFollowUp"
-            >
+            <button v-if="nextStep" class="btn-avancar" @click="showAdvance = true">
               <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 16 16">
-                <path d="M2 8a6 6 0 1 1 2.2 4.65" stroke-linecap="round" />
-                <path d="M2 12v-3h3" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="8" cy="8" r="6.5" />
+                <path d="M5 8l2 2 4-4.5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              Dar Seguimento
+              {{ nextStep.label }}
             </button>
           </div>
 
-          <div v-if="selected.can_follow_up" class="followup-banner">
-            <strong>Ocorrência em resolução.</strong>
-            Tem nova informação? Dê seguimento para a reenviar ao gestor e validar de novo.
+          <div v-if="nextStep" class="avancar-banner">
+            <strong>{{ nextStep.bannerTitle }}</strong>
+            {{ nextStep.bannerText }}
+          </div>
+          <div v-else-if="selected.status === 'por_validar'" class="avancar-banner">
+            <strong>A aguardar validação.</strong>
+            Depois de o gestor validar a ocorrência, poderá iniciar a resolução e marcá-la como resolvida.
           </div>
 
           <div class="detail-row" v-if="selected.complainant?.name">
-            <span class="detail-key">Nome do Reclamante</span>
+            <span class="detail-key">Nome do Utente</span>
             <span class="detail-val">{{ selected.complainant.name }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.email">
-            <span class="detail-key">Email do Reclamante</span>
+            <span class="detail-key">Email do Utente</span>
             <span class="detail-val">{{ selected.complainant.email }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.phone">
-            <span class="detail-key">Telefone do Reclamante</span>
+            <span class="detail-key">Telefone do Utente</span>
             <span class="detail-val">{{ selected.complainant.phone }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.gender">
-            <span class="detail-key">Sexo do Reclamante</span>
+            <span class="detail-key">Sexo do Utente</span>
             <span class="detail-val">{{ selected.complainant.gender === 'masculino' ? 'Masculino' : 'Feminino' }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.age">
-            <span class="detail-key">Faixa Etária do Reclamante</span>
+            <span class="detail-key">Faixa Etária do Utente</span>
             <span class="detail-val">{{ selected.complainant.age }}</span>
           </div>
           <div class="detail-row">
@@ -563,8 +562,8 @@
             </div>
           </div>
 
-          <!-- Informação do Reclamante -->
-          <div class="f-section-title">Informação do Reclamante</div>
+          <!-- Informação do Utente -->
+          <div class="f-section-title">Informação do Utente</div>
           <div class="f-row">
             <div class="f-group">
               <label>Nome <span class="f-opt">(Opcional)</span></label>
@@ -743,13 +742,14 @@
       </div>
     </transition>
 
-    <!-- SEGUIMENTO MODAL -->
-    <FollowUpModal
-      :open="showFollowUp"
+    <!-- MODAL: INICIAR RESOLUÇÃO / MARCAR COMO RESOLVIDA -->
+    <AdvanceStatusModal
+      :open="showAdvance"
       :occurrence-id="selected?.id"
       :tracking-code="selected?.tracking_code"
-      @close="showFollowUp = false"
-      @submitted="onFollowUpSubmitted"
+      :target="nextStep?.target"
+      @close="showAdvance = false"
+      @submitted="onStatusAdvanced"
     />
 
   </div>
@@ -763,7 +763,7 @@ import { InternalService } from '@/api/services/internal.service'
 import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
-import FollowUpModal from '@/components/FollowUpModal.vue'
+import AdvanceStatusModal from '@/components/AdvanceStatusModal.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -799,7 +799,7 @@ const selected = ref(null)
 const rows = ref([])
 const loadError = ref('')
 const showModal = ref(false)
-const showFollowUp = ref(false)
+const showAdvance = ref(false)
 
 const meta = reactive({
   total: 0,
@@ -994,14 +994,32 @@ async function downloadAttachment(a) {
   } catch {}
 }
 
-// ── Seguimento pós-validação ───────────────────────────────────
-function openFollowUp() {
-  showFollowUp.value = true
+// ── Avançar a ocorrência (após validação do gestor/admin) ──────
+// O funcionário só pode avançar as ocorrências que registou:
+// Por Resolver → Resolvendo → Resolvido. O servidor volta a verificar.
+const NEXT_STEPS = {
+  por_resolver: {
+    target: 'resolvendo',
+    label: 'Iniciar Resolução',
+    bannerTitle: 'Ocorrência validada.',
+    bannerText: 'Inicie a resolução quando começar a tratar desta ocorrência.',
+    toast: 'Resolução iniciada.',
+  },
+  resolvendo: {
+    target: 'resolvido',
+    label: 'Marcar como Resolvida',
+    bannerTitle: 'Ocorrência em resolução.',
+    bannerText: 'Quando estiver tratada, marque-a como resolvida.',
+    toast: 'Ocorrência marcada como resolvida.',
+  },
 }
 
-async function onFollowUpSubmitted() {
-  showFollowUp.value = false
-  showToast('Seguimento registado. A ocorrência foi reenviada para validação.')
+const nextStep = computed(() => NEXT_STEPS[selected.value?.status] ?? null)
+
+async function onStatusAdvanced() {
+  const msg = nextStep.value?.toast ?? 'Estado actualizado.'
+  showAdvance.value = false
+  showToast(msg)
   if (selected.value) await openDetail(selected.value)
   await loadOccurrences(meta.current_page)
 }
@@ -1818,7 +1836,7 @@ tbody tr:last-child td { border-bottom: none; }
 
 .drawer-status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
 
-.btn-seguimento {
+.btn-avancar {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1833,9 +1851,8 @@ tbody tr:last-child td { border-bottom: none; }
   cursor: pointer;
   transition: all 0.15s;
 }
-.btn-seguimento:hover:not(:disabled) { background: var(--green-light, #52B788); color: #fff; }
-.btn-seguimento:disabled { opacity: 0.45; cursor: not-allowed; background: #F4F6F5; border-color: var(--border, #DDE8E1); color: var(--text-light, #888E8C); }
-.followup-banner {
+.btn-avancar:hover { background: var(--green-light, #52B788); color: #fff; }
+.avancar-banner {
   margin: 10px 0 4px;
   padding: 10px 12px;
   border-radius: 9px;

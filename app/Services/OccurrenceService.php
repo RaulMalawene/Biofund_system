@@ -182,14 +182,25 @@ class OccurrenceService
             ]);
         }
 
-        // 3. Verifica se o utilizador tem permissão para as decisões finais
-        if (
-            in_array($newStatus, [OccurrenceStatusEnum::Improcedente, OccurrenceStatusEnum::Resolvido])
-            && !$changedBy->canValidate()
-        ) {
-            throw ValidationException::withMessages([
-                'status' => 'Não tem permissão para validar ou resolver ocorrências.',
+        // 3. Verifica se o utilizador tem permissão para esta transição.
+        //    Admin e gestor (canValidate) fazem todas. O funcionário só pode
+        //    avançar ocorrências que ele próprio registou e que já foram
+        //    validadas: Por Resolver → Resolvendo → Resolvido. Validar ou
+        //    marcar como improcedente continua exclusivo de admin/gestor.
+        if (!$changedBy->canValidate()) {
+            $isOwnOccurrence = $changedBy->isFuncionario()
+                && $occurrence->submitted_by_user_id === $changedBy->id;
+
+            $isResolutionStep = in_array($newStatus, [
+                OccurrenceStatusEnum::Resolvendo,
+                OccurrenceStatusEnum::Resolvido,
             ]);
+
+            if (!$isOwnOccurrence || !$isResolutionStep) {
+                throw ValidationException::withMessages([
+                    'status' => 'Não tem permissão para fazer esta mudança de estado.',
+                ]);
+            }
         }
 
         return DB::transaction(function () use (

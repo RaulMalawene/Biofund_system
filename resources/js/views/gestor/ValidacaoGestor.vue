@@ -883,8 +883,8 @@
             </div>
           </div>
 
-          <!-- Informação do Reclamante -->
-          <div class="r-section-title">Informação do Reclamante</div>
+          <!-- Informação do Utente -->
+          <div class="r-section-title">Informação do Utente</div>
           <div class="r-row">
             <div class="r-group">
               <label>Nome <span class="r-opt">(Opcional)</span></label>

@@ -633,10 +633,10 @@
             </div>
           </div>
 
-          <!-- Contacto do Reclamante -->
+          <!-- Contacto do Utente -->
           <div class="f-row">
             <div class="f-group">
-              <label>Nome (Opcional)</label>
+              <label>Nome do Utente (Opcional)</label>
               <input type="text" v-model="form.complainant_name"
                 placeholder="Nome completo ou pseudónimo"/>
             </div>
@@ -651,7 +651,7 @@
           </div>
           <div class="f-row" style="margin-bottom:6px">
             <div class="f-group">
-              <label>Telefone do Reclamante</label>
+              <label>Telefone do Utente</label>
               <input type="tel" v-model="form.complainant_phone"
                 placeholder="ex: +258 84 000 0000"/>
             </div>

@@ -262,43 +262,26 @@
         <div class="drawer-body" v-else>
           <div class="drawer-status-row">
             <span class="badge-status" :class="selected.status">{{ selected.status_label }}</span>
-            <button
-              class="btn-seguimento"
-              :disabled="!selected.can_follow_up"
-              :title="selected.can_follow_up ? 'Reenviar a ocorrência para validação' : 'Disponível apenas quando a ocorrência está em Resolvendo'"
-              @click="openFollowUp"
-            >
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 16 16">
-                <path d="M2 8a6 6 0 1 1 2.2 4.65" stroke-linecap="round" />
-                <path d="M2 12v-3h3" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              Dar Seguimento
-            </button>
-          </div>
-
-          <div v-if="selected.can_follow_up" class="followup-banner">
-            <strong>Ocorrência em resolução.</strong>
-            Tem nova informação? Dê seguimento para a reenviar ao gestor e validar de novo.
           </div>
 
           <div class="detail-row" v-if="selected.complainant?.name">
-            <span class="detail-key">Nome do Reclamante</span>
+            <span class="detail-key">Nome do Utente</span>
             <span class="detail-val">{{ selected.complainant.name }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.email">
-            <span class="detail-key">Email do Reclamante</span>
+            <span class="detail-key">Email do Utente</span>
             <span class="detail-val">{{ selected.complainant.email }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.phone">
-            <span class="detail-key">Telefone do Reclamante</span>
+            <span class="detail-key">Telefone do Utente</span>
             <span class="detail-val">{{ selected.complainant.phone }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.gender">
-            <span class="detail-key">Sexo do Reclamante</span>
+            <span class="detail-key">Sexo do Utente</span>
             <span class="detail-val">{{ selected.complainant.gender === 'masculino' ? 'Masculino' : 'Feminino' }}</span>
           </div>
           <div class="detail-row" v-if="selected.complainant?.age">
-            <span class="detail-key">Faixa Etária do Reclamante</span>
+            <span class="detail-key">Faixa Etária do Utente</span>
             <span class="detail-val">{{ selected.complainant.age }}</span>
           </div>
           <div class="detail-row">
@@ -416,15 +399,6 @@
       </div>
     </transition>
 
-    <!-- SEGUIMENTO MODAL -->
-    <FollowUpModal
-      :open="showFollowUp"
-      :occurrence-id="selected?.id"
-      :tracking-code="selected?.tracking_code"
-      @close="showFollowUp = false"
-      @submitted="onFollowUpSubmitted"
-    />
-
     <!-- TOAST -->
     <transition name="toast-in">
       <div v-if="toast.show" class="toast" :class="toast.type">
@@ -451,7 +425,6 @@ import { InternalService } from '@/api/services/internal.service'
 import { resolveErrorMessage } from '@/utils/errorMessage'
 import AdminProfilePanel from '@/components/AdminProfilePanel.vue'
 import AdminNotificationPanel from '@/components/AdminNotificationPanel.vue'
-import FollowUpModal from '@/components/FollowUpModal.vue'
 
 const router = useRouter()
 const auth   = useAuthStore()
@@ -481,7 +454,6 @@ const selected      = ref(null)
 const rows          = ref([])
 const sidebarOpen   = ref(false)
 const loadError     = ref('')
-const showFollowUp  = ref(false)
 
 const meta = reactive({
   total: 0, last_page: 1, current_page: 1, per_page: 15,
@@ -601,18 +573,6 @@ async function downloadAttachment(a) {
     link.click()
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60000)
   } catch {}
-}
-
-// ── Seguimento pós-validação ───────────────────────────────────
-function openFollowUp() {
-  showFollowUp.value = true
-}
-
-async function onFollowUpSubmitted() {
-  showFollowUp.value = false
-  showToast('Seguimento registado. A ocorrência foi reenviada para validação.')
-  if (selected.value) await openDetail(selected.value)
-  await loadOccurrences(meta.current_page)
 }
 </script>
 
@@ -870,34 +830,6 @@ tbody tr:last-child td { border-bottom: none; }
 .drawer-body::-webkit-scrollbar { width: 4px; }
 .drawer-body::-webkit-scrollbar-thumb { background: #C8D8CE; border-radius: 99px; }
 .drawer-status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-
-.btn-seguimento {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border: 1.5px solid var(--green-light, #52B788);
-  border-radius: 99px;
-  background: var(--green-bg, #F0FAF4);
-  color: var(--green-dark, #1B4332);
-  font-size: 11.5px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.btn-seguimento:hover:not(:disabled) { background: var(--green-light, #52B788); color: #fff; }
-.btn-seguimento:disabled { opacity: 0.45; cursor: not-allowed; background: #F4F6F5; border-color: var(--border, #DDE8E1); color: var(--text-light, #888E8C); }
-.followup-banner {
-  margin: 10px 0 4px;
-  padding: 10px 12px;
-  border-radius: 9px;
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
-  color: #1E3A8A;
-  font-size: 12.5px;
-  line-height: 1.5;
-}
 .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #F0F4F2; }
 .detail-key { font-size: 12px; font-weight: 600; color: var(--text-light); min-width: 140px; }
 .detail-val { font-size: 13px; color: var(--text-dark); text-align: right; flex: 1; }

@@ -111,15 +111,28 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('follow-up');
     });
 
-    // ── 3.3 OCORRÊNCIAS - acções (admin + gestor apenas) ────────
+    // ── 3.3 OCORRÊNCIAS - mudança de estado (admin + gestor + funcionário) ──
+    //
+    // Admin e gestor fazem todas as transições. O funcionário só pode avançar
+    // as ocorrências que ele próprio registou, e só depois de validadas:
+    // Por Resolver → Resolvendo → Resolvido. A validação (Por Validar →
+    // Por Resolver / Improcedente) continua exclusiva de admin e gestor.
+    // Estas regras são aplicadas em OccurrenceService::changeStatus().
 
     Route::prefix('occurrences')->name('occurrences.')
-        ->middleware('role:admin,gestor')
+        ->middleware('role:admin,gestor,funcionario')
         ->group(function () {
 
         // Mudar estado - comentário obrigatório em improcedente e resolvido
         Route::patch('{occurrence}/status', [GestorOccurrenceController::class, 'updateStatus'])
             ->name('update-status');
+    });
+
+    // ── 3.3b OCORRÊNCIAS - acções (admin + gestor apenas) ───────
+
+    Route::prefix('occurrences')->name('occurrences.')
+        ->middleware('role:admin,gestor')
+        ->group(function () {
 
         // Adicionar comentário sem alterar o estado (disponível em todos os estados)
         Route::post('{occurrence}/comment', [GestorOccurrenceController::class, 'addComment'])

@@ -599,11 +599,11 @@
 
           <div class="f-row">
             <div class="f-group">
-              <label>Nome do Reclamante (Opcional)</label>
+              <label>Nome do Utente (Opcional)</label>
               <input type="text" v-model="form.complainant_name" placeholder="Nome completo ou pseudónimo"/>
             </div>
             <div class="f-group">
-              <label>Email do Reclamante</label>
+              <label>Email do Utente</label>
               <input type="email" v-model="form.complainant_email"
                 :class="{ 'f-err': errors.complainant_email }"
                 placeholder="email@exemplo.com"
@@ -614,7 +614,7 @@
 
           <div class="f-row" style="margin-bottom:6px">
             <div class="f-group">
-              <label>Telefone do Reclamante</label>
+              <label>Telefone do Utente</label>
               <input type="tel" v-model="form.complainant_phone" placeholder="ex: +258 84 000 0000"/>
             </div>
           </div>

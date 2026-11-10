@@ -285,7 +285,9 @@ class GestorOccurrenceController extends Controller
      * Comentário/justificação é OBRIGATÓRIO ao resolver ou rejeitar.
      *
      * ROTA: PATCH /api/occurrences/{occurrence}/status
-     * ACESSO: admin, gestor (protegido na rota - funcionario não acede)
+     * ACESSO: admin, gestor - todas as transições.
+     *         funcionario - só as suas ocorrências, Por Resolver → Resolvendo
+     *         → Resolvido (regra aplicada em OccurrenceService::changeStatus).
      */
     public function updateStatus(
         UpdateOccurrenceStatusRequest $request,
@@ -303,7 +305,8 @@ class GestorOccurrenceController extends Controller
             newStatus:    $newStatus,
             changedBy:    $user,
             comment:      $request->comment,
-            internalNote: $request->internal_note,
+            // Notas internas são exclusivas de quem valida (admin/gestor)
+            internalNote: $user->canValidate() ? $request->internal_note : null,
         );
 
         return response()->json([
